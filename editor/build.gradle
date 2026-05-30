@@ -29,3 +29,6 @@ dependencies {
     implementation libs.utilcode
     implementation libs.gson
 }
+
+//build.gradle
+//GhostIdes project
