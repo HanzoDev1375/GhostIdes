@@ -1,71 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
-     xmlns:android="http://schemas.android.com/apk/res/android"
-     xmlns:app="http://schemas.android.com/apk/res-auto"
-     android:layout_height="match_parent"
-     android:layout_width="match_parent"
-     android:fitsSystemWindows="true"
-     android:id="@+id/coordinator">
-
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:fitsSystemWindows="true"
+    android:id="@+id/coordinator">
 
     <LinearLayout
-         android:layout_height="match_parent"
-         android:layout_width="match_parent"
-         android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?colorSurfaceContainer"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            android:title="Ghost IDE" />
 
         <LinearLayout
-             android:layout_height="150dp"
-             android:layout_width="match_parent"
-             android:background="?colorSurfaceContainer"
-             android:padding="8dp"
-             android:orientation="vertical"
-             android:id="@+id/headtop">
-
-        </LinearLayout>
-
-        <LinearLayout
-             android:layout_height="0dp"
-             android:layout_width="match_parent"
-             android:elevation="8dp"
-             android:padding="8dp"
-             android:orientation="vertical"
-             android:clipToOutline="true"
-             android:layout_marginTop="-20dp"
-             android:layout_weight="1"
-             android:id="@+id/headline">
+            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            android:elevation="8dp"
+            android:padding="8dp"
+            android:orientation="vertical"
+            android:clipToOutline="true"
+            android:layout_marginTop="-20dp"
+            android:layout_weight="1"
+            android:id="@+id/headline">
 
             <ir.hanzodev1375.ghostide.customui.NavModelPanel
-                 android:layout_height="wrap_content"
-                 android:layout_width="wrap_content"
-                 android:layout_marginLeft="5dp"
-                 android:layout_marginRight="5dp"
-                 android:id="@+id/navmodel" />
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:id="@+id/navmodel" />
 
             <ProgressBar
-                 android:layout_height="wrap_content"
-                 android:layout_width="match_parent"
-                 android:indeterminate="false"
-                 android:padding="8dp"
-                 style="?android:progressBarStyleHorizontal"
-                 android:id="@+id/loadingprogass" />
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:indeterminate="false"
+                android:padding="8dp"
+                style="?android:progressBarStyleHorizontal"
+                android:id="@+id/loadingprogass" />
 
             <FrameLayout
-                 android:layout_height="match_parent"
-                 android:layout_width="match_parent"
-                 android:layout_marginTop="5dp">
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:layout_marginTop="5dp">
 
                 <androidx.recyclerview.widget.RecyclerView
-                     android:layout_height="match_parent"
-                     android:layout_width="match_parent"
-                     android:clipToPadding="false"
-                     android:id="@+id/rvfiles" />
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:clipToPadding="false"
+                    android:id="@+id/rvfiles" />
 
                 <ir.hanzodev1375.ghostide.customui.EmptyState
-                     android:layout_height="wrap_content"
-                     android:layout_width="wrap_content"
-                     android:visibility="gone"
-                     android:id="@+id/emptystates"
-                     android:layout_gravity="center" />
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:visibility="gone"
+                    android:id="@+id/emptystates"
+                    android:layout_gravity="center" />
 
             </FrameLayout>
 
@@ -74,24 +71,24 @@
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-         android:layout_height="wrap_content"
-         android:layout_width="wrap_content"
-         android:layout_marginBottom="30dp"
-         android:src="@drawable/add"
-         android:layout_marginLeft="16dp"
-         android:layout_marginRight="16dp"
-         android:layout_marginTop="16dp"
-         android:id="@+id/fab"
-         android:layout_gravity="bottom|right" />
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginBottom="30dp"
+        android:src="@drawable/add"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:id="@+id/fab"
+        android:layout_gravity="bottom|right" />
 
     <include
-         layout="@layout/selection_panel"
-         app:layout_anchorGravity="bottom"
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-         android:layout_marginLeft="8dp"
-         android:layout_marginRight="8dp"
-         app:layout_anchor="@id/fab"
-         android:id="@+id/selectionPanel" />
+        layout="@layout/selection_panel"
+        app:layout_anchorGravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_anchor="@id/fab"
+        android:id="@+id/selectionPanel" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
