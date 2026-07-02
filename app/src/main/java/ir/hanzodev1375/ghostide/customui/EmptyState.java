@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.util.AttributeSet;
+
 import ir.hanzodev1375.ghostide.databinding.LayoutEmptystateBinding;
 
 public class EmptyState extends LinearLayout {

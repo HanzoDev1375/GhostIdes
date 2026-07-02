@@ -280,4 +280,8 @@
   <string name="serachdata">Serach File أو Dir</string>
   <string name="store">محل</string>
   <string name="aboutapp">حول التطبيق</string>
+  <string name="pref_power_mode">وضع الطاقة</string>
+  <string name="pref_power_mode_desc">إظهار التأثيرات المتحركة أثناء الكتابة</string>
+  <string name="pref_power_mode_effect">نوع التأثير</string>
+  <string name="pref_power_mode_effect_desc">اختر الرسم المتحرك الذي يظهر أثناء الكتابة</string>
 </resources>

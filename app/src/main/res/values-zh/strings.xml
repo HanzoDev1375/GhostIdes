@@ -280,4 +280,8 @@
   <string name="serachdata">搜索文件或目录</string>
   <string name="store">店铺</string>
   <string name="aboutapp">关于应用程序</string>
+  <string name="pref_power_mode">电源模式</string>
+  <string name="pref_power_mode_desc">打字时显示动画效果</string>
+  <string name="pref_power_mode_effect">效果类型</string>
+  <string name="pref_power_mode_effect_desc">选择打字时显示的动画</string>
 </resources>

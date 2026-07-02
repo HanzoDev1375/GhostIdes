@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.sidesheet.SideSheetDialog;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.gson.Gson;
@@ -28,6 +29,7 @@ import com.google.gson.reflect.TypeToken;
 import com.skydoves.powermenu.PowerMenuItem;
 import com.blankj.utilcode.util.FileIOUtils;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
+import ir.hanzodev1375.filetreelib.widget.FileTreeView;
 import ir.hanzodev1375.ghostide.customui.TabCustomView;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.jgit.GitHubProfileSheet;
@@ -348,6 +350,41 @@ public class EditorActivity extends BaseCompat {
     openFile(filePath, file.getName());
   }
 
+  private void stepFileTree() {
+    String currentPath = getCurrentFilePath();
+    if (currentPath == null) {
+      Toast.makeText(this, "هیچ فایلی باز نیست", Toast.LENGTH_SHORT).show();
+      return;
+    }
+
+    File currentFile = new File(currentPath);
+    String rootPath = currentFile.isDirectory() ? currentPath : currentFile.getParent();
+
+    if (rootPath == null) {
+      Toast.makeText(this, "مسیر نامعتبر است", Toast.LENGTH_SHORT).show();
+      return;
+    }
+    FileTreeView tree = new FileTreeView(this);
+    tree.setNodePath(rootPath);
+    tree.loadTree();
+
+    tree.getAdapter()
+        .setOnNodeClickListener(
+            (v, c) -> {
+              if (v != null && !v.isFolder()) {
+                String filePath = v.getAbsolutePath();
+                if (filePath != null) {
+                  openFile(filePath);
+                }
+              }
+            });
+
+    SideSheetDialog sideSheet = new SideSheetDialog(this);
+    sideSheet.setContentView(tree);
+    sideSheet.getWindow().setNavigationBarColor(0);
+    sideSheet.show();
+  }
+
   private void setupKeyboardListener() {
     View rootView = getWindow().getDecorView();
     keyboardLayoutListener =
@@ -512,11 +549,13 @@ public class EditorActivity extends BaseCompat {
     var menu = theme.apply(this);
     menu.addItem(new PowerMenuItem(getString(R.string.saveitemthis), false, R.drawable.save));
     menu.addItem(new PowerMenuItem(getString(R.string.saveitemall), false, R.drawable.save));
+    menu.addItem(new PowerMenuItem(getString(R.string.saveitemall), false, R.drawable.save));
     menu.setOnMenuItemClickListener(
         (pos, c) -> {
           switch (pos) {
             case 0 -> saveCurrentTab();
             case 1 -> saveAllTabs();
+            case 2 -> stepFileTree();
           }
         });
     menu.setIconSize(25);

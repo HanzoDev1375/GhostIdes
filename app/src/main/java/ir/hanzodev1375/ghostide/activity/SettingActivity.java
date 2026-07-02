@@ -50,6 +50,7 @@ import ir.theme.ThemeManager;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import ir.hanzodev1375.ghostide.codeeditors.ui.power.PowerModeEffectManager;
 
 public class SettingActivity extends BaseCompat {
 
@@ -137,6 +138,7 @@ public class SettingActivity extends BaseCompat {
           else if (position == 19) showCursorBlinkDialog();
           else if (position == 21) showFontDialog();
           else if (position == 22) showTranslateLanguageDialog();
+          else if (position == 25) showPowerModeEffectDialog();
         });
 
     appAdapter.setOnItemClickListener(
@@ -419,6 +421,20 @@ public class SettingActivity extends BaseCompat {
             prefs.getShowLineColPanel(),
             0,
             prefs::setShowLineColPanel));
+    items.add(
+        new SettingItem(
+            getString(R.string.pref_power_mode),
+            getString(R.string.pref_power_mode_desc),
+            prefs.enablePowerMode(),
+            0,
+            prefs::setPowerMode));
+    items.add(
+        new SettingItem(
+            getString(R.string.pref_power_mode_effect),
+            getString(R.string.pref_power_mode_effect_desc) + "\n" + prefs.getPowerModeEffectType(),
+            false,
+            0,
+            null));
     return items;
   }
 
@@ -481,12 +497,12 @@ public class SettingActivity extends BaseCompat {
             0,
             prefs::setGridMod));
     items.add(
-    new SettingItem(
-        getString(R.string.pref_show_background),
-        getString(R.string.pref_show_background_desc),
-        prefs.isShowBackground(),
-        0,
-        prefs::setShowBackground));
+        new SettingItem(
+            getString(R.string.pref_show_background),
+            getString(R.string.pref_show_background_desc),
+            prefs.isShowBackground(),
+            0,
+            prefs::setShowBackground));
     items.add(
         new SettingItem(
             getString(R.string.pref_animation_battery_threshold),
@@ -505,12 +521,13 @@ public class SettingActivity extends BaseCompat {
             0,
             null));
     items.add(
-    new SettingItem(
-        getString(R.string.pref_show_hidden_files),
-        getString(R.string.pref_show_hidden_files_desc),
-        prefs.isShowHiddenFiles(),
-        0,
-        prefs::setShowHiddenFiles));
+        new SettingItem(
+            getString(R.string.pref_show_hidden_files),
+            getString(R.string.pref_show_hidden_files_desc),
+            prefs.isShowHiddenFiles(),
+            0,
+            prefs::setShowHiddenFiles));
+
     return items;
   }
 
@@ -1065,5 +1082,34 @@ public class SettingActivity extends BaseCompat {
         },
         R.string.no);
     slidersheet.show();
+  }
+
+  private void showPowerModeEffectDialog() {
+    String[] names = PowerModeEffectManager.EffectType.getAllName();
+    String current = prefs.getPowerModeEffectType();
+    int checked = 0;
+    for (int i = 0; i < names.length; i++) {
+      if (names[i].equalsIgnoreCase(current)) {
+        checked = i;
+        break;
+      }
+    }
+    new MaterialAlertDialogBuilder(this)
+        .setTitle(R.string.pref_power_mode_effect)
+        .setSingleChoiceItems(
+            names,
+            checked,
+            (dialog, which) -> {
+              prefs.setPowerModeEffectType(names[which]);
+              dialog.dismiss();
+              SettingItem item = editorAdapter.getItemAtPosition(25);
+              if (item != null) {
+                item.setDescription(
+                    getString(R.string.pref_power_mode_effect_desc) + "\n" + names[which]);
+                editorAdapter.notifyItemChanged(25);
+              }
+            })
+        .setNegativeButton(R.string.cancel, null)
+        .show();
   }
 }

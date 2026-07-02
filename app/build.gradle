@@ -49,16 +49,31 @@ android {
     }
 }
 
+// ==================== حل مشکل تکراری androidsvg ====================
+configurations.all {
+    // روش جایگزین: همه وابستگی‌های com.caverock را به یک نسخه خاص نگاشت کن
+    resolutionStrategy {
+        eachDependency { details ->
+            if (details.requested.group == 'com.caverock') {
+                details.useTarget 'com.caverock:androidsvg:1.4'
+                details.because 'حل تداخل بین وابستگی‌های androidsvg'
+            }
+        }
+    }
+}
 
 dependencies {
     implementation project(":editor")
     implementation project(":logcat")
-    implementation project(":materialfileicon")
     implementation project(":components")
     implementation project(":jgit")
-  //  implementation project(":proot") //not work android ide
     implementation project(":aimodel")
     implementation project(":prddownloader")
+    
+    implementation(project(":materialfileicon")) {
+        transitive = false
+    }
+    
     implementation(libs.okhttp)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -69,7 +84,6 @@ dependencies {
     implementation(libs.powermenu)
     implementation(libs.zip4j)
     implementation(libs.utilcode)
-    implementation(libs.androidsvg)
     implementation(libs.glide.avif.integration)
     implementation(libs.androidx.recyclerview.selection)
     implementation(libs.androidx.swiperefreshlayout)
@@ -77,4 +91,10 @@ dependencies {
     implementation(libs.shizuku.api)
     implementation(libs.shizuku.provider)
     implementation("androidx.palette:palette:1.0.0")
+    implementation('com.github.HanzoDev1375.AndroidFileTree:filetreelib:1.1.2')
+    
+    implementation('com.github.HanzoDev1375.AndroidFileTree:filetreeglide:1.1.2') {
+        transitive = false
+    }
+    implementation 'com.caverock:androidsvg:1.4'
 }

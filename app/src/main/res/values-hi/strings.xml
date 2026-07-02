@@ -280,4 +280,8 @@
   <string name="serachdata">सेराच फ़ाइल या डिर</string>
   <string name="store">इकट्ठा करना</string>
   <string name="aboutapp">ऐप के बारे में</string>
+  <string name="pref_power_mode">शक्ति मोड</string>
+  <string name="pref_power_mode_desc">टाइप करते समय एनिमेटेड प्रभाव दिखाएँ</string>
+  <string name="pref_power_mode_effect">प्रभाव प्रकार</string>
+  <string name="pref_power_mode_effect_desc">टाइप करते समय दिखाया गया एनीमेशन चुनें</string>
 </resources>

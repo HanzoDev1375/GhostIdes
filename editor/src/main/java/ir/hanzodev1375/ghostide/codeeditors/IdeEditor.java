@@ -10,6 +10,7 @@ import com.eup.codeopsstudio.editor.langs.widget.component.CustomEditorTextActio
 import io.github.rosemoe.sora.graphics.inlayHint.TextInlayHintRenderer;
 import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintsContainer;
 import io.github.rosemoe.sora.lang.styling.inlayHint.TextInlayHint;
+import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion;
 import io.github.rosemoe.sora.widget.component.EditorTextActionWindow;
 import io.github.rosemoe.sora.widget.component.Magnifier;
@@ -20,6 +21,10 @@ import ir.hanzodev1375.ghostide.codeeditors.setting.Constants;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorAutoCompletion;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorCompletionAdapter;
+import ir.hanzodev1375.ghostide.codeeditors.ui.power.PowerModeEffectManager;
+import ir.hanzodev1375.ghostide.codeeditors.ui.power.custom.CustomEffect;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class IdeEditor extends CodeEditor
@@ -28,6 +33,8 @@ public class IdeEditor extends CodeEditor
   private PreferencesUtils setting;
   private WebColorIde webColorIde;
   private ImagePreviewIde imagePreviewIde;
+  private PowerModeEffectManager mPowerModeEffectManager;
+  private boolean powerModeEnabled = false;
 
   public IdeEditor(Context context) {
     super(context);
@@ -45,6 +52,7 @@ public class IdeEditor extends CodeEditor
     setWebIdeColor(true);
     imagePreviewIde = new ImagePreviewIde(this);
     imagePreviewIde.attach();
+    mPowerModeEffectManager = new PowerModeEffectManager(this);
     var editorAutoCompletion = new CustomEditorAutoCompletion(this);
     editorAutoCompletion.setAdapter(new CustomEditorCompletionAdapter());
     replaceComponent(EditorAutoCompletion.class, editorAutoCompletion);
@@ -71,6 +79,7 @@ public class IdeEditor extends CodeEditor
     updateEditorMiniMap();
     updateEditorTypeFace();
     editorBinder();
+    updateEditorPowerMode();
   }
 
   @SuppressWarnings({"Deprecated", "all"})
@@ -92,6 +101,18 @@ public class IdeEditor extends CodeEditor
   public void setCurrentFilePath(String htmlFilePath) {
     if (imagePreviewIde != null) {
       imagePreviewIde.setCurrentFilePath(htmlFilePath);
+    }
+  }
+
+  private void updateEditorPowerMode() {
+    setPowerModeEnabled(setting.enablePowerMode());
+    updateEditorPowerModeEffectType();
+  }
+
+  private void updateEditorPowerModeEffectType() {
+    if (mPowerModeEffectManager != null) {
+      mPowerModeEffectManager.setEffect(
+          PowerModeEffectManager.EffectType.fromString(setting.getPowerModeEffectType()));
     }
   }
 
@@ -292,7 +313,12 @@ public class IdeEditor extends CodeEditor
       case Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_FONT:
         updateEditorTypeFace();
         break;
-
+      case Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_POWER_MODE:
+        setPowerModeEnabled(setting.enablePowerMode());
+        break;
+      case Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_POWER_MODE_EFFECT:
+        updateEditorPowerModeEffectType();
+        break;
       default:
     }
   }
@@ -300,5 +326,79 @@ public class IdeEditor extends CodeEditor
   @Override
   protected void onDraw(Canvas canvas) {
     super.onDraw(canvas);
+    if (mPowerModeEffectManager != null) {
+      mPowerModeEffectManager.drawEffects(canvas);
+    }
+  }
+
+  @Override
+  public void afterInsert(Content arg0, int arg1, int arg2, int arg3, int arg4, CharSequence arg5) {
+    super.afterInsert(arg0, arg1, arg2, arg3, arg4, arg5);
+    if (isPowerModeEnabled() && arg5.length() > 0) {
+      mPowerModeEffectManager.spawnEffectAtCursor();
+    }
+  }
+
+  @Override
+  protected void onDetachedFromWindow() {
+    super.onDetachedFromWindow();
+    if (mPowerModeEffectManager != null) {
+      mPowerModeEffectManager.clearEffects();
+    }
+  }
+
+  public boolean registerCustomEffect(CustomEffect effect) {
+    if (mPowerModeEffectManager != null) {
+      return mPowerModeEffectManager.registerCustomEffect(effect);
+    }
+    return false;
+  }
+
+  public boolean unregisterCustomEffect(String effectName) {
+    if (mPowerModeEffectManager != null) {
+      return mPowerModeEffectManager.unregisterCustomEffect(effectName);
+    }
+    return false;
+  }
+
+  public List<CustomEffect> getCustomEffects() {
+    if (mPowerModeEffectManager != null) {
+      return mPowerModeEffectManager.getCustomEffects();
+    }
+    return new ArrayList<>();
+  }
+
+  public void spawnCustomEffect(String effectName, float x, float y) {
+    if (mPowerModeEffectManager != null) {
+      mPowerModeEffectManager.spawnCustomEffect(effectName, x, y);
+      invalidate();
+    }
+  }
+
+  /**
+   * Get the PowerMode effect manager for this editor
+   *
+   * @return The PowerMode effect manager instance
+   */
+  public PowerModeEffectManager getPowerModeEffectManager() {
+    return mPowerModeEffectManager;
+  }
+
+  public void setPowerModeEnabled(boolean enabled) {
+    this.powerModeEnabled = enabled;
+    if (enabled) {
+      if (mPowerModeEffectManager == null) {
+        mPowerModeEffectManager = new PowerModeEffectManager(this);
+      }
+    } else {
+      if (mPowerModeEffectManager != null) {
+        mPowerModeEffectManager.clearEffects();
+      }
+    }
+    invalidate();
+  }
+
+  public boolean isPowerModeEnabled() {
+    return powerModeEnabled && mPowerModeEffectManager != null;
   }
 }

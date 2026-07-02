@@ -280,4 +280,8 @@
   <string name="serachdata">Поиск файла или каталога</string>
   <string name="store">Магазин</string>
   <string name="aboutapp">О приложении</string>
+  <string name="pref_power_mode">Режим мощности</string>
+  <string name="pref_power_mode_desc">Показывать анимированные эффекты при вводе текста</string>
+  <string name="pref_power_mode_effect">Тип эффекта</string>
+  <string name="pref_power_mode_effect_desc">Выберите анимацию, отображаемую при вводе текста</string>
 </resources>

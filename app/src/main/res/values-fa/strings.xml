@@ -280,4 +280,8 @@
   <string name="serachdata">Serach File یا Dir</string>
   <string name="store">فروشگاه</string>
   <string name="aboutapp">درباره برنامه</string>
+  <string name="pref_power_mode">حالت قدرت</string>
+  <string name="pref_power_mode_desc">نمایش جلوه های متحرک هنگام تایپ</string>
+  <string name="pref_power_mode_effect">نوع اثر</string>
+  <string name="pref_power_mode_effect_desc">انیمیشن نشان داده شده در حین تایپ را انتخاب کنید</string>
 </resources>

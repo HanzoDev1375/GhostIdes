@@ -280,4 +280,8 @@
   <string name="serachdata">Serach arquivo ou diretório</string>
   <string name="store">Loja</string>
   <string name="aboutapp">Sobre o aplicativo</string>
+  <string name="pref_power_mode">Modo de energia</string>
+  <string name="pref_power_mode_desc">Mostrar efeitos animados enquanto digita</string>
+  <string name="pref_power_mode_effect">Tipo de efeito</string>
+  <string name="pref_power_mode_effect_desc">Escolha a animação mostrada durante a digitação</string>
 </resources>
