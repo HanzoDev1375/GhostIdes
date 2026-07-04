@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:padding="16dp">
+
+	<org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign
+		android:id="@+id/linear_layout_0"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:baselineAligned="false">
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_0"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="KB/s"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_1"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="31874.56H80D4"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp" />
+
+	</org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign>
+
+	<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+		android:id="@+id/text_2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="IDE preferences"
+		tools:ignore="HardcodedText"
+		android:textSize="16sp" />
+
+	<org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign
+		android:id="@+id/linear_layout_1"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:baselineAligned="false">
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_3"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Whethertheeditorshoulddeleteempty"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_4"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="linesonasinglebackspacekeyevent."
+			tools:ignore="HardcodedText"
+			android:textSize="16sp" />
+
+	</org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign>
+
+	<org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign
+		android:id="@+id/linear_layout_2"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:baselineAligned="false">
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_5"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Deletetabonbackspace"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_6"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Whenenabled,theeditorwilldeletespaces"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_7"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="equaltothetabwidthwhenthebackspace"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp" />
+
+	</org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign>
+
+	<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+		android:id="@+id/text_8"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="keyispressed."
+		tools:ignore="HardcodedText"
+		android:textSize="16sp" />
+
+	<org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign
+		android:id="@+id/linear_layout_3"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:baselineAligned="false">
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_9"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Stickyscroll"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_10"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Showthecurrentscopeatthetopwhile"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_11"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="scrollingtheeditor."
+			tools:ignore="HardcodedText"
+			android:textSize="16sp" />
+
+	</org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign>
+
+	<org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign
+		android:id="@+id/linear_layout_4"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:baselineAligned="false">
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_12"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Whethertheeditorshouldpinlinenumber"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_13"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="panelwhenscrolledhorizontally."
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_14"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Pinlinenumbers"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp" />
+
+	</org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign>
+
+	<org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign
+		android:id="@+id/linear_layout_5"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:baselineAligned="false">
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_15"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Ifenabled,thentypingalowercaseor"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_16"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="uppercaseletterswillsuggestclassnames"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_17"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Matchcompletionsinlowercase"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp" />
+
+	</org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign>
+
+	<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+		android:id="@+id/text_18"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="as wellasscopemembers."
+		tools:ignore="HardcodedText"
+		android:textSize="16sp" />
+
+	<org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign
+		android:id="@+id/linear_layout_6"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:baselineAligned="false">
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_19"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="UseGoogleJavaStylecodeformatting"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_20"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="UseGoogleJavaStylecodeformatting"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_21"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="configurationforformattingJavasource"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp" />
+
+	</org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign>
+
+	<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+		android:id="@+id/text_22"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="code."
+		tools:ignore="HardcodedText"
+		android:textSize="16sp" />
+
+	<org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign
+		android:id="@+id/linear_layout_7"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:baselineAligned="false">
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_23"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="(EXPERIMENTAL)WhethertheJavasource"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_24"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="filesshouldbeanalyzedforerrorsornot."
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_25"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Diagnosticsenabled"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp" />
+
+	</org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign>
+
+	<org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign
+		android:id="@+id/linear_layout_8"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:baselineAligned="false">
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_26"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="XMLformattingoptions"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp"
+			android:layout_marginEnd="0dp" />
+
+		<org.appdevforall.codeonthego.layouteditor.editor.palette.text.TextViewDesign
+			android:id="@+id/text_27"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="ConfiguretheXMLformatter"
+			tools:ignore="HardcodedText"
+			android:textSize="16sp" />
+
+	</org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign>
+
+</org.appdevforall.codeonthego.layouteditor.editor.palette.layouts.LinearLayoutDesign>

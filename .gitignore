@@ -4,6 +4,7 @@
 # Ignore ACS editor directory
 .acside
 .androidide
+.cg
 # Ignore Kotlin directory
 .kotlin
 

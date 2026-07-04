@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.library'
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -39,4 +40,5 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.glide)
     implementation(libs.androidsvg)
+    implementation(libs.jsoup)
 }

@@ -8,11 +8,11 @@ import io.github.rosemoe.sora.widget.base.EditorPopupWindow;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorAutoCompletion;
 
-final class EditorPopUp {
+public class EditorPopUp {
 
   private EditorPopUp() {}
 
-  static EditorPopupWindow showCustomViewAtCursor(CodeEditor editor, View customView) {
+  public static EditorPopupWindow showCustomViewAtCursor(CodeEditor editor, View customView) {
     try {
       EditorPopupWindow popupWindow =
           new EditorPopupWindow(

@@ -7,7 +7,7 @@ material = "1.14.0"
 guava = "33.2.1-android"
 constraintlayout = "2.2.1"
 # Editor
-soraEditorVersion = "0.24.5"
+soraEditorVersion = "0.24.6"
 # Gson 
 gsonversion = "2.14.0"
 swiperefreshlayout = "1.1.0"
@@ -24,12 +24,13 @@ antlrv = "4.13.2"
 #powermenu
 powermenu = "2.2.4"
 #git
-jgit = "7.6.0.202603022253-r"
+jgit = "6.7.0.202309050840-r"
 #svg loader
 svg = "1.4"
 #zip4j
 zip = "2.11.6"
-
+#jsoup
+jsoup = "1.22.2"
 markwon = "4.6.2"
 sshj = "0.38.0"
 commons-net = "3.10.0"
@@ -78,3 +79,4 @@ sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
 commons-net = { module = "commons-net:commons-net", version.ref = "commons-net" }
 shizuku-api = { group = "dev.rikka.shizuku", name = "api", version.ref = "shizuku" }
 shizuku-provider = { group = "dev.rikka.shizuku", name = "provider", version.ref = "shizuku" }
+jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }

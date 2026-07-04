@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_sheet_top_rounded">
+
+    <!-- دستگیره‌ی بالای شیت -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_drag_handle" />
+
+    <!-- نوار پیل‌مانند بالا: بستن / آیکون سایت / عنوان+آدرس یک‌خطی / شورون / منو -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_link_preview_card"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp">
+
+        <ImageButton
+            android:id="@+id/btn_close"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="6dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_close_24"
+            android:contentDescription="بستن" />
+
+        <ImageView
+            android:id="@+id/iv_icon"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginStart="2dp"
+            android:background="@drawable/bg_link_icon_rounded"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_public_24"
+            android:contentDescription="آیکون سایت" />
+
+        <TextView
+            android:id="@+id/tv_header_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="در حال بارگذاری..." />
+
+        <ImageButton
+            android:id="@+id/btn_dropdown"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="6dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_expand_more_24"
+            android:contentDescription="جمع کردن" />
+
+        <ImageButton
+            android:id="@+id/btn_menu"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="6dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_more_vert_24"
+            android:contentDescription="گزینه‌ها" />
+
+    </LinearLayout>
+
+    <!-- پروگرس بار نازک خاکستری برای لود شدن صفحه -->
+    <ProgressBar
+        android:id="@+id/progress_web"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="6dp"
+        android:max="100"
+        android:progress="0"
+        android:progressDrawable="@drawable/progress_bar_gray"
+        android:indeterminate="false"
+        android:visibility="gone" />
+
+    <ir.hanzodev1375.components.views.TouchableWebView
+        android:id="@+id/web_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

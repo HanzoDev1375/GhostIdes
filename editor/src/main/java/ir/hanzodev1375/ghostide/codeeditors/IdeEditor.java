@@ -17,6 +17,8 @@ import io.github.rosemoe.sora.widget.component.Magnifier;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorrender.WebColorIde;
 import ir.hanzodev1375.ghostide.codeeditors.preview.ImagePreviewIde;
+import ir.hanzodev1375.ghostide.codeeditors.preview.url.OnLinkClickEventListener;
+import ir.hanzodev1375.ghostide.codeeditors.preview.url.UrlPreviewIde;
 import ir.hanzodev1375.ghostide.codeeditors.setting.Constants;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorAutoCompletion;
@@ -35,6 +37,7 @@ public class IdeEditor extends CodeEditor
   private ImagePreviewIde imagePreviewIde;
   private PowerModeEffectManager mPowerModeEffectManager;
   private boolean powerModeEnabled = false;
+  private UrlPreviewIde urlPreviewIde;
 
   public IdeEditor(Context context) {
     super(context);
@@ -54,6 +57,8 @@ public class IdeEditor extends CodeEditor
     imagePreviewIde.attach();
     mPowerModeEffectManager = new PowerModeEffectManager(this);
     var editorAutoCompletion = new CustomEditorAutoCompletion(this);
+    urlPreviewIde = new UrlPreviewIde(this);
+    urlPreviewIde.attach();
     editorAutoCompletion.setAdapter(new CustomEditorCompletionAdapter());
     replaceComponent(EditorAutoCompletion.class, editorAutoCompletion);
     replaceComponent(EditorTextActionWindow.class, new CustomEditorTextActionWindow(this));
@@ -89,6 +94,10 @@ public class IdeEditor extends CodeEditor
     ensureSelectionVisible();
     setRenderFunctionCharacters(true);
     setDisableSoftKbdIfHardKbdAvailable(true);
+  }
+  
+  public void setOnLinkClick(OnLinkClickEventListener call){
+    urlPreviewIde.setEvent(call);
   }
 
   public void setCutLine() {

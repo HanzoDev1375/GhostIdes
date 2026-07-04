@@ -18,6 +18,7 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
+import ir.hanzodev1375.components.WebViewBottomSheetFragment;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.databinding.ActivityWebBinding;
 import ir.hanzodev1375.ghostide.utils.WebViewSetting;
@@ -66,7 +67,10 @@ public class WebViewActivity extends BaseCompat {
   private void setupToolbar() {
     setSupportActionBar(b.toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    b.toolbar.setNavigationOnClickListener(v -> finish());
+    b.toolbar.setNavigationOnClickListener(
+        v ->
+            WebViewBottomSheetFragment.newInstance("www.google.com")
+                .show(getSupportFragmentManager(), ""));
   }
 
   private void setupWebView() {
@@ -161,6 +165,8 @@ public class WebViewActivity extends BaseCompat {
 
     b.consoleClear.setOnClickListener(
         v -> {
+          WebViewBottomSheetFragment.newInstance("https//www.google.com")
+              .show(getSupportFragmentManager(), "");
           b.consoleOutput.setText("");
         });
 

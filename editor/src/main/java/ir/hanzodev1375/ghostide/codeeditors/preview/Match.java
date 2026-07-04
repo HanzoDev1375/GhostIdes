@@ -1,9 +1,9 @@
 package ir.hanzodev1375.ghostide.codeeditors.preview;
 
 public class Match {
-  final String path;
-  final int startColumn;
-  final int endColumn;
+  public String path;
+  public int startColumn;
+  public int endColumn;
 
   public Match(String path, int startColumn, int endColumn) {
     this.path = path;

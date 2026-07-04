@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import ir.hanzodev1375.components.WebViewBottomSheetFragment;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -124,6 +125,11 @@ public class EditorFragment extends Fragment {
     if (filePath.endsWith(".html")) {
       binding.editor.setCurrentFilePath(filePath);
     }
+    binding.editor.setOnLinkClick(
+        links -> {
+          WebViewBottomSheetFragment.newInstance(links)
+              .show(getParentFragmentManager(), "WebViewBottomSheet");
+        });
   }
 
   private void openPagedSession(File file) {

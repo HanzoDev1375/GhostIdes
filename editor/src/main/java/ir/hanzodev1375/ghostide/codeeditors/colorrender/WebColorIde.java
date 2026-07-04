@@ -36,7 +36,7 @@ public class WebColorIde {
 
   private Pattern buildFullColorPattern() {
     String namePattern = colorNameRepo.getNamePattern().pattern();
-   
+
     String combined = BASIC_PATTERN + "|\\b(" + namePattern + ")\\b";
     return Pattern.compile(combined, Pattern.CASE_INSENSITIVE);
   }
@@ -203,7 +203,7 @@ public class WebColorIde {
       if (colorNameRepo.getNameToHex().containsKey(matched.toLowerCase())) {
         String hex = colorNameRepo.getHexForName(matched);
         int color = Color.parseColor(hex);
-        container.add(new ColorInlayHint(pos.line, pos.column, new ConstColor(color)));
+        container.add(new ColorInlayHint(pos.line, pos.column, new ConstColor(color), null));
         continue;
       }
 
@@ -213,7 +213,7 @@ public class WebColorIde {
         if (hex.length() == 4) {
           hex = expandShortHex(hex);
         }
-        container.add(new ColorInlayHint(pos.line, pos.column, new ConstColor(hex)));
+        container.add(new ColorInlayHint(pos.line, pos.column, new ConstColor(hex), null));
       }
       // rgb
       else if (matcher.group(2) != null) {
@@ -221,7 +221,7 @@ public class WebColorIde {
         int g = clamp(parseIntSafe(matcher.group(3)), 0, 255);
         int b = clamp(parseIntSafe(matcher.group(4)), 0, 255);
         int color = 0xFF000000 | (r << 16) | (g << 8) | b;
-        container.add(new ColorInlayHint(pos.line, pos.column, new ConstColor(color)));
+        container.add(new ColorInlayHint(pos.line, pos.column, new ConstColor(color), null));
       }
       // rgba
       else if (matcher.group(5) != null) {
@@ -231,7 +231,8 @@ public class WebColorIde {
         float aFloat = parseFloatSafe(matcher.group(8));
         int a = clamp(Math.round(aFloat * 255), 0, 255);
         int color = (a << 24) | (r << 16) | (g << 8) | b;
-        container.add(new ColorInlayHint(pos.line, pos.column, new ConstColor(color)));
+
+        container.add(new ColorInlayHint(pos.line, pos.column, new ConstColor(color), null));
       }
     }
 

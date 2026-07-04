@@ -34,6 +34,7 @@
         android:label="@string/app_name"
         android:name=".GhostIdeAppLoader"
         android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true"
         tools:targetApi="31"
         
