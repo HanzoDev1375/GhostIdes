@@ -30,6 +30,8 @@ import ir.hanzodev1375.components.sheet.SliderSheet;
 import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import ir.hanzodev1375.ghostide.MainActivity;
 import ir.hanzodev1375.ghostide.R;
+import ir.hanzodev1375.ghostide.appicon.AppIconChooserDialogBuilder;
+import ir.hanzodev1375.ghostide.appicon.AppIconManager;
 import ir.hanzodev1375.ghostide.adapters.SettingsAdapter;
 import ir.hanzodev1375.ghostide.ai.utils.AiConstants;
 import ir.hanzodev1375.ghostide.ai.utils.AiPreferencesUtils;
@@ -145,11 +147,12 @@ public class SettingActivity extends BaseCompat {
         position -> {
           if (position == 0) showBufferSizeDialog();
           else if (position == 1) showThemeDialog();
-          else if (position == 2) showLoadThemeDialog();
-          else if (position == 3) showGitHubAccountDialog();
-          else if (position == 4) showLanguageDialog();
-          else if (position == 8) showAnimationThresholdDialog();
-          else if (position == 9) showGridConunt();
+          else if (position == 2) showAppIconDialog();
+          else if (position == 3) showLoadThemeDialog();
+          else if (position == 4) showGitHubAccountDialog();
+          else if (position == 5) showLanguageDialog();
+          else if (position == 9) showAnimationThresholdDialog();
+          else if (position == 10) showGridConunt();
         });
 
     aiAdapter.setOnItemClickListener(
@@ -459,6 +462,15 @@ public class SettingActivity extends BaseCompat {
             null));
     items.add(
         new SettingItem(
+            getString(R.string.pref_app_icon),
+            getString(R.string.pref_app_icon_desc)
+                + "\n"
+                + getString(AppIconManager.getCurrentIcon(this).labelRes),
+            false,
+            0,
+            null));
+    items.add(
+        new SettingItem(
             getString(R.string.pref_load_theme_file),
             getString(R.string.pref_load_theme_file_desc),
             false,
@@ -728,6 +740,24 @@ public class SettingActivity extends BaseCompat {
               themeEngine.resetTheme();
               recreateAllActivities();
             })
+        .create()
+        .show();
+  }
+
+  private void showAppIconDialog() {
+    new AppIconChooserDialogBuilder(this)
+        .setTitle(R.string.pref_app_icon)
+        .setPositiveButton(
+            R.string.ok,
+            icon -> {
+              AppIconManager.applyIcon(this, icon);
+              appAdapter
+                  .getItemAtPosition(2)
+                  .setDescription(
+                      getString(R.string.pref_app_icon_desc) + "\n" + getString(icon.labelRes));
+              appAdapter.notifyItemChanged(2);
+            })
+        .setNegativeButton(R.string.cancel)
         .create()
         .show();
   }

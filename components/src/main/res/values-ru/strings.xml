@@ -41,4 +41,9 @@
   <string name="search_result_count">%d результатов</string>
   <string name="search_found">Найдено %d файлов</string>
   <string name="search_error_invalid_regex">Неверный шаблон регулярного выражения</string>
+  <string name="web_sheet_loading">Загрузка…</string>
+  <string name="web_sheet_link_copied">Ссылка скопирована</string>
+  <string name="web_sheet_menu_reload">Перезагрузить</string>
+  <string name="web_sheet_menu_copy_link">Копировать ссылку</string>
+  <string name="web_sheet_menu_open_browser">Открыть в браузере</string>
 </resources>

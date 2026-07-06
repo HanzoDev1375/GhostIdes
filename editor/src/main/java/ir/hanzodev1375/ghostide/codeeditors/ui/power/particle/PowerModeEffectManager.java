@@ -306,8 +306,8 @@ public class PowerModeEffectManager {
     int line = cursor.getLeftLine();
     int column = cursor.getLeftColumn();
     float[] pos = editor.getLayout().getCharLayoutOffset(line, column);
-    float x = pos[1] + editor.measureTextRegionOffset() - editor.getScroller().getFinalX();
-    float y = pos[0] - editor.getScroller().getFinalY();
+    float x = pos[1] + editor.measureTextRegionOffset() - editor.getScroller().getCurrX();
+    float y = pos[0] - editor.getScroller().getCurrY();
 
     switch (currentEffect) {
       case PARTICLE:

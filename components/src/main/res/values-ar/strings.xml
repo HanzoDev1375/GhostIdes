@@ -41,4 +41,9 @@
   <string name="search_result_count">%d نتيجة</string>
   <string name="search_found">تم العثور على %d ملف</string>
   <string name="search_error_invalid_regex">نمط التعبير العادي غير صالح</string>
+  <string name="web_sheet_loading">تحميل…</string>
+  <string name="web_sheet_link_copied">تم نسخ الرابط</string>
+  <string name="web_sheet_menu_reload">إعادة تحميل</string>
+  <string name="web_sheet_menu_copy_link">نسخ الوصلة</string>
+  <string name="web_sheet_menu_open_browser">فتح في المتصفح</string>
 </resources>

@@ -1,0 +1,10 @@
+<resources>
+	<string name="app_names" translatable="false">Music</string>
+	<string name="music_preview_no_artist">نام هنرمند موجود نیست</string>
+	<string name="music_preview_no_album">نام البوم موجود نیست</string>
+	<string name="music_preview_load_error">خطا در بارگذاری</string>
+	<string name="music_preview_cover">کاور موزیک</string>
+	<string name="music_preview_previous">آهنگ قبلی</string>
+	<string name="music_preview_play">پخش یا توقف</string>
+	<string name="music_preview_next">آهنگ بعدی</string>
+</resources>

@@ -41,4 +41,9 @@
   <string name="search_result_count">%d תוצאות</string>
   <string name="search_found">נמצאו %d קבצים</string>
   <string name="search_error_invalid_regex">דפוס Regex לא חוקי</string>
+  <string name="web_sheet_loading">טְעִינָה…</string>
+  <string name="web_sheet_link_copied">הקישור הועתק</string>
+  <string name="web_sheet_menu_reload">לִטעוֹן מִחָדָשׁ</string>
+  <string name="web_sheet_menu_copy_link">העתק קישור</string>
+  <string name="web_sheet_menu_open_browser">פתח בדפדפן</string>
 </resources>

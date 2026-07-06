@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_height="wrap_content"
+     android:layout_width="match_parent"
+     android:gravity="center_vertical"
+     android:background="?attr/selectableItemBackground"
+     android:padding="12dp"
+     android:orientation="horizontal">
+
+    <TextView
+         android:layout_height="wrap_content"
+         android:layout_width="0dp"
+         android:textSize="16sp"
+         android:layout_weight="1"
+         android:id="@+id/title" />
+
+    <ImageView
+         android:layout_height="48dp"
+         android:layout_width="48dp"
+         android:layout_marginEnd="12dp"
+         android:scaleType="centerCrop"
+         android:src="@drawable/ic_photo"
+         android:contentDescription="Preview"
+         android:id="@+id/imagePreview" />
+
+    <ImageView
+         android:layout_height="24dp"
+         android:layout_width="24dp"
+         android:layout_marginEnd="12dp"
+         android:scaleType="centerInside"
+         android:src="@drawable/ic_close"
+         android:contentDescription="Clear"
+         android:tint="?colorOnSurface"
+         android:id="@+id/clearIcon" />
+
+    <ImageView
+         android:layout_height="24dp"
+         android:layout_width="24dp"
+         android:scaleType="centerInside"
+         android:src="@drawable/ic_folder_open"
+         android:contentDescription="Browse"
+         android:tint="?colorOnSurface"
+         android:id="@+id/browseIcon" />
+
+</LinearLayout>

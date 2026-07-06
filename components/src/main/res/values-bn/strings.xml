@@ -41,4 +41,9 @@
   <string name="search_result_count">%d ফলাফল</string>
   <string name="search_found">%d ফাইল পাওয়া গেছে</string>
   <string name="search_error_invalid_regex">অবৈধ Regex প্যাটার্ন</string>
+  <string name="web_sheet_loading">লোড হচ্ছে...</string>
+  <string name="web_sheet_link_copied">লিঙ্ক কপি করা হয়েছে</string>
+  <string name="web_sheet_menu_reload">পুনরায় লোড করুন</string>
+  <string name="web_sheet_menu_copy_link">লিঙ্ক কপি করুন</string>
+  <string name="web_sheet_menu_open_browser">ব্রাউজারে খুলুন</string>
 </resources>

@@ -9,6 +9,7 @@ import com.google.android.material.color.MaterialColors;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 import com.google.android.material.R;
+import ir.hanzodev1375.ghostide.activity.BaseCompat;
 
 public class ShapeUtil {
   private static final float RADIUS_DP = 24f;
@@ -39,6 +40,10 @@ public class ShapeUtil {
     drawable.setFillColor(ColorStateList.valueOf(getSurfaceColor(context)));
     drawable.setStroke(3, ColorStateList.valueOf(getcolorSurfaceContainer(context)));
     drawable.setElevation(0);
+    ((BaseCompat) context)
+        .getWindow()
+        .getDecorView()
+        .setBackgroundColor(getcolorSurfaceContainer(context));
 
     ColorStateList rippleColor = ColorStateList.valueOf(getRippleColor(context));
     return new RippleDrawable(rippleColor, drawable, null);

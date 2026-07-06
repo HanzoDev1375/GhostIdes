@@ -283,5 +283,10 @@
   <string name="pref_power_mode">शक्ति मोड</string>
   <string name="pref_power_mode_desc">टाइप करते समय एनिमेटेड प्रभाव दिखाएँ</string>
   <string name="pref_power_mode_effect">प्रभाव प्रकार</string>
+  <string name="icon_name_default">सामान्य चिह्न</string>
+  <string name="icon_name_glassblue">ग्लास चिह्न नीला</string>
   <string name="pref_power_mode_effect_desc">टाइप करते समय दिखाया गया एनीमेशन चुनें</string>
+  <string name="pref_app_icon">ऐप आइकन</string>
+  <string name="pref_app_icon_desc">कई तैयार डिज़ाइनों में से एक ऐप आइकन चुनें</string>
+  <string name="icon_name_hellish">चिह्न नारकीय</string>
 </resources>

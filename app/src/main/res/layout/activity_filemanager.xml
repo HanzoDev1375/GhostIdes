@@ -3,6 +3,7 @@
      xmlns:android="http://schemas.android.com/apk/res/android"
      xmlns:app="http://schemas.android.com/apk/res-auto"
      android:layout_height="match_parent"
+     android:backgroundTint="?colorSurfaceContainer"
      android:layout_width="match_parent"
      android:id="@+id/coordinator">
 
@@ -22,12 +23,14 @@
              android:layout_height="150dp"
              android:layout_width="match_parent"
              android:background="?colorSurfaceContainer"
-             android:padding="8dp"
+             android:paddingVertical="20dp"
+             android:gravity="center"
+             android:paddingHorizontal="8dp"
              android:orientation="vertical"
              android:id="@+id/headtop">
 
             <LinearLayout
-                 android:layout_height="match_parent"
+                 android:layout_height="wrap_content"
                  android:layout_width="match_parent"
                  android:layout_marginEnd="8dp"
                  android:gravity="center_vertical"
@@ -84,14 +87,13 @@
         </LinearLayout>
 
         <LinearLayout
-             android:layout_height="0dp"
+             android:layout_height="match_parent"
              android:layout_width="match_parent"
-             android:elevation="8dp"
+             
              android:padding="8dp"
              android:orientation="vertical"
              android:clipToOutline="true"
-             android:layout_marginTop="-20dp"
-             android:layout_weight="1"
+             
              android:id="@+id/headline">
 
             <ir.hanzodev1375.ghostide.customui.NavModelPanel
@@ -131,6 +133,17 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <irhanzodev1375.musicpreview.MusicView
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:visibility="gone"
+         android:layout_marginBottom="15dp"
+         android:layout_marginLeft="8dp"
+         android:layout_marginRight="8dp"
+         android:layout_marginTop="8dp"
+         android:id="@+id/musicPreview"
+         android:layout_gravity="bottom" />
 
     <ir.hanzodev1375.ghostide.customui.FloatingToolbarView
          android:layout_height="wrap_content"

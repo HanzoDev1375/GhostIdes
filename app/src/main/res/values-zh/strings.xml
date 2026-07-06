@@ -283,5 +283,10 @@
   <string name="pref_power_mode">电源模式</string>
   <string name="pref_power_mode_desc">打字时显示动画效果</string>
   <string name="pref_power_mode_effect">效果类型</string>
+  <string name="icon_name_default">正常图标</string>
+  <string name="icon_name_glassblue">玻璃图标蓝色</string>
   <string name="pref_power_mode_effect_desc">选择打字时显示的动画</string>
+  <string name="pref_app_icon">应用程序图标</string>
+  <string name="pref_app_icon_desc">从几个现成的设计中选择一个应用程序图标</string>
+  <string name="icon_name_hellish">地狱般的图标</string>
 </resources>

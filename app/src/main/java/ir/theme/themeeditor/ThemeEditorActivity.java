@@ -1,7 +1,9 @@
 package ir.theme.themeeditor;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.BackgroundColorSpan;
@@ -15,12 +17,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.slider.Slider;
 import com.google.gson.GsonBuilder;
 import ir.hanzodev1375.ghostide.R;
 import com.blankj.utilcode.util.FileIOUtils;
@@ -53,13 +59,32 @@ public class ThemeEditorActivity extends BaseCompat {
   private SearchView searchView;
   private String currentQuery = "";
   private boolean isSearching = false;
-  private List<ColorItem> activityItems = new ArrayList<>();
-  private List<ColorItem> editorItems = new ArrayList<>();
-  private List<ColorItem> widgetItems = new ArrayList<>();
+  private List<ThemeRow> activityItems = new ArrayList<>();
+  private List<ThemeRow> editorItems = new ArrayList<>();
+  private List<ThemeRow> widgetItems = new ArrayList<>();
+  private ImageItem pendingImageItem;
+  private ActivityResultLauncher<String[]> pickImageLauncher;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    pickImageLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(),
+            uri -> {
+              if (uri == null || pendingImageItem == null) return;
+              try {
+                getContentResolver()
+                    .takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+              } catch (Exception ignored) {
+              }
+              pendingImageItem.updater.update(currentTheme, uri.toString());
+              saveThemeToFile();
+              buildColorItems();
+              refreshCurrentTab();
+            });
+
     setContentView(R.layout.activity_theme_editor);
 
     Toolbar toolbar = findViewById(R.id.toolbar);
@@ -162,10 +187,10 @@ public class ThemeEditorActivity extends BaseCompat {
       return;
     }
     isSearching = true;
-    List<ColorItem> fullList = getCurrentFullList();
-    List<ColorItem> filtered = new ArrayList<>();
+    List<ThemeRow> fullList = getCurrentFullList();
+    List<ThemeRow> filtered = new ArrayList<>();
     String lowerQuery = query.toLowerCase();
-    for (ColorItem item : fullList) {
+    for (ThemeRow item : fullList) {
       if (item.title.toLowerCase().contains(lowerQuery)) {
         filtered.add(item);
       }
@@ -185,7 +210,7 @@ public class ThemeEditorActivity extends BaseCompat {
     adapter.setHighlightQuery(null);
   }
 
-  private List<ColorItem> getCurrentFullList() {
+  private List<ThemeRow> getCurrentFullList() {
     int pos = tabLayout.getSelectedTabPosition();
     switch (pos) {
       case 0:
@@ -648,6 +673,19 @@ public class ThemeEditorActivity extends BaseCompat {
             "Selected Menu Color",
             w.getSelectedmenucolor(),
             (t, c) -> t.getWidget().setSelectedmenucolor(c)));
+    widgetItems.add(
+        new ImageItem(
+            "Background Image",
+            w.getImagepath() == null ? "" : w.getImagepath(),
+            (t, p) -> t.getWidget().setImagepath(p)));
+    widgetItems.add(
+        new SliderItem(
+            "Blur Size",
+            w.getBlursize(),
+            0f,
+            25f,
+            1f,
+            (t, v) -> t.getWidget().setBlursize(v)));
   }
 
   private void saveThemeToFile() {
@@ -670,15 +708,19 @@ public class ThemeEditorActivity extends BaseCompat {
     adapter.setHighlightQuery(null);
   }
 
-  private class ThemeDetailAdapter extends RecyclerView.Adapter<ThemeDetailAdapter.ViewHolder> {
-    private List<ColorItem> items;
+  private class ThemeDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    static final int TYPE_COLOR = 0;
+    static final int TYPE_IMAGE = 1;
+    static final int TYPE_SLIDER = 2;
+
+    private List<ThemeRow> items;
     private String highlightQuery = null;
 
-    ThemeDetailAdapter(List<ColorItem> items) {
+    ThemeDetailAdapter(List<ThemeRow> items) {
       this.items = items;
     }
 
-    void updateList(List<ColorItem> newItems) {
+    void updateList(List<ThemeRow> newItems) {
       this.items = newItems;
       notifyDataSetChanged();
     }
@@ -688,21 +730,43 @@ public class ThemeEditorActivity extends BaseCompat {
       notifyDataSetChanged();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+      ThemeRow item = items.get(position);
+      if (item instanceof ImageItem) return TYPE_IMAGE;
+      if (item instanceof SliderItem) return TYPE_SLIDER;
+      return TYPE_COLOR;
+    }
+
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-      View v =
-          LayoutInflater.from(parent.getContext()).inflate(R.layout.item_color_row, parent, false);
-      return new ViewHolder(v);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+      LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+      if (viewType == TYPE_IMAGE) {
+        return new ImageViewHolder(inflater.inflate(R.layout.item_image_row, parent, false));
+      }
+      if (viewType == TYPE_SLIDER) {
+        return new SliderViewHolder(inflater.inflate(R.layout.item_slider_row, parent, false));
+      }
+      return new ColorViewHolder(inflater.inflate(R.layout.item_color_row, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-      ColorItem item = items.get(position);
-      holder.title.setText(item.title);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+      ThemeRow item = items.get(position);
+      if (holder instanceof ColorViewHolder) {
+        bindColor((ColorViewHolder) holder, (ColorItem) item);
+      } else if (holder instanceof ImageViewHolder) {
+        bindImage((ImageViewHolder) holder, (ImageItem) item);
+      } else if (holder instanceof SliderViewHolder) {
+        bindSlider((SliderViewHolder) holder, (SliderItem) item);
+      }
+    }
+
+    private void bindTitle(TextView titleView, String title) {
       if (highlightQuery != null && !highlightQuery.isEmpty()) {
-        SpannableString spannable = new SpannableString(item.title);
-        String lowerTitle = item.title.toLowerCase();
+        SpannableString spannable = new SpannableString(title);
+        String lowerTitle = title.toLowerCase();
         String lowerQuery = highlightQuery.toLowerCase();
         int start = lowerTitle.indexOf(lowerQuery);
         if (start >= 0) {
@@ -712,11 +776,14 @@ public class ThemeEditorActivity extends BaseCompat {
               start + highlightQuery.length(),
               Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        holder.title.setText(spannable);
+        titleView.setText(spannable);
       } else {
-        holder.title.setText(item.title);
+        titleView.setText(title);
       }
+    }
 
+    private void bindColor(ColorViewHolder holder, ColorItem item) {
+      bindTitle(holder.title, item.title);
       try {
         shape(holder.colorPreview, Color.parseColor(item.currentColor));
       } catch (Exception e) {
@@ -743,6 +810,64 @@ public class ThemeEditorActivity extends BaseCompat {
           });
     }
 
+    private void bindImage(ImageViewHolder holder, ImageItem item) {
+      bindTitle(holder.title, item.title);
+      boolean hasImage = item.currentPath != null && !item.currentPath.isEmpty();
+      holder.clearIcon.setVisibility(hasImage ? View.VISIBLE : View.GONE);
+      if (hasImage) {
+        Glide.with(holder.imagePreview.getContext())
+            .load(Uri.parse(item.currentPath))
+            .placeholder(R.drawable.ic_photo)
+            .error(R.drawable.ic_photo)
+            .into(holder.imagePreview);
+      } else {
+        holder.imagePreview.setImageResource(R.drawable.ic_photo);
+      }
+      holder.browseIcon.setOnClickListener(
+          v -> {
+            pendingImageItem = item;
+            pickImageLauncher.launch(new String[] {"image/*"});
+          });
+      holder.clearIcon.setOnClickListener(
+          v -> {
+            item.updater.update(currentTheme, "");
+            item.currentPath = "";
+            saveThemeToFile();
+            notifyItemChanged(holder.getBindingAdapterPosition());
+          });
+    }
+
+    private void bindSlider(SliderViewHolder holder, SliderItem item) {
+      bindTitle(holder.title, item.title);
+      holder.valueText.setText(String.valueOf((int) item.currentValue));
+      holder.editIcon.setOnClickListener(
+          v -> {
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_slider, null);
+            Slider slider = dialogView.findViewById(R.id.slider);
+            TextView valueText = dialogView.findViewById(R.id.slider_value);
+            slider.setValueFrom(item.minValue);
+            slider.setValueTo(item.maxValue);
+            slider.setStepSize(item.step);
+            slider.setValue(item.currentValue);
+            valueText.setText(String.valueOf((int) slider.getValue()));
+            slider.addOnChangeListener(
+                (s, val, fromUser) -> valueText.setText(String.valueOf((int) val)));
+            new MaterialAlertDialogBuilder(ThemeEditorActivity.this)
+                .setTitle(item.title)
+                .setView(dialogView)
+                .setPositiveButton(
+                    R.string.ok,
+                    (d, w) -> {
+                      item.updater.update(currentTheme, slider.getValue());
+                      item.currentValue = slider.getValue();
+                      saveThemeToFile();
+                      notifyItemChanged(holder.getBindingAdapterPosition());
+                    })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+          });
+    }
+
     void shape(View v, int color) {
       var gd = new GradientDrawable();
       gd.setStroke(1, Color.WHITE);
@@ -756,33 +881,110 @@ public class ThemeEditorActivity extends BaseCompat {
       return items.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    class ColorViewHolder extends RecyclerView.ViewHolder {
       TextView title;
       View colorPreview;
       ImageView editIcon;
 
-      ViewHolder(@NonNull View itemView) {
+      ColorViewHolder(@NonNull View itemView) {
         super(itemView);
         title = itemView.findViewById(R.id.title);
         colorPreview = itemView.findViewById(R.id.colorPreview);
         editIcon = itemView.findViewById(R.id.editIcon);
       }
     }
+
+    class ImageViewHolder extends RecyclerView.ViewHolder {
+      TextView title;
+      ImageView imagePreview;
+      ImageView clearIcon;
+      ImageView browseIcon;
+
+      ImageViewHolder(@NonNull View itemView) {
+        super(itemView);
+        title = itemView.findViewById(R.id.title);
+        imagePreview = itemView.findViewById(R.id.imagePreview);
+        clearIcon = itemView.findViewById(R.id.clearIcon);
+        browseIcon = itemView.findViewById(R.id.browseIcon);
+      }
+    }
+
+    class SliderViewHolder extends RecyclerView.ViewHolder {
+      TextView title;
+      TextView valueText;
+      ImageView editIcon;
+
+      SliderViewHolder(@NonNull View itemView) {
+        super(itemView);
+        title = itemView.findViewById(R.id.title);
+        valueText = itemView.findViewById(R.id.valueText);
+        editIcon = itemView.findViewById(R.id.editIcon);
+      }
+    }
   }
 
-  private static class ColorItem {
+  private abstract static class ThemeRow {
     String title;
+
+    ThemeRow(String title) {
+      this.title = title;
+    }
+  }
+
+  private static class ColorItem extends ThemeRow {
     String currentColor;
     ColorUpdater updater;
 
     ColorItem(String title, String currentColor, ColorUpdater updater) {
-      this.title = title;
+      super(title);
       this.currentColor = currentColor;
+      this.updater = updater;
+    }
+  }
+
+  private static class ImageItem extends ThemeRow {
+    String currentPath;
+    ImageUpdater updater;
+
+    ImageItem(String title, String currentPath, ImageUpdater updater) {
+      super(title);
+      this.currentPath = currentPath;
+      this.updater = updater;
+    }
+  }
+
+  private static class SliderItem extends ThemeRow {
+    float currentValue;
+    float minValue;
+    float maxValue;
+    float step;
+    SliderUpdater updater;
+
+    SliderItem(
+        String title,
+        float currentValue,
+        float minValue,
+        float maxValue,
+        float step,
+        SliderUpdater updater) {
+      super(title);
+      this.currentValue = currentValue;
+      this.minValue = minValue;
+      this.maxValue = maxValue;
+      this.step = step;
       this.updater = updater;
     }
   }
 
   private interface ColorUpdater {
     void update(GhostTheme theme, String newColor);
+  }
+
+  private interface ImageUpdater {
+    void update(GhostTheme theme, String newPath);
+  }
+
+  private interface SliderUpdater {
+    void update(GhostTheme theme, float newValue);
   }
 }

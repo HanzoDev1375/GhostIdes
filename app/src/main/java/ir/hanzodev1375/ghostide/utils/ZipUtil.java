@@ -5,7 +5,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -38,6 +40,19 @@ public class ZipUtil {
   private static ProgressBar progressBar;
   private static TextView tvFileName, tvPercent, tvDetails;
   private static String defaultName = "archive.zip";
+
+  // Order must match the labels set on zipspinner in showZipDialog()
+  private static final CompressionLevel[] COMPRESSION_LEVELS = {
+    CompressionLevel.FASTEST, CompressionLevel.NORMAL, CompressionLevel.MAXIMUM
+  };
+
+  private static CompressionLevel getSelectedCompressionLevel(Spinner spinner) {
+    int position = spinner.getSelectedItemPosition();
+    if (position < 0 || position >= COMPRESSION_LEVELS.length) {
+      return CompressionLevel.NORMAL;
+    }
+    return COMPRESSION_LEVELS[position];
+  }
 
   private static long calculateTotalSize(List<File> files) {
     long total = 0;
@@ -110,7 +125,12 @@ public class ZipUtil {
   }
 
   private static void zipFilesWithProgress(
-      List<File> sources, File destination, String password, Context context, Runnable onSuccess) {
+      List<File> sources,
+      File destination,
+      String password,
+      Context context,
+      Runnable onSuccess,
+      CompressionLevel compressionLevel) {
     executor.execute(
         () -> {
           try {
@@ -119,7 +139,7 @@ public class ZipUtil {
 
             ZipParameters parameters = new ZipParameters();
             parameters.setCompressionMethod(CompressionMethod.DEFLATE);
-            parameters.setCompressionLevel(CompressionLevel.NORMAL);
+            parameters.setCompressionLevel(compressionLevel);
             if (password != null && !password.isEmpty()) {
               parameters.setEncryptFiles(true);
               parameters.setEncryptionMethod(EncryptionMethod.AES);
@@ -147,7 +167,10 @@ public class ZipUtil {
             mainHandler.post(
                 () -> {
                   dismissProgressDialog();
-                  Toast.makeText(context, R.string.zip_error + e.getMessage(), Toast.LENGTH_LONG)
+                  Toast.makeText(
+                          context,
+                          context.getString(R.string.zip_error) + e.getMessage(),
+                          Toast.LENGTH_LONG)
                       .show();
                 });
           }
@@ -184,6 +207,15 @@ public class ZipUtil {
     TextInputLayout tilPassword = dialogView.findViewById(R.id.til_zip_password);
     TextInputEditText etPassword = dialogView.findViewById(R.id.et_zip_password);
     SwitchMaterial swPassword = dialogView.findViewById(R.id.sw_zip_password);
+    Spinner zipspinner = dialogView.findViewById(R.id.zipspinner);
+    ArrayAdapter<String> compressionAdapter =
+        new ArrayAdapter<>(
+            context,
+            android.R.layout.simple_spinner_item,
+            new String[] {"سریع‌ترین", "عادی", "حداکثر"});
+    compressionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    zipspinner.setAdapter(compressionAdapter);
+    zipspinner.setSelection(1); // default: NORMAL
 
     tilPassword.setVisibility(View.GONE);
     swPassword.setOnCheckedChangeListener(
@@ -228,7 +260,8 @@ public class ZipUtil {
                   context,
                   () -> {
                     Toast.makeText(context, R.string.zip_created_success, Toast.LENGTH_LONG).show();
-                  });
+                  },
+                  getSelectedCompressionLevel(zipspinner));
             });
   }
 }

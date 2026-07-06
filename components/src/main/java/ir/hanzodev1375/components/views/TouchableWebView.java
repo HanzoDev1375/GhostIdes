@@ -51,5 +51,17 @@ public class TouchableWebView extends WebView {
     return super.onTouchEvent(event);
   }
 
+  @Override
+  protected void onVisibilityChanged(View arg0, int arg1) {
+    super.onVisibilityChanged(arg0, arg1);
+    if (arg1 == View.VISIBLE) {
+      setAlpha(0f);
+      animate().alpha(1f).setDuration(200).start();
+    } else {
+      animate().alpha(0f).setDuration(200).start();
+      setAlpha(1f);
+    }
+  }
+
   private float mLastY = 0f;
 }

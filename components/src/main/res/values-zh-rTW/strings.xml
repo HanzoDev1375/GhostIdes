@@ -41,4 +41,9 @@
   <string name="search_result_count">%d 個結果</string>
   <string name="search_found">找到 %d 個文件</string>
   <string name="search_error_invalid_regex">無效的正規表示式模式</string>
+  <string name="web_sheet_loading">載入中…</string>
+  <string name="web_sheet_link_copied">連結已複製</string>
+  <string name="web_sheet_menu_reload">重新載入</string>
+  <string name="web_sheet_menu_copy_link">複製連結</string>
+  <string name="web_sheet_menu_open_browser">在瀏覽器中開啟</string>
 </resources>

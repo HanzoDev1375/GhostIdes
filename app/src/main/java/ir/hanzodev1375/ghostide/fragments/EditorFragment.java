@@ -127,8 +127,9 @@ public class EditorFragment extends Fragment {
     }
     binding.editor.setOnLinkClick(
         links -> {
-          WebViewBottomSheetFragment.newInstance(links)
-              .show(getParentFragmentManager(), "WebViewBottomSheet");
+          var webs = WebViewBottomSheetFragment.newInstance(links);
+          theme.applyWebViewBottomSheetFragment(webs);
+          webs.show(getParentFragmentManager(), "WebViewBottomSheet");
         });
   }
 

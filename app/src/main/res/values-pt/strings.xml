@@ -283,5 +283,10 @@
   <string name="pref_power_mode">Modo de energia</string>
   <string name="pref_power_mode_desc">Mostrar efeitos animados enquanto digita</string>
   <string name="pref_power_mode_effect">Tipo de efeito</string>
+  <string name="icon_name_default">Ícone normal</string>
+  <string name="icon_name_glassblue">Ícone de vidro azul</string>
   <string name="pref_power_mode_effect_desc">Escolha a animação mostrada durante a digitação</string>
+  <string name="pref_app_icon">Ícone do aplicativo</string>
+  <string name="pref_app_icon_desc">Escolha um ícone de aplicativo entre vários designs prontos</string>
+  <string name="icon_name_hellish">Ícone Infernal</string>
 </resources>

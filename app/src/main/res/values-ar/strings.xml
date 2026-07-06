@@ -283,5 +283,10 @@
   <string name="pref_power_mode">وضع الطاقة</string>
   <string name="pref_power_mode_desc">إظهار التأثيرات المتحركة أثناء الكتابة</string>
   <string name="pref_power_mode_effect">نوع التأثير</string>
+  <string name="icon_name_default">أيقونة عادية</string>
+  <string name="icon_name_glassblue">أيقونة الزجاج الأزرق</string>
   <string name="pref_power_mode_effect_desc">اختر الرسم المتحرك الذي يظهر أثناء الكتابة</string>
+  <string name="pref_app_icon">رمز التطبيق</string>
+  <string name="pref_app_icon_desc">اختر أيقونة التطبيق من بين العديد من التصميمات الجاهزة</string>
+  <string name="icon_name_hellish">أيقونة الجهنمية</string>
 </resources>

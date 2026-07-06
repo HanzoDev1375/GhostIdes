@@ -1,5 +1,6 @@
 package ir.theme.themeeditor;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.cpp.CppLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
+import ir.hanzodev1375.ghostide.utils.BlurTransformation;
 import ir.theme.EditorTheme;
 import ir.theme.GhostTheme;
 
@@ -35,6 +37,7 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
   private TabLayout tabLayout;
   private ImageView ivBackground;
   private GhostTheme currentTheme;
+  private FloatingActionButton fabClose;
 
   public static ThemePreviewBottomSheet newInstance(GhostTheme theme) {
     ThemePreviewBottomSheet fragment = new ThemePreviewBottomSheet();
@@ -72,7 +75,7 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
     editorPreview = view.findViewById(R.id.editorPreview);
     tabLayout = view.findViewById(R.id.tabLayout);
     ivBackground = view.findViewById(R.id.ivBackgroundImage);
-    FloatingActionButton fabClose = view.findViewById(R.id.fabClose);
+    fabClose = view.findViewById(R.id.fabClose);
 
     applyThemeToEditor();
     applyBackgroundImage();
@@ -86,7 +89,30 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
 
     EditorTheme t = currentTheme.getEditor();
     var scheme = editorPreview.getColorScheme();
+    var widget = currentTheme.getWidget();
+    ivBackground.setBackgroundColor(parseColor(widget.getBackground()));
+    if (widget.getBackground() != null) {
+      tabLayout.setBackgroundColor(parseColor(widget.getBackground()));
+    }
 
+    if (widget.getAccent() != null) {
+      tabLayout.setSelectedTabIndicatorColor(parseColor(widget.getAccent()));
+    }
+
+    if (widget.getTabSelected() != null && widget.getTabUnselected() != null) {
+
+      tabLayout.setTabTextColors(
+          parseColor(widget.getTabUnselected()), parseColor(widget.getTabSelected()));
+    }
+
+    if (widget.getFabBackground() != null) {
+      fabClose.setBackgroundTintList(ColorStateList.valueOf(parseColor(widget.getFabBackground())));
+    }
+
+    if (widget.getFabIcon() != null) {
+
+      fabClose.setColorFilter(parseColor(widget.getFabIcon()));
+    }
     scheme.setColor(GhostColorScheme.LINE_DIVIDER, parseColor(t.getLineDivider()));
     scheme.setColor(GhostColorScheme.LINE_NUMBER, parseColor(t.getLineNumber()));
     scheme.setColor(
@@ -234,7 +260,10 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
         (currentTheme.getWidget() != null) ? currentTheme.getWidget().getImagepath() : null;
     getView().setBackgroundColor(Color.parseColor(currentTheme.getActivity().getBackground()));
     if (imagePath != null && !imagePath.isEmpty()) {
-      Glide.with(this).load(imagePath).into(ivBackground);
+      Glide.with(this)
+          .load(imagePath)
+          .transform(new BlurTransformation((int) currentTheme.getWidget().getBlursize()))
+          .into(ivBackground);
       ivBackground.setVisibility(View.VISIBLE);
     } else {
       ivBackground.setVisibility(View.GONE);

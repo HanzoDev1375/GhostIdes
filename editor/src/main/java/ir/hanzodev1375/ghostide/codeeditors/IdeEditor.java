@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 import com.eup.codeopsstudio.editor.langs.widget.component.CustomEditorTextActionWindow;
+import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.graphics.inlayHint.TextInlayHintRenderer;
 import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintsContainer;
 import io.github.rosemoe.sora.lang.styling.inlayHint.TextInlayHint;
@@ -85,6 +86,13 @@ public class IdeEditor extends CodeEditor
     updateEditorTypeFace();
     editorBinder();
     updateEditorPowerMode();
+    subscribeEvent(
+        ContentChangeEvent.class,
+        (ev, un) -> {
+          if (isPowerModeEnabled() && getText().toString().length() > 0) {
+            mPowerModeEffectManager.spawnEffectAtCursor();
+          }
+        });
   }
 
   @SuppressWarnings({"Deprecated", "all"})
@@ -95,8 +103,8 @@ public class IdeEditor extends CodeEditor
     setRenderFunctionCharacters(true);
     setDisableSoftKbdIfHardKbdAvailable(true);
   }
-  
-  public void setOnLinkClick(OnLinkClickEventListener call){
+
+  public void setOnLinkClick(OnLinkClickEventListener call) {
     urlPreviewIde.setEvent(call);
   }
 
@@ -337,14 +345,6 @@ public class IdeEditor extends CodeEditor
     super.onDraw(canvas);
     if (mPowerModeEffectManager != null) {
       mPowerModeEffectManager.drawEffects(canvas);
-    }
-  }
-
-  @Override
-  public void afterInsert(Content arg0, int arg1, int arg2, int arg3, int arg4, CharSequence arg5) {
-    super.afterInsert(arg0, arg1, arg2, arg3, arg4, arg5);
-    if (isPowerModeEnabled() && arg5.length() > 0) {
-      mPowerModeEffectManager.spawnEffectAtCursor();
     }
   }
 

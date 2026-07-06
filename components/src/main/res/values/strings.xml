@@ -40,4 +40,9 @@
   <string name="search_result_count">%d results</string>
   <string name="search_found">%d files found</string>
   <string name="search_error_invalid_regex">Invalid Regex pattern</string>
+  <string name="web_sheet_loading">Loading…</string>
+  <string name="web_sheet_link_copied">Link copied</string>
+  <string name="web_sheet_menu_reload">Reload</string>
+  <string name="web_sheet_menu_copy_link">Copy link</string>
+  <string name="web_sheet_menu_open_browser">Open in browser</string>
 </resources>

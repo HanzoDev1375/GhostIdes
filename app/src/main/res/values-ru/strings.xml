@@ -283,5 +283,10 @@
   <string name="pref_power_mode">Режим мощности</string>
   <string name="pref_power_mode_desc">Показывать анимированные эффекты при вводе текста</string>
   <string name="pref_power_mode_effect">Тип эффекта</string>
+  <string name="icon_name_default">Обычный значок</string>
+  <string name="icon_name_glassblue">Стеклянная иконка синяя</string>
   <string name="pref_power_mode_effect_desc">Выберите анимацию, отображаемую при вводе текста</string>
+  <string name="pref_app_icon">Значок приложения</string>
+  <string name="pref_app_icon_desc">Выберите иконку приложения из нескольких готовых дизайнов.</string>
+  <string name="icon_name_hellish">Иконка Адская</string>
 </resources>

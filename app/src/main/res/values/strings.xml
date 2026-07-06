@@ -285,5 +285,11 @@
   <string name="pref_power_mode">Power Mode</string>
   <string name="pref_power_mode_desc">Show animated effects while typing</string>
   <string name="pref_power_mode_effect">Effect Type</string>
+  <string name="icon_name_default">Normal icon</string>
+  <string name="icon_name_glassblue">Glass Icon blue</string>
   <string name="pref_power_mode_effect_desc">Choose the animation shown while typing</string>
+  <string name="pref_app_icon">App icon</string>
+  <string name="pref_app_icon_desc">Choose an app icon from several ready-made designs</string>
+  <string name="icon_name_hellish">Icon Hellish</string>
+
 </resources>

@@ -188,6 +188,9 @@ public class FileManagerActivity extends BaseCompat
   private Set<String> images =
       new HashSet<>(
           Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp", ".avif", ".webp", ".svg"));
+  private Set<String> audio =
+      new HashSet<>(
+          Arrays.asList(".mp3", ".wav", ".m4a", ".ogg", ".flac", ".aac", ".opus", ".wma"));
   private CopyProgressDialog copyProgressDialog;
   private DeleteProgressDialog deleteProgressDialog;
   private boolean isZipMode = false;
@@ -201,6 +204,7 @@ public class FileManagerActivity extends BaseCompat
   private final AtomicBoolean gitStatusPending = new AtomicBoolean(false);
   private final ExecutorService ftpExecutor = Executors.newSingleThreadExecutor();
   private String currentDir;
+  private int systemBarsBottomInset = 0;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -808,6 +812,8 @@ public class FileManagerActivity extends BaseCompat
       } else {
         Toast.makeText(this, "No image found", Toast.LENGTH_SHORT).show();
       }
+    } else if (audio.contains(extension)) {
+      showMusicPreview(path);
     } else if (extension.equals(".apk")) {
       installApk(path);
     } else {
@@ -1063,7 +1069,13 @@ public class FileManagerActivity extends BaseCompat
         (view, insets) -> {
           Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
           int imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+          systemBarsBottomInset = systemBars.bottom;
           bind.headtop.setPadding(0, systemBars.top, 0, 0);
+          bind.musicPreview.setPadding(
+              bind.musicPreview.getPaddingLeft(),
+              bind.musicPreview.getPaddingTop(),
+              bind.musicPreview.getPaddingRight(),
+              systemBars.bottom);
           bind.fab.post(
               () -> {
                 int fabSpace = bind.fab.getHeight() + 48;
@@ -1073,18 +1085,40 @@ public class FileManagerActivity extends BaseCompat
                     bind.rvfiles.getPaddingTop(),
                     bind.rvfiles.getPaddingRight(),
                     systemBars.bottom + fabSpace + extraBottom);
-                ViewGroup.MarginLayoutParams fabParams =
-                    (ViewGroup.MarginLayoutParams) bind.fab.getLayoutParams();
-                fabParams.bottomMargin = systemBars.bottom;
-                bind.fab.setLayoutParams(fabParams);
+                updateFabBottomMargin();
               });
           return insets;
         });
   }
 
+  private void updateFabBottomMargin() {
+    ViewGroup.MarginLayoutParams fabParams =
+        (ViewGroup.MarginLayoutParams) bind.fab.getLayoutParams();
+    fabParams.bottomMargin =
+        systemBarsBottomInset
+            + (bind.musicPreview.getVisibility() == View.VISIBLE
+                ? bind.musicPreview.getHeight()
+                : 0);
+    bind.fab.setLayoutParams(fabParams);
+  }
+
+  private void showMusicPreview(String path) {
+    bind.musicPreview.setMusicPath(path);
+    bind.musicPreview.setVisibility(View.VISIBLE);
+    bind.musicPreview.post(this::updateFabBottomMargin);
+  }
+
+  private void hideMusicPreview() {
+    if (bind.musicPreview.getVisibility() != View.VISIBLE) return;
+    bind.musicPreview.release();
+    bind.musicPreview.setVisibility(View.GONE);
+    updateFabBottomMargin();
+  }
+
   @Override
   protected void onDestroy() {
     super.onDestroy();
+    bind.musicPreview.release();
     bind = null;
     this.unregisterReceiver(networkChangeReceiver);
     gitStatusExecutor.shutdownNow();
@@ -1098,7 +1132,9 @@ public class FileManagerActivity extends BaseCompat
             new OnBackPressedCallback(true) {
               @Override
               public void handleOnBackPressed() {
-                if (isZipMode) {
+                if (bind.musicPreview.getVisibility() == View.VISIBLE) {
+                  hideMusicPreview();
+                } else if (isZipMode) {
                   if (!zipAdapter.navigateUp()) {
                     exitZipMode();
                   }

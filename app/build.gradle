@@ -97,4 +97,5 @@ dependencies {
         transitive = false
     }
     implementation 'com.caverock:androidsvg:1.4'
+    implementation project(':musicpreview')
 }

@@ -41,4 +41,9 @@
   <string name="search_result_count">%d 个结果</string>
   <string name="search_found">找到 %d 个文件</string>
   <string name="search_error_invalid_regex">无效的正则表达式模式</string>
+  <string name="web_sheet_loading">加载中…</string>
+  <string name="web_sheet_link_copied">链接已复制</string>
+  <string name="web_sheet_menu_reload">重新加载</string>
+  <string name="web_sheet_menu_copy_link">复制链接</string>
+  <string name="web_sheet_menu_open_browser">在浏览器中打开</string>
 </resources>

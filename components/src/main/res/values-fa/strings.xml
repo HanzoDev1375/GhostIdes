@@ -41,4 +41,9 @@
   <string name="search_result_count">%d نتیجه</string>
   <string name="search_found">%d فایل پیدا شد</string>
   <string name="search_error_invalid_regex">الگوی Regex نامعتبر است</string>
+  <string name="web_sheet_loading">در حال بارگیری…</string>
+  <string name="web_sheet_link_copied">لینک کپی شد</string>
+  <string name="web_sheet_menu_reload">بارگذاری مجدد</string>
+  <string name="web_sheet_menu_copy_link">لینک را کپی کنید</string>
+  <string name="web_sheet_menu_open_browser">در مرورگر باز کنید</string>
 </resources>

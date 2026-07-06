@@ -41,4 +41,9 @@
   <string name="search_result_count">%d resultados</string>
   <string name="search_found">%d arquivos encontrados</string>
   <string name="search_error_invalid_regex">Padrão Regex inválido</string>
+  <string name="web_sheet_loading">Carregando…</string>
+  <string name="web_sheet_link_copied">Link copiado</string>
+  <string name="web_sheet_menu_reload">Recarregar</string>
+  <string name="web_sheet_menu_copy_link">Copiar link</string>
+  <string name="web_sheet_menu_open_browser">Abrir no navegador</string>
 </resources>

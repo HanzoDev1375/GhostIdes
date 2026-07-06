@@ -283,5 +283,10 @@
   <string name="pref_power_mode">حالت قدرت</string>
   <string name="pref_power_mode_desc">نمایش جلوه های متحرک هنگام تایپ</string>
   <string name="pref_power_mode_effect">نوع اثر</string>
+  <string name="icon_name_default">نماد عادی</string>
+  <string name="icon_name_glassblue">آیکون شیشه ای آبی</string>
   <string name="pref_power_mode_effect_desc">انیمیشن نشان داده شده در حین تایپ را انتخاب کنید</string>
+  <string name="pref_app_icon">نماد برنامه</string>
+  <string name="pref_app_icon_desc">یک نماد برنامه را از چندین طرح آماده انتخاب کنید</string>
+  <string name="icon_name_hellish">نماد جهنمی</string>
 </resources>

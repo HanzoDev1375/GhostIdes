@@ -17,7 +17,7 @@
 			app:navigationIcon="?attr/homeAsUpIndicator"
 			android:id="@+id/toolbar" />
 
-		<HorizontalScrollView
+		<com.google.android.material.tabs.TabLayout
 			android:layout_height="wrap_content"
 			android:layout_width="match_parent"
 			app:tabMode="fixed"

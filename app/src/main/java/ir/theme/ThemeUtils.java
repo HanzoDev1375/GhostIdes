@@ -15,6 +15,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.skydoves.powermenu.PowerMenu;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
+import ir.hanzodev1375.components.WebViewBottomSheetFragment;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorscheme.GhostColorScheme;
 import ir.hanzodev1375.ghostide.customui.LayoutSymbolbar;
@@ -41,7 +42,7 @@ public class ThemeUtils {
     if (w == null) {
       return;
     }
-    if (!w.getImagepath().isEmpty()) {
+    if (w.getImagepath() != null && !w.getImagepath().isEmpty()) {
       v.setVisibility(View.VISIBLE);
       Glide.with(v.getContext())
           .load(w.getImagepath())
@@ -60,6 +61,20 @@ public class ThemeUtils {
     }
     ActivityTheme colors = theme.getActivity();
     v.setBackgroundColor(Color.parseColor(colors.getBackground()));
+  }
+
+  public void applyWebViewBottomSheetFragment(WebViewBottomSheetFragment sheet) {
+    var theme = getTheme();
+    var weget = theme.getWidget();
+    if (weget == null) return;
+    
+    sheet.setSheetBackgroundColor(Color.parseColor(weget.getBackground()));
+    sheet.setHeaderTextColor(Color.parseColor(weget.getAccent()));
+    sheet.setProgressBarColor(Color.parseColor(weget.getAccent()));
+    sheet.setIconColorFilter(Color.parseColor(weget.getImageTint()));
+    sheet.setCloseIconTint(Color.parseColor(weget.getImageTint()));
+    sheet.setDropdownIconTint(Color.parseColor(weget.getImageTint()));
+    sheet.setMenuIconTint(Color.parseColor(weget.getImageTint()));
   }
 
   public void applyViewPagePanel(ImageView v, ImageView v2, TextView tv, View rootview) {
@@ -89,7 +104,7 @@ public class ThemeUtils {
     if (w == null) {
       return;
     }
-     if (!w.getImagepath().isEmpty()) {
+    if (w.getImagepath() != null && !w.getImagepath().isEmpty()) {
       ic.setVisibility(View.VISIBLE);
       Glide.with(ic.getContext())
           .load(w.getImagepath())

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/bg_sheet_top_rounded">
+>
 
     <!-- دستگیره‌ی بالای شیت -->
     <View
@@ -21,8 +22,8 @@
         android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
         android:orientation="horizontal"
+        android:id="@+id/headerback"
         android:gravity="center_vertical"
-        android:background="@drawable/bg_link_preview_card"
         android:paddingStart="4dp"
         android:paddingEnd="4dp">
 
@@ -40,7 +41,6 @@
             android:layout_width="26dp"
             android:layout_height="26dp"
             android:layout_marginStart="2dp"
-            android:background="@drawable/bg_link_icon_rounded"
             android:padding="4dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_public_24"
@@ -52,7 +52,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:singleLine="true"
             android:ellipsize="end"
@@ -87,7 +86,6 @@
         android:layout_marginTop="6dp"
         android:max="100"
         android:progress="0"
-        android:progressDrawable="@drawable/progress_bar_gray"
         android:indeterminate="false"
         android:visibility="gone" />
 
