@@ -22,6 +22,7 @@ import ir.hanzodev1375.ghostide.codeeditors.preview.url.OnLinkClickEventListener
 import ir.hanzodev1375.ghostide.codeeditors.preview.url.UrlPreviewIde;
 import ir.hanzodev1375.ghostide.codeeditors.setting.Constants;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.ghostide.codeeditors.stringres.StringResourceExtractorIde;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorAutoCompletion;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorCompletionAdapter;
 import ir.hanzodev1375.ghostide.codeeditors.ui.power.PowerModeEffectManager;
@@ -39,6 +40,7 @@ public class IdeEditor extends CodeEditor
   private PowerModeEffectManager mPowerModeEffectManager;
   private boolean powerModeEnabled = false;
   private UrlPreviewIde urlPreviewIde;
+  private StringResourceExtractorIde stringresourceextractoride;
 
   public IdeEditor(Context context) {
     super(context);
@@ -52,7 +54,6 @@ public class IdeEditor extends CodeEditor
 
   private void init() {
     setting = new PreferencesUtils(getContext());
-    // test
     setWebIdeColor(true);
     imagePreviewIde = new ImagePreviewIde(this);
     imagePreviewIde.attach();
@@ -60,6 +61,8 @@ public class IdeEditor extends CodeEditor
     var editorAutoCompletion = new CustomEditorAutoCompletion(this);
     urlPreviewIde = new UrlPreviewIde(this);
     urlPreviewIde.attach();
+    stringresourceextractoride = new StringResourceExtractorIde(this);
+    stringresourceextractoride.attach();
     editorAutoCompletion.setAdapter(new CustomEditorCompletionAdapter());
     replaceComponent(EditorAutoCompletion.class, editorAutoCompletion);
     replaceComponent(EditorTextActionWindow.class, new CustomEditorTextActionWindow(this));
@@ -118,6 +121,9 @@ public class IdeEditor extends CodeEditor
   public void setCurrentFilePath(String htmlFilePath) {
     if (imagePreviewIde != null) {
       imagePreviewIde.setCurrentFilePath(htmlFilePath);
+    }
+    if (stringresourceextractoride != null) {
+      stringresourceextractoride.setCurrentFilePath(htmlFilePath);
     }
   }
 

@@ -1,174 +1,188 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools">
-  <uses-permission android:name="android.permission.INTERNET" />
-  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-  <uses-permission
-    android:name="android.permission.READ_EXTERNAL_STORAGE"
-    android:maxSdkVersion="32" />
-  <uses-permission android:name="android.permission.SET_WALLPAPER" />
-  <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-  <uses-permission
-    android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-    android:maxSdkVersion="29"
-    tools:ignore="ScopedStorage" />
-  <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-  <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-  <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-  <uses-permission
-    android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
-    tools:ignore="ScopedStorage" />
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
 
-  <application
-    android:allowBackup="true"
-    android:icon="@mipmap/ic_lego"
-    android:label="@string/app_name"
-    android:name=".GhostIdeAppLoader"
-    android:theme="@style/AppTheme"
-    android:usesCleartextTraffic="true"
-    android:requestLegacyExternalStorage="true"
-    tools:targetApi="31">
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_lego"
+        android:label="@string/app_name"
+        android:name=".GhostIdeAppLoader"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
+        tools:targetApi="31">
 
-    <provider
-      android:name="androidx.core.content.FileProvider"
-      android:authorities="${applicationId}.fileprovider"
-      android:exported="false"
-      android:grantUriPermissions="true">
-      <meta-data
-        android:name="android.support.FILE_PROVIDER_PATHS"
-        android:resource="@xml/file_paths" />
-    </provider>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
-    <activity
-      android:name=".MainActivity"
-      android:exported="true">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-    </activity>
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-    <activity
-      android:name=".activity.FileManagerActivity"
-      android:exported="false"
-      android:windowSoftInputMode="adjustResize" />
-    <activity android:name=".activity.ImageViewerActivity" />
-    <activity android:name=".activity.AboutActivity" />
+        <activity
+            android:name=".activity.FileManagerActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".activity.ImageViewerActivity" />
+        <activity android:name=".activity.AboutActivity" />
 
-    <activity
-      android:name=".activity.EditorActivity"
-      android:exported="true"
-      android:launchMode="singleTop"
-      android:windowSoftInputMode="adjustResize">
-      <intent-filter>
-        <action android:name="android.intent.action.VIEW" />
-        <category android:name="android.intent.category.DEFAULT" />
-        <category android:name="android.intent.category.BROWSABLE" />
-        <data android:mimeType="text/*" />
-        <data android:mimeType="application/json" />
-        <data android:mimeType="application/xml" />
-        <data android:mimeType="application/javascript" />
-      </intent-filter>
-      <intent-filter>
-        <action android:name="android.intent.action.VIEW" />
-        <category android:name="android.intent.category.DEFAULT" />
-        <data android:scheme="file" />
-        <data android:scheme="content" />
-        <data android:host="*" />
-        <data android:pathPattern=".*\\.java" />
-        <data android:pathPattern=".*\\.kt" />
-        <data android:pathPattern=".*\\.xml" />
-        <data android:pathPattern=".*\\.js" />
-        <data android:pathPattern=".*\\.html" />
-        <data android:pathPattern=".*\\.css" />
-        <data android:pathPattern=".*\\.txt" />
-        <data android:pathPattern=".*\\.json" />
-        <data android:pathPattern=".*\\.md" />
-        <data android:pathPattern=".*\\.py" />
-        <data android:pathPattern=".*\\.php" />
-        <data android:pathPattern=".*\\.g4" />
-        <data android:pathPattern=".*\\.c" />
-        <data android:pathPattern=".*\\.cpp" />
-        <data android:pathPattern=".*\\.h" />
-        <data android:pathPattern=".*\\.cs" />
-        <data android:pathPattern=".*\\.go" />
-        <data android:pathPattern=".*\\.rb" />
-        <data android:pathPattern=".*\\.swift" />
-        <data android:pathPattern=".*\\.rs" />
-        <data android:pathPattern=".*\\.dart" />
-        <data android:pathPattern=".*\\.sql" />
-        <data android:pathPattern=".*\\.sh" />
-        <data android:pathPattern=".*\\.bat" />
-        <data android:pathPattern=".*\\.properties" />
-        <data android:pathPattern=".*\\.gradle" />
-        <data android:pathPattern=".*\\.yml" />
-        <data android:pathPattern=".*\\.yaml" />
-        <data android:pathPattern=".*\\.toml" />
-        <data android:pathPattern=".*\\.ini" />
-        <data android:pathPattern=".*\\.cfg" />
-        <data android:pathPattern=".*\\.conf" />
-        <data android:pathPattern=".*\\.log" />
-        <data android:pathPattern=".*\\.ini" />
-        <data android:pathPattern=".*\\.sh" />
-        <data android:pathPattern=".*\\.tsx" />
-        <data android:pathPattern=".*\\.jsx" />
-        <data android:pathPattern=".*\\.bash" />
-        <data android:pathPattern=".*\\.ash" />
-        <data android:pathPattern=".*\\.zsh" />
-        <data android:pathPattern=".*\\.zshrc" />
-        <data android:pathPattern=".*\\.rs" />
-        <data android:pathPattern=".*\\.rb" />
+        <activity
+            android:name=".activity.EditorActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="text/*" />
+                <data android:mimeType="application/json" />
+                <data android:mimeType="application/xml" />
+                <data android:mimeType="application/javascript" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.java" />
+                <data android:pathPattern=".*\\.kt" />
+                <data android:pathPattern=".*\\.xml" />
+                <data android:pathPattern=".*\\.js" />
+                <data android:pathPattern=".*\\.html" />
+                <data android:pathPattern=".*\\.css" />
+                <data android:pathPattern=".*\\.txt" />
+                <data android:pathPattern=".*\\.json" />
+                <data android:pathPattern=".*\\.md" />
+                <data android:pathPattern=".*\\.py" />
+                <data android:pathPattern=".*\\.php" />
+                <data android:pathPattern=".*\\.g4" />
+                <data android:pathPattern=".*\\.c" />
+                <data android:pathPattern=".*\\.cpp" />
+                <data android:pathPattern=".*\\.h" />
+                <data android:pathPattern=".*\\.cs" />
+                <data android:pathPattern=".*\\.go" />
+                <data android:pathPattern=".*\\.rb" />
+                <data android:pathPattern=".*\\.swift" />
+                <data android:pathPattern=".*\\.rs" />
+                <data android:pathPattern=".*\\.dart" />
+                <data android:pathPattern=".*\\.sql" />
+                <data android:pathPattern=".*\\.sh" />
+                <data android:pathPattern=".*\\.bat" />
+                <data android:pathPattern=".*\\.properties" />
+                <data android:pathPattern=".*\\.gradle" />
+                <data android:pathPattern=".*\\.yml" />
+                <data android:pathPattern=".*\\.yaml" />
+                <data android:pathPattern=".*\\.toml" />
+                <data android:pathPattern=".*\\.ini" />
+                <data android:pathPattern=".*\\.cfg" />
+                <data android:pathPattern=".*\\.conf" />
+                <data android:pathPattern=".*\\.log" />
+                <data android:pathPattern=".*\\.ini" />
+                <data android:pathPattern=".*\\.sh" />
+                <data android:pathPattern=".*\\.tsx" />
+                <data android:pathPattern=".*\\.jsx" />
+                <data android:pathPattern=".*\\.bash" />
+                <data android:pathPattern=".*\\.ash" />
+                <data android:pathPattern=".*\\.zsh" />
+                <data android:pathPattern=".*\\.zshrc" />
+                <data android:pathPattern=".*\\.rs" />
+                <data android:pathPattern=".*\\.rb" />
 
-      </intent-filter>
-      <intent-filter>
-        <action android:name="android.intent.action.VIEW" />
-        <category android:name="android.intent.category.DEFAULT" />
-        <category android:name="android.intent.category.BROWSABLE" />
-        <data android:scheme="http" />
-        <data android:scheme="https" />
-        <data android:host="*" />
-        <data android:pathPattern=".*\\.java" />
-        <data android:pathPattern=".*\\.kt" />
-      </intent-filter>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.java" />
+                <data android:pathPattern=".*\\.kt" />
+            </intent-filter>
 
-    </activity>
+        </activity>
 
-    <activity
-      android:name=".activity.SettingActivity"
-      android:exported="false"
-      android:launchMode="singleTop" />
+        <activity
+            android:name=".activity.SettingActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
 
-    <activity android:name=".activity.ErrorManagerActivity" />
-    <activity android:name=".activity.WebViewActivity" />
-    <activity android:name="ir.theme.themeeditor.ThemeEditorActivity" />
-    <activity android:name="ir.hanzodev1375.ghostide.ai.chat.AiChatActivity" />
-    <activity android:name="ir.hanzodev1375.components.store.activitys.StoreActivity" />
-    <receiver
-      android:enabled="false"
-      android:exported="true"
-      android:name="ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver">
-      <intent-filter>
-        <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-      </intent-filter>
-    </receiver>
-    <provider
-      android:name="rikka.shizuku.ShizukuProvider"
-      android:authorities="${applicationId}.shizuku"
-      android:multiprocess="false"
-      android:enabled="true"
-      android:exported="true"
-      android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
-    <activity-alias
-      android:name=".IconAliasBlue"
-      android:targetActivity=".MainActivity"
-      android:icon="@drawable/iconblue"
-      android:label="@string/app_name"
-      android:enabled="false"
-      android:exported="true">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-    </activity-alias>
-  </application>
+        <activity android:name=".activity.ErrorManagerActivity" />
+        <activity android:name=".activity.WebViewActivity" />
+        <activity android:name="ir.theme.themeeditor.ThemeEditorActivity" />
+        <activity android:name="ir.hanzodev1375.ghostide.ai.chat.AiChatActivity" />
+        <activity android:name="ir.hanzodev1375.components.store.activitys.StoreActivity" />
+        <receiver
+            android:enabled="false"
+            android:exported="true"
+            android:name="ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+        <activity-alias
+            android:name=".IconAliasBlue"
+            android:targetActivity=".MainActivity"
+            android:icon="@drawable/iconblue"
+            android:label="@string/app_name"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".IconAliasHellish"
+            android:targetActivity=".MainActivity"
+            android:icon="@drawable/iconhellish"
+            android:label="@string/app_name"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+    </application>
 </manifest>

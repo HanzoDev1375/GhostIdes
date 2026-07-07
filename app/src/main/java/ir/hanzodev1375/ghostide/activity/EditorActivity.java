@@ -368,16 +368,15 @@ public class EditorActivity extends BaseCompat {
     tree.setNodePath(rootPath);
     tree.loadTree();
 
-    tree.getAdapter()
-        .setOnNodeClickListener(
-            (v, c) -> {
-              if (v != null && !v.isFolder()) {
-                String filePath = v.getAbsolutePath();
-                if (filePath != null) {
-                  openFile(filePath);
-                }
-              }
-            });
+    tree.setClickNode(
+        (v, c) -> {
+          if (v != null && !v.isFolder()) {
+            String filePath = v.getAbsolutePath();
+            if (filePath != null) {
+              openFile(filePath);
+            }
+          }
+        });
 
     SideSheetDialog sideSheet = new SideSheetDialog(this);
     sideSheet.setContentView(tree);

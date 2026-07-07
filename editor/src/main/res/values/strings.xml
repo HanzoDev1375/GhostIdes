@@ -23,4 +23,16 @@
     <item quantity="one">Match</item>
     <item quantity="other">Matches</item>
   </plurals>
+  <string name="extract_string_dialog_title">Extract to strings.xml</string>
+  <string name="extract_string_name_hint">String name (name)</string>
+  <string name="extract_string_value_hint">Value (value)</string>
+  <string name="extract_string_confirm">Confirm</string>
+  <string name="extract_string_cancel">Cancel</string>
+  <string name="extract_string_name_empty">String name cannot be empty</string>
+  <string name="extract_string_multiline_error">Please select a string within a single line only</string>
+  <string name="extract_string_empty_selection">No text selected</string>
+  <string name="extract_string_invalid_path">Could not locate strings.xml (invalid project structure)</string>
+  <string name="extract_string_success">Added to strings.xml: %s</string>
+  <string name="extract_string_error">Error: %s</string>
+
 </resources>

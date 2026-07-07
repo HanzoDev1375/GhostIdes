@@ -91,9 +91,9 @@ dependencies {
     implementation(libs.shizuku.api)
     implementation(libs.shizuku.provider)
     implementation("androidx.palette:palette:1.0.0")
-    implementation('com.github.HanzoDev1375.AndroidFileTree:filetreelib:1.1.2')
+    implementation('com.github.HanzoDev1375.AndroidFileTree:filetreelib:1.1.3')
     
-    implementation('com.github.HanzoDev1375.AndroidFileTree:filetreeglide:1.1.2') {
+    implementation('com.github.HanzoDev1375.AndroidFileTree:filetreeglide:1.1.3') {
         transitive = false
     }
     implementation 'com.caverock:androidsvg:1.4'

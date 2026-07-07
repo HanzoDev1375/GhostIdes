@@ -16,7 +16,10 @@ import ir.hanzodev1375.ghostide.R;
 public enum AppIcon {
   DEFAULT("ir.hanzodev1375.ghostide.MainActivity", R.mipmap.ic_lego, R.string.icon_name_default),
   DARK("ir.hanzodev1375.ghostide.IconAliasBlue", R.drawable.iconblue, R.string.icon_name_glassblue),
-  HELLISH("ir.hanzodev1375.ghostide.IconAliasHellish",R.drawable.iconhellish,R.string.icon_name_hellish);
+  HELLISH(
+      "ir.hanzodev1375.ghostide.IconAliasHellish",
+      R.drawable.iconhellish,
+      R.string.icon_name_hellish);
   public final String componentName;
   public final int previewRes;
   @StringRes public final int labelRes;
