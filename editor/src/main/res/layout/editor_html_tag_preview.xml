@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:tools="http://schemas.android.com/tools"
+     android:layout_height="wrap_content"
+     android:layout_width="match_parent"
+     android:scrollbars="none">
+
+    <LinearLayout
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:orientation="vertical">
+
+        <TextView
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:textSize="13sp"
+             android:maxWidth="240dp"
+             tools:text="&lt;div&gt;"
+             android:id="@+id/html_tag_name"
+             android:textStyle="bold" />
+
+        <TextView
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:textSize="12sp"
+             android:layout_marginTop="4dp"
+             android:maxWidth="240dp"
+             tools:text="The div HTML element is the generic container for flow content."
+             android:id="@+id/html_tag_content" />
+
+    </LinearLayout>
+
+</ScrollView>

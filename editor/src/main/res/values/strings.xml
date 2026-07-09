@@ -34,5 +34,7 @@
   <string name="extract_string_invalid_path">Could not locate strings.xml (invalid project structure)</string>
   <string name="extract_string_success">Added to strings.xml: %s</string>
   <string name="extract_string_error">Error: %s</string>
+  <string name="xml_attr_doc_code_label">Code</string>
+  <string name="xml_attr_doc_example_label">Example</string>
 
 </resources>

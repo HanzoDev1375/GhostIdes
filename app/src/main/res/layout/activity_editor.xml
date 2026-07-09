@@ -1,119 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
-     xmlns:android="http://schemas.android.com/apk/res/android"
-     xmlns:app="http://schemas.android.com/apk/res-auto"
-     xmlns:tools="http://schemas.android.com/tools"
-     android:layout_height="match_parent"
-     android:layout_width="match_parent"
-     android:fitsSystemWindows="false"
-     android:id="@+id/_coordinator">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:fitsSystemWindows="false"
+    android:id="@+id/_coordinator">
 
     <ImageView
-         android:layout_height="match_parent"
-         android:layout_width="match_parent"
-         android:visibility="invisible"
-         android:scaleType="centerCrop"
-         android:id="@+id/backgroundicon" />
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:visibility="invisible"
+        android:scaleType="centerCrop"
+        android:id="@+id/backgroundicon" />
 
     <LinearLayout
-         android:layout_height="match_parent"
-         android:layout_width="match_parent"
-         android:background="@android:color/transparent"
-         android:orientation="vertical"
-         android:id="@+id/mainContent">
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:background="@android:color/transparent"
+        android:orientation="vertical"
+        android:id="@+id/mainContent">
 
         <LinearLayout
-             android:layout_height="match_parent"
-             android:layout_width="match_parent"
-             android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:orientation="vertical">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                 android:layout_height="wrap_content"
-                 android:layout_width="match_parent"
-                 android:paddingVertical="8dp"
-                 android:id="@+id/toobar">
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:paddingVertical="8dp"
+                android:id="@+id/toobar">
 
                 <ImageView
-                     android:layout_height="40dp"
-                     android:layout_width="40dp"
-                     android:scaleType="centerInside"
-                     android:src="@drawable/user"
-                     app:layout_constraintTop_toTopOf="parent"
-                     app:layout_constraintStart_toStartOf="parent"
-                     app:layout_constraintBottom_toBottomOf="parent"
-                     android:layout_marginStart="6dp"
-                     android:id="@+id/userIcon" />
+                    android:layout_height="40dp"
+                    android:layout_width="40dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/user"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginStart="6dp"
+                    android:id="@+id/userIcon" />
 
                 <TextView
-                     android:layout_height="wrap_content"
-                     android:layout_width="wrap_content"
-                     app:layout_constraintTop_toTopOf="parent"
-                     android:padding="8dp"
-                     app:layout_constraintStart_toEndOf="@id/userIcon"
-                     app:layout_constraintBottom_toBottomOf="parent"
-                     android:id="@+id/userName"
-                     android:text="user"
-                     android:textStyle="bold" />
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:padding="8dp"
+                    app:layout_constraintStart_toEndOf="@id/userIcon"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:id="@+id/userName"
+                    android:text="user"
+                    android:textStyle="bold" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                     android:layout_height="wrap_content"
-                     android:layout_width="wrap_content"
-                     android:layout_marginEnd="6dp"
-                     app:layout_constraintTop_toTopOf="parent"
-                     android:padding="6dp"
-                     app:layout_constraintEnd_toEndOf="parent"
-                     app:layout_constraintBottom_toBottomOf="parent"
-                     android:id="@+id/rvtoolbar" />
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:padding="6dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:id="@+id/rvtoolbar" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.google.android.material.tabs.TabLayout
-                 android:layout_height="wrap_content"
-                 android:layout_width="match_parent"
-                 app:tabMode="scrollable"
-                 app:tabGravity="start"
-                 app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
-                 app:tabIndicatorHeight="3dp"
-                 android:id="@+id/tab">
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                app:tabMode="scrollable"
+                app:tabGravity="start"
+                app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
+                app:tabIndicatorHeight="3dp"
+                android:id="@+id/tab">
 
             </com.google.android.material.tabs.TabLayout>
 
             <androidx.viewpager2.widget.ViewPager2
-                 android:layout_height="match_parent"
-                 android:layout_width="match_parent"
-                 android:id="@+id/viewPager" />
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:id="@+id/viewPager" />
 
         </LinearLayout>
 
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-         android:layout_height="wrap_content"
-         android:layout_width="wrap_content"
-         android:layout_marginBottom="16dp"
-         android:src="@drawable/play_arrow"
-         android:elevation="6dp"
-         android:layout_marginRight="16dp"
-         android:outlineProvider="none"
-         android:id="@+id/fabineditor"
-         android:layout_gravity="right|bottom" />
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/play_arrow"
+        android:elevation="6dp"
+        android:layout_marginRight="16dp"
+        android:outlineProvider="none"
+        android:id="@+id/fabineditor"
+        android:layout_gravity="right|bottom" />
 
     <ir.hanzodev1375.ghostide.customui.LayoutSymbolbar
-         android:layout_height="wrap_content"
-         android:layout_width="match_parent"
-         android:layout_marginBottom="0dp"
-         android:layout_marginEnd="16dp"
-         android:layout_marginStart="16dp"
-         android:id="@+id/symbolBarContainer"
-         android:layout_gravity="bottom|end" />
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginBottom="0dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:id="@+id/symbolBarContainer"
+        android:layout_gravity="bottom|end" />
+
+    <ir.hanzodev1375.ghostide.customui.EditorStatusBar
+        android:layout_height="36dp"
+        android:layout_width="match_parent"
+        android:layout_marginBottom="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        app:esb_encodingText="UTF-8"
+        app:esb_languageText="Java"
+        app:esb_statusText="No issues"
+        android:visibility="gone"
+        android:id="@+id/editorStatusBar"
+        android:layout_gravity="bottom" />
 
     <ir.hanzodev1375.ghostide.customui.GhostIdeEditorSearch
-         android:layout_height="wrap_content"
-         android:layout_width="match_parent"
-         android:elevation="4dp"
-         android:layout_marginLeft="16dp"
-         android:layout_marginRight="16dp"
-         android:id="@+id/editorSearch"
-         android:layout_gravity="bottom" />
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:elevation="4dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:id="@+id/editorSearch"
+        android:layout_gravity="bottom" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

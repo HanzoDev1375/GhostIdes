@@ -2,13 +2,15 @@ package ir.hanzodev1375.ghostide.customui;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.Transition;
-import com.google.android.material.transition.MaterialSharedAxis;
 import androidx.transition.TransitionManager;
-import android.view.View;
+import com.google.android.material.transition.MaterialSharedAxis;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import ir.hanzodev1375.ghostide.adapters.SysmbolbarAdapter;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.theme.ThemeManager;
@@ -16,13 +18,13 @@ import ir.theme.ThemeUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Supplier;
 
 public class LayoutSymbolbar extends LinearLayoutCompat {
-  private IdeEditor editor;
+
+  private Supplier<IdeEditor> editorSupplier;
   private boolean isShowing = false;
   private ArrayList<HashMap<String, Object>> staticSymbiolPiare = new ArrayList<>();
 
@@ -36,51 +38,65 @@ public class LayoutSymbolbar extends LinearLayoutCompat {
     init();
   }
 
-  public void bindEditor(IdeEditor editor) {
-    this.editor = editor;
+  public void bindEditor(Supplier<IdeEditor> supplier) {
+    this.editorSupplier = supplier;
+  }
+
+  private IdeEditor getEditor() {
+    return editorSupplier != null ? editorSupplier.get() : null;
   }
 
   void init() {
-    var rv = new RecyclerView(getContext());
+
+    RecyclerView rv = new RecyclerView(getContext());
     rv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+
     removeAllViews();
-    if (rv != null) {
-      addView(rv);
-    }
+    addView(rv);
+
     try {
       InputStream inputstream5 = getContext().getAssets().open("data/symbol.json");
+
       staticSymbiolPiare =
           new Gson()
               .fromJson(
                   copyFromInputStream(inputstream5),
                   new TypeToken<ArrayList<HashMap<String, Object>>>() {}.getType());
 
-    } catch (Exception err) {
-
+    } catch (Exception ignored) {
     }
 
     SysmbolbarAdapter syspiarAdapter =
         new SysmbolbarAdapter(
             staticSymbiolPiare,
             new SysmbolbarAdapter.OnTabView() {
+
               @Override
               public void TAB(String tab) {
-                editor.commitText("  ");
+                IdeEditor editor = getEditor();
+                if (editor != null) {
+                  editor.commitText("  ");
+                }
               }
 
               @Override
               public void POST(String post) {
-                editor.insertText(post, post.length());
+                IdeEditor editor = getEditor();
+                if (editor != null) {
+                  editor.insertText(post, post.length());
+                }
               }
             },
             null);
+
     rv.setAdapter(syspiarAdapter);
     rv.setLayoutManager(
         new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
-    var manager = new ThemeManager(getContext());
-    var themeUtils = new ThemeUtils(manager);
+    ThemeManager manager = new ThemeManager(getContext());
+    ThemeUtils themeUtils = new ThemeUtils(manager);
     themeUtils.applySymbolBarLayout(this);
+
     setVisibility(View.GONE);
     isShowing = false;
   }
@@ -88,14 +104,15 @@ public class LayoutSymbolbar extends LinearLayoutCompat {
   protected String copyFromInputStream(InputStream inputStream) {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     byte[] buf = new byte[1024];
-    int i;
+
     try {
+      int i;
       while ((i = inputStream.read(buf)) != -1) {
         outputStream.write(buf, 0, i);
       }
       outputStream.close();
       inputStream.close();
-    } catch (IOException e) {
+    } catch (IOException ignored) {
     }
 
     return outputStream.toString();

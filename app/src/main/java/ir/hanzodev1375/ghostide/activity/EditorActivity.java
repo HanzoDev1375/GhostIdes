@@ -43,6 +43,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -78,6 +79,7 @@ public class EditorActivity extends BaseCompat {
   private String gitStatusRepoPath;
   private Set<String> gitChangedPaths = new HashSet<>();
   private ViewTreeObserver.OnGlobalLayoutListener keyboardLayoutListener;
+  private ViewTreeObserver.OnGlobalLayoutListener symbolBarVisibilityListener;
   private long lastGitRefreshTime = 0;
   private boolean hasStar = false;
   private static final long GIT_REFRESH_DEBOUNCE_MS = 1500;
@@ -93,6 +95,7 @@ public class EditorActivity extends BaseCompat {
     setupTabLayout();
     setupFAB();
     loadSavedTabs();
+    updateLanguageStatus(binding.viewPager.getCurrentItem());
     PluginManager.init(this);
     String configPath = Environment.getExternalStorageDirectory() + "/GhostIDE/plugins/config.json";
     PluginManager.getInstance().loadPluginsFromConfig(configPath);
@@ -113,6 +116,7 @@ public class EditorActivity extends BaseCompat {
     }
     stepToolbar();
     setupKeyboardListener();
+    setupSymbolBarVisibilityWatcher();
     GitHubClient gitHub = new GitHubClient(this);
     if (gitHub.isLoggedIn()) {
       binding.userName.setText(gitHub.getName());
@@ -143,7 +147,8 @@ public class EditorActivity extends BaseCompat {
           }
         });
     binding.symbolBarContainer.hide();
-    binding.symbolBarContainer.bindEditor(getEditor());
+    binding.symbolBarContainer.bindEditor(this::getEditor);
+    theme.applyEditorStatusBar(binding.editorStatusBar);
 
     ViewCompat.setOnApplyWindowInsetsListener(
         binding.getRoot(),
@@ -158,6 +163,21 @@ public class EditorActivity extends BaseCompat {
           if (binding.mainContent != null) {
             binding.mainContent.setPadding(0, statusBarHeight, 0, navBarHeight);
           }
+
+          int gapFromKeyboardDp = 8;
+          int gapPx =
+              (int)
+                  TypedValue.applyDimension(
+                      TypedValue.COMPLEX_UNIT_DIP,
+                      gapFromKeyboardDp,
+                      getResources().getDisplayMetrics());
+
+          int editorStatusBarHeightPx =
+              (int)
+                  TypedValue.applyDimension(
+                      TypedValue.COMPLEX_UNIT_DIP, 36, getResources().getDisplayMetrics());
+          boolean willShowEditorStatusBar = imeHeight <= 0 && !binding.editorSearch.isShowing;
+
           CoordinatorLayout.LayoutParams fabParams =
               (CoordinatorLayout.LayoutParams) binding.fabineditor.getLayoutParams();
           int originalFabBottomMarginDp = 20;
@@ -169,18 +189,12 @@ public class EditorActivity extends BaseCompat {
                       getResources().getDisplayMetrics());
           int newFabMargin = navBarHeight + originalFabBottomMarginPx;
           if (imeHeight > 0) newFabMargin += imeHeight;
-          fabParams.bottomMargin = newFabMargin;
+          int extraForStatusBar = willShowEditorStatusBar ? (editorStatusBarHeightPx + gapPx) : 0;
+          fabParams.bottomMargin = newFabMargin + 9 + extraForStatusBar;
           binding.fabineditor.setLayoutParams(fabParams);
 
           CoordinatorLayout.LayoutParams searchParams =
               (CoordinatorLayout.LayoutParams) binding.editorSearch.getLayoutParams();
-          int gapFromKeyboardDp = 8;
-          int gapPx =
-              (int)
-                  TypedValue.applyDimension(
-                      TypedValue.COMPLEX_UNIT_DIP,
-                      gapFromKeyboardDp,
-                      getResources().getDisplayMetrics());
           if (imeHeight > 0) {
             searchParams.bottomMargin = imeHeight + gapPx;
           } else {
@@ -210,8 +224,26 @@ public class EditorActivity extends BaseCompat {
             symbolParams.bottomMargin = defaultPx;
           }
           binding.symbolBarContainer.setLayoutParams(symbolParams);
+
+          CoordinatorLayout.LayoutParams statusBarParams =
+              (CoordinatorLayout.LayoutParams) binding.editorStatusBar.getLayoutParams();
+          if (imeHeight > 0) {
+            statusBarParams.bottomMargin = navBarHeight + imeHeight + gapPx;
+          } else {
+            int statusBarDefaultDp = 16;
+            int statusBarDefaultPx =
+                (int)
+                    TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        statusBarDefaultDp,
+                        getResources().getDisplayMetrics());
+            statusBarParams.bottomMargin = navBarHeight + statusBarDefaultPx;
+          }
+          binding.editorStatusBar.setLayoutParams(statusBarParams);
+
           return insets;
         });
+    refreshGitStatus();
     refreshGitStatus();
   }
 
@@ -232,6 +264,13 @@ public class EditorActivity extends BaseCompat {
           .getViewTreeObserver()
           .removeOnGlobalLayoutListener(keyboardLayoutListener);
       keyboardLayoutListener = null;
+    }
+    if (symbolBarVisibilityListener != null) {
+      getWindow()
+          .getDecorView()
+          .getViewTreeObserver()
+          .removeOnGlobalLayoutListener(symbolBarVisibilityListener);
+      symbolBarVisibilityListener = null;
     }
     gitStatusExecutor.shutdownNow();
   }
@@ -406,6 +445,25 @@ public class EditorActivity extends BaseCompat {
           }
         };
     rootView.getViewTreeObserver().addOnGlobalLayoutListener(keyboardLayoutListener);
+  }
+
+  /**
+   * Keeps editorStatusBar and the symbol bar mutually exclusive: whenever the symbol bar is hidden,
+   * our status bar shows, and vice versa. This watches the symbol bar's actual visibility state
+   * (not its show()/hide() call sites), so it stays correct no matter what triggers the change.
+   */
+  private void setupSymbolBarVisibilityWatcher() {
+    View rootView = getWindow().getDecorView();
+    symbolBarVisibilityListener =
+        () -> {
+          boolean symbolBarHidden = binding.symbolBarContainer.getVisibility() != View.VISIBLE;
+          boolean searchShowing = binding.editorSearch.isShowing;
+          int desiredVisibility = (symbolBarHidden && !searchShowing) ? View.VISIBLE : View.GONE;
+          if (binding.editorStatusBar.getVisibility() != desiredVisibility) {
+            binding.editorStatusBar.setVisibility(desiredVisibility);
+          }
+        };
+    rootView.getViewTreeObserver().addOnGlobalLayoutListener(symbolBarVisibilityListener);
   }
 
   void stepToolbar() {
@@ -591,6 +649,7 @@ public class EditorActivity extends BaseCompat {
             if (binding.viewPager.getCurrentItem() != position)
               binding.viewPager.setCurrentItem(position, false);
             saveCurrentPosition(position);
+            updateLanguageStatus(position);
           }
 
           @Override
@@ -608,8 +667,8 @@ public class EditorActivity extends BaseCompat {
             super.onPageSelected(position);
             TabLayout.Tab tab = binding.tab.getTabAt(position);
             if (tab != null && !tab.isSelected()) tab.select();
-            binding.symbolBarContainer.bindEditor(getEditor());
             saveCurrentPosition(position);
+            updateLanguageStatus(position);
           }
         });
   }
@@ -663,11 +722,26 @@ public class EditorActivity extends BaseCompat {
     int newPos = tabsList.size() - 1;
     binding.viewPager.setCurrentItem(newPos);
     saveCurrentPosition(newPos);
+    updateLanguageStatus(newPos);
     String ext = "";
     int dot = path.lastIndexOf('.');
     if (dot != -1) ext = path.substring(dot + 1);
     PluginManager.getInstance().setCurrentEditorActivity(this, getEditor(), path, ext);
     refreshGitStatus();
+  }
+
+  private String getLanguageFromPath(String path) {
+    if (path == null) return "";
+    int dot = path.lastIndexOf('.');
+    if (dot == -1 || dot == path.length() - 1) return "";
+    String ext = path.substring(dot + 1);
+    return ext.substring(0, 1).toUpperCase(Locale.ROOT) + ext.substring(1);
+  }
+
+  private void updateLanguageStatus(int position) {
+    if (tabsList == null || position < 0 || position >= tabsList.size()) return;
+    String lang = getLanguageFromPath(tabsList.get(position).getFilePath());
+    binding.editorStatusBar.setLanguageText(lang.isEmpty() ? "Text" : lang);
   }
 
   private void closeTab(int position) {
@@ -823,11 +897,13 @@ public class EditorActivity extends BaseCompat {
   }
 
   private IdeEditor getEditor() {
-    if (adapter == null || adapter.getItemCount() == 0) return null;
+    if (binding.viewPager == null || adapter == null || adapter.getItemCount() == 0) {
+      return null;
+    }
     int currentPos = binding.viewPager.getCurrentItem();
-    if (currentPos < 0 || currentPos >= adapter.getItemCount()) return null;
-    Fragment fragment = adapter.getFragmentAtPosition(currentPos, this);
-    if (fragment instanceof EditorFragment) return ((EditorFragment) fragment).getEditor();
+    Fragment currentFragment = adapter.getFragmentAtPosition(currentPos, this);
+    if (currentFragment instanceof EditorFragment)
+      return ((EditorFragment) currentFragment).getEditor();
     return null;
   }
 }

@@ -1,11 +1,17 @@
 package ir.hanzodev1375.ghostide.codeeditors.preview;
 
 import android.graphics.drawable.GradientDrawable;
+import android.transition.Transition;
+import android.transition.TransitionManager;
 import android.view.View;
 
+import android.view.ViewGroup;
+import com.google.android.material.transition.platform.MaterialSharedAxis;
+import com.skydoves.powermenu.MenuAnimation;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.base.EditorPopupWindow;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
+import ir.hanzodev1375.ghostide.codeeditors.R;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorAutoCompletion;
 
 public class EditorPopUp {
@@ -14,6 +20,7 @@ public class EditorPopUp {
 
   public static EditorPopupWindow showCustomViewAtCursor(CodeEditor editor, View customView) {
     try {
+
       EditorPopupWindow popupWindow =
           new EditorPopupWindow(
               editor,
@@ -75,7 +82,14 @@ public class EditorPopUp {
       if (editor.getCursor().isSelected()) {
         popupWindow.dismiss();
       }
-
+      Transition sharedAxis = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
+      TransitionManager.beginDelayedTransition(
+          (ViewGroup) popupWindow.getPopup().getContentView(), sharedAxis);
+      popupWindow.getPopup().setEnterTransition(sharedAxis);
+      Transition sharedAxise = new MaterialSharedAxis(MaterialSharedAxis.Z, false);
+      TransitionManager.beginDelayedTransition(
+          (ViewGroup) popupWindow.getPopup().getContentView(), sharedAxis);
+      popupWindow.getPopup().setExitTransition(sharedAxise);
       return popupWindow;
 
     } catch (Exception e) {

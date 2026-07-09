@@ -18,6 +18,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorscheme.GhostColorScheme;
+import ir.hanzodev1375.ghostide.customui.EditorStatusBar;
 import ir.hanzodev1375.ghostide.customui.LayoutSymbolbar;
 import ir.hanzodev1375.ghostide.utils.BlurTransformation;
 
@@ -67,7 +68,7 @@ public class ThemeUtils {
     var theme = getTheme();
     var weget = theme.getWidget();
     if (weget == null) return;
-    
+
     sheet.setSheetBackgroundColor(Color.parseColor(weget.getBackground()));
     sheet.setHeaderTextColor(Color.parseColor(weget.getAccent()));
     sheet.setProgressBarColor(Color.parseColor(weget.getAccent()));
@@ -442,6 +443,16 @@ public class ThemeUtils {
 
       layout.setTabTextColors(
           parseColor(widget.getTabUnselected()), parseColor(widget.getTabSelected()));
+    }
+  }
+
+  public void applyEditorStatusBar(EditorStatusBar status) {
+    var editor = getTheme().getEditor();
+    if (editor != null) {
+      status.setStrokeColor(parseColor(editor.getCompletionWndCorner()));
+      status.setBackgroundColorValue(parseColor(editor.getCompletionWndBackground()));
+      status.setTextColor(parseColor(editor.getCompletionWndTextPrimary()));
+      status.setIconTint(parseColor(editor.getCompletionWndTextSecondary()));
     }
   }
 

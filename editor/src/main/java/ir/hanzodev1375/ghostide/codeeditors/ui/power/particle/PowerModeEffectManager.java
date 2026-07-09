@@ -305,9 +305,13 @@ public class PowerModeEffectManager {
     Cursor cursor = editor.getCursor();
     int line = cursor.getLeftLine();
     int column = cursor.getLeftColumn();
-    float[] pos = editor.getLayout().getCharLayoutOffset(line, column);
-    float x = pos[1] + editor.measureTextRegionOffset() - editor.getScroller().getCurrX();
-    float y = pos[0] - editor.getScroller().getCurrY();
+
+    // NOTE: getCharLayoutOffset(line, column) returns [rowOffsetY, columnOffsetX],
+    // not [x, y] — using pos[0] as x and pos[1] as y (as before) swaps the axes.
+    // getCharOffsetX/Y are CodeEditor's own helpers and apply this correctly,
+    // including the line-number gutter width via measureTextRegionOffset().
+    float x = editor.getCharOffsetX(line, column);
+    float y = editor.getCharOffsetY(line, column) + editor.getRowHeight() * 0.5f;
 
     switch (currentEffect) {
       case PARTICLE:
@@ -378,6 +382,7 @@ public class PowerModeEffectManager {
     long currentTime = System.currentTimeMillis();
     float deltaTime = (currentTime - lastUpdateTime) / 1000.0f;
     lastUpdateTime = currentTime;
+
     customEffectManager.drawEffects(canvas);
     Iterator<Particle> iterator = particles.iterator();
     while (iterator.hasNext()) {
@@ -393,6 +398,32 @@ public class PowerModeEffectManager {
     if (!particles.isEmpty()) {
       editor.postInvalidate();
     }
+  }
+
+  /**
+   * Re-anchors every live particle to the text when the editor scrolls. Particle
+   * x/y are captured in screen space at spawn time (see spawnEffectAtCursor), so
+   * once the editor scrolls — auto-scrolling to keep the cursor visible, a user
+   * drag/fling, text selection, or pinch-zoom — those stored positions go stale
+   * and the effect drifts away from the cursor.
+   * <p>
+   * Call this directly from a ScrollEvent subscription, passing the event's own
+   * getStartX/Y() and getEndX/Y() through unchanged. Those two pairs already give
+   * the exact before/after offset for this scroll, so the shift here is exact —
+   * there's no need (and no safe way) to reconstruct it by polling
+   * editor.getOffsetX()/getOffsetY() on some other schedule, since it isn't
+   * guaranteed to reflect the post-scroll value at the moment the event fires.
+   */
+  public void onEditorScrolled(int startX, int startY, int endX, int endY) {
+    float scrollDx = startX - endX;
+    float scrollDy = startY - endY;
+    if (scrollDx == 0f && scrollDy == 0f) return;
+
+    for (Particle p : particles) {
+      p.setX(p.getX() + scrollDx);
+      p.setY(p.getY() + scrollDy);
+    }
+    customEffectManager.shiftActiveParticles(scrollDx, scrollDy);
   }
 
   public void clearEffects() {

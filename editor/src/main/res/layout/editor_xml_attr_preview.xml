@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:tools="http://schemas.android.com/tools"
+     android:layout_height="wrap_content"
+     android:layout_width="match_parent"
+     android:scrollbars="none">
+
+    <LinearLayout
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:orientation="vertical">
+
+        <TextView
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:textSize="13sp"
+             android:textColor="#FFFFFF"
+             android:maxWidth="240dp"
+             tools:text="android:layout_width"
+             android:id="@+id/xml_attr_name"
+             android:textStyle="bold" />
+
+        <TextView
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:textSize="12sp"
+             android:textColor="#FFFFFF"
+             android:layout_marginTop="4dp"
+             android:maxWidth="240dp"
+             tools:text="Sets the width of the view to match its parent container"
+             android:id="@+id/xml_attr_description" />
+
+        <TextView
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:textSize="10sp"
+             android:textColor="#B0B0B0"
+             android:layout_marginTop="8dp"
+             android:id="@+id/xml_attr_code_label"
+             android:text="@string/xml_attr_doc_code_label" />
+
+        <TextView
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:fontFamily="monospace"
+             android:textSize="11sp"
+             android:textColor="#8BC34A"
+             android:maxWidth="240dp"
+             tools:text=""
+             android:id="@+id/xml_attr_code" />
+
+        <TextView
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:textSize="10sp"
+             android:textColor="#B0B0B0"
+             android:layout_marginTop="8dp"
+             android:id="@+id/xml_attr_example_label"
+             android:text="@string/xml_attr_doc_example_label" />
+
+        <TextView
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:fontFamily="monospace"
+             android:textSize="11sp"
+             android:textColor="#64B5F6"
+             android:maxWidth="240dp"
+             tools:text="example"
+             android:id="@+id/xml_attr_example" />
+
+    </LinearLayout>
+
+</ScrollView>

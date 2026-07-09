@@ -22,6 +22,7 @@ import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
 import ir.hanzodev1375.ghostide.paged.PagedEditSession;
+import ir.hanzodev1375.ghostide.tasks.FileChangeReceiver;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import java.io.File;
@@ -40,6 +41,7 @@ public class EditorFragment extends Fragment {
   private EditorViewModel viewModel;
   private IdeEditor editor;
   private String filePath;
+  private long lastKnownModifiedTime = -1;
   private ThemeUtils theme;
   private PreferencesUtils setting;
   private PagedEditSession pagedSession;
@@ -94,6 +96,7 @@ public class EditorFragment extends Fragment {
               var b = new Bundle();
               b.putString("path", filePath);
               if (content != null) editor.setText(content, b);
+              updateKnownModifiedTime();
             });
 
     if (filePath != null) {
@@ -133,6 +136,69 @@ public class EditorFragment extends Fragment {
         });
   }
 
+  @Override
+  public void onResume() {
+    super.onResume();
+    checkExternalChangesOnResume();
+    refreshFileWatching();
+  }
+
+  /**
+   * روی SDK های جدید (مثل 36)، وقتی میری تو یه اپ دیگه، پروسه ممکنه فریز یا کامل کشته بشه، و
+   * FileObserver زنده (که فقط تا وقتی پروسه زنده و در جریانه کار می‌کنه) رویداد رو از دست میده یا
+   * اصلاً از نو ساخته میشه. برای همین این چک، که مستقل از FileObserver‌ـه، تنها راه قابل‌اعتماده:
+   * دقیقاً موقع onResume (که همیشه اجرا میشه، چه پروسه زنده مونده باشه چه از نو ساخته شده باشه)
+   * mtime دیسک رو با آخرین مقداری که خودمون می‌دونستیم مقایسه می‌کنیم.
+   */
+  private void checkExternalChangesOnResume() {
+    if (filePath == null) return;
+    File file = new File(filePath);
+    if (!file.exists()) return;
+
+    long diskModifiedTime = file.lastModified();
+    if (lastKnownModifiedTime > 0 && diskModifiedTime != lastKnownModifiedTime) {
+      FileChangeReceiver.showFileChangedDialog(
+          requireActivity(),
+          filePath,
+          () -> {
+            if (viewModel != null) viewModel.loadFile(filePath);
+          });
+    }
+    lastKnownModifiedTime = diskModifiedTime;
+  }
+
+  /** بعد از هر بارگذاری موفق (اولیه یا reload) یا ذخیره‌ی موفق باید صدا زده بشه. */
+  private void updateKnownModifiedTime() {
+    if (filePath != null) {
+      lastKnownModifiedTime = new File(filePath).lastModified();
+    }
+  }
+
+  /**
+   * وقتی auto-save فعاله، خود اپ مدام فایل رو می‌نویسه، پس نیازی به دیدبانی تغییر خارجی نیست — واچر
+   * اصلاً استارت نمی‌شه. وقتی auto-save خاموشه، واچر فعال میشه تا اگه یه اپ دیگه فایل رو عوض کرد
+   * بفهمیم. عمداً توی onPause استاپ نمی‌کنیم؛ اگه بریم تو یه اپ دیگه فایل رو ادیت کنیم، دقیقاً همون
+   * لحظه که پس‌زمینه‌ایم اتفاق میفته و اگه واچر رو خاموش کرده باشیم، همون تغییر از دست میره. واچینگ
+   * رو فقط موقع بسته‌شدن واقعی تب (onDestroyView) قطع می‌کنیم. اگه جایی توی تنظیمات auto-save رو در
+   * حین باز بودن این فرگمنت toggle کردی، همین متد رو دوباره صدا بزن. این فقط یه لایه‌ی کمکیه؛ تشخیص
+   * اصلی توی checkExternalChangesOnResume انجام میشه.
+   */
+  private void refreshFileWatching() {
+    FileChangeReceiver.stopWatching();
+    if (filePath != null && !setting.autoSaveFiles()) {
+      FileChangeReceiver.startWatching(
+          requireActivity(),
+          filePath,
+          changedPath ->
+              FileChangeReceiver.showFileChangedDialog(
+                  requireActivity(),
+                  changedPath,
+                  () -> {
+                    if (viewModel != null) viewModel.loadFile(changedPath);
+                  }));
+    }
+  }
+
   private void openPagedSession(File file) {
     var context = requireContext();
     binding.prograssLoading.setVisibility(View.VISIBLE);
@@ -162,6 +228,7 @@ public class EditorFragment extends Fragment {
                               binding.prograssLoading.setVisibility(View.GONE);
                               binding.llWrapIndicator.setVisibility(View.VISIBLE);
                               updatePageIndicator();
+                              updateKnownModifiedTime();
                             }
 
                             @Override
@@ -252,7 +319,8 @@ public class EditorFragment extends Fragment {
     if (filePath != null && viewModel != null && editor != null) {
       String content = editor.getText().toString();
       if (content != null) {
-        viewModel.saveFile(content);
+        FileChangeReceiver.notifyInternalWrite();
+        viewModel.saveFile(filePath, content, this::updateKnownModifiedTime);
       } else {
         Log.e("EditorFragment", "محتوای ادیتور نال است");
       }
@@ -267,12 +335,14 @@ public class EditorFragment extends Fragment {
         new PagedEditSession.Callback() {
           @Override
           public void onSuccess() {
+            FileChangeReceiver.notifyInternalWrite();
             pagedSession.writeTo(
                 new File(filePath),
                 new PagedEditSession.Callback() {
                   @Override
                   public void onSuccess() {
                     Log.d("EditorFragment", "فایل بزرگ ذخیره شد: " + filePath);
+                    updateKnownModifiedTime();
                   }
 
                   @Override
@@ -292,6 +362,7 @@ public class EditorFragment extends Fragment {
   @Override
   public void onDestroyView() {
     super.onDestroyView();
+    FileChangeReceiver.stopWatching();
     pagedExecutor.shutdownNow();
     if (pagedSession != null) {
       pagedSession.close();

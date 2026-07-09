@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootRow"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <!-- ============ LANGUAGE ============ -->
+    <LinearLayout
+        android:id="@+id/sectionLanguage"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
+
+        <ImageView
+            android:id="@+id/iconLanguage"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginEnd="6dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            tools:src="@android:drawable/ic_menu_edit" />
+
+        <TextView
+            android:id="@+id/textLanguage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="12sp"
+            tools:text="Java" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/dividerLanguageEncoding"
+        android:layout_width="1dp"
+        android:layout_height="16dp"
+        android:layout_gravity="center_vertical" />
+
+    <!-- ============ ENCODING ============ -->
+    <LinearLayout
+        android:id="@+id/sectionEncoding"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
+
+        <ImageView
+            android:id="@+id/iconEncoding"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginEnd="6dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            tools:src="@android:drawable/ic_menu_edit" />
+
+        <TextView
+            android:id="@+id/textEncoding"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="12sp"
+            tools:text="UTF-8" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/dividerEncodingIndentation"
+        android:layout_width="1dp"
+        android:layout_height="16dp"
+        android:layout_gravity="center_vertical" />
+
+    <!-- ============ INDENTATION ============ -->
+    <LinearLayout
+        android:id="@+id/sectionIndentation"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
+
+        <ImageView
+            android:id="@+id/iconIndentation"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginEnd="6dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            tools:src="@android:drawable/ic_menu_edit" />
+
+        <TextView
+            android:id="@+id/textIndentation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="12sp"
+            tools:text="4 Spaces" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/dividerIndentationStatus"
+        android:layout_width="1dp"
+        android:layout_height="16dp"
+        android:layout_gravity="center_vertical" />
+
+    <!-- ============ STATUS ============ -->
+    <LinearLayout
+        android:id="@+id/sectionStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
+
+        <ImageView
+            android:id="@+id/iconStatus"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginEnd="6dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            tools:src="@android:drawable/ic_menu_edit" />
+
+        <TextView
+            android:id="@+id/textStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="12sp"
+            tools:text="No issues" />
+    </LinearLayout>
+
+</LinearLayout>

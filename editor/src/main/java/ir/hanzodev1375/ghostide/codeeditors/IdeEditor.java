@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 import com.eup.codeopsstudio.editor.langs.widget.component.CustomEditorTextActionWindow;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
+import io.github.rosemoe.sora.event.ScrollEvent;
 import io.github.rosemoe.sora.graphics.inlayHint.TextInlayHintRenderer;
 import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintsContainer;
 import io.github.rosemoe.sora.lang.styling.inlayHint.TextInlayHint;
@@ -18,8 +19,10 @@ import io.github.rosemoe.sora.widget.component.Magnifier;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorrender.WebColorIde;
 import ir.hanzodev1375.ghostide.codeeditors.preview.ImagePreviewIde;
+import ir.hanzodev1375.ghostide.codeeditors.preview.htmltag.HtmlTagPreviewIde;
 import ir.hanzodev1375.ghostide.codeeditors.preview.url.OnLinkClickEventListener;
 import ir.hanzodev1375.ghostide.codeeditors.preview.url.UrlPreviewIde;
+import ir.hanzodev1375.ghostide.codeeditors.preview.xmlattr.XmlAttrPreviewIde;
 import ir.hanzodev1375.ghostide.codeeditors.setting.Constants;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.codeeditors.stringres.StringResourceExtractorIde;
@@ -41,6 +44,8 @@ public class IdeEditor extends CodeEditor
   private boolean powerModeEnabled = false;
   private UrlPreviewIde urlPreviewIde;
   private StringResourceExtractorIde stringresourceextractoride;
+  private XmlAttrPreviewIde xmlAttrPreviewIde;
+  private HtmlTagPreviewIde htmltagpreview;
 
   public IdeEditor(Context context) {
     super(context);
@@ -63,6 +68,10 @@ public class IdeEditor extends CodeEditor
     urlPreviewIde.attach();
     stringresourceextractoride = new StringResourceExtractorIde(this);
     stringresourceextractoride.attach();
+    xmlAttrPreviewIde = new XmlAttrPreviewIde(this);
+    xmlAttrPreviewIde.attach();
+    htmltagpreview = new HtmlTagPreviewIde(this);
+    htmltagpreview.attach();
     editorAutoCompletion.setAdapter(new CustomEditorCompletionAdapter());
     replaceComponent(EditorAutoCompletion.class, editorAutoCompletion);
     replaceComponent(EditorTextActionWindow.class, new CustomEditorTextActionWindow(this));
@@ -94,6 +103,14 @@ public class IdeEditor extends CodeEditor
         (ev, un) -> {
           if (isPowerModeEnabled() && getText().toString().length() > 0) {
             mPowerModeEffectManager.spawnEffectAtCursor();
+          }
+        });
+    subscribeEvent(
+        ScrollEvent.class,
+        (ev, un) -> {
+          if (mPowerModeEffectManager != null) {
+            mPowerModeEffectManager.onEditorScrolled(
+                ev.getStartX(), ev.getStartY(), ev.getEndX(), ev.getEndY());
           }
         });
   }

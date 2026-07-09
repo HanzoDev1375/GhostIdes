@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Place at: app/src/main/res/values/attrs.xml -->
+<resources>
+
+    <!--
+        Custom attributes for EditorStatusBar.
+        All attributes use the "esb_" prefix to avoid collisions with
+        attributes declared by other libraries in a host app.
+    -->
+    <declare-styleable name="EditorStatusBar">
+
+        <!-- Appearance -->
+        <attr name="esb_cornerRadius" format="dimension" />
+        <attr name="esb_backgroundColor" format="color" />
+        <attr name="esb_strokeColor" format="color" />
+        <attr name="esb_strokeWidth" format="dimension" />
+
+        <!-- Section text -->
+        <attr name="esb_languageText" format="string" />
+        <attr name="esb_encodingText" format="string" />
+        <attr name="esb_indentationText" format="string" />
+        <attr name="esb_statusText" format="string" />
+
+        <!-- Icons -->
+        <attr name="esb_languageIcon" format="reference" />
+        <attr name="esb_encodingIcon" format="reference" />
+        <attr name="esb_indentationIcon" format="reference" />
+        <attr name="esb_statusIcon" format="reference" />
+
+        <!-- Colors -->
+        <attr name="esb_textColor" format="color" />
+        <attr name="esb_iconTint" format="color" />
+        <attr name="esb_dividerColor" format="color" />
+        <attr name="esb_rippleColor" format="color" />
+
+        <!-- Typography -->
+        <attr name="esb_textSize" format="dimension" />
+        <attr name="esb_fontFamily" format="string" />
+
+        <!-- Spacing -->
+        <attr name="esb_sectionPadding" format="dimension" />
+        <attr name="esb_iconSize" format="dimension" />
+        <attr name="esb_iconTextSpacing" format="dimension" />
+
+        <!-- Visibility -->
+        <attr name="esb_languageVisible" format="boolean" />
+        <attr name="esb_encodingVisible" format="boolean" />
+        <attr name="esb_indentationVisible" format="boolean" />
+        <attr name="esb_statusVisible" format="boolean" />
+
+    </declare-styleable>
+
+</resources>

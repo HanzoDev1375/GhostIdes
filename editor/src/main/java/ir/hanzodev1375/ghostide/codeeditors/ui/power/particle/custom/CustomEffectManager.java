@@ -116,6 +116,14 @@ public class CustomEffectManager {
     activeParticles.clear();
   }
 
+  /** جابجایی تمام ذرات فعال به اندازه‌ی اسکرول ادیتور (برای همگام ماندن با مکان‌نما) */
+  public void shiftActiveParticles(float dx, float dy) {
+    for (Particle p : activeParticles) {
+      p.setX(p.getX() + dx);
+      p.setY(p.getY() + dy);
+    }
+  }
+
   /** بررسی آیا ذره فعالی وجود دارد یا نه */
   public boolean hasActiveEffects() {
     return !activeParticles.isEmpty();

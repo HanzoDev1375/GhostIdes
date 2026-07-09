@@ -2,7 +2,10 @@ package ir.hanzodev1375.ghostide.mvvm.viewmodel;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -70,15 +73,20 @@ public class EditorViewModel extends AndroidViewModel {
       Log.e("EditorViewModel", "مسیر فایل وجود ندارد");
       return;
     }
-    saveFile(path, textContent);
+    saveFile(path, textContent, null);
   }
 
   public void saveFile(String filePath, String textContent) {
+    saveFile(filePath, textContent, null);
+  }
+
+  public void saveFile(String filePath, String textContent, @Nullable Runnable onSaved) {
     if (filePath == null || filePath.isEmpty()) {
       Log.e("EditorViewModel", "مسیر فایل وجود ندارد");
       return;
     }
     currentPath.setValue(filePath);
+    Handler mainHandler = new Handler(Looper.getMainLooper());
     new Thread(
             () -> {
               try {
@@ -90,6 +98,10 @@ public class EditorViewModel extends AndroidViewModel {
                 }
               } catch (Exception e) {
                 e.printStackTrace();
+              } finally {
+                if (onSaved != null) {
+                  mainHandler.post(onSaved);
+                }
               }
             })
         .start();
