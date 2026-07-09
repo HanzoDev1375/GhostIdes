@@ -1,6 +1,8 @@
 package ir.hanzodev1375.ghostide.customui;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.GradientDrawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -12,6 +14,7 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.core.util.Supplier;
 import androidx.transition.Transition;
 import com.google.android.material.transition.MaterialSharedAxis;
 import androidx.transition.TransitionManager;
@@ -26,16 +29,18 @@ import ir.hanzodev1375.components.animators.AnimationManager;
 import ir.hanzodev1375.components.databinding.DialogRenameBinding;
 import ir.hanzodev1375.ghostide.databinding.LayoutSearcherBinding;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
+import ir.hanzodev1375.ghostide.R;
 
 public class GhostIdeEditorSearch extends LinearLayoutCompat {
   private LayoutSearcherBinding binding;
-  private IdeEditor editor;
+  private Supplier<IdeEditor> editorSupplier;
   protected onViewChange viewChange;
   public boolean isShowing = false;
   private boolean isRegexMode = false;
   private boolean isCaseSensitive = false;
   private boolean isWholeWord = false;
   private int currentMatchIndex = -1;
+  private GradientDrawable gd;
   private int totalMatches = 0;
 
   public GhostIdeEditorSearch(Context context) {
@@ -56,6 +61,27 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
     setupTextWatcher();
     setupClickListeners();
     hide();
+    gd = new GradientDrawable();
+    gd.setColor(MaterialColors.getColor(binding.getRoot(), R.attr.colorSurface));
+    gd.setStroke(2, MaterialColors.getColor(binding.getRoot(), R.attr.colorOnSurface));
+    gd.setCornerRadius(50f);
+    binding.getRoot().setBackground(gd);
+  }
+
+  private IdeEditor getEditor() {
+    return editorSupplier != null ? editorSupplier.get() : null;
+  }
+
+  public void setBackgroundColorValue(int color) {
+    if (gd != null) {
+      gd.setColor(color);
+    }
+  }
+
+  public void setStrokeColor(int color) {
+    if (gd != null) {
+      gd.setStroke(3, color);
+    }
   }
 
   private void setupTextWatcher() {
@@ -63,7 +89,7 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
         new TextWatcher() {
           @Override
           public void afterTextChanged(Editable editable) {
-            if (editor == null) return;
+            if (getEditor() == null) return;
             String text = binding.searchText.getText().toString();
             if (!text.isEmpty()) {
               performSearch(text);
@@ -140,24 +166,24 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
     Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
   }
 
-  public void bindEditor(@Nullable IdeEditor editor) {
-    this.editor = editor;
-    if (editor == null) return;
+  public void bindEditor(@Nullable Supplier<IdeEditor> supplier) {
+    this.editorSupplier = supplier;
 
-    editor.subscribeEvent(
-        PublishSearchResultEvent.class,
-        (event, unsubscribe) -> {
-          post(this::updateSearchResultInfo);
-        });
+    getEditor()
+        .subscribeEvent(
+            PublishSearchResultEvent.class,
+            (event, unsubscribe) -> {
+              post(this::updateSearchResultInfo);
+            });
   }
 
   private void updateSearchResultInfo() {
-    if (editor == null) return;
+    if (getEditor() == null) return;
 
     try {
       String info = "Result:0";
       int textcolor = 0;
-      var searcher = editor.getSearcher();
+      var searcher = getEditor().getSearcher();
       if (searcher != null && searcher.hasQuery()) {
         totalMatches = searcher.getMatchedPositionCount();
         currentMatchIndex = searcher.getCurrentMatchedPositionIndex();
@@ -205,7 +231,7 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
   }
 
   private void performSearch(String text) {
-    if (editor == null) return;
+    if (getEditor() == null) return;
 
     if (text == null || text.isEmpty()) {
       stopSearch();
@@ -213,7 +239,7 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
     }
 
     try {
-      var searcher = editor.getSearcher();
+      var searcher = getEditor().getSearcher();
       if (searcher == null) {
         showToast("Searcher not available");
         return;
@@ -236,10 +262,25 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
     }
   }
 
+  public void setTextColor(int color) {
+    binding.btnClose.setTextColor(color);
+    binding.gotoLast.setTextColor(color);
+    binding.gotoNext.setTextColor(color);
+    binding.replace.setTextColor(color);
+  }
+
+  public void setColorFilter(int color) {
+    binding.btnMore.setColorFilter(color,PorterDuff.Mode.SRC_IN);
+  }
+
+  public void setTextSearchColor(int color) {
+    binding.searchText.setTextColor(color);
+  }
+
   private void stopSearch() {
     try {
-      if (editor != null && editor.getSearcher() != null) {
-        editor.getSearcher().stopSearch();
+      if (getEditor() != null && getEditor().getSearcher() != null) {
+        getEditor().getSearcher().stopSearch();
       }
     } catch (Exception e) {
 
@@ -266,7 +307,7 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
       binding.searchText.requestFocus();
     }
 
-    if (editor == null) return;
+    if (getEditor() == null) return;
     stopSearch();
     binding.searchText.setText("");
   }
@@ -282,12 +323,12 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
 
   private void gotoNext() {
     try {
-      if (editor == null) {
+      if (getEditor() == null) {
         showToast("Editor not available");
         return;
       }
 
-      var searcher = editor.getSearcher();
+      var searcher = getEditor().getSearcher();
       if (searcher == null) {
         showToast("Searcher not available");
         return;
@@ -319,12 +360,12 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
 
   private void gotoPrevious() {
     try {
-      if (editor == null) {
+      if (getEditor() == null) {
         showToast("Editor not available");
         return;
       }
 
-      var searcher = editor.getSearcher();
+      var searcher = getEditor().getSearcher();
       if (searcher == null) {
         showToast("Searcher not available");
         return;
@@ -355,7 +396,7 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
   }
 
   private void replace() {
-    if (editor == null) return;
+    if (getEditor() == null) return;
 
     String searchText = binding.searchText.getText().toString();
     if (searchText.isEmpty()) {
@@ -374,16 +415,17 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
             (c1, c2) -> {
               try {
                 String replacement = bind.rename.getText().toString();
-                var searcher = editor.getSearcher();
+                var searcher = getEditor().getSearcher();
 
                 if (searcher.isMatchedPositionSelected()) {
                   searcher.replaceCurrentMatch(replacement);
-                  editor.postDelayed(
-                      () -> {
-                        searcher.gotoNext();
-                        updateSearchResultInfo();
-                      },
-                      100);
+                  getEditor()
+                      .postDelayed(
+                          () -> {
+                            searcher.gotoNext();
+                            updateSearchResultInfo();
+                          },
+                          100);
                 } else {
                   showToast("No match selected");
                 }
@@ -397,7 +439,7 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
             (f1, f2) -> {
               try {
                 String replacement = bind.rename.getText().toString();
-                editor
+                getEditor()
                     .getSearcher()
                     .replaceAll(
                         replacement,

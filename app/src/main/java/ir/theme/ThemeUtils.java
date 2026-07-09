@@ -19,6 +19,7 @@ import ir.hanzodev1375.components.WebViewBottomSheetFragment;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorscheme.GhostColorScheme;
 import ir.hanzodev1375.ghostide.customui.EditorStatusBar;
+import ir.hanzodev1375.ghostide.customui.GhostIdeEditorSearch;
 import ir.hanzodev1375.ghostide.customui.LayoutSymbolbar;
 import ir.hanzodev1375.ghostide.utils.BlurTransformation;
 
@@ -453,6 +454,17 @@ public class ThemeUtils {
       status.setBackgroundColorValue(parseColor(editor.getCompletionWndBackground()));
       status.setTextColor(parseColor(editor.getCompletionWndTextPrimary()));
       status.setIconTint(parseColor(editor.getCompletionWndTextSecondary()));
+    }
+  }
+
+  public void applyGhostIdeEditorSearch(GhostIdeEditorSearch search) {
+    var editor = getTheme().getEditor();
+    if (editor != null) {
+      search.setBackgroundColorValue(parseColor(editor.getCompletionWndBackground()));
+      search.setStrokeColor(parseColor(editor.getCompletionWndCorner()));
+      search.setTextColor(parseColor(editor.getCompletionWndTextPrimary()));
+      search.setColorFilter(parseColor(editor.getCompletionWndTextSecondary()));
+      search.setTextSearchColor(parseColor(editor.getCompletionWndTextMatched()));
     }
   }
 

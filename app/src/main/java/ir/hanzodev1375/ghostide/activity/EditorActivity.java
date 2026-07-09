@@ -106,6 +106,7 @@ public class EditorActivity extends BaseCompat {
     theme.applyTabLayout(binding.tab);
     theme.applyView(binding.mainContent);
     theme.applyImageBackground(binding.backgroundicon);
+    theme.applyGhostIdeEditorSearch(binding.editorSearch);
 
     handleIncomingIntent(getIntent());
 
@@ -496,7 +497,7 @@ public class EditorActivity extends BaseCompat {
   }
 
   void stepSearch() {
-    binding.editorSearch.bindEditor(getEditor());
+    binding.editorSearch.bindEditor(this::getEditor);
     binding.editorSearch.setCallBack(
         new GhostIdeEditorSearch.onViewChange() {
           @Override
