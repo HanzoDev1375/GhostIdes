@@ -18,6 +18,15 @@ public class CommitAdapter extends RecyclerView.Adapter<CommitAdapter.ViewHolder
   private List<CommitInfo> commits = new ArrayList<>();
   private final SimpleDateFormat sdf =
       new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault());
+  private OnCommitClickListener listener;
+
+  public interface OnCommitClickListener {
+    void onClick(CommitInfo commit);
+  }
+
+  public void setOnCommitClickListener(OnCommitClickListener listener) {
+    this.listener = listener;
+  }
 
   public void submitList(List<CommitInfo> list) {
     commits = list != null ? list : new ArrayList<>();
@@ -39,6 +48,10 @@ public class CommitAdapter extends RecyclerView.Adapter<CommitAdapter.ViewHolder
     holder.tvMessage.setText(commit.getMessage());
     String date = sdf.format(new Date(commit.getTimestamp()));
     holder.tvAuthor.setText(commit.getAuthor() + " - " + date);
+    holder.itemView.setOnClickListener(
+        v -> {
+          if (listener != null) listener.onClick(commit);
+        });
   }
 
   @Override

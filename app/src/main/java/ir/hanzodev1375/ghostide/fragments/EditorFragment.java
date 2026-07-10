@@ -76,6 +76,10 @@ public class EditorFragment extends Fragment {
     editor.subscribeEvent(
         ContentChangeEvent.class,
         (event, unevent) -> {
+          if (event.getAction() == ContentChangeEvent.ACTION_SET_NEW_TEXT) return;
+          if (getActivity() instanceof EditorActivity && filePath != null) {
+            ((EditorActivity) getActivity()).setTabDirty(filePath, true);
+          }
           if (setting.autoSaveFiles()) {
             saveCurrentFile();
           }
@@ -143,13 +147,6 @@ public class EditorFragment extends Fragment {
     refreshFileWatching();
   }
 
-  /**
-   * روی SDK های جدید (مثل 36)، وقتی میری تو یه اپ دیگه، پروسه ممکنه فریز یا کامل کشته بشه، و
-   * FileObserver زنده (که فقط تا وقتی پروسه زنده و در جریانه کار می‌کنه) رویداد رو از دست میده یا
-   * اصلاً از نو ساخته میشه. برای همین این چک، که مستقل از FileObserver‌ـه، تنها راه قابل‌اعتماده:
-   * دقیقاً موقع onResume (که همیشه اجرا میشه، چه پروسه زنده مونده باشه چه از نو ساخته شده باشه)
-   * mtime دیسک رو با آخرین مقداری که خودمون می‌دونستیم مقایسه می‌کنیم.
-   */
   private void checkExternalChangesOnResume() {
     if (filePath == null) return;
     File file = new File(filePath);
@@ -167,22 +164,12 @@ public class EditorFragment extends Fragment {
     lastKnownModifiedTime = diskModifiedTime;
   }
 
-  /** بعد از هر بارگذاری موفق (اولیه یا reload) یا ذخیره‌ی موفق باید صدا زده بشه. */
   private void updateKnownModifiedTime() {
     if (filePath != null) {
       lastKnownModifiedTime = new File(filePath).lastModified();
     }
   }
 
-  /**
-   * وقتی auto-save فعاله، خود اپ مدام فایل رو می‌نویسه، پس نیازی به دیدبانی تغییر خارجی نیست — واچر
-   * اصلاً استارت نمی‌شه. وقتی auto-save خاموشه، واچر فعال میشه تا اگه یه اپ دیگه فایل رو عوض کرد
-   * بفهمیم. عمداً توی onPause استاپ نمی‌کنیم؛ اگه بریم تو یه اپ دیگه فایل رو ادیت کنیم، دقیقاً همون
-   * لحظه که پس‌زمینه‌ایم اتفاق میفته و اگه واچر رو خاموش کرده باشیم، همون تغییر از دست میره. واچینگ
-   * رو فقط موقع بسته‌شدن واقعی تب (onDestroyView) قطع می‌کنیم. اگه جایی توی تنظیمات auto-save رو در
-   * حین باز بودن این فرگمنت toggle کردی، همین متد رو دوباره صدا بزن. این فقط یه لایه‌ی کمکیه؛ تشخیص
-   * اصلی توی checkExternalChangesOnResume انجام میشه.
-   */
   private void refreshFileWatching() {
     FileChangeReceiver.stopWatching();
     if (filePath != null && !setting.autoSaveFiles()) {
@@ -320,7 +307,15 @@ public class EditorFragment extends Fragment {
       String content = editor.getText().toString();
       if (content != null) {
         FileChangeReceiver.notifyInternalWrite();
-        viewModel.saveFile(filePath, content, this::updateKnownModifiedTime);
+        viewModel.saveFile(
+            filePath,
+            content,
+            () -> {
+              updateKnownModifiedTime();
+              if (getActivity() instanceof EditorActivity) {
+                ((EditorActivity) getActivity()).setTabDirty(filePath, false);
+              }
+            });
       } else {
         Log.e("EditorFragment", "محتوای ادیتور نال است");
       }
@@ -343,6 +338,9 @@ public class EditorFragment extends Fragment {
                   public void onSuccess() {
                     Log.d("EditorFragment", "فایل بزرگ ذخیره شد: " + filePath);
                     updateKnownModifiedTime();
+                    if (getActivity() instanceof EditorActivity) {
+                      ((EditorActivity) getActivity()).setTabDirty(filePath, false);
+                    }
                   }
 
                   @Override

@@ -33,10 +33,13 @@
                 android:paddingVertical="8dp"
                 android:id="@+id/toobar">
 
-                <ImageView
+                <ir.hanzodev1375.components.views.SegmentedAvatarView
                     android:layout_height="40dp"
                     android:layout_width="40dp"
-                    android:scaleType="centerInside"
+                    app:ringWidth="2dp"
+                    app:ringPadding="3dp"
+                    app:segmentCount="8"
+                    app:gapAngle="14"
                     android:src="@drawable/user"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

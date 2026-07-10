@@ -81,7 +81,6 @@ public class EditorActivity extends BaseCompat {
   private ViewTreeObserver.OnGlobalLayoutListener keyboardLayoutListener;
   private ViewTreeObserver.OnGlobalLayoutListener symbolBarVisibilityListener;
   private long lastGitRefreshTime = 0;
-  private boolean hasStar = false;
   private static final long GIT_REFRESH_DEBOUNCE_MS = 1500;
 
   @Override
@@ -421,6 +420,7 @@ public class EditorActivity extends BaseCompat {
     SideSheetDialog sideSheet = new SideSheetDialog(this);
     sideSheet.setContentView(tree);
     sideSheet.getWindow().setNavigationBarColor(0);
+    theme.applySideSheetAndFileTree(sideSheet, tree);
     sideSheet.show();
   }
 
@@ -468,6 +468,7 @@ public class EditorActivity extends BaseCompat {
   }
 
   void stepToolbar() {
+    toolbarModel.add(new ToolbarModel(R.drawable.round_account_tree, "file tree"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_search, "search"));
     toolbarModel.add(
         new ToolbarModel(com.bluewhaleyt.materialfileicon.R.drawable.ic_material_git, "git"));
@@ -479,15 +480,16 @@ public class EditorActivity extends BaseCompat {
             toolbarModel,
             (view, m, pos) -> {
               switch (pos) {
-                case 0 -> stepSearch();
-                case 1 -> showGitBottomSheet();
-                case 2 -> {
+                case 0 -> stepFileTree();
+                case 1 -> stepSearch();
+                case 2 -> showGitBottomSheet();
+                case 3 -> {
                   if (getEditor().canUndo()) getEditor().undo();
                 }
-                case 3 -> {
+                case 4 -> {
                   if (getEditor().canRedo()) getEditor().redo();
                 }
-                case 4 -> setupMenuCalltoAction(view);
+                case 5 -> setupMenuCalltoAction(view);
               }
             },
             EditorActivity.this);
@@ -603,17 +605,35 @@ public class EditorActivity extends BaseCompat {
     }
   }
 
+  /**
+   * توسط EditorFragment صدا زده میشه: هم موقع ContentChangeEvent (dirty=true) هم بعد از سیو موفق —
+   * چه دستی چه auto-save (dirty=false). مدل تب رو آپدیت می‌کنه و اگه همون تب الان روی TabLayout
+   * دیده میشه، ستاره رو هم فوری رفرش می‌کنه.
+   */
+  public void setTabDirty(String filePath, boolean dirty) {
+    if (filePath == null) return;
+    for (int i = 0; i < tabsList.size(); i++) {
+      TabModel tab = tabsList.get(i);
+      if (filePath.equals(tab.getFilePath())) {
+        tab.setHasStar(dirty);
+        TabLayout.Tab layoutTab = binding.tab.getTabAt(i);
+        if (layoutTab != null && layoutTab.getCustomView() instanceof TabCustomView) {
+          ((TabCustomView) layoutTab.getCustomView()).setHasStar(dirty);
+        }
+        return;
+      }
+    }
+  }
+
   void setupMenuCalltoAction(View v) {
     var menu = theme.apply(this);
     menu.addItem(new PowerMenuItem(getString(R.string.saveitemthis), false, R.drawable.save));
-    menu.addItem(new PowerMenuItem(getString(R.string.saveitemall), false, R.drawable.save));
     menu.addItem(new PowerMenuItem(getString(R.string.saveitemall), false, R.drawable.save));
     menu.setOnMenuItemClickListener(
         (pos, c) -> {
           switch (pos) {
             case 0 -> saveCurrentTab();
             case 1 -> saveAllTabs();
-            case 2 -> stepFileTree();
           }
         });
     menu.setIconSize(25);
@@ -636,7 +656,6 @@ public class EditorActivity extends BaseCompat {
               if (position < tabsList.size()) {
                 TabCustomView customView = new TabCustomView(this);
                 customView.bind(tabsList.get(position));
-                customView.setHasStar(hasStar);
                 customView.setGitChanged(isFileGitChanged(tabsList.get(position).getFilePath()));
                 tab.setCustomView(customView);
               }
@@ -798,7 +817,6 @@ public class EditorActivity extends BaseCompat {
       TabLayout.Tab layoutTab = binding.tab.getTabAt(position);
       if (layoutTab != null && layoutTab.getCustomView() instanceof TabCustomView) {
         ((TabCustomView) layoutTab.getCustomView()).bind(tab);
-        ((TabCustomView) layoutTab.getCustomView()).setHasStar(hasStar);
       }
     }
   }

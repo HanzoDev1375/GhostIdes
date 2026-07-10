@@ -34,5 +34,10 @@ public class CommitHistoryFragment extends Fragment {
     viewModel.commitHistory.observe(getViewLifecycleOwner(), adapter::submitList);
     view.findViewById(R.id.btnRefreshHistory)
         .setOnClickListener(v -> viewModel.refreshCommitHistory());
+
+    adapter.setOnCommitClickListener(
+        commit ->
+            CommitDiffBottomSheetFragment.newInstance(commit)
+                .show(getChildFragmentManager(), "commitDiff"));
   }
 }

@@ -27,4 +27,5 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.jgit)
     implementation project(path: ":editor")
+    implementation project(path: ":components")
 }

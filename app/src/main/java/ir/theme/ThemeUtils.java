@@ -12,10 +12,12 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.sidesheet.SideSheetDialog;
 import com.google.android.material.tabs.TabLayout;
 import com.skydoves.powermenu.PowerMenu;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
+import ir.hanzodev1375.filetreelib.widget.FileTreeView;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorscheme.GhostColorScheme;
 import ir.hanzodev1375.ghostide.customui.EditorStatusBar;
@@ -465,6 +467,30 @@ public class ThemeUtils {
       search.setTextColor(parseColor(editor.getCompletionWndTextPrimary()));
       search.setColorFilter(parseColor(editor.getCompletionWndTextSecondary()));
       search.setTextSearchColor(parseColor(editor.getCompletionWndTextMatched()));
+    }
+  }
+
+  public void applySideSheetAndFileTree(SideSheetDialog dialog, FileTreeView v) {
+    var editor = getTheme().getEditor();
+    if (editor != null) {
+      dialog
+          .getWindow()
+          .getDecorView()
+          .setBackgroundTintList(
+              ColorStateList.valueOf(parseColor(editor.getCompletionWndBackground())));
+      v.setShowSearchBar(false);
+      v.setZoomMod(true);
+      v.setRainbowIndentGuides(true);
+      int[] level = {
+        parseColor(editor.getKeyword()),
+        parseColor(editor.getAnnotation()),
+        parseColor(editor.getAttributeName()),
+        parseColor(editor.getAttributeValue()),
+        parseColor(editor.getColornextless()),
+        parseColor(editor.getCompletionWndCorner()),
+        parseColor(editor.getCompletionWndTextPrimary())
+      };
+      v.setRainbowIndentGuideColors(level);
     }
   }
 

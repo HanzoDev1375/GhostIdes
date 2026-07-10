@@ -1,22 +1,26 @@
 package ir.hanzodev1375.ghostide.jgit.fragments;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import ir.hanzodev1375.components.views.SegmentedAvatarView;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import android.widget.EditText;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.RepositoryStatus;
@@ -29,7 +33,7 @@ import java.util.List;
 public class GitBottomSheetFragment extends BottomSheetDialogFragment {
 
   private GitViewModel viewModel;
-  private ProgressBar progressBar;
+  private LinearProgressIndicator progressBar;
   private String repoPath;
   private boolean isInitialized = false;
 
@@ -71,6 +75,7 @@ public class GitBottomSheetFragment extends BottomSheetDialogFragment {
     viewModel = new ViewModelProvider(requireActivity()).get(GitViewModel.class);
 
     progressBar = view.findViewById(R.id.progressBar);
+    setupHeader(view);
 
     viewModel.progressMessage.observe(
         getViewLifecycleOwner(),
@@ -108,6 +113,23 @@ public class GitBottomSheetFragment extends BottomSheetDialogFragment {
     } else if (repoPath == null || repoPath.isEmpty()) {
       Toast.makeText(getContext(), "مسیر مخزن تنظیم نشده است!", Toast.LENGTH_SHORT).show();
       dismiss();
+    }
+  }
+
+  private void setupHeader(View root) {
+    SegmentedAvatarView ivAvatar = root.findViewById(R.id.ivGitAvatar);
+    TextView tvUsername = root.findViewById(R.id.tvGitUsername);
+    TextView tvRepoName = root.findViewById(R.id.tvGitRepoName);
+
+    PreferencesUtils prefsUtils = new PreferencesUtils(requireContext());
+    String username = prefsUtils.getGitHubUsername();
+    String avatarUrl = prefsUtils.getGitHubAvatarUrl();
+
+    tvUsername.setText(!TextUtils.isEmpty(username) ? "@" + username : "کاربر مهمان");
+    tvRepoName.setText(repoPath != null && !repoPath.isEmpty() ? new File(repoPath).getName() : "");
+
+    if (!TextUtils.isEmpty(avatarUrl)) {
+      Glide.with(this).load(avatarUrl).into(ivAvatar);
     }
   }
 

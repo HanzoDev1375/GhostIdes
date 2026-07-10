@@ -348,6 +348,42 @@ public class GitManager {
     }
   }
 
+  public String getCommitDiff(String commitHash) {
+    try {
+      if (repository == null || git == null || commitHash == null) return "";
+      org.eclipse.jgit.lib.ObjectId commitId = repository.resolve(commitHash);
+      if (commitId == null) return "Commit not found.";
+
+      try (RevWalk revWalk = new RevWalk(repository);
+          org.eclipse.jgit.lib.ObjectReader reader = repository.newObjectReader()) {
+        org.eclipse.jgit.revwalk.RevCommit commit = revWalk.parseCommit(commitId);
+
+        CanonicalTreeParser newTreeParser = new CanonicalTreeParser();
+        newTreeParser.reset(reader, commit.getTree());
+
+        org.eclipse.jgit.treewalk.AbstractTreeIterator oldTreeParser;
+        if (commit.getParentCount() > 0) {
+          org.eclipse.jgit.revwalk.RevCommit parent =
+              revWalk.parseCommit(commit.getParent(0).getId());
+          CanonicalTreeParser parentParser = new CanonicalTreeParser();
+          parentParser.reset(reader, parent.getTree());
+          oldTreeParser = parentParser;
+        } else {
+          oldTreeParser = new org.eclipse.jgit.treewalk.EmptyTreeIterator();
+        }
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        git.diff().setOldTree(oldTreeParser).setNewTree(newTreeParser).setOutputStream(out).call();
+
+        String result = out.toString();
+        return result.isEmpty() ? "No changes in this commit." : result;
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      return "Error getting commit diff: " + e.getMessage();
+    }
+  }
+
   public boolean checkoutBranch(String branchName) {
     try {
       git.checkout().setName(branchName).call();

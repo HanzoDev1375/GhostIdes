@@ -34,6 +34,8 @@ jsoup = "1.22.2"
 markwon = "4.6.2"
 sshj = "0.38.0"
 commons-net = "3.10.0"
+#palette
+palette = "1.0.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -80,3 +82,4 @@ commons-net = { module = "commons-net:commons-net", version.ref = "commons-net" 
 shizuku-api = { group = "dev.rikka.shizuku", name = "api", version.ref = "shizuku" }
 shizuku-provider = { group = "dev.rikka.shizuku", name = "provider", version.ref = "shizuku" }
 jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
+palette = { group = "androidx.palette", name = "palette", version.ref = "palette" }

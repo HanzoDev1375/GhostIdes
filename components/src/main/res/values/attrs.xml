@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SegmentedAvatarView">
+        <!-- Stroke width of the ring, e.g. 6dp -->
+        <attr name="ringWidth" format="dimension" />
+        <!-- Gap between the avatar's edge and the ring's inner edge -->
+        <attr name="ringPadding" format="dimension" />
+        <!-- Number of rounded arc segments in the ring -->
+        <attr name="segmentCount" format="integer" />
+        <!-- Angle, in degrees, subtracted from each segment's sweep to form the gaps -->
+        <attr name="gapAngle" format="float" />
+        <!-- Sweep gradient start color (blue by default) -->
+        <attr name="startColor" format="color" />
+        <!-- Sweep gradient end color (purple by default) -->
+        <attr name="endColor" format="color" />
+        <!-- Rotates the gradient around the ring, in degrees -->
+        <attr name="gradientRotation" format="float" />
+        <!-- Ring opacity, 0-255 -->
+        <attr name="ringAlpha" format="integer" />
+        <!-- Whether the ring is drawn at all -->
+        <attr name="ringVisible" format="boolean" />
+        <!-- Fraction of the ring to draw, 0.0-1.0 -->
+        <attr name="progress" format="float" />
+        <!-- Explicit ring radius override; 0 (default) means auto-size from view bounds -->
+        <attr name="ringRadius" format="dimension" />
+        <attr name="usingcolorpalette" format="boolean"/>
+    </declare-styleable>
+</resources>

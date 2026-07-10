@@ -48,7 +48,8 @@ public class TabCustomView extends LinearLayout
 
   public void bind(TabModel tabModel) {
     this.currentModel = tabModel;
-    binding.tabTitle.setText(hasStar ? "*" + tabModel.getFileName() : tabModel.getFileName());
+    this.hasStar = tabModel.getHasStar();
+    updateTitleText();
     binding.tabPinIcon.setVisibility(tabModel.isPinned() ? View.VISIBLE : View.GONE);
 
     FileIconHelper icon = new FileIconHelper(tabModel.getFilePath());
@@ -103,6 +104,14 @@ public class TabCustomView extends LinearLayout
   }
 
   public void setHasStar(boolean hasStar) {
+    if (this.hasStar == hasStar) return;
     this.hasStar = hasStar;
+    updateTitleText();
+  }
+
+  private void updateTitleText() {
+    if (binding == null || binding.tabTitle == null || currentModel == null) return;
+    binding.tabTitle.setText(
+        hasStar ? "*" + currentModel.getFileName() : currentModel.getFileName());
   }
 }

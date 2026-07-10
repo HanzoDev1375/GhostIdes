@@ -78,6 +78,9 @@ public class GitViewModel extends ViewModel {
   private final MutableLiveData<String> _currentRepoPath = new MutableLiveData<>();
   public final LiveData<String> currentRepoPath = _currentRepoPath;
 
+  private final MutableLiveData<String> _commitDiff = new MutableLiveData<>();
+  public final LiveData<String> commitDiff = _commitDiff;
+
   public void setUserConfig(String name, String email) {
     executor.execute(
         () -> {
@@ -396,6 +399,14 @@ public class GitViewModel extends ViewModel {
           List<CommitInfo> commits =
               gitManager != null ? gitManager.getCommitHistory() : Collections.emptyList();
           _commitHistory.postValue(commits);
+        });
+  }
+
+  public void loadCommitDiff(String commitHash) {
+    executor.execute(
+        () -> {
+          String diff = gitManager != null ? gitManager.getCommitDiff(commitHash) : "";
+          _commitDiff.postValue(diff);
         });
   }
 

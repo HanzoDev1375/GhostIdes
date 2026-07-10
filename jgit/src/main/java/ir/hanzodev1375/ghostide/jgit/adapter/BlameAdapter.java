@@ -13,6 +13,15 @@ import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.BlameInfo;
 
 public class BlameAdapter extends RecyclerView.Adapter<BlameAdapter.VH> {
   private List<BlameInfo> list = new ArrayList<>();
+  private OnBlameLineClickListener listener;
+
+  public interface OnBlameLineClickListener {
+    void onClick(BlameInfo blame);
+  }
+
+  public void setOnBlameLineClickListener(OnBlameLineClickListener listener) {
+    this.listener = listener;
+  }
 
   public void submitList(List<BlameInfo> l) {
     list = l != null ? l : new ArrayList<>();
@@ -33,6 +42,10 @@ public class BlameAdapter extends RecyclerView.Adapter<BlameAdapter.VH> {
     h.tvHash.setText(b.getShortHash());
     h.tvAuthor.setText(b.getAuthor());
     h.tvContent.setText(b.getContent());
+    h.itemView.setOnClickListener(
+        v -> {
+          if (listener != null) listener.onClick(b);
+        });
   }
 
   @Override

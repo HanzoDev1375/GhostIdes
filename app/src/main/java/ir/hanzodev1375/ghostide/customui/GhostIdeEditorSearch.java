@@ -169,12 +169,14 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
   public void bindEditor(@Nullable Supplier<IdeEditor> supplier) {
     this.editorSupplier = supplier;
 
-    getEditor()
-        .subscribeEvent(
-            PublishSearchResultEvent.class,
-            (event, unsubscribe) -> {
-              post(this::updateSearchResultInfo);
-            });
+    IdeEditor editor = getEditor();
+    if (editor == null) return;
+
+    editor.subscribeEvent(
+        PublishSearchResultEvent.class,
+        (event, unsubscribe) -> {
+          post(this::updateSearchResultInfo);
+        });
   }
 
   private void updateSearchResultInfo() {
@@ -339,11 +341,6 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
         return;
       }
 
-      if (!searcher.isMatchedPositionSelected()) {
-        showToast("Searching...");
-        return;
-      }
-
       boolean result = searcher.gotoNext();
 
       if (result) {
@@ -373,11 +370,6 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
 
       if (!searcher.hasQuery()) {
         showToast("No active search");
-        return;
-      }
-
-      if (!searcher.isMatchedPositionSelected()) {
-        showToast("Searching...");
         return;
       }
 

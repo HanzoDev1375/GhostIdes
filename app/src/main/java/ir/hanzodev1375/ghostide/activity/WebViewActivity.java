@@ -1,7 +1,6 @@
 package ir.hanzodev1375.ghostide.activity;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -59,18 +58,10 @@ public class WebViewActivity extends BaseCompat {
     setupBackHandler();
     loadIntentUrl();
   }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Setup
-  // ─────────────────────────────────────────────────────────────────────────
-
   private void setupToolbar() {
     setSupportActionBar(b.toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    b.toolbar.setNavigationOnClickListener(
-        v ->
-            WebViewBottomSheetFragment.newInstance("www.google.com")
-                .show(getSupportFragmentManager(), ""));
+    b.toolbar.setNavigationOnClickListener(v -> finish());
   }
 
   private void setupWebView() {
@@ -205,10 +196,6 @@ public class WebViewActivity extends BaseCompat {
               }
             });
   }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Navigation
-  // ─────────────────────────────────────────────────────────────────────────
 
   private void loadIntentUrl() {
     if (getIntent().hasExtra("keyweb")) {

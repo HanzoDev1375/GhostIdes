@@ -1,120 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-     xmlns:android="http://schemas.android.com/apk/res/android"
-     xmlns:app="http://schemas.android.com/apk/res-auto"
-     android:layout_height="wrap_content"
-     android:layout_width="match_parent"
-     android:orientation="vertical">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
 
     <View
-         android:layout_height="4dp"
-         android:layout_width="32dp"
-         android:layout_marginBottom="8dp"
-         android:background="?attr/colorOutlineVariant"
-         android:layout_marginTop="12dp"
-         android:layout_gravity="center_horizontal" />
+        android:layout_height="4dp"
+        android:layout_width="32dp"
+        android:layout_marginBottom="8dp"
+        android:background="?attr/colorOutlineVariant"
+        android:layout_marginTop="12dp"
+        android:layout_gravity="center_horizontal" />
 
     <LinearLayout
-         android:layout_height="wrap_content"
-         android:layout_width="match_parent"
-         android:gravity="center_vertical"
-         android:paddingVertical="12dp"
-         android:orientation="horizontal"
-         android:paddingHorizontal="20dp">
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:gravity="center_vertical"
+        android:paddingVertical="12dp"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp">
 
-        <ImageView
-             android:layout_height="52dp"
-             android:layout_width="52dp"
-             android:src="@drawable/person_24px"
-             android:scaleType="centerCrop"
-             android:id="@+id/ivAvatar" />
+        <ir.hanzodev1375.components.views.SegmentedAvatarView
+            android:layout_height="52dp"
+            android:layout_width="52dp"
+            android:src="@drawable/person_24px"
+            app:ringWidth="2dp"
+            app:ringPadding="3dp"
+            app:segmentCount="8"
+            app:gapAngle="14"
+            android:id="@+id/ivAvatar" />
 
         <LinearLayout
-             android:layout_height="wrap_content"
-             android:layout_width="0dp"
-             android:orientation="vertical"
-             android:layout_marginStart="14dp"
-             android:layout_weight="1">
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:orientation="vertical"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1">
 
             <TextView
-                 android:layout_height="wrap_content"
-                 android:layout_width="wrap_content"
-                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                 android:id="@+id/tvName"
-                 android:textStyle="bold" />
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:id="@+id/tvName"
+                android:textStyle="bold" />
 
             <TextView
-                 android:layout_height="wrap_content"
-                 android:layout_width="wrap_content"
-                 android:alpha="0.6"
-                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                 android:id="@+id/tvUsername" />
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:alpha="0.6"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:id="@+id/tvUsername" />
 
         </LinearLayout>
 
     </LinearLayout>
 
     <View
-         android:layout_height="1dp"
-         android:layout_width="match_parent"
-         android:background="?attr/colorOutlineVariant"
-         android:layout_marginHorizontal="8dp" />
+        android:layout_height="1dp"
+        android:layout_width="match_parent"
+        android:background="?attr/colorOutlineVariant"
+        android:layout_marginHorizontal="8dp" />
 
     <com.google.android.material.tabs.TabLayout
-         android:layout_height="wrap_content"
-         android:layout_width="match_parent"
-         app:tabMode="fixed"
-         app:tabInlineLabel="true"
-         app:tabGravity="fill"
-         app:tabIndicatorFullWidth="false"
-         app:tabIndicatorHeight="3dp"
-         android:id="@+id/tabLayout">
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        app:tabMode="fixed"
+        app:tabInlineLabel="true"
+        app:tabGravity="fill"
+        app:tabIndicatorFullWidth="false"
+        app:tabIndicatorHeight="3dp"
+        android:id="@+id/tabLayout">
 
     </com.google.android.material.tabs.TabLayout>
 
     <ProgressBar
-         android:layout_height="wrap_content"
-         android:layout_width="wrap_content"
-         android:visibility="gone"
-         android:layout_marginTop="32dp"
-         android:id="@+id/progressBar"
-         android:layout_gravity="center_horizontal" />
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="32dp"
+        android:id="@+id/progressBar"
+        android:layout_gravity="center_horizontal" />
 
     <LinearLayout
-         android:layout_height="wrap_content"
-         android:layout_width="match_parent"
-         android:visibility="gone"
-         android:gravity="center"
-         android:padding="32dp"
-         android:orientation="vertical"
-         android:id="@+id/layoutEmpty">
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:gravity="center"
+        android:padding="32dp"
+        android:orientation="vertical"
+        android:id="@+id/layoutEmpty">
 
         <ImageView
-             android:layout_height="48dp"
-             android:layout_width="48dp"
-             android:src="@drawable/inbox_24px"
-             android:alpha="0.4" />
+            android:layout_height="48dp"
+            android:layout_width="48dp"
+            android:src="@drawable/inbox_24px"
+            android:alpha="0.4" />
 
         <TextView
-             android:layout_height="wrap_content"
-             android:layout_width="wrap_content"
-             android:alpha="0.5"
-             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-             android:layout_marginTop="8dp"
-             android:id="@+id/tvEmpty"
-             android:text="Nothing to show" />
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:alpha="0.5"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:layout_marginTop="8dp"
+            android:id="@+id/tvEmpty"
+            android:text="Nothing to show" />
 
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-         android:layout_height="match_parent"
-         android:layout_width="match_parent"
-         android:layout_marginBottom="4dp"
-         android:layout_marginEnd="8dp"
-         android:paddingBottom="24dp"
-         android:clipToPadding="false"
-         android:layout_marginTop="8dp"
-         android:layout_marginStart="8dp"
-         android:id="@+id/recyclerView" />
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="8dp"
+        android:paddingBottom="24dp"
+        android:clipToPadding="false"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:id="@+id/recyclerView" />
 
 </LinearLayout>

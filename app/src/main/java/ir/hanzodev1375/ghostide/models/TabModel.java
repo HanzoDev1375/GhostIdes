@@ -3,6 +3,7 @@ package ir.hanzodev1375.ghostide.models;
 public class TabModel {
   private String filePath, fileName;
   private boolean pinned;
+  private transient boolean hasStar;
 
   public TabModel(String path, String name) {
     this.filePath = path;
@@ -24,5 +25,13 @@ public class TabModel {
 
   public void setPinned(boolean pinned) {
     this.pinned = pinned;
+  }
+
+  public boolean getHasStar() {
+    return hasStar;
+  }
+
+  public void setHasStar(boolean hasStar) {
+    this.hasStar = hasStar;
   }
 }
