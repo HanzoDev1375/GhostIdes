@@ -291,5 +291,10 @@
   <string name="pref_app_icon">App icon</string>
   <string name="pref_app_icon_desc">Choose an app icon from several ready-made designs</string>
   <string name="icon_name_hellish">Icon Hellish</string>
+  <string name="split_layout_title">Split Layout</string>
+  <string name="split_layout_rows">Rows</string>
+  <string name="split_layout_columns">Columns</string>
+  <string name="split_layout_apply">Apply Split</string>
+  <string name="split_layout_exit">Exit Split</string>
 
 </resources>

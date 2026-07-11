@@ -60,6 +60,8 @@ import ir.hanzodev1375.ghostide.plugin.PluginManager;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import android.view.ViewTreeObserver;
+import ir.hanzodev1375.ghostide.splitlayout.EditorPaneFragment;
+import ir.hanzodev1375.ghostide.splitlayout.SplitLayoutPopup;
 
 public class EditorActivity extends BaseCompat {
 
@@ -71,6 +73,9 @@ public class EditorActivity extends BaseCompat {
   private Gson gson = new Gson();
   private static final String KEY_TABS = "path";
   private static final String KEY_POSITION = "positionTabs";
+  private static final String KEY_SPLIT_ACTIVE = "splitActive";
+  private static final String KEY_SPLIT_ROWS = "splitRows";
+  private static final String KEY_SPLIT_COLS = "splitCols";
   private TabLayoutMediator tabMediator;
   private ToolbarListAdapter listAdapter;
   private boolean isShowSys = false;
@@ -82,6 +87,33 @@ public class EditorActivity extends BaseCompat {
   private ViewTreeObserver.OnGlobalLayoutListener symbolBarVisibilityListener;
   private long lastGitRefreshTime = 0;
   private static final long GIT_REFRESH_DEBOUNCE_MS = 1500;
+  private SplitLayoutPopup splitLayoutPopup;
+  private boolean isSplitViewActive = false;
+  private int lastSplitRows = 1, lastSplitCols = 2;
+  private EditorPaneFragment activePane = null; // null = پین اصلی (primary)
+
+  private final EditorPaneFragment.PaneActionListener paneActionListener =
+      new EditorPaneFragment.PaneActionListener() {
+        @Override
+        public void onCloseTab(String filePath) {
+          closeTabByPath(filePath);
+        }
+
+        @Override
+        public void onCloseOthers(String filePath) {
+          closeOtherTabsByPath(filePath);
+        }
+
+        @Override
+        public void onCloseAll() {
+          closeAllTabs();
+        }
+
+        @Override
+        public void onTogglePin(String filePath) {
+          togglePinByPath(filePath);
+        }
+      };
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -253,6 +285,28 @@ public class EditorActivity extends BaseCompat {
     // Re-check git status whenever the activity resumes (e.g. after returning from the
     // Git bottom sheet where the user may have committed/pushed changes).
     refreshGitStatus();
+  }
+
+  private int indexOfTab(String filePath) {
+    for (int i = 0; i < tabsList.size(); i++) {
+      if (tabsList.get(i).getFilePath().equals(filePath)) return i;
+    }
+    return -1;
+  }
+
+  private void closeTabByPath(String filePath) {
+    int i = indexOfTab(filePath);
+    if (i >= 0) closeTab(i);
+  }
+
+  private void closeOtherTabsByPath(String filePath) {
+    int i = indexOfTab(filePath);
+    if (i >= 0) closeOtherTabs(i);
+  }
+
+  private void togglePinByPath(String filePath) {
+    int i = indexOfTab(filePath);
+    if (i >= 0) togglePin(i);
   }
 
   @Override
@@ -475,6 +529,7 @@ public class EditorActivity extends BaseCompat {
     toolbarModel.add(new ToolbarModel(R.drawable.outline_undo, "undo"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_redo, "redo"));
     toolbarModel.add(new ToolbarModel(R.drawable.more_vert, "more"));
+    toolbarModel.add(new ToolbarModel(R.drawable.more_vert, "more"));
     listAdapter =
         new ToolbarListAdapter(
             toolbarModel,
@@ -490,6 +545,7 @@ public class EditorActivity extends BaseCompat {
                   if (getEditor().canRedo()) getEditor().redo();
                 }
                 case 5 -> setupMenuCalltoAction(view);
+                case 6 -> toggleOrShowSplitPopup(view);
               }
             },
             EditorActivity.this);
@@ -590,6 +646,9 @@ public class EditorActivity extends BaseCompat {
         ((TabCustomView) layoutTab.getCustomView()).setGitChanged(changed);
       }
     }
+    if (binding.splitPaneRoot != null) {
+      binding.splitPaneRoot.notifyGitStatus(this::isFileGitChanged);
+    }
   }
 
   private boolean isFileGitChanged(String filePath) {
@@ -638,6 +697,67 @@ public class EditorActivity extends BaseCompat {
         });
     menu.setIconSize(25);
     menu.showAsDropDown(v);
+  }
+
+  private void toggleOrShowSplitPopup(View anchor) {
+    if (isSplitViewActive) {
+      exitSplitView();
+      return;
+    }
+    if (splitLayoutPopup == null) {
+      splitLayoutPopup = new SplitLayoutPopup(this);
+      splitLayoutPopup.setOnSplitChangeListener(
+          new SplitLayoutPopup.OnSplitChangeListener() {
+            @Override
+            public void onApplySplit(int rows, int cols) {
+              applySplitView(rows, cols);
+            }
+
+            @Override
+            public void onExitSplit() {
+              exitSplitView();
+            }
+          });
+    }
+    splitLayoutPopup.setCurrentState(isSplitViewActive, lastSplitRows, lastSplitCols);
+    splitLayoutPopup.show(anchor);
+  }
+
+  private void applySplitView(int rows, int cols) {
+    binding.splitPaneRoot.applySplit(rows, cols, tabsList);
+    isSplitViewActive = binding.splitPaneRoot.isSplit();
+    if (isSplitViewActive) {
+      lastSplitRows = rows;
+      lastSplitCols = cols;
+    }
+    saveSplitState();
+  }
+
+  private void exitSplitView() {
+    binding.splitPaneRoot.exitSplit();
+    isSplitViewActive = false;
+    saveSplitState();
+  }
+
+  private void saveSplitState() {
+    prefs
+        .edit()
+        .putBoolean(KEY_SPLIT_ACTIVE, isSplitViewActive)
+        .putInt(KEY_SPLIT_ROWS, lastSplitRows)
+        .putInt(KEY_SPLIT_COLS, lastSplitCols)
+        .apply();
+  }
+
+  /**
+   * اسپیلت رو از SharedPreferences برمیگردونه؛ فقط با خروج دستی کاربر (exitSplitView) بسته
+   * میشه، نه با خروج/رفتن به activity دیگه یا کشته‌شدن پروسه.
+   */
+  private void restoreSplitState() {
+    boolean wasSplitActive = prefs.getBoolean(KEY_SPLIT_ACTIVE, false);
+    if (!wasSplitActive) return;
+    int savedRows = prefs.getInt(KEY_SPLIT_ROWS, lastSplitRows);
+    int savedCols = prefs.getInt(KEY_SPLIT_COLS, lastSplitCols);
+    binding.splitPaneRoot.post(() -> applySplitView(savedRows, savedCols));
   }
 
   private void setupViewPager() {
@@ -707,6 +827,7 @@ public class EditorActivity extends BaseCompat {
       tabsList = new ArrayList<>();
     }
     adapter.setTabs(new ArrayList<>(tabsList));
+    if (binding.splitPaneRoot != null) binding.splitPaneRoot.notifyTabsChanged(tabsList);
     int savedPosition = 0;
     String posStr = prefs.getString(KEY_POSITION, "0");
     try {
@@ -718,6 +839,9 @@ public class EditorActivity extends BaseCompat {
       binding.viewPager.setCurrentItem(savedPosition, false);
       binding.tab.setScrollPosition(savedPosition, 0f, true);
     }
+    binding.splitPaneRoot.initialize(this, paneActionListener);
+    binding.splitPaneRoot.setOnActivePaneChangedListener(pane -> activePane = pane);
+    restoreSplitState();
   }
 
   private void saveCurrentPosition(int position) {
@@ -738,6 +862,7 @@ public class EditorActivity extends BaseCompat {
     }
     tabsList.add(new TabModel(path, name));
     adapter.setTabs(new ArrayList<>(tabsList));
+    if (binding.splitPaneRoot != null) binding.splitPaneRoot.notifyTabsChanged(tabsList);
     saveTabs();
     int newPos = tabsList.size() - 1;
     binding.viewPager.setCurrentItem(newPos);
@@ -769,6 +894,7 @@ public class EditorActivity extends BaseCompat {
       if (tabsList.get(position).isPinned()) return;
       tabsList.remove(position);
       adapter.setTabs(new ArrayList<>(tabsList));
+      if (binding.splitPaneRoot != null) binding.splitPaneRoot.notifyTabsChanged(tabsList);
       saveTabs();
       if (tabsList.isEmpty()) {
         finish();
@@ -790,6 +916,8 @@ public class EditorActivity extends BaseCompat {
     }
     tabsList = newList;
     adapter.setTabs(new ArrayList<>(tabsList));
+
+    if (binding.splitPaneRoot != null) binding.splitPaneRoot.notifyTabsChanged(tabsList);
     saveTabs();
     binding.viewPager.setCurrentItem(0);
     saveCurrentPosition(0);
@@ -800,6 +928,7 @@ public class EditorActivity extends BaseCompat {
     for (TabModel tab : tabsList) if (tab.isPinned()) pinned.add(tab);
     tabsList = pinned;
     adapter.setTabs(new ArrayList<>(tabsList));
+    if (binding.splitPaneRoot != null) binding.splitPaneRoot.notifyTabsChanged(tabsList);
     saveTabs();
     if (tabsList.isEmpty()) finish();
     else {
@@ -813,6 +942,7 @@ public class EditorActivity extends BaseCompat {
       TabModel tab = tabsList.get(position);
       tab.setPinned(!tab.isPinned());
       adapter.setTabs(new ArrayList<>(tabsList));
+      if (binding.splitPaneRoot != null) binding.splitPaneRoot.notifyTabsChanged(tabsList);
       saveTabs();
       TabLayout.Tab layoutTab = binding.tab.getTabAt(position);
       if (layoutTab != null && layoutTab.getCustomView() instanceof TabCustomView) {
@@ -822,6 +952,9 @@ public class EditorActivity extends BaseCompat {
   }
 
   private String getCurrentFilePath() {
+    if (activePane != null) {
+      return activePane.getCurrentFilePath();
+    }
     int currentPos = binding.viewPager.getCurrentItem();
     if (currentPos >= 0 && currentPos < tabsList.size())
       return tabsList.get(currentPos).getFilePath();
@@ -916,6 +1049,9 @@ public class EditorActivity extends BaseCompat {
   }
 
   private IdeEditor getEditor() {
+    if (activePane != null) {
+      return activePane.getEditor();
+    }
     if (binding.viewPager == null || adapter == null || adapter.getItemCount() == 0) {
       return null;
     }

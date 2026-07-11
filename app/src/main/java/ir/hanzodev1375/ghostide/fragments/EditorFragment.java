@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.event.SelectionChangeEvent;
+import io.github.rosemoe.sora.event.EditorFocusChangeEvent;
 import io.github.rosemoe.sora.lang.Language;
 import ir.hanzodev1375.ghostide.activity.EditorActivity;
 import ir.hanzodev1375.ghostide.editorlangs.LanguageManager;
@@ -379,9 +380,19 @@ public class EditorFragment extends Fragment {
         (v, insets) -> {
           Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
           Insets navInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
-          int bottomInset = Math.max(imeInsets.bottom, navInsets.bottom);
+          boolean thisEditorIsFocused = editor != null && editor.hasFocus();
+          int bottomInset =
+              thisEditorIsFocused ? Math.max(imeInsets.bottom, navInsets.bottom) : navInsets.bottom;
           v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottomInset);
           return insets;
         });
+
+    if (editor != null) {
+      editor.subscribeEvent(
+          EditorFocusChangeEvent.class,
+          (event, un) -> {
+            ViewCompat.requestApplyInsets(target);
+          });
+    }
   }
 }
