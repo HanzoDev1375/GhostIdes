@@ -175,7 +175,7 @@ public class ViewDownloder extends RelativeLayout {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
         && !getContext().getPackageManager().canRequestPackageInstalls()) {
       var intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
-      intent.setData(Uri.parse("package:" + "ir.ninjacoder.ghostide.core"));
+      intent.setData(Uri.parse("package:" + "ir.hanzodev1375.ghostide"));
       getContext().startActivity(intent);
     } else {
       ApkInstallerCompat compat =
