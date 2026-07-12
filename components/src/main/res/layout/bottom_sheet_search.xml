@@ -1,221 +1,226 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  android:background="?attr/colorSurface">
+
+  <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginHorizontal="0dp" />
+
+  <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="20dp"
+    android:layout_marginBottom="8dp"
+    android:text="@string/search_title"
+    android:textSize="18sp"
+    android:textStyle="bold"
+    android:textColor="?attr/colorOnSurface" />
+
+  <com.google.android.material.card.MaterialCardView
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="?attr/colorSurface">
-
-    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginHorizontal="0dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginBottom="8dp"
-        android:text="@string/search_title"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface"/>
-
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="12dp"
-        android:layout_marginBottom="6dp"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="0dp"
-        app:strokeColor="?attr/colorOutlineVariant"
-        app:strokeWidth="1dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="2dp">
-
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:src="@drawable/outline_search24"
-                android:tint="?attr/colorOnSurfaceVariant"/>
-
-            <EditText
-                android:id="@+id/etSearch"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="8dp"
-                android:background="@null"
-                android:hint="@string/search_hint"
-                android:imeOptions="actionSearch"
-                android:inputType="text"
-                android:maxLines="1"
-                android:paddingVertical="14dp"
-                android:textSize="15sp"/>
-
-            <ImageButton
-                android:id="@+id/btnClear"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_close_24"
-                android:tint="?attr/colorOnSurfaceVariant"
-                android:visibility="gone"/>
-
-            <ImageButton
-                android:id="@+id/btnSearch"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginStart="4dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/outline_search24"
-                android:tint="?attr/colorPrimary"/>
-
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginBottom="6dp"
+    app:cardCornerRadius="28dp"
+    app:cardElevation="0dp"
+    app:strokeColor="?attr/colorOutlineVariant"
+    app:strokeWidth="1dp">
 
     <LinearLayout
-        android:layout_width="match_parent"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:gravity="center_vertical"
+      android:paddingHorizontal="16dp"
+      android:paddingVertical="2dp">
+
+      <ImageView
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:src="@drawable/outline_search24"
+        android:tint="?attr/colorOnSurfaceVariant" />
+
+      <EditText
+        android:id="@+id/etSearch"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingHorizontal="12dp"
-        android:paddingBottom="6dp"
-        android:gravity="center_vertical">
+        android:layout_weight="1"
+        android:layout_marginHorizontal="8dp"
+        android:background="@null"
+        android:hint="@string/search_hint"
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:maxLines="1"
+        android:paddingVertical="14dp"
+        android:textSize="15sp" />
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/toggleSearchMode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:singleSelection="true"
-            app:selectionRequired="true">
+      <ImageButton
+        android:id="@+id/btnClear"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_close_24"
+        android:tint="?attr/colorOnSurfaceVariant"
+        android:visibility="gone" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnModeNormal"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                android:text="@string/search_mode_normal"
-                android:textSize="11sp"
-                android:paddingHorizontal="10dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnModeRegex"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                android:text="@string/search_mode_regex"
-                android:textSize="11sp"
-                android:paddingHorizontal="10dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnModeCase"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                android:text="@string/search_mode_case"
-                android:textSize="11sp"
-                android:paddingHorizontal="10dp"/>
-
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-
-        <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
-
-        <TextView
-            android:id="@+id/tvSwitchLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/search_type_filename"
-            android:textSize="11sp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:layout_marginEnd="4dp"/>
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchContentSearch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+      <ImageButton
+        android:id="@+id/btnSearch"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="4dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/outline_search24"
+        android:tint="?attr/colorPrimary" />
 
     </LinearLayout>
+  </com.google.android.material.card.MaterialCardView>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="4dp"
-        android:gravity="center_vertical">
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingHorizontal="12dp"
+    android:paddingBottom="6dp"
+    android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/tvResultCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="?attr/colorPrimary"
-            android:visibility="gone"/>
+    <com.google.android.material.button.MaterialButtonToggleGroup
+      android:id="@+id/toggleSearchMode"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:singleSelection="true"
+      app:selectionRequired="true">
 
-        <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnModeNormal"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="34dp"
+        android:text="@string/search_mode_normal"
+        android:textSize="11sp"
+        android:paddingHorizontal="10dp" />
 
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/progressBar"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:indeterminate="true"/>
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnModeRegex"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="34dp"
+        android:text="@string/search_mode_regex"
+        android:textSize="11sp"
+        android:paddingHorizontal="10dp" />
 
-    </LinearLayout>
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnModeCase"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="34dp"
+        android:text="@string/search_mode_case"
+        android:textSize="11sp"
+        android:paddingHorizontal="10dp" />
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?attr/colorOutlineVariant"/>
+      android:layout_width="0dp"
+      android:layout_height="0dp"
+      android:layout_weight="1" />
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+    <TextView
+      android:id="@+id/tvSwitchLabel"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/search_type_filename"
+      android:textSize="11sp"
+      android:textColor="?attr/colorOnSurfaceVariant"
+      android:layout_marginEnd="4dp" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvResults"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="32dp"
-            android:visibility="gone"/>
+    <com.google.android.material.materialswitch.MaterialSwitch
+      android:id="@+id/switchContentSearch"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content" />
 
-        <LinearLayout
-            android:id="@+id/layoutEmpty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone">
+  </LinearLayout>
 
-            <ImageView
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:src="@drawable/outline_search24"
-                android:tint="?attr/colorOnSurfaceVariant"
-                android:alpha="0.4"/>
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp"
+    android:paddingBottom="4dp"
+    android:gravity="center_vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/search_no_results"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="14sp"/>
+    <TextView
+      android:id="@+id/tvResultCount"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textSize="12sp"
+      android:textColor="?attr/colorPrimary"
+      android:visibility="gone" />
 
-        </LinearLayout>
+    <View
+      android:layout_width="0dp"
+      android:layout_height="0dp"
+      android:layout_weight="1" />
 
-    </FrameLayout>
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+      android:id="@+id/progressBar"
+      android:layout_width="100dp"
+      android:layout_height="wrap_content"
+      android:visibility="gone"
+      android:indeterminate="true" />
+
+  </LinearLayout>
+
+  <View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:background="?attr/colorOutlineVariant" />
+
+  <FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1">
+
+    <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/rvResults"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:clipToPadding="false"
+      android:paddingBottom="32dp"
+      android:visibility="gone" />
+
+    <LinearLayout
+      android:id="@+id/layoutEmpty"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:gravity="center"
+      android:orientation="vertical"
+      android:visibility="gone">
+
+      <ImageView
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:src="@drawable/outline_search24"
+        android:tint="?attr/colorOnSurfaceVariant"
+        android:alpha="0.4" />
+
+      <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/search_no_results"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="14sp" />
+
+    </LinearLayout>
+
+  </FrameLayout>
 
 </LinearLayout>
