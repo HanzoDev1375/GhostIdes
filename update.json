@@ -1,7 +1,7 @@
 {
-  "title": "Ghost IDE 1.1beta",
-  "massges": "👻 Ghost IDE v1.1 Beta – The \"Spirited\" Update is Live!\r\nWhat's lurking in the new version? 👇\r\n\r\n· 🌍🗣️ Global Chatter – Added support for multiple languages! Code without borders.\r\n· ⚡🚀 Turbo Boost – Supercharged app performance. Faster than a ghost in a hurry!\r\n· 📄⚙️ Config Wizard – Brand new Properties file support for all your tweaks.\r\n· 📦🔍 Peek-a-Boo – Built-in ZIP viewer! Browse archives without extracting a thing.\r\n· ✏️🔄 Bulk Boss – Batch rename is here! Rename entire groups in a single click.\r\n· 🐞🧹 Ghostbusting – Squashed translation bugs on specific devices and exorcised plenty of other pesky glitches.\r\n\r\nUpdate now and feel the frightful speed! 👻💾",
-  "version": "1.1beta",
-  "link": "https://github.com/HanzoDev1375/GhostIdes/releases/download/1.1beta/app-release.apk",
+  "title": "Ghost IDE 1.1.2",
+  "massges": "# 🚀 What's New\r\n\r\n## ✨ New Features\r\n- 🖥️ Added Terminal\r\n- 🌍 Added Android Project Language Translation\r\n- 🌙 Added Background Mode\r\n- 🪟 Added Split View for the Code Editor (optimized for tablets)\r\n- 💻 Added multiple programming languages (see `README.md`)\r\n- 🔗 Added clickable link preview\r\n- 🖼️ Added image preview support\r\n- 🌐 Added FTP & SFTP support\r\n- 🛍️ Added Store (Beta)\r\n- 📊 Added Editor Status Bar (will be expanded in future updates)\r\n- 📁 Added File Tree inside the Code Editor for faster file and folder navigation\r\n- 🔋 Added Power Saving Mode (disables animations when the battery threshold is reached)\r\n- 🎨 Added a background to the Settings screen\r\n- 🔥💧 Added custom app icons (Fire & Water themes)\r\n\r\n## ⚡ Improvements\r\n- 📂 Improved file reading and management\r\n\r\n## 🛠️ Bug Fixes\r\n- ✅ Fixed download issues\r\n- ✅ Fixed project creation issues\r\n- ✅ Fixed text filtering bugs\r\n- ✅ Fixed code editor search bugs\r\n- ✅ Fixed **Save All** in the Code Editor",
+  "version": "1.1.2",
+  "link": "https://github.com/HanzoDev1375/GhostIdes/releases/download/1.1.2/app-release.apk",
   "appname": "Ghost IDE"
 }
