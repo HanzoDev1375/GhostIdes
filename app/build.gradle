@@ -98,4 +98,5 @@ dependencies {
     }
     implementation 'com.caverock:androidsvg:1.4'
     implementation project(':musicpreview')
+    api fileTree(dir: "libs", include: ["*.jar", "*.aar"])
 }

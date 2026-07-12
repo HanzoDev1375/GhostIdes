@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.card.MaterialCardView;
+import ir.hanzodev1375.components.animators.AnimationManager;
 import ir.hanzodev1375.ghostide.R;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
@@ -51,6 +52,11 @@ public class SplitLayoutPopup {
             ViewGroup.LayoutParams.WRAP_CONTENT,
             true);
     popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+    if (!AnimationManager.getInstance(context).areAnimationsEnabled()) {
+      popupWindow.setAnimationStyle(0);
+      actionButton.clearAnimation();
+    } else popupWindow.setAnimationStyle(R.style.SplitPopupAnimation);
+
     popupWindow.setOutsideTouchable(true);
     popupWindow.setElevation(dp(context, 12f));
 

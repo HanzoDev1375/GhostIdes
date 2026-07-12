@@ -1,6 +1,7 @@
 package ir.hanzodev1375.ghostide.activity;
 
 import android.app.ActivityOptions;
+import androidx.annotation.NonNull;
 import com.google.android.material.transition.platform.MaterialSharedAxis;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +24,7 @@ public class BaseCompat extends AppCompatActivity
   private PreferencesUtils prefs;
   private Theme lastTheme;
   AnimationManager animMgr;
-  private final List<BaseCompat> ACTIVITIES = new ArrayList<>();
+  private  List<BaseCompat> ACTIVITIES = new ArrayList<>();
 
   @Override
   protected void attachBaseContext(Context newBase) {
@@ -108,5 +109,9 @@ public class BaseCompat extends AppCompatActivity
       getWindow().setReenterTransition(null);
       super.startActivity(i);
     }
+  }
+  @NonNull
+  public AnimationManager getAnimationManager(){
+    return animMgr;
   }
 }

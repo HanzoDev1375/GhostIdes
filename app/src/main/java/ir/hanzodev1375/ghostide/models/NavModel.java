@@ -2,11 +2,12 @@ package ir.hanzodev1375.ghostide.models;
 
 import java.io.File;
 
+
 public class NavModel {
 
   private String navName;
   private File navFile;
-
+  
   public NavModel(String name, File file) {
     this.navName = name;
     this.navFile = file;

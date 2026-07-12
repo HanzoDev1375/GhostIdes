@@ -141,6 +141,9 @@
 
         <activity android:name=".activity.ErrorManagerActivity" />
         <activity android:name=".activity.WebViewActivity" />
+        <activity
+            android:name=".terminal.activity.TerminalActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name="ir.theme.themeeditor.ThemeEditorActivity" />
         <activity android:name="ir.hanzodev1375.ghostide.ai.chat.AiChatActivity" />
         <activity android:name="ir.hanzodev1375.components.store.activitys.StoreActivity" />

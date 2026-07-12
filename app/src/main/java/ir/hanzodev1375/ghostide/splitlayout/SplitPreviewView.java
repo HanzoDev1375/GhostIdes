@@ -9,6 +9,7 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.PathInterpolator;
+import ir.hanzodev1375.components.animators.AnimationManager;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import java.util.ArrayList;
@@ -99,6 +100,10 @@ public class SplitPreviewView extends View {
           invalidate();
         });
     morphAnimator.start();
+    if(!AnimationManager.getInstance(getContext()).areAnimationsEnabled()) {
+    	morphAnimator.cancel();
+      progress = 1f;
+    }
   }
 
   private List<RectF> buildCells(int r, int c, int w, int h) {

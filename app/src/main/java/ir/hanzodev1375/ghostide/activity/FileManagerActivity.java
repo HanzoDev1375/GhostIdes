@@ -86,6 +86,7 @@ import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
 import androidx.core.content.FileProvider;
 import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
 import androidx.core.content.FileProvider;
+import ir.hanzodev1375.ghostide.terminal.activity.TerminalActivity;
 import ir.hanzodev1375.ghostide.utils.MarginItemDecoration;
 import ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver;
 import ir.hanzodev1375.ghostide.utils.ObjectUtil;
@@ -1392,6 +1393,7 @@ public class FileManagerActivity extends BaseCompat
     menu.addItem(new PowerMenuItem(getString(R.string.store)));
     menu.addItem(new PowerMenuItem(getString(R.string.aboutapp)));
     menu.addItem(new PowerMenuItem(getString(R.string.translator_title)));
+    menu.addItem(new PowerMenuItem(getString(R.string.terminal_title)));
     menu.setAutoDismiss(true);
     menu.setShowBackground(false);
     menu.setAnimation(MenuAnimation.FADE);
@@ -1449,6 +1451,7 @@ public class FileManagerActivity extends BaseCompat
             case 9 -> startActivity(new Intent(FileManagerActivity.this, AboutActivity.class));
             case 10 -> StringsTranslatorSheet.newInstance(viewModel.getCurrentPath().getValue())
                 .show(getSupportFragmentManager(), StringsTranslatorSheet.TAG);
+            case 11 -> startActivity(new Intent(FileManagerActivity.this, TerminalActivity.class));
           }
         });
     menu.showAsDropDown(bind.btnSettings);

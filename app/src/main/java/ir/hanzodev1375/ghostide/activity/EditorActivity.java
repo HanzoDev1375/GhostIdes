@@ -522,30 +522,31 @@ public class EditorActivity extends BaseCompat {
   }
 
   void stepToolbar() {
+    toolbarModel.add(new ToolbarModel(R.drawable.ic_split_column, "Item Spilt!"));
     toolbarModel.add(new ToolbarModel(R.drawable.round_account_tree, "file tree"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_search, "search"));
     toolbarModel.add(
-        new ToolbarModel(com.bluewhaleyt.materialfileicon.R.drawable.ic_material_git, "git"));
+        new ToolbarModel(
+            com.bluewhaleyt.materialfileicon.R.drawable.ic_material_git, "git", isGit()));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_undo, "undo"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_redo, "redo"));
-    toolbarModel.add(new ToolbarModel(R.drawable.more_vert, "more"));
     toolbarModel.add(new ToolbarModel(R.drawable.more_vert, "more"));
     listAdapter =
         new ToolbarListAdapter(
             toolbarModel,
             (view, m, pos) -> {
               switch (pos) {
-                case 0 -> stepFileTree();
-                case 1 -> stepSearch();
-                case 2 -> showGitBottomSheet();
-                case 3 -> {
+                case 0 -> toggleOrShowSplitPopup(view);
+                case 1 -> stepFileTree();
+                case 2 -> stepSearch();
+                case 3 -> showGitBottomSheet();
+                case 4 -> {
                   if (getEditor().canUndo()) getEditor().undo();
                 }
-                case 4 -> {
+                case 5 -> {
                   if (getEditor().canRedo()) getEditor().redo();
                 }
-                case 5 -> setupMenuCalltoAction(view);
-                case 6 -> toggleOrShowSplitPopup(view);
+                case 6 -> setupMenuCalltoAction(view);
               }
             },
             EditorActivity.this);
@@ -636,6 +637,14 @@ public class EditorActivity extends BaseCompat {
         gitChangedPaths.add(change.getPath().replace(File.separatorChar, '/'));
       }
     }
+  }
+
+  private boolean isGit() {
+    for (int i = 0; i < tabsList.size(); i++) {
+      TabLayout.Tab layoutTab = binding.tab.getTabAt(i);
+      return isFileGitChanged(tabsList.get(i).getFilePath());
+    }
+    return false;
   }
 
   private void updateAllTabsGitStatus() {
@@ -749,8 +758,8 @@ public class EditorActivity extends BaseCompat {
   }
 
   /**
-   * اسپیلت رو از SharedPreferences برمیگردونه؛ فقط با خروج دستی کاربر (exitSplitView) بسته
-   * میشه، نه با خروج/رفتن به activity دیگه یا کشته‌شدن پروسه.
+   * اسپیلت رو از SharedPreferences برمیگردونه؛ فقط با خروج دستی کاربر (exitSplitView) بسته میشه، نه
+   * با خروج/رفتن به activity دیگه یا کشته‌شدن پروسه.
    */
   private void restoreSplitState() {
     boolean wasSplitActive = prefs.getBoolean(KEY_SPLIT_ACTIVE, false);

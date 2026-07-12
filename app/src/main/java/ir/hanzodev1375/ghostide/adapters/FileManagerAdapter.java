@@ -4,13 +4,18 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -48,7 +53,11 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
   private List<FileManagerModel> items = new ArrayList<>();
   private List<FileManagerModel> itemsFull = new ArrayList<>();
   private String searchQuery = "";
-  private int highlightColor;
+  // متن پیدا شده با یه پس‌زمینه‌ی روشن + متن تیره هایلایت میشه (مثل یه ماژیک هایلایتر)؛
+  // این‌جوری چه تم روشن چه تیره باشه، همیشه قابل‌خوندنه (به جای یه رنگ ثابت که فقط روی
+  // بک‌گراند‌های خاص دیده میشه).
+  private static final int HIGHLIGHT_TEXT_COLOR = Color.BLACK;
+  private static final int HIGHLIGHT_BACKGROUND_COLOR = Color.parseColor("#FFE0B2");
   private Context context;
   private SelectionTracker<Long> selectionTracker;
   private OnItemClickListener itemClickListener;
@@ -59,6 +68,26 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
   private final Map<Long, Integer> idToPosition = new HashMap<>();
   private PreferencesUtils setting;
   private boolean isGrid = false;
+
+  // انیمیشن ورود ردیف‌ها: فقط توی "برست" اول بایند (لود یه لیست جدید) فعاله؛ به محض
+  // اینکه ۵۰۰ms بایندی اتفاق نیفته خودش خاموش میشه، و به محض اینکه کاربر شروع به درگ/اسکرول
+  // کنه فوراً (بدون تاخیر) قطع میشه؛ پس در حین اسکرول هیچ‌وقت پخش/ری‌پلی نمیشه.
+  private boolean isAnimating = false;
+  private int animationStartOffset = 0;
+  private final Handler stopAnimationHandler = new Handler(Looper.getMainLooper());
+  private final Runnable stopAnimationRunnable = this::stopAnimation;
+  private RecyclerView recyclerView;
+  private static final long STAGGER_STEP_MS = 20L;
+  private static final long ANIM_IDLE_TIMEOUT_MS = 500L;
+  private final RecyclerView.OnScrollListener clearAnimationListener =
+      new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrollStateChanged(@NonNull RecyclerView rv, int newState) {
+          if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+            clearAnimation();
+          }
+        }
+      };
 
   public interface OnItemClickListener {
     void onItemClick(FileManagerModel item, int position);
@@ -79,7 +108,6 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
   public FileManagerAdapter(Context context) {
     this.context = context;
     setHasStableIds(true);
-    highlightColor = Color.parseColor("#200180");
     setting = new PreferencesUtils(context);
     isGrid = setting.getGridMod();
   }
@@ -262,6 +290,7 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
     rebuildIdMap();
     diffResult.dispatchUpdatesTo(this);
     if (selectionTracker != null) selectionTracker.clearSelection();
+    resetAnimation();
   }
 
   private void rebuildIdMap() {
@@ -288,7 +317,12 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
     DiffUtil.DiffResult diffResult =
         DiffUtil.calculateDiff(new FileDiffCallback(items, filteredList));
     items = filteredList;
+    rebuildIdMap();
     diffResult.dispatchUpdatesTo(this);
+    // DiffUtil فقط وقتی فیلد‌های مدل فرق کرده باشه rebind میکنه؛ چون searchQuery روی خودِ
+    // مدل نیست، آیتم‌هایی که جابه‌جا/حذف نشدن اصلاً دوباره bind نمیشن و رنگی‌شدن متن جا میفته.
+    // برای همین بعد از دیف، یه بار کل رنج فعلی رو صریحاً notifyItemRangeChanged میکنیم.
+    notifyItemRangeChanged(0, items.size());
     if (selectionTracker != null) selectionTracker.clearSelection();
   }
 
@@ -335,6 +369,67 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
             setting.isShowBackground()
                 ? ColorUtils.setAlphaComponent(backgroundColor, 128)
                 : backgroundColor));
+
+    bindViewHolderAnimation(holder);
+  }
+
+  @Override
+  public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+    super.onAttachedToRecyclerView(recyclerView);
+    this.recyclerView = recyclerView;
+    recyclerView.addOnScrollListener(clearAnimationListener);
+    resetAnimation();
+  }
+
+  @Override
+  public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+    super.onDetachedFromRecyclerView(recyclerView);
+    recyclerView.removeOnScrollListener(clearAnimationListener);
+    this.recyclerView = null;
+    stopAnimation();
+  }
+
+  /**
+   * فایل انیمیشن (مثلاً res/anim/list_item.xml) رو با یه delay پلکانی روی هر ردیف پخش میکنه؛
+   * فقط وقتی isAnimating روشنه (یعنی همین الان یه لیست جدید لود شده). به محض دراگ یا گذشتن
+   * ۵۰۰ms بی‌فعالیت، isAnimating خاموش میشه و از این به بعد هیچ انیمیشنی پخش نمیشه.
+   */
+  private void bindViewHolderAnimation(@NonNull ViewHolder holder) {
+    holder.itemView.clearAnimation();
+    if (!isAnimating) return;
+    Animation animation =
+        AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.list_item);
+    animation.setStartOffset(animationStartOffset);
+    animationStartOffset += STAGGER_STEP_MS;
+    holder.itemView.startAnimation(animation);
+    postStopAnimation();
+  }
+
+  private void stopAnimation() {
+    stopAnimationHandler.removeCallbacks(stopAnimationRunnable);
+    isAnimating = false;
+    animationStartOffset = 0;
+  }
+
+  private void postStopAnimation() {
+    stopAnimationHandler.removeCallbacks(stopAnimationRunnable);
+    stopAnimationHandler.postDelayed(stopAnimationRunnable, ANIM_IDLE_TIMEOUT_MS);
+  }
+
+  /** به محض شروع درگ کاربر صدا زده میشه: انیمیشن آینده رو خاموش میکنه و بقیه‌ی در حال اجرا رو قطع میکنه. */
+  private void clearAnimation() {
+    stopAnimation();
+    if (recyclerView != null) {
+      for (int i = 0; i < recyclerView.getChildCount(); i++) {
+        recyclerView.getChildAt(i).clearAnimation();
+      }
+    }
+  }
+
+  /** موقع لود یه لیست تازه (فولدر جدید/رفرش) صدا زده میشه تا ردیف‌ها دوباره با انیمیشن ظاهر بشن. */
+  private void resetAnimation() {
+    clearAnimation();
+    isAnimating = true;
   }
 
   @Override
@@ -456,7 +551,12 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
       while ((startIndex = lowerText.indexOf(lowerQuery, startIndex)) != -1) {
         int endIndex = startIndex + query.length();
         spannableString.setSpan(
-            new ForegroundColorSpan(highlightColor),
+            new ForegroundColorSpan(HIGHLIGHT_TEXT_COLOR),
+            startIndex,
+            endIndex,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(
+            new BackgroundColorSpan(HIGHLIGHT_BACKGROUND_COLOR),
             startIndex,
             endIndex,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

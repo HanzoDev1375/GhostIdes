@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  همون منحنی نرمی که توی SplitPreviewView برای انیمیشن گرید استفاده شده (بدون بانس/پرش)،
+  اینجا هم برای اینکه ورود/خروج پاپ‌آپ با محتوای داخلش یه‌دست به نظر برسه.
+-->
+<pathInterpolator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:controlX1="0.22"
+    android:controlY1="1"
+    android:controlX2="0.36"
+    android:controlY2="1" />
