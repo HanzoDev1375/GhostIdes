@@ -1,149 +1,244 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:fitsSystemWindows="false">
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     android:layout_height="match_parent"
+     android:layout_width="match_parent"
+     android:backgroundTint="?attr/colorSurfaceContainer"
+     android:id="@+id/coordinator">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:title="@string/terminal_title" />
+    <ImageView
+         android:layout_height="match_parent"
+         android:layout_width="match_parent"
+         android:scaleType="centerCrop"
+         android:visibility="visible"
+         android:id="@+id/backgroundIconTerminal" />
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:orientation="horizontal"
-        android:background="?attr/colorSurfaceContainer">
+         android:layout_height="match_parent"
+         android:layout_width="match_parent"
+         android:orientation="vertical">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/sessionTabs"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:clipToPadding="false"
-            android:orientation="horizontal" />
+        <com.google.android.material.appbar.MaterialToolbar
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:minHeight="?attr/actionBarSize"
+             android:title="@string/terminal_title"
+             app:elevation="2dp"
+             android:background="?attr/colorSurfaceContainerHigh"
+             android:id="@+id/toolbar">
 
-        <ImageButton
-            android:id="@+id/btnNewSession"
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/terminal_new_session"
-            android:padding="8dp"
-            android:src="@android:drawable/ic_input_add"
-            app:tint="?attr/colorOnSurface" />
-    </LinearLayout>
-
-    <com.termux.view.TerminalView
-        android:id="@+id/terminalView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#000000" />
-
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:background="?attr/colorSurfaceContainer"
-        android:scrollbars="none">
+        </com.google.android.material.appbar.MaterialToolbar>
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+             android:layout_height="42dp"
+             android:layout_width="match_parent"
+             android:background="?attr/colorSurfaceContainerHigh"
+             android:orientation="horizontal"
+             android:id="@+id/sessionTabsRow">
 
-            <Button
-                android:id="@+id/keyEsc"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:minWidth="52dp"
-                android:text="ESC" />
+            <androidx.recyclerview.widget.RecyclerView
+                 android:layout_height="match_parent"
+                 android:layout_width="0dp"
+                 android:orientation="horizontal"
+                 android:clipToPadding="false"
+                 android:paddingStart="4dp"
+                 android:layout_weight="1"
+                 android:id="@+id/sessionTabs" />
 
-            <Button
-                android:id="@+id/keyTab"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:minWidth="52dp"
-                android:text="TAB" />
+            <View
+                 android:layout_height="22dp"
+                 android:layout_width="1dp"
+                 android:layout_marginEnd="2dp"
+                 android:background="?attr/colorOutlineVariant"
+                 android:layout_gravity="center_vertical" />
 
-            <ToggleButton
-                android:id="@+id/keyCtrl"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:minWidth="52dp"
-                android:textOn="CTRL"
-                android:textOff="CTRL" />
-
-            <ToggleButton
-                android:id="@+id/keyAlt"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:minWidth="52dp"
-                android:textOn="ALT"
-                android:textOff="ALT" />
-
-            <Button
-                android:id="@+id/keyUp"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:minWidth="48dp"
-                android:text="↑" />
-
-            <Button
-                android:id="@+id/keyDown"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:minWidth="48dp"
-                android:text="↓" />
-
-            <Button
-                android:id="@+id/keyLeft"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:minWidth="48dp"
-                android:text="←" />
-
-            <Button
-                android:id="@+id/keyRight"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:minWidth="48dp"
-                android:text="→" />
-
-            <Button
-                android:id="@+id/keySlash"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:minWidth="44dp"
-                android:text="/" />
-
-            <Button
-                android:id="@+id/keyDash"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:minWidth="44dp"
-                android:text="-" />
-
-            <Button
-                android:id="@+id/keyPipe"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:minWidth="44dp"
-                android:text="|" />
+            <ImageButton
+                 android:layout_height="match_parent"
+                 android:layout_width="42dp"
+                 android:contentDescription="@string/terminal_new_session"
+                 android:src="@drawable/add_24px"
+                 android:background="?attr/selectableItemBackground"
+                 android:padding="10dp"
+                 app:tint="?attr/colorOnSurface"
+                 android:id="@+id/btnNewSession" />
 
         </LinearLayout>
-    </HorizontalScrollView>
 
-</LinearLayout>
+        <View
+             android:layout_height="1dp"
+             android:layout_width="match_parent"
+             android:background="?attr/colorOutlineVariant" />
+
+        <com.termux.view.TerminalView
+             android:layout_height="0dp"
+             android:layout_width="match_parent"
+             android:background="?attr/colorSurface"
+             android:focusableInTouchMode="true"
+             android:layout_weight="1"
+             android:focusable="true"
+             android:id="@+id/terminalView" />
+
+        <View
+             android:layout_height="1dp"
+             android:layout_width="match_parent"
+             android:background="?attr/colorOutlineVariant" />
+
+        <HorizontalScrollView
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:minHeight="48dp"
+             android:scrollbars="none"
+             android:background="?attr/colorSurfaceContainerHigh"
+             android:id="@+id/extraKeysScroll">
+
+            <LinearLayout
+                 android:layout_height="match_parent"
+                 android:layout_width="wrap_content"
+                 android:paddingEnd="6dp"
+                 android:gravity="center_vertical"
+                 android:orientation="horizontal"
+                 android:paddingStart="6dp">
+
+                <Button
+                     android:layout_height="34dp"
+                     android:layout_width="wrap_content"
+                     android:layout_marginEnd="4dp"
+                     android:paddingEnd="0dp"
+                     android:textSize="11sp"
+                     style="@style/Widget.Material3.Button.TonalButton"
+                     android:paddingStart="0dp"
+                     android:minWidth="50dp"
+                     android:id="@+id/keyEsc"
+                     android:text="ESC" />
+
+                <Button
+                     android:layout_height="34dp"
+                     android:layout_width="wrap_content"
+                     android:paddingEnd="0dp"
+                     android:textSize="11sp"
+                     style="@style/Widget.Material3.Button.TonalButton"
+                     android:paddingStart="0dp"
+                     android:minWidth="50dp"
+                     android:id="@+id/keyTab"
+                     android:text="TAB" />
+
+                <View
+                     android:layout_height="24dp"
+                     android:layout_width="1dp"
+                     android:layout_marginEnd="8dp"
+                     android:background="?attr/colorOutlineVariant"
+                     android:layout_marginStart="8dp" />
+
+                <Button
+                     android:layout_height="34dp"
+                     android:layout_width="wrap_content"
+                     android:layout_marginEnd="4dp"
+                     android:paddingEnd="0dp"
+                     android:textSize="11sp"
+                     style="@style/Widget.Material3.Button.TonalButton"
+                     android:paddingStart="0dp"
+                     android:minWidth="50dp"
+                     android:id="@+id/keyCtrl"
+                     android:text="CTRL" />
+
+                <Button
+                     android:layout_height="34dp"
+                     android:layout_width="wrap_content"
+                     android:paddingEnd="0dp"
+                     android:textSize="11sp"
+                     style="@style/Widget.Material3.Button.TonalButton"
+                     android:paddingStart="0dp"
+                     android:minWidth="50dp"
+                     android:id="@+id/keyAlt"
+                     android:text="ALT" />
+
+                <View
+                     android:layout_height="24dp"
+                     android:layout_width="1dp"
+                     android:layout_marginEnd="8dp"
+                     android:background="?attr/colorOutlineVariant"
+                     android:layout_marginStart="8dp" />
+
+                <Button
+                     android:layout_height="34dp"
+                     android:layout_width="42dp"
+                     android:layout_marginEnd="4dp"
+                     android:padding="0dp"
+                     style="@style/Widget.Material3.Button.TonalButton"
+                     android:minWidth="0dp"
+                     android:id="@+id/keyUp"
+                     android:text="↑" />
+
+                <Button
+                     android:layout_height="34dp"
+                     android:layout_width="42dp"
+                     android:layout_marginEnd="4dp"
+                     android:padding="0dp"
+                     style="@style/Widget.Material3.Button.TonalButton"
+                     android:minWidth="0dp"
+                     android:id="@+id/keyDown"
+                     android:text="↓" />
+
+                <Button
+                     android:layout_height="34dp"
+                     android:layout_width="42dp"
+                     android:layout_marginEnd="4dp"
+                     android:padding="0dp"
+                     style="@style/Widget.Material3.Button.TonalButton"
+                     android:minWidth="0dp"
+                     android:id="@+id/keyLeft"
+                     android:text="←" />
+
+                <Button
+                     android:layout_height="34dp"
+                     android:layout_width="42dp"
+                     android:padding="0dp"
+                     style="@style/Widget.Material3.Button.TonalButton"
+                     android:minWidth="0dp"
+                     android:id="@+id/keyRight"
+                     android:text="→" />
+
+                <View
+                     android:layout_height="24dp"
+                     android:layout_width="1dp"
+                     android:layout_marginEnd="8dp"
+                     android:background="?attr/colorOutlineVariant"
+                     android:layout_marginStart="8dp" />
+
+                <Button
+                     android:layout_height="34dp"
+                     android:layout_width="40dp"
+                     android:layout_marginEnd="4dp"
+                     android:padding="0dp"
+                     style="@style/Widget.Material3.Button.TonalButton"
+                     android:minWidth="0dp"
+                     android:id="@+id/keySlash"
+                     android:text="/" />
+
+                <Button
+                     android:layout_height="34dp"
+                     android:layout_width="40dp"
+                     android:layout_marginEnd="4dp"
+                     android:padding="0dp"
+                     style="@style/Widget.Material3.Button.TonalButton"
+                     android:minWidth="0dp"
+                     android:id="@+id/keyDash"
+                     android:text="-" />
+
+                <Button
+                     android:layout_height="34dp"
+                     android:layout_width="40dp"
+                     android:padding="0dp"
+                     style="@style/Widget.Material3.Button.TonalButton"
+                     android:minWidth="0dp"
+                     android:id="@+id/keyPipe"
+                     android:text="|" />
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

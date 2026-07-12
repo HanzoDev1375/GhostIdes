@@ -9,12 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * یه شل ساده‌ی خودِ اندروید (/system/bin/sh) رو اجرا میکنه؛ چون GhostIDE، ترموکس نیست و userland
- * نصب‌شده‌ی ترموکس (زیر /data/data/com.termux/...) رو نداره و اصولاً هم به یه اپ دیگه دسترسی
- * sandbox-شده نداره. اگه کاربر خودش ترموکس رو نصب کرده و میخواد به اون وصل بشه، اون یه مسیر کاملاً
- * جدا (مثلاً RUN_COMMAND intent) میخواد، نه این کلاس.
+ * یه شل ساده‌ی خودِ اندروید (/system/bin/sh) رو اجرا میکنه؛ چون GhostIDE، ترموکس نیست و
+ * userland نصب‌شده‌ی ترموکس (زیر /data/data/com.termux/...) رو نداره و اصولاً هم به یه اپ
+ * دیگه دسترسی sandbox-شده نداره. اگه کاربر خودش ترموکس رو نصب کرده و میخواد به اون وصل بشه،
+ * اون یه مسیر کاملاً جدا (مثلاً RUN_COMMAND intent) میخواد، نه این کلاس.
  */
-public class TerminalSessionFactory {
+public final class TerminalSessionFactory {
 
   private TerminalSessionFactory() {}
 

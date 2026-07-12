@@ -10,6 +10,7 @@ import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 import com.google.android.material.R;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 
 public class ShapeUtil {
   private static final float RADIUS_DP = 24f;
@@ -40,6 +41,7 @@ public class ShapeUtil {
     drawable.setFillColor(ColorStateList.valueOf(getSurfaceColor(context)));
     drawable.setStroke(3, ColorStateList.valueOf(getcolorSurfaceContainer(context)));
     drawable.setElevation(0);
+
     ((BaseCompat) context)
         .getWindow()
         .getDecorView()
@@ -62,7 +64,8 @@ public class ShapeUtil {
     MaterialShapeDrawable drawable = new MaterialShapeDrawable(model);
     drawable.setFillColor(ColorStateList.valueOf(getSurfaceColor(context)));
     drawable.setElevation(0);
-
+    PreferencesUtils appsetting = new PreferencesUtils(context);
+    drawable.setAlpha(appsetting.isShowBackground() ? 128 : 255);
     ColorStateList rippleColor = ColorStateList.valueOf(getRippleColor(context));
     return new RippleDrawable(rippleColor, drawable, null);
   }
@@ -81,6 +84,8 @@ public class ShapeUtil {
     MaterialShapeDrawable drawable = new MaterialShapeDrawable(model);
     drawable.setFillColor(ColorStateList.valueOf(getcolorSurfaceContainer(view)));
     drawable.setElevation(0);
+    PreferencesUtils appsetting = new PreferencesUtils(view.getContext());
+    drawable.setAlpha(appsetting.isShowBackground() ? 100 : 255);
     return drawable;
   }
 

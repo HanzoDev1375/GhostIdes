@@ -57,12 +57,16 @@ public class TerminalTabAdapter extends RecyclerView.Adapter<TerminalTabAdapter.
     holder.binding.tabTitle.setText(tab.getDisplayTitle());
 
     boolean isSelected = position == selectedPosition;
-    int bg =
+    holder.binding.selectionIndicator.setVisibility(isSelected ? View.VISIBLE : View.INVISIBLE);
+    holder.binding.tabTitle.setTypeface(
+        null, isSelected ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+    int textColor =
         isSelected
             ? MaterialColors.getColor(
-                holder.itemView, com.google.android.material.R.attr.colorSecondaryContainer)
-            : android.graphics.Color.TRANSPARENT;
-    holder.itemView.setBackgroundColor(bg);
+                holder.itemView, R.attr.colorPrimary)
+            : MaterialColors.getColor(
+                holder.itemView, R.attr.colorOnSurfaceVariant);
+    holder.binding.tabTitle.setTextColor(textColor);
 
     holder.itemView.setOnClickListener(
         v -> {
@@ -81,8 +85,8 @@ public class TerminalTabAdapter extends RecyclerView.Adapter<TerminalTabAdapter.
     return tabs.size();
   }
 
-  static class ViewHolder extends RecyclerView.ViewHolder {
-    final ItemTerminalTabBinding binding;
+  class ViewHolder extends RecyclerView.ViewHolder {
+    ItemTerminalTabBinding binding;
 
     ViewHolder(ItemTerminalTabBinding binding) {
       super(binding.getRoot());

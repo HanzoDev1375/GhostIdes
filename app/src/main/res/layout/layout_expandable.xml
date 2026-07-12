@@ -6,6 +6,7 @@
      android:layout_width="match_parent"
      android:layout_marginHorizontal="8dp"
      app:cardElevation="0dp"
+     android:id="@+id/cardEx"
      android:layout_marginTop="4dp"
      app:cardCornerRadius="12dp">
 

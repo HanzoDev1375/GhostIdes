@@ -44,11 +44,13 @@ import ir.hanzodev1375.ghostide.themeengine.Theme;
 import ir.hanzodev1375.ghostide.themeengine.ThemeChooserDialogBuilder;
 import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
 import ir.hanzodev1375.ghostide.utils.LocaleHelper;
+import ir.hanzodev1375.ghostide.utils.BlurTransformation;
 import java.io.File;
 import java.io.FileInputStream;
 import ir.theme.GhostTheme;
 import com.google.gson.Gson;
 import ir.theme.ThemeManager;
+import ir.theme.ThemeUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +72,7 @@ public class SettingActivity extends BaseCompat {
     setContentView(R.layout.activity_setting);
     aiPrefs = new AiPreferencesUtils(this);
     prefs = new PreferencesUtils(this);
+    setupBackgroundBlur();
     themeEngine = ThemeEngine.getInstance(this);
     MaterialToolbar toolbar = findViewById(R.id.toolbar);
     ser = findViewById(R.id.searchitem);
@@ -180,6 +183,34 @@ public class SettingActivity extends BaseCompat {
           },
           500);
     }
+  }
+
+  /**
+   * دقیقاً همون مکانیزمِ FileManagerActivity: اگه "نمایش بک‌گراند" از تنظیمات روشن باشه و تم یه
+   * عکس بک‌گراند ست کرده باشه، همون عکسِ بلورشده رو پشتِ تولبار و لیست تنظیمات نشون میدیم.
+   */
+  private void setupBackgroundBlur() {
+    if (!prefs.isShowBackground()) return;
+
+    ThemeUtils themeutil = new ThemeUtils(new ThemeManager(this));
+    GhostTheme theme = themeutil.getTheme();
+    if (theme == null || theme.getWidget() == null) return;
+    var widget = theme.getWidget();
+    if (widget.getImagepath() == null || widget.getImagepath().isEmpty()) return;
+
+    View appbar = findViewById(R.id.appbar);
+    View settingsContainer = findViewById(R.id.settings_container);
+    ImageView backgroundIcon = findViewById(R.id.backgroundIconSetting);
+    if (appbar == null || settingsContainer == null || backgroundIcon == null) return;
+
+    appbar.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+    settingsContainer.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+
+    backgroundIcon.setVisibility(View.VISIBLE);
+    Glide.with(this)
+        .load(widget.getImagepath())
+        .transform(new BlurTransformation((int) widget.getBlursize()))
+        .into(backgroundIcon);
   }
 
   private List<SettingItem> getAiItems() {

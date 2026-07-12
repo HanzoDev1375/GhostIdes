@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.android.material.materialswitch.MaterialSwitch;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.LayoutSwitchPerfenceBinding;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
 
@@ -19,6 +20,7 @@ public class PreferenceSwitchGroup extends RelativeLayout implements View.OnClic
 
   private LayoutSwitchPerfenceBinding binding;
   private boolean value = false;
+  
 
   public PreferenceSwitchGroup(Context context) {
     super(context);

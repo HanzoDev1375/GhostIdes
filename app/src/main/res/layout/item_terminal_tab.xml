@@ -1,34 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:minWidth="96dp"
-    android:paddingStart="14dp"
-    android:paddingEnd="6dp">
+    android:orientation="vertical"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
 
-    <TextView
-        android:id="@+id/tabTitle"
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        android:maxWidth="140dp"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:textSize="13sp"
-        android:textColor="?attr/colorOnSurface" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:minWidth="96dp"
+        android:paddingStart="14dp"
+        android:paddingEnd="6dp">
 
-    <ImageButton
-        android:id="@+id/tabClose"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:layout_marginStart="4dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:padding="4dp"
-        android:src="@drawable/ic_close"
-        app:tint="?attr/colorOnSurfaceVariant" />
+        <TextView
+            android:id="@+id/tabTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxWidth="140dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textSize="13sp"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <ImageButton
+            android:id="@+id/tabClose"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginStart="6dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/terminal_close_session"
+            android:padding="4dp"
+            android:src="@drawable/ic_close"
+            app:tint="?attr/colorOnSurfaceVariant" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/selectionIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="2.5dp"
+        android:background="?attr/colorPrimary"
+        android:visibility="invisible" />
 
 </LinearLayout>

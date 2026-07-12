@@ -5,18 +5,18 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.util.Log;
 import com.termux.terminal.TerminalSession;
-import com.termux.terminal.TerminalSessionClient; 
+import com.termux.terminal.TerminalSessionClient;
 
 /**
  * پیاده‌سازی {@link TerminalSessionClient} کتابخونه‌ی terminal-emulator ترموکس (jitpack:
- * com.termux.termux-app:terminal-view). این کلاس رویدادهای هر {@link TerminalSession} (تغییر متن
- * صفحه، تغییر عنوان، تموم‌شدن پروسه‌ی شل، کپی/پیست کلیپ‌بورد و ...) رو میگیره و به {@link
- * #callback} (که TerminalActivity پیاده‌سازیش میکنه) گزارش میده.
+ * com.termux.termux-app:terminal-view). این کلاس رویدادهای هر {@link TerminalSession} (تغییر
+ * متن صفحه، تغییر عنوان، تموم‌شدن پروسه‌ی شل، کپی/پیست کلیپ‌بورد و ...) رو میگیره و به
+ * {@link #callback} (که TerminalActivity پیاده‌سازیش میکنه) گزارش میده.
  *
- * <p>توجه: این اینترفیس مستقیماً از کتابخونه‌ی خارجی میاد؛ اگه Android Studio بعد از اضافه‌کردن
- * dependency خطای "must implement inherited abstract method" داد (مثلاً یه متد جدید که اینجا نوشته
- * نشده)، فقط Alt+Enter بزن و بذار خودش استاب رو اضافه کنه — امضای دقیق متدها بین ورژن‌های ترموکس
- * ممکنه یکی-دو مورد فرق کنه.
+ * توجه: این اینترفیس مستقیماً از کتابخونه‌ی خارجی میاد؛ اگه Android Studio بعد از اضافه‌کردن
+ * dependency خطای "must implement inherited abstract method" داد (مثلاً یه متد جدید که اینجا
+ * نوشته نشده)، فقط Alt+Enter بزن و بذار خودش استاب رو اضافه کنه — امضای دقیق متدها بین
+ * ورژن‌های ترموکس ممکنه یکی-دو مورد فرق کنه.
  */
 public class GhostTerminalSessionClient implements TerminalSessionClient {
 
