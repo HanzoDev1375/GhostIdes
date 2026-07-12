@@ -46,7 +46,7 @@
             <ImageView
                 android:layout_width="22dp"
                 android:layout_height="22dp"
-                android:src="@drawable/outline_search"
+                android:src="@drawable/outline_search24"
                 android:tint="?attr/colorOnSurfaceVariant"/>
 
             <EditText
@@ -68,7 +68,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_close"
+                android:src="@drawable/ic_close_24"
                 android:tint="?attr/colorOnSurfaceVariant"
                 android:visibility="gone"/>
 
@@ -78,7 +78,7 @@
                 android:layout_height="36dp"
                 android:layout_marginStart="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/outline_search"
+                android:src="@drawable/outline_search24"
                 android:tint="?attr/colorPrimary"/>
 
         </LinearLayout>
@@ -202,7 +202,7 @@
             <ImageView
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:src="@drawable/outline_search"
+                android:src="@drawable/outline_search24"
                 android:tint="?attr/colorOnSurfaceVariant"
                 android:alpha="0.4"/>
 
