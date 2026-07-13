@@ -79,6 +79,10 @@ public final class ProotSessionFactory {
     args.add("/proc");
     args.add("-b");
     args.add("/sys");
+    args.add("-b");
+    args.add("/storage/emulated/0:/sdcard");
+    args.add("-b");
+    args.add("/data/data/ir.hanzodev1375.ghostide:/ghostide");
     args.add("-w");
     args.add("/root");
     args.add("/usr/bin/env");
