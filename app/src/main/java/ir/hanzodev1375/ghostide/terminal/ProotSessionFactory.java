@@ -59,6 +59,7 @@ public final class ProotSessionFactory {
     tmpDir.mkdirs();
 
     List<String> args = new ArrayList<>();
+    args.add("proot");
     args.add("--link2symlink");
     args.add("--kill-on-exit");
     // --sysvipc: شبیه‌سازیِ System V IPC که کرنل اندروید غیرفعالش میکنه؛ بدونش بعضی پکیج‌ها
