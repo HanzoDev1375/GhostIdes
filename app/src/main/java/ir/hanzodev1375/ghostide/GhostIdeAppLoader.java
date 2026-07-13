@@ -36,6 +36,7 @@ public class GhostIdeAppLoader extends Application {
     mApplicationContext = getApplicationContext();
     ShizukuManager.registerListeners();
     ThemeEngine.applyToActivities(this);
+    com.downloader.PRDownloader.initialize(getApplicationContext());
 
     Thread.setDefaultUncaughtExceptionHandler(
         new Thread.UncaughtExceptionHandler() {

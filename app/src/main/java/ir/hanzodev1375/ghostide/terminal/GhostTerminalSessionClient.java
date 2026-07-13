@@ -51,6 +51,7 @@ public class GhostTerminalSessionClient implements TerminalSessionClient {
 
   @Override
   public void onSessionFinished(TerminalSession finishedSession) {
+    Log.i(LOG_TAG, "session finished: " + finishedSession);
     callback.onSessionFinished(finishedSession);
   }
 

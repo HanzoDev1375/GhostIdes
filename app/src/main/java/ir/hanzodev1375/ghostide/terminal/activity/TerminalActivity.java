@@ -4,14 +4,20 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -24,6 +30,8 @@ import com.termux.terminal.TerminalSession;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.ActivityTerminalBinding;
+import ir.hanzodev1375.ghostide.terminal.DebianBootstrap;
+import ir.hanzodev1375.ghostide.terminal.DebianInstaller;
 import ir.hanzodev1375.ghostide.terminal.GhostTerminalViewClient;
 import ir.hanzodev1375.ghostide.terminal.TerminalSessionService;
 import ir.hanzodev1375.ghostide.terminal.TerminalTab;
@@ -97,9 +105,7 @@ public class TerminalActivity extends BaseCompat
     setupBackHandler();
     setupBackgroundBlur();
     maybeRequestNotificationPermission();
-    getWindow()
-        .getDecorView()
-        .setBackgroundColor(MaterialColors.getColor(this, R.attr.colorSurfaceContainerHigh, 0));
+    getWindow().getDecorView().setBackgroundColor(MaterialColors.getColor(this,R.attr.colorSurfaceContainerHigh,0));
   }
 
   @Override
@@ -108,6 +114,7 @@ public class TerminalActivity extends BaseCompat
     Intent serviceIntent = new Intent(this, TerminalSessionService.class);
     ContextCompat.startForegroundService(this, serviceIntent);
     bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
+    
   }
 
   @Override
@@ -175,8 +182,8 @@ public class TerminalActivity extends BaseCompat
   /**
    * دقیقاً همون مکانیزمِ FileManagerActivity: اگه کاربر از تنظیمات "نمایش بک‌گراند" رو روشن کرده
    * باشه (و توی ادیتور تم یه عکس بک‌گراند ست کرده باشه)، همون عکسِ بلورشده رو پشتِ کروم (تولبار،
-   * نوار تب‌ها، ردیف extra-keys) نشون میدیم؛ خودِ صفحه‌ی ترمینال (متن) همیشه مات/opaque می‌مونه تا
-   * خوانایی خراب نشه. اگه کاربر خاموشش کرده باشه، هیچی تغییر نمیکنه (همون پس‌زمینه‌ی توپُر فعلی).
+   * نوار تب‌ها، ردیف extra-keys) نشون میدیم؛ خودِ صفحه‌ی ترمینال (متن) همیشه مات/opaque می‌مونه
+   * تا خوانایی خراب نشه. اگه کاربر خاموشش کرده باشه، هیچی تغییر نمیکنه (همون پس‌زمینه‌ی توپُر فعلی).
    */
   private void setupBackgroundBlur() {
     appsetting = new PreferencesUtils(this);
@@ -191,10 +198,10 @@ public class TerminalActivity extends BaseCompat
     var widget = theme.getWidget();
     if (widget.getImagepath() == null || widget.getImagepath().isEmpty()) return;
 
-    b.toolbar.setBackgroundColor(Color.TRANSPARENT);
-    b.sessionTabsRow.setBackgroundColor(Color.TRANSPARENT);
-    b.extraKeysScroll.setBackgroundColor(Color.TRANSPARENT);
-    b.terminalView.setBackgroundColor(Color.TRANSPARENT);
+    b.toolbar.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+    b.sessionTabsRow.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+    b.extraKeysScroll.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+
     b.backgroundIconTerminal.setVisibility(View.VISIBLE);
     Glide.with(this)
         .load(widget.getImagepath())
@@ -230,7 +237,35 @@ public class TerminalActivity extends BaseCompat
     b.sessionTabs.setLayoutManager(
         new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
     b.sessionTabs.setAdapter(tabAdapter);
-    b.btnNewSession.setOnClickListener(v -> addNewSession());
+    b.btnNewSession.setOnClickListener(this::showNewSessionMenu);
+  }
+
+  /** اگه Debian نصب شده باشه، بین Shell/Debian می‌پرسه؛ وگرنه با توضیح، شل ساده میسازه. */
+  private void showNewSessionMenu(android.view.View anchor) {
+    if (!DebianBootstrap.isInstalled(this)) {
+      Toast.makeText(
+              this,
+              "Debian rootfs پیدا نشد رو: "
+                  + DebianBootstrap.getRootfsDir(this).getAbsolutePath()
+                  + " — یه شل معمولی باز میشه",
+              Toast.LENGTH_LONG)
+          .show();
+      addNewSession();
+      return;
+    }
+    androidx.appcompat.widget.PopupMenu popup = new androidx.appcompat.widget.PopupMenu(this, anchor);
+    popup.getMenu().add(0, 1, 0, "Shell");
+    popup.getMenu().add(0, 2, 1, "Debian");
+    popup.setOnMenuItemClickListener(
+        item -> {
+          if (item.getItemId() == 2) {
+            addNewDebianSession();
+          } else {
+            addNewSession();
+          }
+          return true;
+        });
+    popup.show();
   }
 
   private void setupExtraKeys() {
@@ -313,6 +348,22 @@ public class TerminalActivity extends BaseCompat
     service.createSession(workingDir);
     tabAdapter.notifyDataSetChanged();
     switchToTab(service.getSessions().size() - 1);
+  }
+
+  private void addNewDebianSession() {
+    if (service == null) return;
+    try {
+      service.createDebianSession();
+      tabAdapter.notifyDataSetChanged();
+      switchToTab(service.getSessions().size() - 1);
+    } catch (Exception e) {
+      android.util.Log.e("GHOST_DEBIAN", "addNewDebianSession failed", e);
+      android.widget.Toast.makeText(
+              this,
+              e.getMessage() == null ? e.toString() : e.getMessage(),
+              android.widget.Toast.LENGTH_LONG)
+          .show();
+    }
   }
 
   private void switchToTab(int position) {
@@ -407,5 +458,121 @@ public class TerminalActivity extends BaseCompat
   public void consumeAltToggle() {
     altToggled = false;
     updateModifierButtonStyle(b.keyAlt, false);
+  }
+
+  // ───────────────────────── نصب Debian (منوی تولبار) ─────────────────────────
+
+  private AlertDialog installDialog;
+  private TextView installStatusText;
+  private ProgressBar installProgressBar;
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    menu.add(0, 1001, 0, DebianBootstrap.isInstalled(this) ? "حذف Debian" : "نصب Debian");
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == 1001) {
+      if (DebianBootstrap.isInstalled(this)) {
+        confirmAndRemoveDebian();
+      } else {
+        startDebianInstall();
+      }
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
+  /** قبل از پاک کردنِ rootfs (مثلاً برای رفعِ یه نصبِ ناقص/معماریِ اشتباه) از کاربر تأیید میگیره. */
+  private void confirmAndRemoveDebian() {
+    new AlertDialog.Builder(this)
+        .setTitle("حذف Debian")
+        .setMessage("کل rootfs دبیان پاک میشه (فایل‌های خودِ توی دبیان هم از بین میره). مطمئنی؟")
+        .setPositiveButton(
+            "حذف کن",
+            (dialog, which) ->
+                DebianBootstrap.uninstall(
+                    this,
+                    () -> {
+                      Toast.makeText(this, "Debian حذف شد", Toast.LENGTH_SHORT).show();
+                      invalidateOptionsMenu();
+                    }))
+        .setNegativeButton("لغو", null)
+        .show();
+  }
+
+  private void startDebianInstall() {
+    LinearLayout layout = new LinearLayout(this);
+    layout.setOrientation(LinearLayout.VERTICAL);
+    int pad = (int) (16 * getResources().getDisplayMetrics().density);
+    layout.setPadding(pad, pad, pad, pad);
+
+    installStatusText = new TextView(this);
+    installStatusText.setText("در حال شروع دانلود...");
+
+    installProgressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+    installProgressBar.setMax(100);
+    installProgressBar.setIndeterminate(false);
+
+    layout.addView(installStatusText);
+    layout.addView(installProgressBar);
+
+    installDialog =
+        new AlertDialog.Builder(this)
+            .setTitle("نصب Debian")
+            .setView(layout)
+            .setCancelable(false)
+            .setNegativeButton(
+                "لغو",
+                (dialog, which) -> {
+                  DebianInstaller.cancelInstall();
+                  Toast.makeText(this, "نصب لغو شد", Toast.LENGTH_SHORT).show();
+                })
+            .create();
+    installDialog.show();
+
+    DebianInstaller.installDebian(
+        this,
+        new DebianInstaller.InstallListener() {
+          @Override
+          public void onDownloadProgress(int percent) {
+            runOnUiThread(
+                () -> {
+                  installStatusText.setText("دانلود: " + percent + "%");
+                  installProgressBar.setProgress(percent);
+                });
+          }
+
+          @Override
+          public void onExtractProgress(int extractedEntries) {
+            runOnUiThread(
+                () -> {
+                  installStatusText.setText("در حال استخراج... (" + extractedEntries + " فایل)");
+                  installProgressBar.setIndeterminate(true);
+                });
+          }
+
+          @Override
+          public void onSuccess() {
+            runOnUiThread(
+                () -> {
+                  if (installDialog != null) installDialog.dismiss();
+                  Toast.makeText(TerminalActivity.this, "Debian نصب شد ✓", Toast.LENGTH_LONG)
+                      .show();
+                  invalidateOptionsMenu();
+                });
+          }
+
+          @Override
+          public void onError(String message) {
+            runOnUiThread(
+                () -> {
+                  if (installDialog != null) installDialog.dismiss();
+                  Toast.makeText(TerminalActivity.this, message, Toast.LENGTH_LONG).show();
+                });
+          }
+        });
   }
 }

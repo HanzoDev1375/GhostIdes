@@ -14,6 +14,7 @@ import androidx.core.app.NotificationCompat;
 import com.termux.terminal.TerminalSession;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.terminal.activity.TerminalActivity;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,10 +108,26 @@ public class TerminalSessionService extends Service {
     return sessions;
   }
 
-  /** یه سشن جدید میسازه، به لیست اضافه میکنه، و فوروگراند رو (اگه اولین سشنه) فعال میکنه. */
+  /** یه سشنِ شل ساده‌ی خودِ اندروید میسازه (رفتار قبلی). */
   public TerminalTab createSession(@Nullable String workingDir) {
     GhostTerminalSessionClient client = new GhostTerminalSessionClient(this, internalCallback);
     TerminalSession session = TerminalSessionFactory.createSession(this, workingDir, client);
+    return registerNewSession(session);
+  }
+
+  /**
+   * یه سشنِ Debian (proot) میسازه؛ باید قبلش با {@link DebianBootstrap#isInstalled} چک کرده
+   * باشی که rootfs واقعاً استخراج شده، وگرنه IllegalStateException میگیری.
+   */
+  public TerminalTab createDebianSession() {
+    GhostTerminalSessionClient client = new GhostTerminalSessionClient(this, internalCallback);
+    File rootfs = DebianBootstrap.getRootfsDir(this);
+    TerminalSession session =
+        ProotSessionFactory.createProotSession(this, rootfs, "/bin/bash", client);
+    return registerNewSession(session);
+  }
+
+  private TerminalTab registerNewSession(TerminalSession session) {
     TerminalTab tab = new TerminalTab(nextSessionId++, session);
     sessions.add(tab);
     startForeground(NOTIFICATION_ID, buildNotification());
