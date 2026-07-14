@@ -1,9 +1,14 @@
 package ir.hanzodev1375.ghostide.terminal.activity;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.core.app.ActivityCompat;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -105,7 +110,9 @@ public class TerminalActivity extends BaseCompat
     setupBackHandler();
     setupBackgroundBlur();
     maybeRequestNotificationPermission();
-    getWindow().getDecorView().setBackgroundColor(MaterialColors.getColor(this,R.attr.colorSurfaceContainerHigh,0));
+    getWindow()
+        .getDecorView()
+        .setBackgroundColor(MaterialColors.getColor(this, R.attr.colorSurfaceContainerHigh, 0));
   }
 
   @Override
@@ -114,7 +121,6 @@ public class TerminalActivity extends BaseCompat
     Intent serviceIntent = new Intent(this, TerminalSessionService.class);
     ContextCompat.startForegroundService(this, serviceIntent);
     bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
-    
   }
 
   @Override
@@ -128,11 +134,10 @@ public class TerminalActivity extends BaseCompat
   }
 
   private void maybeRequestNotificationPermission() {
-    if (android.os.Build.VERSION.SDK_INT >= 33) {
-      if (androidx.core.content.ContextCompat.checkSelfPermission(
-              this, android.Manifest.permission.POST_NOTIFICATIONS)
-          != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-        androidx.core.app.ActivityCompat.requestPermissions(
+    if (Build.VERSION.SDK_INT >= 33) {
+      if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+          != PackageManager.PERMISSION_GRANTED) {
+        ActivityCompat.requestPermissions(
             this, new String[] {android.Manifest.permission.POST_NOTIFICATIONS}, 4821);
       }
     }
@@ -143,7 +148,7 @@ public class TerminalActivity extends BaseCompat
     if (tabAdapter == null) setupSessionTabs();
     List<TerminalTab> sessions = service.getSessions();
     if (sessions.isEmpty()) {
-      addNewSession();
+      stepDB();
     } else {
       int index =
           (currentTabIndex >= 0 && currentTabIndex < sessions.size())
@@ -182,8 +187,8 @@ public class TerminalActivity extends BaseCompat
   /**
    * دقیقاً همون مکانیزمِ FileManagerActivity: اگه کاربر از تنظیمات "نمایش بک‌گراند" رو روشن کرده
    * باشه (و توی ادیتور تم یه عکس بک‌گراند ست کرده باشه)، همون عکسِ بلورشده رو پشتِ کروم (تولبار،
-   * نوار تب‌ها، ردیف extra-keys) نشون میدیم؛ خودِ صفحه‌ی ترمینال (متن) همیشه مات/opaque می‌مونه
-   * تا خوانایی خراب نشه. اگه کاربر خاموشش کرده باشه، هیچی تغییر نمیکنه (همون پس‌زمینه‌ی توپُر فعلی).
+   * نوار تب‌ها، ردیف extra-keys) نشون میدیم؛ خودِ صفحه‌ی ترمینال (متن) همیشه مات/opaque می‌مونه تا
+   * خوانایی خراب نشه. اگه کاربر خاموشش کرده باشه، هیچی تغییر نمیکنه (همون پس‌زمینه‌ی توپُر فعلی).
    */
   private void setupBackgroundBlur() {
     appsetting = new PreferencesUtils(this);
@@ -240,8 +245,18 @@ public class TerminalActivity extends BaseCompat
     b.btnNewSession.setOnClickListener(this::showNewSessionMenu);
   }
 
+  private void stepDB() {
+    if (!DebianInstaller.isInstalled(this)) {
+      startDebianInstall();
+      b.terminalView.setVisibility(View.INVISIBLE);
+    } else {
+      b.terminalView.setVisibility(View.VISIBLE);
+      addNewDebianSession();
+    }
+  }
+
   /** اگه Debian نصب شده باشه، بین Shell/Debian می‌پرسه؛ وگرنه با توضیح، شل ساده میسازه. */
-  private void showNewSessionMenu(android.view.View anchor) {
+  private void showNewSessionMenu(View anchor) {
     if (!DebianBootstrap.isInstalled(this)) {
       Toast.makeText(
               this,
@@ -253,7 +268,7 @@ public class TerminalActivity extends BaseCompat
       addNewSession();
       return;
     }
-    androidx.appcompat.widget.PopupMenu popup = new androidx.appcompat.widget.PopupMenu(this, anchor);
+    var popup = new PopupMenu(this, anchor);
     popup.getMenu().add(0, 1, 0, "Shell");
     popup.getMenu().add(0, 2, 1, "Debian");
     popup.setOnMenuItemClickListener(
@@ -485,11 +500,13 @@ public class TerminalActivity extends BaseCompat
     return super.onOptionsItemSelected(item);
   }
 
-  /** قبل از پاک کردنِ rootfs (مثلاً برای رفعِ یه نصبِ ناقص/معماریِ اشتباه) از کاربر تأیید میگیره. */
+  /**
+   * قبل از پاک کردنِ rootfs (مثلاً برای رفعِ یه نصبِ ناقص/معماریِ اشتباه) از کاربر تأیید میگیره.
+   */
   private void confirmAndRemoveDebian() {
     new AlertDialog.Builder(this)
         .setTitle("حذف Debian")
-        .setMessage("کل rootfs دبیان پاک میشه (فایل‌های خودِ توی دبیان هم از بین میره). مطمئنی؟")
+        .setMessage("کل rootfs دبیان پاک میشه (فایل های خودِ توی دبیان هم از بین میره). مطمئنی؟")
         .setPositiveButton(
             "حذف کن",
             (dialog, which) ->

@@ -299,4 +299,28 @@
     <string name="terminal_title">Terminal</string>
     <string name="terminal_new_session">New session</string>
     <string name="terminal_close_session">Close session</string>
+
+
+  <string name="rename_package_menu_item">Rename Package</string>
+  <string name="rename_package_title">Rename Package</string>
+  <string name="rename_package_description">Renaming a package updates every package declaration, import and reference across this module, then moves the source files into the new folder structure.</string>
+  <string name="rename_package_current_label">Current package</string>
+  <string name="rename_package_input_hint">New package name</string>
+  <string name="rename_package_preview_title">Preview</string>
+  <string name="rename_package_preview_summary">%1$d Java file(s) · %2$d Kotlin file(s) · %3$d folder(s) · %4$d total change(s)</string>
+  <string name="rename_package_warning_manifest_gradle">This will also update your AndroidManifest.xml and Gradle configuration.</string>
+  <string name="rename_package_confirm_title">Confirm package rename</string>
+  <string name="rename_package_confirm_message">Rename %1$s to %2$s?\n\n%3$d change(s) will be applied across this module.</string>
+  <string name="rename_package_success">Package renamed successfully</string>
+  <string name="rename_package_status_scanning">Scanning project files…</string>
+  <string name="rename_package_status_validating">Validating project structure…</string>
+  <string name="rename_package_status_preview">Building preview…</string>
+  <string name="rename_package_status_backup">Backing up files…</string>
+  <string name="rename_package_status_rewriting">Rewriting source files…</string>
+  <string name="rename_package_status_config">Updating manifest and Gradle files…</string>
+  <string name="rename_package_status_moving">Moving files…</string>
+  <string name="rename_package_status_cleanup">Cleaning up empty folders…</string>
+  <string name="rename_package_status_rollback">Rolling back changes…</string>
+  <string name="rename_package_status_completed">Completed</string>
+
 </resources>

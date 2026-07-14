@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:gravity="center_vertical">
+
+  <LinearLayout
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/categoryText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceLabelLarge"
+        android:textColor="?attr/colorPrimary" />
+
+    <TextView
+        android:id="@+id/descriptionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurface" />
+
+    <TextView
+        android:id="@+id/filePathText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:ellipsize="start"
+        android:singleLine="true"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant" />
+
+  </LinearLayout>
+
+  <TextView
+      android:id="@+id/countText"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="12dp"
+      android:gravity="center"
+      android:minWidth="24dp"
+      android:textAppearance="?attr/textAppearanceTitleMedium"
+      android:textColor="?attr/colorSecondary" />
+
+</LinearLayout>

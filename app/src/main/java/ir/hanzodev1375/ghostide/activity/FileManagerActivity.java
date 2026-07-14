@@ -58,6 +58,7 @@ import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.FileChange;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
 import ir.hanzodev1375.ghostide.models.ZipEntryModel;
+import ir.hanzodev1375.ghostide.refactor.rename.ui.RenamePackageBottomSheet;
 import ir.hanzodev1375.ghostide.bookmark.BookmarkBottomSheet;
 import ir.hanzodev1375.ghostide.bookmark.BookmarkEntity;
 import ir.hanzodev1375.ghostide.bookmark.BookmarkViewModel;
@@ -1166,6 +1167,7 @@ public class FileManagerActivity extends BaseCompat
   void stepMoreAdapter() {
     adapter.setOnMoreClickListener(
         (filemodel, view, pos) -> {
+          boolean showRenamePackage = isRenameablePackageDirectory(filemodel);
           PowerMenu menu = new PowerMenu.Builder(view.getContext()).setIsMaterial(true).build();
           menu.addItem(new PowerMenuItem(getString(R.string.removed)));
           menu.addItem(new PowerMenuItem(getString(R.string.rename)));
@@ -1173,6 +1175,9 @@ public class FileManagerActivity extends BaseCompat
           menu.addItem(new PowerMenuItem(getString(R.string.bookmark_add)));
           menu.addItem(new PowerMenuItem(getString(R.string.shortcut_menu_item)));
           menu.addItem(new PowerMenuItem(getString(R.string.copyfullpath)));
+          if (showRenamePackage) {
+            menu.addItem(new PowerMenuItem(getString(R.string.rename_package_menu_item)));
+          }
           menu.setMenuColor(MaterialColors.getColor(view.getContext(), R.attr.colorSurface, 0));
           menu.setTextColor(MaterialColors.getColor(view.getContext(), R.attr.colorOnSurface, 0));
           menu.setShowBackground(false);
@@ -1207,10 +1212,58 @@ public class FileManagerActivity extends BaseCompat
                             FileManagerActivity.this, filemodel.getPath(), Toast.LENGTH_SHORT)
                         .show();
                   }
+                  case 6 -> openRenamePackageSheet(filemodel);
                 }
               });
           ObjectUtil.showFixPos(menu, view);
         });
+  }
+
+  private File findSourceRootForPackageDirectory(File directory) {
+    File current = directory;
+    while (current != null) {
+      String name = current.getName();
+      if (name.equals("java") || name.equals("kotlin")) {
+        File parent = current.getParentFile();
+        File grandParent = parent != null ? parent.getParentFile() : null;
+        if (grandParent != null && grandParent.getName().equals("src")) {
+          return current;
+        }
+      }
+      current = current.getParentFile();
+    }
+    return null;
+  }
+
+  private boolean isRenameablePackageDirectory(FileManagerModel model) {
+    if (!model.isDirectory()) {
+      return false;
+    }
+    File directory = new File(model.getPath());
+    File sourceRoot = findSourceRootForPackageDirectory(directory);
+    return sourceRoot != null && !directory.equals(sourceRoot);
+  }
+
+  private void openRenamePackageSheet(FileManagerModel model) {
+    File directory = new File(model.getPath());
+    File sourceRoot = findSourceRootForPackageDirectory(directory);
+    if (sourceRoot == null) {
+      return;
+    }
+    File moduleRoot =
+        sourceRoot.getParentFile() != null && sourceRoot.getParentFile().getParentFile() != null
+            ? sourceRoot.getParentFile().getParentFile().getParentFile()
+            : null;
+    if (moduleRoot == null) {
+      return;
+    }
+    String relativePath = sourceRoot.toURI().relativize(directory.toURI()).getPath();
+    if (relativePath.endsWith("/")) {
+      relativePath = relativePath.substring(0, relativePath.length() - 1);
+    }
+    String packageName = relativePath.replace('/', '.');
+    RenamePackageBottomSheet.newInstance(moduleRoot.getAbsolutePath(), packageName)
+        .show(getSupportFragmentManager(), RenamePackageBottomSheet.TAG);
   }
 
   void renameItem(FileManagerModel model) {

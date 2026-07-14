@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      android:paddingBottom="16dp">
+
+    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="24dp"
+        android:text="@string/rename_package_title"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        android:textColor="?attr/colorOnSurface" />
+
+    <TextView
+        android:id="@+id/descriptionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:text="@string/rename_package_description"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:text="@string/rename_package_current_label"
+        android:textAppearance="?attr/textAppearanceLabelMedium"
+        android:textColor="?attr/colorOnSurfaceVariant" />
+
+    <TextView
+        android:id="@+id/currentPackageValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="24dp"
+        android:fontFamily="monospace"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textColor="?attr/colorOnSurface" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/newPackageInputLayout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:hint="@string/rename_package_input_hint">
+
+      <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/newPackageInput"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:fontFamily="monospace"
+          android:inputType="textNoSuggestions"
+          android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/validationErrorText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="24dp"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorError"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:visibility="gone" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progressIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/warningCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="?attr/colorSecondaryContainer"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp">
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="center_vertical"
+          android:orientation="horizontal"
+          android:padding="12dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_info"
+            app:tint="?attr/colorOnSecondaryContainer" />
+
+        <TextView
+            android:id="@+id/warningText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:text="@string/rename_package_warning_manifest_gradle"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorOnSecondaryContainer" />
+
+      </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:id="@+id/previewSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+      <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="24dp"
+          android:layout_marginEnd="24dp"
+          android:text="@string/rename_package_preview_title"
+          android:textAppearance="?attr/textAppearanceTitleSmall"
+          android:textColor="?attr/colorOnSurface" />
+
+      <TextView
+          android:id="@+id/previewSummaryText"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="24dp"
+          android:layout_marginTop="4dp"
+          android:layout_marginEnd="24dp"
+          android:textAppearance="?attr/textAppearanceBodySmall"
+          android:textColor="?attr/colorOnSurfaceVariant" />
+
+      <androidx.recyclerview.widget.RecyclerView
+          android:id="@+id/previewRecyclerView"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:overScrollMode="never" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+      <com.google.android.material.button.MaterialButton
+          android:id="@+id/cancelButton"
+          style="@style/Widget.Material3.Button.TextButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/cancel" />
+
+      <com.google.android.material.button.MaterialButton
+          android:id="@+id/renameButton"
+          style="@style/Widget.Material3.Button"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="8dp"
+          android:text="@string/rename" />
+
+    </LinearLayout>
+
+  </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
