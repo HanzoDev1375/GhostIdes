@@ -48,6 +48,19 @@ Ghost IDE is an advanced mobile development environment built for Android develo
 - HTML preview support 
 - Ftp 
 
+
+## Terminal 
+
+- Note
+  - If for some reason Debian packages are not installed, try this code.
+
+```shell
+
+rm -f /etc/resolv.conf
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+```
+
 ### 🌐 Supported Languages
 
 - [x] html

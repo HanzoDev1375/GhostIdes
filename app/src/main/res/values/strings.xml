@@ -279,7 +279,7 @@
     <string name="translator_error_file_not_found">Strings.xml file not found</string>
     <string name="setting_lineinfopaneltitle">Show item line panel</string>
     <string name="setting_lineinfopanelsubtitle">With this option, you can select the line and column selection panel.</string>
-    <string name="serachdata">Serach File or Dir</string>
+    <string name="serachdata">Search File or Dir</string>
     <string name="store">Store</string>
     <string name="aboutapp">About App</string>
     <string name="pref_power_mode">Power Mode</string>
