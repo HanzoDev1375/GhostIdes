@@ -322,5 +322,14 @@
   <string name="rename_package_status_cleanup">Cleaning up empty folders…</string>
   <string name="rename_package_status_rollback">Rolling back changes…</string>
   <string name="rename_package_status_completed">Completed</string>
-
+  <string name="rename_class_menu_item">Rename Class</string>
+  <string name="rename_class_title">Rename Class</string>
+  <string name="rename_class_description">Renaming a class updates its declaration, constructors and every safe reference across the project, then renames the file to match.</string>
+  <string name="rename_class_input_hint">New class name</string>
+  <string name="rename_class_preview_title">Files to update</string>
+  <string name="rename_class_preview_summary">%1$d file(s) will be updated</string>
+  <string name="rename_class_ambiguous_warning">%1$d file(s) use a wildcard import and could not be safely checked — please review them manually after renaming.</string>
+  <string name="rename_class_confirm_title">Confirm class rename</string>
+  <string name="rename_class_confirm_message">Rename %1$s to %2$s across %3$d file(s)?</string>
+  <string name="rename_class_success">Class renamed successfully</string>
 </resources>

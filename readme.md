@@ -114,3 +114,20 @@ The editor supports deep UI customization, including:
 - [x] Powerful customization system
 
 ---
+
+## Code Runer🔥🔥🔥
+
+### Note
+
+- Installing packages may take a while, it varies on different mobiles. The system we use is Debian.
+- To make it easier to work, it is better to learn to work with the Debian operating system so that you do not encounter problems because the best option for Android is Debian.
+
+
+- [x] c
+- [x] cpp
+- [x] python
+- [x] php
+- [x] lua 
+- [x] nodejs
+- [x] typesctipt
+- [x] go lang

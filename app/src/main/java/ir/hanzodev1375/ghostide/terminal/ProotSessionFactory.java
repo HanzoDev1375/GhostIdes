@@ -38,8 +38,7 @@ public final class ProotSessionFactory {
 
     File prootBinary = new File(nativeLibDir, PROOT_LIBRARY_NAME);
     if (!prootBinary.exists()) {
-      throw new IllegalStateException(
-          "libproot.so پیدا نشد: " + prootBinary.getAbsolutePath());
+      throw new IllegalStateException("libproot.so پیدا نشد: " + prootBinary.getAbsolutePath());
     }
 
     File loaderBinary = new File(nativeLibDir, LOADER_LIBRARY_NAME);
@@ -51,8 +50,7 @@ public final class ProotSessionFactory {
     }
 
     if (!rootfsDir.isDirectory()) {
-      throw new IllegalStateException(
-          "rootfs پیدا نشد: " + rootfsDir.getAbsolutePath());
+      throw new IllegalStateException("rootfs پیدا نشد: " + rootfsDir.getAbsolutePath());
     }
 
     File tmpDir = new File(context.getCacheDir(), "proot-tmp/" + System.currentTimeMillis());
@@ -83,6 +81,8 @@ public final class ProotSessionFactory {
     args.add("/storage/emulated/0:/sdcard");
     args.add("-b");
     args.add("/data/data/ir.hanzodev1375.ghostide:/ghostide");
+    args.add("-b");
+    args.add("/storage/emulated/0:/storage/emulated/0");
     args.add("-w");
     args.add("/root");
     args.add("/usr/bin/env");

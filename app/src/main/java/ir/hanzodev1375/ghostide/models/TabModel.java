@@ -19,6 +19,11 @@ public class TabModel {
     return fileName;
   }
 
+  public void updatePath(String newFilePath, String newFileName) {
+    this.filePath = newFilePath;
+    this.fileName = newFileName;
+  }
+
   public boolean isPinned() {
     return pinned;
   }

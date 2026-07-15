@@ -38,6 +38,10 @@ public final class RollbackManager {
     }
   }
 
+  public void moveFile(File from, File to) throws IOException {
+    moveDirectory(from, to);
+  }
+
   public void deleteEmptyDirectory(File directory) throws IOException {
     if (!directory.isDirectory()) {
       return;

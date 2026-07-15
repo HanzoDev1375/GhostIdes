@@ -60,31 +60,14 @@ import ir.hanzodev1375.ghostide.models.FileManagerModel;
 import ir.hanzodev1375.ghostide.models.ZipEntryModel;
 import ir.hanzodev1375.ghostide.refactor.rename.ui.RenamePackageBottomSheet;
 import ir.hanzodev1375.ghostide.bookmark.BookmarkBottomSheet;
-import ir.hanzodev1375.ghostide.bookmark.BookmarkEntity;
 import ir.hanzodev1375.ghostide.bookmark.BookmarkViewModel;
 import ir.hanzodev1375.ghostide.models.ZipInfo;
 import ir.hanzodev1375.ghostide.project.NewProjectDialog;
 import ir.hanzodev1375.ghostide.history.HistoryBottomSheet;
-import ir.hanzodev1375.ghostide.history.HistoryEntity;
 import ir.hanzodev1375.ghostide.history.HistoryViewModel;
+
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.FileViewModel;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
-import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
-import androidx.core.content.FileProvider;
-import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
-import androidx.core.content.FileProvider;
-import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
-import androidx.core.content.FileProvider;
-import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
-import androidx.core.content.FileProvider;
-import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
-import androidx.core.content.FileProvider;
-import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
-import androidx.core.content.FileProvider;
-import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
-import androidx.core.content.FileProvider;
-import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
-import androidx.core.content.FileProvider;
 import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
 import androidx.core.content.FileProvider;
 import ir.hanzodev1375.ghostide.terminal.activity.TerminalActivity;
@@ -113,10 +96,8 @@ import ir.hanzodev1375.ghostide.R;
 import java.util.Set;
 import ninja.coder.appuploader.main.appupdate.UpadteAppView;
 import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import ir.hanzodev1375.components.store.activitys.StoreActivity;
 import ir.hanzodev1375.ghostide.translator.ui.StringsTranslatorSheet;
-import com.google.android.material.snackbar.Snackbar;
 
 public class FileManagerActivity extends BaseCompat
     implements NetworkChangeReceiver.CallBackNetWork {
@@ -1168,6 +1149,7 @@ public class FileManagerActivity extends BaseCompat
     adapter.setOnMoreClickListener(
         (filemodel, view, pos) -> {
           boolean showRenamePackage = isRenameablePackageDirectory(filemodel);
+          boolean showRenameClass = isRenameableClassFile(filemodel);
           PowerMenu menu = new PowerMenu.Builder(view.getContext()).setIsMaterial(true).build();
           menu.addItem(new PowerMenuItem(getString(R.string.removed)));
           menu.addItem(new PowerMenuItem(getString(R.string.rename)));
@@ -1177,6 +1159,9 @@ public class FileManagerActivity extends BaseCompat
           menu.addItem(new PowerMenuItem(getString(R.string.copyfullpath)));
           if (showRenamePackage) {
             menu.addItem(new PowerMenuItem(getString(R.string.rename_package_menu_item)));
+          }
+          if (showRenameClass) {
+            menu.addItem(new PowerMenuItem(getString(R.string.rename_class_menu_item)));
           }
           menu.setMenuColor(MaterialColors.getColor(view.getContext(), R.attr.colorSurface, 0));
           menu.setTextColor(MaterialColors.getColor(view.getContext(), R.attr.colorOnSurface, 0));
@@ -1212,7 +1197,13 @@ public class FileManagerActivity extends BaseCompat
                             FileManagerActivity.this, filemodel.getPath(), Toast.LENGTH_SHORT)
                         .show();
                   }
-                  case 6 -> openRenamePackageSheet(filemodel);
+                  case 6 -> {
+                    if (showRenamePackage) {
+                      openRenamePackageSheet(filemodel);
+                    } else if (showRenameClass) {
+                      openRenameClassSheet(filemodel);
+                    }
+                  }
                 }
               });
           ObjectUtil.showFixPos(menu, view);
@@ -1242,6 +1233,34 @@ public class FileManagerActivity extends BaseCompat
     File directory = new File(model.getPath());
     File sourceRoot = findSourceRootForPackageDirectory(directory);
     return sourceRoot != null && !directory.equals(sourceRoot);
+  }
+
+  private boolean isRenameableClassFile(FileManagerModel model) {
+    if (model.isDirectory()) {
+      return false;
+    }
+    String name = model.getName();
+    return name.endsWith(".java") || name.endsWith(".kt");
+  }
+
+  private void openRenameClassSheet(FileManagerModel model) {
+    File file = new File(model.getPath());
+    File sourceRoot = findSourceRootForPackageDirectory(file.getParentFile());
+    File moduleRoot =
+        sourceRoot != null
+                && sourceRoot.getParentFile() != null
+                && sourceRoot.getParentFile().getParentFile() != null
+            ? sourceRoot.getParentFile().getParentFile().getParentFile()
+            : file.getParentFile();
+    if (moduleRoot == null) {
+      return;
+    }
+    String name = model.getName();
+    int dot = name.lastIndexOf('.');
+    String className = dot > 0 ? name.substring(0, dot) : name;
+    ir.hanzodev1375.ghostide.refactor.renameclass.ui.RenameClassBottomSheet.newInstance(
+            moduleRoot.getAbsolutePath(), file.getAbsolutePath(), className)
+        .show(getSupportFragmentManager(), ir.hanzodev1375.ghostide.refactor.renameclass.ui.RenameClassBottomSheet.TAG);
   }
 
   private void openRenamePackageSheet(FileManagerModel model) {

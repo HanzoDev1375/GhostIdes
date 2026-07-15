@@ -35,6 +35,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class EditorFragment extends Fragment {
+
+  private static File findSourceRootForPackageDirectory(File directory) {
+    File current = directory;
+    while (current != null) {
+      String name = current.getName();
+      if (name.equals("java") || name.equals("kotlin")) {
+        File parent = current.getParentFile();
+        File grandParent = parent != null ? parent.getParentFile() : null;
+        if (grandParent != null && grandParent.getName().equals("src")) {
+          return current;
+        }
+      }
+      current = current.getParentFile();
+    }
+    return null;
+  }
   private static final long PAGED_EDIT_THRESHOLD = 2L * 1024 * 1024;
   private static final int PAGED_EDIT_PAGE_SIZE = 1024 * 1024;
   private final ExecutorService pagedExecutor = Executors.newSingleThreadExecutor();
@@ -125,6 +141,29 @@ public class EditorFragment extends Fragment {
         });
     binding.tvCursorPosition.setVisibility(
         setting.getShowLineColPanel() ? View.VISIBLE : View.GONE);
+    editor.subscribeEvent(
+        io.github.rosemoe.sora.event.LongPressEvent.class,
+        (event, unevent) -> {
+          if (filePath == null) return;
+          if (!filePath.endsWith(".java") && !filePath.endsWith(".kt")) return;
+          File file = new File(filePath);
+          File sourceRoot = findSourceRootForPackageDirectory(file.getParentFile());
+          File moduleRoot =
+              sourceRoot != null
+                      && sourceRoot.getParentFile() != null
+                      && sourceRoot.getParentFile().getParentFile() != null
+                  ? sourceRoot.getParentFile().getParentFile().getParentFile()
+                  : file.getParentFile();
+          if (moduleRoot == null || getActivity() == null) return;
+          String name = file.getName();
+          int dot = name.lastIndexOf('.');
+          String className = dot > 0 ? name.substring(0, dot) : name;
+          ir.hanzodev1375.ghostide.refactor.renameclass.ui.RenameClassBottomSheet.newInstance(
+                  moduleRoot.getAbsolutePath(), file.getAbsolutePath(), className)
+              .show(
+                  getActivity().getSupportFragmentManager(),
+                  ir.hanzodev1375.ghostide.refactor.renameclass.ui.RenameClassBottomSheet.TAG);
+        });
 
     binding.ivWrapToggle1.setOnClickListener(v -> goToPreviousPage());
     binding.ivWrapToggle2.setOnClickListener(v -> goToNextPage());

@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PackagePreview {
+public final class PackagePreview {
 
   public PreviewResult build(ScanResult scanResult, String newPackage) {
     List<PreviewEntry> entries = new ArrayList<>();

@@ -36,6 +36,7 @@ import ir.hanzodev1375.ghostide.jgit.GitHubProfileSheet;
 import ir.hanzodev1375.ghostide.jgit.fragments.GitBottomSheetFragment;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitManager;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.FileChange;
+import ir.hanzodev1375.ghostide.runer.CodeRuner;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -63,7 +64,8 @@ import android.view.ViewTreeObserver;
 import ir.hanzodev1375.ghostide.splitlayout.EditorPaneFragment;
 import ir.hanzodev1375.ghostide.splitlayout.SplitLayoutPopup;
 
-public class EditorActivity extends BaseCompat {
+public class EditorActivity extends BaseCompat
+    implements ir.hanzodev1375.ghostide.refactor.rename.FileRenameNotifier.Listener {
 
   private ActivityEditorBinding binding;
   private EditorPagerAdapter adapter;
@@ -285,6 +287,28 @@ public class EditorActivity extends BaseCompat {
     // Re-check git status whenever the activity resumes (e.g. after returning from the
     // Git bottom sheet where the user may have committed/pushed changes).
     refreshGitStatus();
+    ir.hanzodev1375.ghostide.refactor.rename.FileRenameNotifier.getInstance().addListener(this);
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    ir.hanzodev1375.ghostide.refactor.rename.FileRenameNotifier.getInstance().removeListener(this);
+  }
+
+  @Override
+  public void onFileRenamed(String oldPath, String newPath) {
+    int index = indexOfTab(oldPath);
+    if (index < 0) {
+      return;
+    }
+    TabModel tab = tabsList.get(index);
+    tab.updatePath(newPath, new File(newPath).getName());
+    adapter.setTabs(new ArrayList<>(tabsList));
+    TabLayout.Tab layoutTab = binding.tab.getTabAt(index);
+    if (layoutTab != null && layoutTab.getCustomView() instanceof TabCustomView) {
+      ((TabCustomView) layoutTab.getCustomView()).bind(tab);
+    }
   }
 
   private int indexOfTab(String filePath) {
@@ -971,6 +995,7 @@ public class EditorActivity extends BaseCompat {
   }
 
   private void setupFAB() {
+    var coderun = new CodeRuner(this);
     binding.fabineditor.setOnClickListener(
         v -> {
           String currentFilePath = getCurrentFilePath();
@@ -978,7 +1003,7 @@ public class EditorActivity extends BaseCompat {
             Intent intent = new Intent(EditorActivity.this, WebViewActivity.class);
             intent.putExtra("keyweb", currentFilePath);
             startActivity(intent);
-          }
+          } else coderun.bindof(currentFilePath);
         });
   }
 

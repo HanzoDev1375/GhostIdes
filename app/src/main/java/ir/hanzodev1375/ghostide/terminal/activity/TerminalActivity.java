@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.util.Log;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import android.os.Bundle;
@@ -67,6 +68,7 @@ public class TerminalActivity extends BaseCompat
   /** اگه بخوای ترمینال رو مستقیم توی مسیر یه پروژه باز کنی: putExtra(EXTRA_WORKING_DIR, path) */
   public static final String EXTRA_WORKING_DIR = "working_dir";
 
+  public static final String EXTRA_COMMAND = "command";
   private ActivityTerminalBinding b;
   private TerminalSessionService service;
   private boolean isBound = false;
@@ -146,6 +148,21 @@ public class TerminalActivity extends BaseCompat
   /** بعد از اولین bind موفق به سرویس صدا زده میشه: آدابتور تب‌ها رو با لیست واقعیِ سرویس میسازه. */
   private void onServiceReady() {
     if (tabAdapter == null) setupSessionTabs();
+
+    String command = getIntent().getStringExtra(EXTRA_COMMAND);
+    if (command != null && !command.isEmpty()) {
+      if (!DebianBootstrap.isInstalled(this)) {
+        Toast.makeText(this, "Debian نصب نیست", Toast.LENGTH_LONG).show();
+        return;
+      }
+      addNewDebianSession(); // این متد خودش command را می‌نویسد
+
+      // ⚠️ مهم: بعد از استفاده، دستور را از Intent پاک کن
+      getIntent().removeExtra(EXTRA_COMMAND);
+      return;
+    }
+
+    // رفتار عادی برای دفعات بعدی (بدون دستور)
     List<TerminalTab> sessions = service.getSessions();
     if (sessions.isEmpty()) {
       stepDB();
@@ -367,17 +384,14 @@ public class TerminalActivity extends BaseCompat
 
   private void addNewDebianSession() {
     if (service == null) return;
-    try {
-      service.createDebianSession();
-      tabAdapter.notifyDataSetChanged();
-      switchToTab(service.getSessions().size() - 1);
-    } catch (Exception e) {
-      android.util.Log.e("GHOST_DEBIAN", "addNewDebianSession failed", e);
-      android.widget.Toast.makeText(
-              this,
-              e.getMessage() == null ? e.toString() : e.getMessage(),
-              android.widget.Toast.LENGTH_LONG)
-          .show();
+    service.createDebianSession();
+    tabAdapter.notifyDataSetChanged();
+    switchToTab(service.getSessions().size() - 1);
+
+    String command = getIntent().getStringExtra(EXTRA_COMMAND);
+    if (command != null && !command.isEmpty()) {
+      TerminalSession session = currentSession();
+      session.write(command + "\n");
     }
   }
 
