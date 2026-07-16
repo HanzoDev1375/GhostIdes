@@ -1,9 +1,12 @@
 package ir.hanzodev1375.ghostide.codeeditors.langs.python3;
 
+import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import io.github.rosemoe.sora.lang.format.AsyncFormatter;
+import io.github.rosemoe.sora.text.TextRange;
 import java.io.StringReader;
 
 import org.antlr.v4.runtime.CharStreams;
@@ -60,9 +63,10 @@ public class Python3Language implements Language {
 
   private static final CodeSnippet SNIPPET_WITH =
       CodeSnippetParser.parse("with ${1:open('file.txt', 'r')} as ${2:f}:\n    $0");
+  private Context context;
 
-  public Python3Language() {
-
+  public Python3Language(Context context) {
+    this.context = context;
     String[] pythonKeywords = {
       "False",
       "None",
@@ -106,6 +110,39 @@ public class Python3Language implements Language {
     autoComplete = new IdentifierAutoComplete(pythonKeywords);
     analyzer = new Python3Analyzer();
   }
+
+  private final Formatter pythonFormatter =
+      new AsyncFormatter() {
+        @Nullable
+        @Override
+        public TextRange formatAsync(@NonNull Content text, @NonNull TextRange cursorRange) {
+          PythonFormatter formatter = new PythonFormatter();
+          String formatted = formatter.formatPython(context, text.toString());
+
+          if (formatted == null) {
+            return cursorRange;
+          }
+
+          if (!text.toString().equals(formatted)) {
+            int oldCursor = cursorRange.getStartIndex();
+            text.delete(0, text.length());
+            text.insert(0, 0, formatted);
+            int newCursor = Math.min(oldCursor, formatted.length());
+            CharPosition pos = text.getIndexer().getCharPosition(newCursor);
+            return new TextRange(pos, pos);
+          }
+          return cursorRange;
+        }
+
+        @Nullable
+        @Override
+        public TextRange formatRegionAsync(
+            @NonNull Content text,
+            @NonNull TextRange rangeToFormat,
+            @NonNull TextRange cursorRange) {
+          return null;
+        }
+      };
 
   @NonNull
   @Override
@@ -233,7 +270,7 @@ public class Python3Language implements Language {
   @NonNull
   @Override
   public Formatter getFormatter() {
-    return EmptyLanguage.EmptyFormatter.INSTANCE;
+    return pythonFormatter;
   }
 
   @Override

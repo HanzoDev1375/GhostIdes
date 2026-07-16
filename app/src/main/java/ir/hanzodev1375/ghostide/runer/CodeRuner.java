@@ -33,6 +33,8 @@ public class CodeRuner {
       typescript(path);
     } else if (path.endsWith(".lua")) {
       lua(path);
+    } else if (path.endsWith(".java")) {
+      java(path);
     }
   }
 
@@ -138,6 +140,22 @@ public class CodeRuner {
         "clear; "
             + "if ! command -v lua >/dev/null 2>&1; then apt update && apt install lua5.4 -y; fi; "
             + "lua \""
+            + path
+            + "\"";
+
+    Intent i = new Intent(context, TerminalActivity.class);
+    i.putExtra(TerminalActivity.EXTRA_COMMAND, command);
+    context.startActivity(i);
+  }
+
+  public void java(String path) {
+    String className = new File(path).getName();
+    className = className.substring(0, className.lastIndexOf('.'));
+
+    String command =
+        "clear; "
+            + "if ! command -v javac >/dev/null 2>&1; then apt update && apt install default-jdk -y; fi; "
+            + "java \""
             + path
             + "\"";
 

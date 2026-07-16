@@ -23,6 +23,9 @@
  */
 package ir.hanzodev1375.ghostide.codeeditors.langs.java;
 
+import android.content.Context;
+import io.github.rosemoe.sora.lang.format.AsyncFormatter;
+import io.github.rosemoe.sora.text.TextRange;
 import static java.lang.Character.isWhitespace;
 
 import android.os.Bundle;
@@ -70,11 +73,43 @@ public class JavaLanguage implements Language {
   private IdentifierAutoComplete autoComplete;
   private final JavaIncrementalAnalyzeManager manager;
   private final JavaQuoteHandler javaQuoteHandler = new JavaQuoteHandler();
+  private Context c;
 
-  public JavaLanguage() {
+  public JavaLanguage(Context c) {
+    this.c = c;
     autoComplete = new IdentifierAutoComplete(JavaTextTokenizer.sKeywords);
     manager = new JavaIncrementalAnalyzeManager();
   }
+
+  private final Formatter formatter =
+      new AsyncFormatter() {
+        @Nullable
+        @Override
+        public TextRange formatAsync(@NonNull Content text, @NonNull TextRange cursorRange) {
+          JavaCodeFormatter formatted = new JavaCodeFormatter();
+          String formatResult = formatted.formatJava(c, text.toString(), "aosp");
+
+          if (!text.toString().equals(formatResult)) {
+            int oldCursor = cursorRange.getStartIndex();
+            text.delete(0, text.length());
+            text.insert(0, 0, formatResult);
+            int newCursor = Math.min(oldCursor, formatResult.length());
+            CharPosition pos = text.getIndexer().getCharPosition(newCursor);
+            return new TextRange(pos, pos);
+          }
+
+          return cursorRange;
+        }
+
+        @Nullable
+        @Override
+        public TextRange formatRegionAsync(
+            @NonNull Content text,
+            @NonNull TextRange rangeToFormat,
+            @NonNull TextRange cursorRange) {
+          return null;
+        }
+      };
 
   @NonNull
   @Override
@@ -162,7 +197,7 @@ public class JavaLanguage implements Language {
   @NonNull
   @Override
   public Formatter getFormatter() {
-    return EmptyLanguage.EmptyFormatter.INSTANCE;
+    return formatter;
   }
 
   @Override

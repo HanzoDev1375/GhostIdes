@@ -311,7 +311,7 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
                 + "        System.out.println(name + \": \" + value);\n"
                 + "    }\n"
                 + "}";
-        editorPreview.setEditorLanguage(new JavaLanguage());
+        editorPreview.setEditorLanguage(new JavaLanguage(getContext()));
         break;
       case 1:
         code =
@@ -354,7 +354,7 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
                 + "    m.display();\n"
                 + "    return 0;\n"
                 + "}";
-        editorPreview.setEditorLanguage(new CppLanguage());
+        editorPreview.setEditorLanguage(new CppLanguage(getContext()));
         break;
       default:
         return;

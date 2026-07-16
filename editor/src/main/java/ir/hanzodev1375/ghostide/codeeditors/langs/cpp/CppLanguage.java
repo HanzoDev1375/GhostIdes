@@ -1,9 +1,18 @@
 package ir.hanzodev1375.ghostide.codeeditors.langs.cpp;
 
-
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+import io.github.rosemoe.sora.lang.format.AsyncFormatter;
+import io.github.rosemoe.sora.text.TextRange;
+import io.github.rosemoe.sora.widget.CodeEditor;
+import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.CharParser;
 import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaQuoteHandler;
 import static java.lang.Character.isWhitespace;
+
+import java.io.File;
 
 import android.os.Bundle;
 
@@ -46,18 +55,55 @@ public class CppLanguage implements Language {
       CodeSnippetParser.parse(
           "private final static ${1:type} ${2/(.*)/${1:/upcase}/} = ${3:value};");
   private static final CodeSnippet CLIPBOARD_SNIPPET = CodeSnippetParser.parse("${1:${CLIPBOARD}}");
-
+  private Context editor;
+  private CodeEditor codeEditorRef;
+  private volatile boolean lspAttachAttempted = false;
   private IdentifierAutoComplete autoComplete;
   private final CppAnalyzer manager;
   private final JavaQuoteHandler javaQuoteHandler = new JavaQuoteHandler();
 
-  public CppLanguage() {
-    String[] cppkeyword ={
-      "const","if","for"
-    };
+  public CppLanguage(Context editor) {
+    this(editor, null);
+  }
+
+  public CppLanguage(Context editor, CodeEditor codeEditor) {
+    this.editor = editor;
+    this.codeEditorRef = codeEditor;
+    String[] cppkeyword = {"const", "if", "for"};
     autoComplete = new IdentifierAutoComplete(cppkeyword);
     manager = new CppAnalyzer();
   }
+
+  
+  private final Formatter formatter =
+      new AsyncFormatter() {
+        @Nullable
+        @Override
+        public TextRange formatAsync(@NonNull Content text, @NonNull TextRange cursorRange) {
+          CppFormatter formatted = new CppFormatter();
+          String formatResult = formatted.formatCpp(editor, text.toString(), "google");
+
+          if (!text.toString().equals(formatResult)) {
+            int oldCursor = cursorRange.getStartIndex();
+            text.delete(0, text.length());
+            text.insert(0, 0, formatResult);
+            int newCursor = Math.min(oldCursor, formatResult.length());
+            CharPosition pos = text.getIndexer().getCharPosition(newCursor);
+            return new TextRange(pos, pos);
+          }
+
+          return cursorRange;
+        }
+
+        @Nullable
+        @Override
+        public TextRange formatRegionAsync(
+            @NonNull Content text,
+            @NonNull TextRange rangeToFormat,
+            @NonNull TextRange cursorRange) {
+          return null;
+        }
+      };
 
   @NonNull
   @Override
@@ -87,9 +133,9 @@ public class CppLanguage implements Language {
       @NonNull CharPosition position,
       @NonNull CompletionPublisher publisher,
       @NonNull Bundle extraArguments) {
-    var prefix =
-        CompletionHelper.computePrefix(content, position, CharParser::parserJava);
-      autoComplete.requireAutoComplete(content, position, prefix, publisher,manager.getSyncIdentifiers());
+    var prefix = CompletionHelper.computePrefix(content, position, CharParser::parserJava);
+    autoComplete.requireAutoComplete(
+        content, position, prefix, publisher, manager.getSyncIdentifiers());
     if ("fori".startsWith(prefix) && prefix.length() > 0) {
       publisher.addItem(
           new SimpleSnippetCompletionItem(
@@ -122,7 +168,7 @@ public class CppLanguage implements Language {
   private int getIndentAdvance(String content) {
     int advance = 1;
     advance = Math.max(0, advance);
-    return advance * 4;
+    return advance * 2;
   }
 
   private final NewlineHandler[] newlineHandlers = new NewlineHandler[] {new BraceHandler()};
@@ -135,7 +181,7 @@ public class CppLanguage implements Language {
   @NonNull
   @Override
   public Formatter getFormatter() {
-    return EmptyLanguage.EmptyFormatter.INSTANCE;
+    return formatter;
   }
 
   @Override

@@ -45,17 +45,17 @@ public final class LanguageManager {
   private static final Map<String, LanguageFactory> factories = new HashMap<>();
 
   static {
-    register((c, p) -> new JavaLanguage(), "java");
+    register((c, p) -> new JavaLanguage(c), "java");
     register((c, p) -> new CLanguage(), "c");
     register((c, p) -> new CSharpLanguage(), "cs");
-    register((c, p) -> new CppLanguage(), "cpp", "cxx", "hpp", "hxx", "cc", "h");
+    register((c, p) -> new CppLanguage(c), "cpp", "cxx", "hpp", "hxx", "cc", "h");
     register((c, p) -> new HtmlLanguage(c, p), "html");
     register((c, p) -> new CssLanguage(c, p), "css");
     register((c, p) -> new JsLanguage(c, p), "js");
-    register((c, p) -> new Python3Language(), "py");
+    register((c, p) -> new Python3Language(c), "py");
     register((c, p) -> new JsonLanguage(c, p), "json");
     register((c, p) -> new XmlLanguage(), "xml");
-    register((c, p) -> new KotlinLanguage(), "kt", "kts"); 
+    register((c, p) -> new KotlinLanguage(c), "kt", "kts");
     register((c, p) -> new TypeScriptLanguage(), "ts");
     register((c, p) -> new TomlLanguage(), "toml");
     register((c, p) -> new GradleLanguage(), "gradle", "groovy");
@@ -64,7 +64,7 @@ public final class LanguageManager {
     register((c, p) -> new YamlLanguage(), "yml", "yaml");
     register((c, p) -> new LuaLanguage(), "lua");
     register((c, p) -> new GoLanguage(), "go");
-    register((c, p) -> new PhpLanguage(), "php");
+    register((c, p) -> new PhpLanguage(c), "php");
     register((c, p) -> new DartLanguage(), "dart");
     register((c, p) -> new TsxLanguage(), "tsx", "jsx");
     register((c, p) -> new SqlLanguage(), "sql");

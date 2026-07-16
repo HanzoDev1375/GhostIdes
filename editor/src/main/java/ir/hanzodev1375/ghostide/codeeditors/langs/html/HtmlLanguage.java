@@ -15,15 +15,18 @@ import io.github.rosemoe.sora.lang.completion.IdentifierAutoComplete;
 import io.github.rosemoe.sora.lang.completion.snippet.CodeSnippet;
 import io.github.rosemoe.sora.lang.completion.snippet.parser.CodeSnippetParser;
 import io.github.rosemoe.sora.lang.completion.SnippetDescription;
+import io.github.rosemoe.sora.lang.format.AsyncFormatter;
 import io.github.rosemoe.sora.lang.format.Formatter;
 import io.github.rosemoe.sora.lang.smartEnter.NewlineHandler;
 import io.github.rosemoe.sora.text.CharPosition;
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentReference;
+import io.github.rosemoe.sora.text.TextRange;
 import io.github.rosemoe.sora.text.TextUtils;
 import io.github.rosemoe.sora.widget.SymbolPairMatch;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.CharParser;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.SnippetCompletionItem;
+import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.PrettierFormatter;
 import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.Css3Server;
 import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.EmmetParser;
 import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.PathCompleter;
@@ -43,7 +46,6 @@ import io.github.rosemoe.sora.lang.styling.Styles;
 public class HtmlLanguage implements Language {
 
   private final HTMLAnalyzer analyzer;
-  private CustomFormatter format;
   private final IdentifierAutoComplete autoComplete;
   private static final CodeSnippet HTML5_SNIPPET =
       CodeSnippetParser.parse(
@@ -80,10 +82,37 @@ public class HtmlLanguage implements Language {
         VFSManager.getInstance().buildCache(parentDir.getAbsolutePath());
       }
     }
-    HtmlFormatter htmlformat = new HtmlFormatter();
-    format = new CustomFormatter();
-    format.setFormatAction(htmlformat::format);
   }
+
+  private final Formatter format =
+      new AsyncFormatter() {
+        @Nullable
+        @Override
+        public TextRange formatAsync(@NonNull Content text, @NonNull TextRange cursorRange) {
+          PrettierFormatter formatted = new PrettierFormatter();
+          String formatResult = formatted.format(context, text.toString(), "html");
+
+          if (!text.toString().equals(formatResult)) {
+            int oldCursor = cursorRange.getStartIndex();
+            text.delete(0, text.length());
+            text.insert(0, 0, formatResult);
+            int newCursor = Math.min(oldCursor, formatResult.length());
+            CharPosition pos = text.getIndexer().getCharPosition(newCursor);
+            return new TextRange(pos, pos);
+          }
+
+          return cursorRange;
+        }
+
+        @Nullable
+        @Override
+        public TextRange formatRegionAsync(
+            @NonNull Content text,
+            @NonNull TextRange rangeToFormat,
+            @NonNull TextRange cursorRange) {
+          return null;
+        }
+      };
 
   @NonNull
   @Override

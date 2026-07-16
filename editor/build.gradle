@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.markwon.html)
     implementation(libs.markwon.ext.tables)
     implementation(libs.markwon.ext.tasklist)
+    implementation(libs.lsp4j)
     implementation(libs.markwon.image)
  //   implementation(libs.markwon.syntax.highlight)
 }
