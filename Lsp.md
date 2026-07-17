@@ -3,8 +3,9 @@
 ## Frist install node js in terminal 
 
 ```bash
- curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - apt install -y nodejs node -v 
-
+ curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+ apt install -y nodejs
+ node -v
 ```
 
 ### Php Lsp 
@@ -47,5 +48,7 @@ pip install python-lsp-server
 ```bash
 
 npm install -g typescript-language-server typescript
+
+npm install -g typescript
 
 ```

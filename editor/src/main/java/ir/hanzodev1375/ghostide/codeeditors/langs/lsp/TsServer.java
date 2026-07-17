@@ -22,24 +22,29 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
 
 /**
- * اتصال Language Server جاوااسکریپت با typescript-language-server (که با وجود اسمش، JS رو هم
- * پوشش می ده) داخل rootfsِ proot. دقیقا هم ساختار PylspServer/ClangdServer.
+ * اتصال Language Server جاوااسکریپت. دیگه از typescript-language-server استفاده نمی کنه چون
+ * TypeScript 7 (که npm الان به صورت پیش فرض نصب می کنه) کامپایلرش رو با Go بازنویسی کرده و
+ * دیگه tsserver.js قدیمی رو نداره؛ typescript-language-server هنوز باهاش سازگار نشده.
+ *
+ * به جاش مستقیم از حالت LSP بومیِ خودِ tsc استفاده می کنیم: «tsc --lsp -stdio». نیازی به
+ * پکیج جدا (typescript-language-server) نیست، فقط خودِ typescript کافیه.
  *
  * نصب داخل ترمینال proot (نیاز به Node.js داره):
- *   npm install -g typescript-language-server typescript
+ *   npm install -g typescript
  *
  * نکته: connectFile عملیات I/O سنگین انجام می ده، حتما توی ترد جدا صداش بزن.
  */
 public class TsServer {
 
   private static final String TAG = "TsServer";
-  private static final String SERVER_NAME = "typescript-language-server";
+  private static final String SERVER_NAME = "tsc --lsp";
 
   private static final Set<String> SUPPORTED_EXTENSIONS =
       new HashSet<>(Arrays.asList("js", "mjs", "cjs", "jsx"));
 
+  // بسته به اینکه npm prefix تو rootfs چیه، معمولا یکی از این هاست (npm root -g رو چک کن).
   private static final String[] CANDIDATE_PATHS = {
-    "/usr/local/bin/typescript-language-server",
+    "/usr/bin/tsc", "/usr/local/bin/tsc"
   };
 
   private static final Map<String, LspProject> projects = new HashMap<>();
@@ -58,7 +63,7 @@ public class TsServer {
     return filePath.substring(dot + 1).toLowerCase(Locale.ROOT);
   }
 
-  /** مسیر باینری typescript-language-server رو داخل rootfs پیدا می کنه؛ اگه نبود null. */
+  /** مسیر باینری tsc رو داخل rootfs پیدا می کنه؛ اگه نبود null. */
   public static String findInstalledExecutable(Context context) {
     File rootfs = DebianBootstrap.getRootfsDir(context);
     if (rootfs == null || !rootfs.exists()) {
@@ -80,7 +85,7 @@ public class TsServer {
   /** همون نکته ی ریسکِ constructor که در PylspServer/ClangdServer گفتم، اینجا هم صدق می کنه. */
   private static LanguageServerDefinition createDefinition(
       Context context, String executablePath, String ext) {
-    List<String> args = Arrays.asList("--stdio");
+    List<String> args = Arrays.asList("--lsp", "-stdio");
     return new CustomLanguageServerDefinition(
         ext,
         workingDir -> new ProotStdioConnectionProvider(context, workingDir, executablePath, args),
@@ -109,17 +114,15 @@ public class TsServer {
   }
 
   /**
-   * فایل JS باز شده رو به typescript-language-server وصل می کنه. حتما توی ترد جدا صدا بزن.
+   * فایل JS باز شده رو به «tsc --lsp» وصل می کنه. حتما توی ترد جدا صدا بزن.
    *
-   * @return LspEditor ساخته شده (برای disconnectFile نگهش دار)، یا null اگه سرور نصب نباشه
+   * @return LspEditor ساخته شده (برای disconnectFile نگهش دار)، یا null اگه tsc نصب نباشه
    */
   public static LspEditor connectFile(
       Context context, String projectRoot, String filePath, CodeEditor editor) {
     String executablePath = findInstalledExecutable(context);
     if (executablePath == null) {
-      Log.e(
-          TAG,
-          "typescript-language-server نصب نیست. داخل ترمینال proot اجرا کن: npm install -g typescript-language-server typescript");
+      Log.e(TAG, "tsc نصب نیست. داخل ترمینال proot اجرا کن: npm install -g typescript");
       return null;
     }
 
@@ -127,14 +130,36 @@ public class TsServer {
     LspProject project = getOrCreateProject(projectRoot);
     ensureDefinitionRegistered(project, context, executablePath, projectRoot, ext);
 
-    LspEditor lspEditor = project.createEditor(filePath);
-    lspEditor.setWrapperLanguage(new JsLanguage(context, filePath));
-    lspEditor.setEditor(editor);
+    // ساخت LspEditor و ست کردن wrapperLanguage/editor روی خودِ CodeEditor (یه View) هست،
+    // باید حتما روی UI thread انجام بشه وگرنه بی صدا اثر نمی کنه یا کرش می ده. چون connectFile
+    // از یه ترد جدا صدا زده می شه، این بخش رو با Handler به UI thread پاس می دیم و منتظر می مونیم.
+    final LspEditor[] holder = new LspEditor[1];
+    final java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
+    new android.os.Handler(android.os.Looper.getMainLooper())
+        .post(
+            () -> {
+              try {
+                LspEditor e = project.createEditor(filePath);
+                e.setWrapperLanguage(new JsLanguage(context, filePath));
+                e.setEditor(editor);
+                holder[0] = e;
+              } finally {
+                latch.countDown();
+              }
+            });
+    try {
+      latch.await();
+    } catch (InterruptedException ignored) {
+    }
+    LspEditor lspEditor = holder[0];
+    if (lspEditor == null) {
+      return null;
+    }
 
     try {
       lspEditor.connectWithTimeoutBlocking();
     } catch (Exception e) {
-      Log.e(TAG, "اتصال به typescript-language-server ناموفق بود", e);
+      Log.e(TAG, "اتصال به tsc --lsp ناموفق بود", e);
     }
 
     return lspEditor;
