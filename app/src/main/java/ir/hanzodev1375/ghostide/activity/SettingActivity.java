@@ -186,8 +186,8 @@ public class SettingActivity extends BaseCompat {
   }
 
   /**
-   * دقیقاً همون مکانیزمِ FileManagerActivity: اگه "نمایش بک‌گراند" از تنظیمات روشن باشه و تم یه
-   * عکس بک‌گراند ست کرده باشه، همون عکسِ بلورشده رو پشتِ تولبار و لیست تنظیمات نشون میدیم.
+   * دقیقاً همون مکانیزمِ FileManagerActivity: اگه "نمایش بک‌گراند" از تنظیمات روشن باشه و تم یه عکس
+   * بک‌گراند ست کرده باشه، همون عکسِ بلورشده رو پشتِ تولبار و لیست تنظیمات نشون میدیم.
    */
   private void setupBackgroundBlur() {
     if (!prefs.isShowBackground()) return;
@@ -570,6 +570,13 @@ public class SettingActivity extends BaseCompat {
             prefs.isShowHiddenFiles(),
             0,
             prefs::setShowHiddenFiles));
+    items.add(
+        new SettingItem(
+            getString(R.string.terfrtitle),
+            getString(R.string.terfrsubtitle),
+            prefs.isTerminalFragment(),
+            0,
+            prefs::setTerminalFragment));
 
     return items;
   }

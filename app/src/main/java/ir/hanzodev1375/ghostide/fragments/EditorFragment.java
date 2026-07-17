@@ -1,5 +1,6 @@
 package ir.hanzodev1375.ghostide.fragments;
 
+import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,16 +14,23 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
+import io.github.rosemoe.sora.event.LongPressEvent;
 import io.github.rosemoe.sora.event.SelectionChangeEvent;
 import io.github.rosemoe.sora.event.EditorFocusChangeEvent;
 import io.github.rosemoe.sora.lang.Language;
 import ir.hanzodev1375.ghostide.activity.EditorActivity;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.ClangdServer;
 import ir.hanzodev1375.ghostide.editorlangs.LanguageManager;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.PylspServer;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.TsServer;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.PhpServer;
+import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
 import ir.hanzodev1375.ghostide.paged.PagedEditSession;
+import ir.hanzodev1375.ghostide.refactor.renameclass.ui.RenameClassBottomSheet;
 import ir.hanzodev1375.ghostide.tasks.FileChangeReceiver;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
@@ -31,6 +39,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -51,6 +60,7 @@ public class EditorFragment extends Fragment {
     }
     return null;
   }
+
   private static final long PAGED_EDIT_THRESHOLD = 2L * 1024 * 1024;
   private static final int PAGED_EDIT_PAGE_SIZE = 1024 * 1024;
   private final ExecutorService pagedExecutor = Executors.newSingleThreadExecutor();
@@ -63,6 +73,7 @@ public class EditorFragment extends Fragment {
   private PreferencesUtils setting;
   private PagedEditSession pagedSession;
   private int pageIndex = -1;
+  private volatile LspEditor lspEditor;
 
   public static EditorFragment newInstance(String path) {
     EditorFragment f = new EditorFragment();
@@ -130,6 +141,43 @@ public class EditorFragment extends Fragment {
     }
     Language lang = LanguageManager.resolve(getContext(), filePath);
     if (lang != null) editor.setEditorLanguage(lang);
+    boolean isPython = filePath != null && filePath.toLowerCase(Locale.ROOT).endsWith(".py");
+    boolean isCpp = filePath != null && ClangdServer.isCppFile(filePath);
+    boolean isJs = filePath != null && TsServer.isJsFile(filePath);
+    boolean isPhp = filePath != null && PhpServer.isPhpFile(filePath);
+    if (isPython || isCpp || isJs || isPhp) {
+      final String targetFilePath = filePath;
+      final Context appContext = getContext() != null ? getContext().getApplicationContext() : null;
+      final IdeEditor targetEditor = editor;
+      if (appContext != null) {
+        new Thread(
+                () -> {
+                  File targetFile = new File(targetFilePath);
+                  String projectRoot =
+                      targetFile.getParent() != null
+                          ? targetFile.getParent()
+                          : targetFile.getAbsolutePath();
+                  if (isPython) {
+                    lspEditor =
+                        PylspServer.connectFile(
+                            appContext, projectRoot, targetFilePath, targetEditor);
+                  } else if (isCpp) {
+                    lspEditor =
+                        ClangdServer.connectFile(
+                            appContext, projectRoot, targetFilePath, targetEditor);
+                  } else if (isJs) {
+                    lspEditor =
+                        TsServer.connectFile(
+                            appContext, projectRoot, targetFilePath, targetEditor);
+                  } else {
+                    lspEditor =
+                        PhpServer.connectFile(
+                            appContext, projectRoot, targetFilePath, targetEditor);
+                  }
+                })
+            .start();
+      }
+    }
     GradientDrawable color = (GradientDrawable) binding.tvCursorPosition.getBackground().mutate();
     color.setColor(theme.getMenuColor());
     editor.subscribeEvent(
@@ -142,7 +190,7 @@ public class EditorFragment extends Fragment {
     binding.tvCursorPosition.setVisibility(
         setting.getShowLineColPanel() ? View.VISIBLE : View.GONE);
     editor.subscribeEvent(
-        io.github.rosemoe.sora.event.LongPressEvent.class,
+        LongPressEvent.class,
         (event, unevent) -> {
           if (filePath == null) return;
           if (!filePath.endsWith(".java") && !filePath.endsWith(".kt")) return;
@@ -158,11 +206,9 @@ public class EditorFragment extends Fragment {
           String name = file.getName();
           int dot = name.lastIndexOf('.');
           String className = dot > 0 ? name.substring(0, dot) : name;
-          ir.hanzodev1375.ghostide.refactor.renameclass.ui.RenameClassBottomSheet.newInstance(
+          RenameClassBottomSheet.newInstance(
                   moduleRoot.getAbsolutePath(), file.getAbsolutePath(), className)
-              .show(
-                  getActivity().getSupportFragmentManager(),
-                  ir.hanzodev1375.ghostide.refactor.renameclass.ui.RenameClassBottomSheet.TAG);
+              .show(getActivity().getSupportFragmentManager(), RenameClassBottomSheet.TAG);
         });
 
     binding.ivWrapToggle1.setOnClickListener(v -> goToPreviousPage());
@@ -401,6 +447,19 @@ public class EditorFragment extends Fragment {
   public void onDestroyView() {
     super.onDestroyView();
     FileChangeReceiver.stopWatching();
+    if (lspEditor != null) {
+      final LspEditor toClose = lspEditor;
+      lspEditor = null;
+      new Thread(
+              () -> {
+                try {
+                  toClose.dispose();
+                } catch (Exception e) {
+                  Log.e("EditorFragment", "بستن اتصال lsp با خطا مواجه شد", e);
+                }
+              })
+          .start();
+    }
     pagedExecutor.shutdownNow();
     if (pagedSession != null) {
       pagedSession.close();

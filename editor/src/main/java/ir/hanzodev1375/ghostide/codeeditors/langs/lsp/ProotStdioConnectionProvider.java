@@ -18,25 +18,25 @@ import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
 
 /**
- * یک StreamConnectionProvider عمومی و قابل‌استفاده‌ی مجدد برای هر Language Server (clangd، jdtls،
+ * یک StreamConnectionProvider عمومی و قابل استفاده ی مجدد برای هر Language Server (clangd، jdtls،
  * pylsp و ...) که باید داخل rootfs دبیانِ proot اجرا بشه.
  *
- * <p>تفاوت کلیدی‌اش با CppFormatter موجود در پروژه:
+ * <p>تفاوت کلیدی اش با CppFormatter موجود در پروژه:
  *
  * <ul>
- *   <li>پروسه یک‌بار مصرف نیست؛ تا وقتی ادیتور وصله زنده می‌مونه (stdio پایدار).
- *   <li>stderr را قاطیِ stdout نمی‌کنیم (pb.redirectErrorStream(false))، چون پروتکل JSON-RPC روی
- *       stdout با هر بایت اضافه خراب می‌شه. stderr جدا و فقط برای لاگ خونده می‌شه.
+ *   <li>پروسه یک بار مصرف نیست؛ تا وقتی ادیتور وصله زنده می مونه (stdio پایدار).
+ *   <li>stderr را قاطیِ stdout نمی کنیم (pb.redirectErrorStream(false))، چون پروتکل JSON-RPC روی
+ *       stdout با هر بایت اضافه خراب می شه. stderr جدا و فقط برای لاگ خونده می شه.
  * </ul>
  *
- * این کلاس هیچ فرضی درباره‌ی زبان خاصی نداره؛ مسیر باینری و آرگومان‌ها از بیرون داده می‌شن.
+ * این کلاس هیچ فرضی درباره ی زبان خاصی نداره؛ مسیر باینری و آرگومان ها از بیرون داده می شن.
  */
 public class ProotStdioConnectionProvider implements StreamConnectionProvider {
 
   private static final String TAG = "ProotLSP";
 
   private final Context appContext;
-  private final String workingDir; // مسیر ریشه‌ی پروژه روی خود دستگاه (هم bind میشه هم -w)
+  private final String workingDir; // مسیر ریشه ی پروژه روی خود دستگاه (هم bind میشه هم -w)
   private final String guestExecutable; // مسیر باینری داخل rootfs، مثلا "/usr/bin/clangd"
   private final List<String> args;
 

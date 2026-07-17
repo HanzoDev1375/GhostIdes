@@ -30,6 +30,7 @@ import com.skydoves.powermenu.PowerMenuItem;
 import com.blankj.utilcode.util.FileIOUtils;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import ir.hanzodev1375.filetreelib.widget.FileTreeView;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.customui.TabCustomView;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.jgit.GitHubProfileSheet;
@@ -91,6 +92,7 @@ public class EditorActivity extends BaseCompat
   private static final long GIT_REFRESH_DEBOUNCE_MS = 1500;
   private SplitLayoutPopup splitLayoutPopup;
   private boolean isSplitViewActive = false;
+  private PreferencesUtils settings;
   private int lastSplitRows = 1, lastSplitCols = 2;
   private EditorPaneFragment activePane = null; // null = پین اصلی (primary)
 
@@ -123,7 +125,7 @@ public class EditorActivity extends BaseCompat
     binding = ActivityEditorBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
     prefs = getSharedPreferences("editor", MODE_PRIVATE);
-
+    settings = new PreferencesUtils(this);
     setupViewPager();
     setupTabLayout();
     setupFAB();
@@ -1003,7 +1005,7 @@ public class EditorActivity extends BaseCompat
             Intent intent = new Intent(EditorActivity.this, WebViewActivity.class);
             intent.putExtra("keyweb", currentFilePath);
             startActivity(intent);
-          } else coderun.bindof(currentFilePath);
+          } else coderun.bindof(currentFilePath, settings.isTerminalFragment());
         });
   }
 

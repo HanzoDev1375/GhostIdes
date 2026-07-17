@@ -40,6 +40,14 @@ public class PreferencesUtils {
     return true;
   }
 
+  public boolean isTerminalFragment() {
+    return getDefaultPreferences().getBoolean(Constants.SharedPreferenceKeys.KRY_TERM, false);
+  }
+
+  public void setTerminalFragment(boolean b) {
+    getDefaultPreferences().edit().putBoolean(Constants.SharedPreferenceKeys.KRY_TERM, b).apply();
+  }
+
   public void setGitLocalUserName(String name) {
     getDefaultPreferences()
         .edit()

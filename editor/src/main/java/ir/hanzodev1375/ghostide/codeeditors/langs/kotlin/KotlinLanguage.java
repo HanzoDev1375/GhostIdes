@@ -1,5 +1,8 @@
 package ir.hanzodev1375.ghostide.codeeditors.langs.kotlin;
 
+import android.content.Context;
+import io.github.rosemoe.sora.lang.format.AsyncFormatter;
+import io.github.rosemoe.sora.text.TextRange;
 import static java.lang.Character.isWhitespace;
 
 import android.os.Bundle;
@@ -45,8 +48,7 @@ public class KotlinLanguage implements Language {
   private IdentifierAutoComplete autoComplete;
   private final KotlinIncrementalAnalyzeManager manager;
   private final KotlinQuoteHandler quoteHandler = new KotlinQuoteHandler();
-
-  // لیست کلیدواژه‌های کاتلین
+  private Context context;
   private static final String[] KEYWORDS = {
     "as",
     "break",
@@ -90,10 +92,41 @@ public class KotlinLanguage implements Language {
     "open"
   };
 
-  public KotlinLanguage() {
+  public KotlinLanguage(Context context) {
+    this.context = context;
     autoComplete = new IdentifierAutoComplete(KEYWORDS);
     manager = new KotlinIncrementalAnalyzeManager();
   }
+
+  private final Formatter formatter =
+      new AsyncFormatter() {
+        @Nullable
+        @Override
+        public TextRange formatAsync(@NonNull Content text, @NonNull TextRange cursorRange) {
+          var formatted = new KtFormater();
+          String formatResult = formatted.formatKotlin(context, text.toString());
+
+          if (!text.toString().equals(formatResult)) {
+            int oldCursor = cursorRange.getStartIndex();
+            text.delete(0, text.length());
+            text.insert(0, 0, formatResult);
+            int newCursor = Math.min(oldCursor, formatResult.length());
+            CharPosition pos = text.getIndexer().getCharPosition(newCursor);
+            return new TextRange(pos, pos);
+          }
+
+          return cursorRange;
+        }
+
+        @Nullable
+        @Override
+        public TextRange formatRegionAsync(
+            @NonNull Content text,
+            @NonNull TextRange rangeToFormat,
+            @NonNull TextRange cursorRange) {
+          return null;
+        }
+      };
 
   @NonNull
   @Override
@@ -181,7 +214,7 @@ public class KotlinLanguage implements Language {
   @NonNull
   @Override
   public Formatter getFormatter() {
-    return EmptyLanguage.EmptyFormatter.INSTANCE;
+    return formatter;
   }
 
   @Override

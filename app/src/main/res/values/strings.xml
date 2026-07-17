@@ -332,4 +332,6 @@
   <string name="rename_class_confirm_title">Confirm class rename</string>
   <string name="rename_class_confirm_message">Rename %1$s to %2$s across %3$d file(s)?</string>
   <string name="rename_class_success">Class renamed successfully</string>
+  <string name="terfrtitle">Terminal Fragment mod</string>
+  <string name="terfrsubtitle">Enabel Terminal Fragment mod!</string>
 </resources>

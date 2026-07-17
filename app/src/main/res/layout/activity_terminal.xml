@@ -10,8 +10,8 @@
     <ImageView
          android:layout_height="match_parent"
          android:layout_width="match_parent"
-         android:scaleType="centerCrop"
          android:visibility="visible"
+         android:scaleType="centerCrop"
          android:id="@+id/backgroundIconTerminal" />
 
     <LinearLayout
@@ -22,10 +22,10 @@
         <com.google.android.material.appbar.MaterialToolbar
              android:layout_height="wrap_content"
              android:layout_width="match_parent"
+             android:background="?attr/colorSurfaceContainerHigh"
              android:minHeight="?attr/actionBarSize"
              android:title="@string/terminal_title"
              app:elevation="2dp"
-             android:background="?attr/colorSurfaceContainerHigh"
              android:id="@+id/toolbar">
 
         </com.google.android.material.appbar.MaterialToolbar>
@@ -87,9 +87,9 @@
         <HorizontalScrollView
              android:layout_height="wrap_content"
              android:layout_width="match_parent"
-             android:minHeight="48dp"
              android:scrollbars="none"
              android:background="?attr/colorSurfaceContainerHigh"
+             android:minHeight="48dp"
              android:id="@+id/extraKeysScroll">
 
             <LinearLayout

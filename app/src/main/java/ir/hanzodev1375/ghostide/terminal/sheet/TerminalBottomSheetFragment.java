@@ -1,4 +1,4 @@
-package ir.hanzodev1375.ghostide.terminal.activity;
+package ir.hanzodev1375.ghostide.terminal.sheet;
 
 import android.Manifest;
 import android.content.ComponentName;
@@ -6,9 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import androidx.annotation.MainThread;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import android.os.Bundle;
@@ -28,6 +32,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import android.widget.FrameLayout;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import ir.hanzodev1375.ghostide.R;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,27 +57,12 @@ import ir.theme.ThemeUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-/**
- * ترمینال مستقل GhostIDE. چند سشن به‌صورت تب (مثل مرورگر) پشتیبانی میشه. خودِ سشن‌ها (پروسه‌ی شل)
- * توی {@link TerminalSessionService} زندگی میکنن، نه این اکتیویتی — یعنی چرخوندن صفحه، رفتن به یه
- * اکتیویتی دیگه، یا حتی بستن این صفحه، سشن‌ها رو نمی‌کشه؛ فقط با × زدن رو تب یا kill کردنِ خودِ
- * notification سرویس از بین میرن.
- *
- * <p>برای اجرا نیاز به این dependency در build.gradle ماژول app هست:
- *
- * <p>repositories { maven { url "https://jitpack.io" } } dependencies { implementation
- * 'com.termux.termux-app:terminal-view:0.118.3' }
- *
- * <p>و حتماً permission/service مربوط به {@link TerminalSessionService} رو توی AndroidManifest.xml
- * اضافه کن (توضیحش بالای اون کلاسه).
- */
-public class TerminalActivity extends BaseCompat
+public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
     implements GhostTerminalViewClient.KeyModifierState, TerminalSessionService.SessionListener {
 
-  /** اگه بخوای ترمینال رو مستقیم توی مسیر یه پروژه باز کنی: putExtra(EXTRA_WORKING_DIR, path) */
   public static final String EXTRA_WORKING_DIR = "working_dir";
-
   public static final String EXTRA_COMMAND = "command";
+
   private ActivityTerminalBinding b;
   private TerminalSessionService service;
   private boolean isBound = false;
@@ -89,7 +82,7 @@ public class TerminalActivity extends BaseCompat
         public void onServiceConnected(ComponentName name, IBinder binderObj) {
           service = ((TerminalSessionService.LocalBinder) binderObj).getService();
           isBound = true;
-          service.setUiListener(TerminalActivity.this);
+          service.setUiListener(TerminalBottomSheetFragment.this);
           onServiceReady();
         }
 
@@ -100,37 +93,49 @@ public class TerminalActivity extends BaseCompat
         }
       };
 
+  public static TerminalBottomSheetFragment newInstance(
+      @Nullable String command, @Nullable String workingDir) {
+    TerminalBottomSheetFragment fragment = new TerminalBottomSheetFragment();
+    Bundle args = new Bundle();
+    if (command != null) args.putString(EXTRA_COMMAND, command);
+    if (workingDir != null) args.putString(EXTRA_WORKING_DIR, workingDir);
+    fragment.setArguments(args);
+    return fragment;
+  }
+
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+  @MainThread
+  @Nullable
+  public View onCreateView(LayoutInflater arg0, ViewGroup arg1, Bundle arg2) {
     b = ActivityTerminalBinding.inflate(getLayoutInflater());
-    setContentView(b.getRoot());
+    return b.getRoot();
+  }
+
+  @Override
+  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
 
     setupToolbar();
-    setupEdgeToEdgeInsets();
     setupTerminalView();
     setupExtraKeys();
     setupBackHandler();
     setupBackgroundBlur();
     maybeRequestNotificationPermission();
-    getWindow()
-        .getDecorView()
-        .setBackgroundColor(MaterialColors.getColor(this, R.attr.colorSurfaceContainerHigh, 0));
   }
 
   @Override
-  protected void onStart() {
+  public void onStart() {
     super.onStart();
-    Intent serviceIntent = new Intent(this, TerminalSessionService.class);
-    ContextCompat.startForegroundService(this, serviceIntent);
-    bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
+    Intent serviceIntent = new Intent(requireContext(), TerminalSessionService.class);
+    ContextCompat.startForegroundService(requireContext(), serviceIntent);
+    requireContext().bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
   }
 
   @Override
-  protected void onStop() {
+  public void onStop() {
     if (isBound) {
       service.setUiListener(null);
-      unbindService(connection);
+      requireContext().unbindService(connection);
       isBound = false;
     }
     super.onStop();
@@ -138,28 +143,28 @@ public class TerminalActivity extends BaseCompat
 
   private void maybeRequestNotificationPermission() {
     if (Build.VERSION.SDK_INT >= 33) {
-      if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+      if (ContextCompat.checkSelfPermission(
+              requireContext(), Manifest.permission.POST_NOTIFICATIONS)
           != PackageManager.PERMISSION_GRANTED) {
-        ActivityCompat.requestPermissions(
-            this, new String[] {android.Manifest.permission.POST_NOTIFICATIONS}, 4821);
+        requestPermissions(new String[] {Manifest.permission.POST_NOTIFICATIONS}, 4821);
       }
     }
   }
 
-  /** بعد از اولین bind موفق به سرویس صدا زده میشه: آدابتور تب‌ها رو با لیست واقعیِ سرویس میسازه. */
   private void onServiceReady() {
     if (tabAdapter == null) setupSessionTabs();
 
-    String command = getIntent().getStringExtra(EXTRA_COMMAND);
+    String command = getArguments().getString(EXTRA_COMMAND);
     if (command != null && !command.isEmpty()) {
-      if (!DebianBootstrap.isInstalled(this)) {
-        Toast.makeText(this, "Debian نصب نیست", Toast.LENGTH_LONG).show();
+      if (!DebianBootstrap.isInstalled(requireContext())) {
+        Toast.makeText(requireContext(), "Debian نصب نیست", Toast.LENGTH_LONG).show();
         return;
       }
-      addNewDebianSession(); 
-      getIntent().removeExtra(EXTRA_COMMAND);
+      addNewDebianSession();
+      getArguments().remove(EXTRA_COMMAND);
       return;
     }
+
     List<TerminalTab> sessions = service.getSessions();
     if (sessions.isEmpty()) {
       stepDB();
@@ -172,56 +177,49 @@ public class TerminalActivity extends BaseCompat
     }
   }
 
- 
-  private void setupEdgeToEdgeInsets() {
-    ViewCompat.setOnApplyWindowInsetsListener(
-        b.coordinator,
-        (v, insets) -> {
-          Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-          Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
-          b.toolbar.setPadding(
-              b.toolbar.getPaddingLeft(),
-              systemBars.top,
-              b.toolbar.getPaddingRight(),
-              b.toolbar.getPaddingBottom());
-          b.extraKeysScroll.setPadding(
-              b.extraKeysScroll.getPaddingLeft(),
-              b.extraKeysScroll.getPaddingTop(),
-              b.extraKeysScroll.getPaddingRight(),
-              Math.max(systemBars.bottom, ime.bottom));
-          return insets;
-        });
-  }
-
-  
   private void setupBackgroundBlur() {
-    appsetting = new PreferencesUtils(this);
-    themeutil = new ThemeUtils(new ThemeManager(this));
+    appsetting = new PreferencesUtils(requireContext());
+    themeutil = new ThemeUtils(new ThemeManager(requireContext()));
 
     if (!appsetting.isShowBackground()) {
-      return; 
+      return;
     }
 
     var theme = themeutil.getTheme();
     if (theme == null || theme.getWidget() == null) return;
     var widget = theme.getWidget();
     if (widget.getImagepath() == null || widget.getImagepath().isEmpty()) return;
-
-    b.toolbar.setBackgroundColor(Color.TRANSPARENT);
-    b.sessionTabsRow.setBackgroundColor(Color.TRANSPARENT);
-    b.extraKeysScroll.setBackgroundColor(Color.TRANSPARENT);
+    b.sessionTabsRow.setBackgroundColor(Color.parseColor(widget.getAccent()));
+    b.extraKeysScroll.setBackgroundColor(Color.parseColor(widget.getAccent()));
     b.terminalView.setBackgroundColor(Color.TRANSPARENT);
+    b.keyAlt.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
+    b.keyCtrl.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
+    b.keyDash.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
+    b.keyDown.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
+    b.keyEsc.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
+    b.keyLeft.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
+    b.keyRight.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
+    b.keyTab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
+    b.keyUp.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
+    b.keyPipe.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
+    b.keySlash.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
     b.backgroundIconTerminal.setVisibility(View.VISIBLE);
     Glide.with(this)
         .load(widget.getImagepath())
         .transform(new BlurTransformation((int) widget.getBlursize()))
         .into(b.backgroundIconTerminal);
+    var dialog = getDialog();
+    if (!(dialog instanceof BottomSheetDialog)) return;
+    BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) dialog;
+    FrameLayout bottomSheet =
+        bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+    if (bottomSheet == null) return;
+    BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+    bottomSheet.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
   }
 
   private void setupToolbar() {
-    setSupportActionBar(b.toolbar);
-    if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    b.toolbar.setNavigationOnClickListener(v -> finish());
+    b.toolbar.setVisibility(View.GONE);
   }
 
   private void setupTerminalView() {
@@ -244,13 +242,13 @@ public class TerminalActivity extends BaseCompat
               }
             });
     b.sessionTabs.setLayoutManager(
-        new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
     b.sessionTabs.setAdapter(tabAdapter);
     b.btnNewSession.setOnClickListener(this::showNewSessionMenu);
   }
 
   private void stepDB() {
-    if (!DebianInstaller.isInstalled(this)) {
+    if (!DebianInstaller.isInstalled(requireContext())) {
       startDebianInstall();
       b.terminalView.setVisibility(View.INVISIBLE);
     } else {
@@ -259,20 +257,19 @@ public class TerminalActivity extends BaseCompat
     }
   }
 
-  /** اگه Debian نصب شده باشه، بین Shell/Debian می‌پرسه؛ وگرنه با توضیح، شل ساده میسازه. */
   private void showNewSessionMenu(View anchor) {
-    if (!DebianBootstrap.isInstalled(this)) {
+    if (!DebianBootstrap.isInstalled(requireContext())) {
       Toast.makeText(
-              this,
+              requireContext(),
               "Debian rootfs پیدا نشد رو: "
-                  + DebianBootstrap.getRootfsDir(this).getAbsolutePath()
+                  + DebianBootstrap.getRootfsDir(requireContext()).getAbsolutePath()
                   + " — یه شل معمولی باز میشه",
               Toast.LENGTH_LONG)
           .show();
       addNewSession();
       return;
     }
-    var popup = new PopupMenu(this, anchor);
+    var popup = new PopupMenu(requireContext(), anchor);
     popup.getMenu().add(0, 1, 0, "Shell");
     popup.getMenu().add(0, 2, 1, "Debian");
     popup.setOnMenuItemClickListener(
@@ -316,9 +313,6 @@ public class TerminalActivity extends BaseCompat
         });
   }
 
-  /**
-   * چون دیگه ToggleButton نیستن (اون ایندیکیتور توکار زشت بود)، حالت on/off رو خودمون رنگ میکنیم.
-   */
   private void updateModifierButtonStyle(android.widget.Button button, boolean active) {
     if (active) {
       int bg = MaterialColors.getColor(button, R.attr.colorPrimary);
@@ -326,28 +320,13 @@ public class TerminalActivity extends BaseCompat
       button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(bg));
       button.setTextColor(fg);
     } else {
-      button.setBackgroundTintList(
-          android.content.res.ColorStateList.valueOf(defaultKeyBackgroundColor));
+      button.setBackgroundTintList(ColorStateList.valueOf(defaultKeyBackgroundColor));
       button.setTextColor(defaultKeyTextColor);
     }
   }
 
-  private void setupBackHandler() {
-    getOnBackPressedDispatcher()
-        .addCallback(
-            this,
-            new OnBackPressedCallback(true) {
-              @Override
-              public void handleOnBackPressed() {
-                setEnabled(false);
-                getOnBackPressedDispatcher().onBackPressed();
-              }
-            });
-  }
+  private void setupBackHandler() {}
 
-  /**
-   * یه KeyEvent واقعی رو از طریق مسیر ورودیِ خودِ TerminalView دیسپچ میکنه (ESC/TAB/جهت‌نما‌ها).
-   */
   private void sendKeyEvent(int keyCode) {
     long now = SystemClock.uptimeMillis();
     b.terminalView.dispatchKeyEvent(new KeyEvent(now, now, KeyEvent.ACTION_DOWN, keyCode, 0));
@@ -363,7 +342,7 @@ public class TerminalActivity extends BaseCompat
 
   private void addNewSession() {
     if (service == null) return;
-    String workingDir = getIntent().getStringExtra(EXTRA_WORKING_DIR);
+    String workingDir = getArguments().getString(EXTRA_WORKING_DIR);
     service.createSession(workingDir);
     tabAdapter.notifyDataSetChanged();
     switchToTab(service.getSessions().size() - 1);
@@ -375,7 +354,7 @@ public class TerminalActivity extends BaseCompat
     tabAdapter.notifyDataSetChanged();
     switchToTab(service.getSessions().size() - 1);
 
-    String command = getIntent().getStringExtra(EXTRA_COMMAND);
+    String command = getArguments().getString(EXTRA_COMMAND);
     if (command != null && !command.isEmpty()) {
       TerminalSession session = currentSession();
       session.write(command + "\n");
@@ -402,7 +381,7 @@ public class TerminalActivity extends BaseCompat
 
     sessions = service.getSessions();
     if (sessions.isEmpty()) {
-      finish();
+      dismiss();
       return;
     }
     int newIndex = Math.min(position, sessions.size() - 1);
@@ -426,8 +405,6 @@ public class TerminalActivity extends BaseCompat
     return -1;
   }
 
-  // ───────────────────────── TerminalSessionService.SessionListener ─────────────────────────
-
   @Override
   public void onTextChanged(TerminalSession session) {
     if (session == currentSession()) b.terminalView.invalidate();
@@ -441,18 +418,15 @@ public class TerminalActivity extends BaseCompat
 
   @Override
   public void onSessionFinished(TerminalSession session) {
-    // سرویس خودش این سشن رو از لیستش حذف کرده؛ فقط UI رو با وضعیت فعلی sync میکنیم
     tabAdapter.notifyDataSetChanged();
     List<TerminalTab> sessions = service.getSessions();
     if (sessions.isEmpty()) {
-      finish();
+      dismiss();
       return;
     }
     int newIndex = Math.min(Math.max(currentTabIndex, 0), sessions.size() - 1);
     switchToTab(newIndex);
   }
-
-  // ───────────────────────── GhostTerminalViewClient.KeyModifierState ─────────────────────────
 
   @Override
   public boolean isCtrlToggled() {
@@ -476,22 +450,21 @@ public class TerminalActivity extends BaseCompat
     updateModifierButtonStyle(b.keyAlt, false);
   }
 
-  // ───────────────────────── نصب Debian (منوی تولبار) ─────────────────────────
-
   private AlertDialog installDialog;
   private TextView installStatusText;
   private ProgressBar installProgressBar;
 
   @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    menu.add(0, 1001, 0, DebianBootstrap.isInstalled(this) ? "حذف Debian" : "نصب Debian");
-    return true;
+  public void onCreateOptionsMenu(Menu menu, android.view.MenuInflater inflater) {
+    menu.add(
+        0, 1001, 0, DebianBootstrap.isInstalled(requireContext()) ? "حذف Debian" : "نصب Debian");
+    super.onCreateOptionsMenu(menu, inflater);
   }
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     if (item.getItemId() == 1001) {
-      if (DebianBootstrap.isInstalled(this)) {
+      if (DebianBootstrap.isInstalled(requireContext())) {
         confirmAndRemoveDebian();
       } else {
         startDebianInstall();
@@ -501,36 +474,34 @@ public class TerminalActivity extends BaseCompat
     return super.onOptionsItemSelected(item);
   }
 
-  /**
-   * قبل از پاک کردنِ rootfs (مثلاً برای رفعِ یه نصبِ ناقص/معماریِ اشتباه) از کاربر تأیید میگیره.
-   */
   private void confirmAndRemoveDebian() {
-    new AlertDialog.Builder(this)
+    new AlertDialog.Builder(requireContext())
         .setTitle("حذف Debian")
         .setMessage("کل rootfs دبیان پاک میشه (فایل های خودِ توی دبیان هم از بین میره). مطمئنی؟")
         .setPositiveButton(
             "حذف کن",
             (dialog, which) ->
                 DebianBootstrap.uninstall(
-                    this,
+                    requireContext(),
                     () -> {
-                      Toast.makeText(this, "Debian حذف شد", Toast.LENGTH_SHORT).show();
-                      invalidateOptionsMenu();
+                      Toast.makeText(requireContext(), "Debian حذف شد", Toast.LENGTH_SHORT).show();
+                      requireActivity().invalidateOptionsMenu();
                     }))
         .setNegativeButton("لغو", null)
         .show();
   }
 
   private void startDebianInstall() {
-    LinearLayout layout = new LinearLayout(this);
+    LinearLayout layout = new LinearLayout(requireContext());
     layout.setOrientation(LinearLayout.VERTICAL);
-    int pad = (int) (16 * getResources().getDisplayMetrics().density);
+    int pad = (int) (16 * requireContext().getResources().getDisplayMetrics().density);
     layout.setPadding(pad, pad, pad, pad);
 
-    installStatusText = new TextView(this);
+    installStatusText = new TextView(requireContext());
     installStatusText.setText("در حال شروع دانلود...");
 
-    installProgressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+    installProgressBar =
+        new ProgressBar(requireContext(), null, android.R.attr.progressBarStyleHorizontal);
     installProgressBar.setMax(100);
     installProgressBar.setIndeterminate(false);
 
@@ -538,7 +509,7 @@ public class TerminalActivity extends BaseCompat
     layout.addView(installProgressBar);
 
     installDialog =
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(requireContext())
             .setTitle("نصب Debian")
             .setView(layout)
             .setCancelable(false)
@@ -546,50 +517,58 @@ public class TerminalActivity extends BaseCompat
                 "لغو",
                 (dialog, which) -> {
                   DebianInstaller.cancelInstall();
-                  Toast.makeText(this, "نصب لغو شد", Toast.LENGTH_SHORT).show();
+                  Toast.makeText(requireContext(), "نصب لغو شد", Toast.LENGTH_SHORT).show();
                 })
             .create();
     installDialog.show();
 
     DebianInstaller.installDebian(
-        this,
+        requireContext(),
         new DebianInstaller.InstallListener() {
           @Override
           public void onDownloadProgress(int percent) {
-            runOnUiThread(
-                () -> {
-                  installStatusText.setText("دانلود: " + percent + "%");
-                  installProgressBar.setProgress(percent);
-                });
+            if (getView() == null) return;
+            requireActivity()
+                .runOnUiThread(
+                    () -> {
+                      installStatusText.setText("دانلود: " + percent + "%");
+                      installProgressBar.setProgress(percent);
+                    });
           }
 
           @Override
           public void onExtractProgress(int extractedEntries) {
-            runOnUiThread(
-                () -> {
-                  installStatusText.setText("در حال استخراج... (" + extractedEntries + " فایل)");
-                  installProgressBar.setIndeterminate(true);
-                });
+            if (getView() == null) return;
+            requireActivity()
+                .runOnUiThread(
+                    () -> {
+                      installStatusText.setText(
+                          "در حال استخراج... (" + extractedEntries + " فایل)");
+                      installProgressBar.setIndeterminate(true);
+                    });
           }
 
           @Override
           public void onSuccess() {
-            runOnUiThread(
-                () -> {
-                  if (installDialog != null) installDialog.dismiss();
-                  Toast.makeText(TerminalActivity.this, "Debian نصب شد ✓", Toast.LENGTH_LONG)
-                      .show();
-                  invalidateOptionsMenu();
-                });
+            if (getView() == null) return;
+            requireActivity()
+                .runOnUiThread(
+                    () -> {
+                      if (installDialog != null) installDialog.dismiss();
+                      Toast.makeText(requireContext(), "Debian نصب شد ✓", Toast.LENGTH_LONG).show();
+                      requireActivity().invalidateOptionsMenu();
+                    });
           }
 
           @Override
           public void onError(String message) {
-            runOnUiThread(
-                () -> {
-                  if (installDialog != null) installDialog.dismiss();
-                  Toast.makeText(TerminalActivity.this, message, Toast.LENGTH_LONG).show();
-                });
+            if (getView() == null) return;
+            requireActivity()
+                .runOnUiThread(
+                    () -> {
+                      if (installDialog != null) installDialog.dismiss();
+                      Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+                    });
           }
         });
   }
