@@ -52,3 +52,12 @@ npm install -g typescript-language-server typescript
 npm install -g typescript
 
 ```
+
+# Html Lsp 
+# Css Lsp
+
+```bash
+
+npm install -g vscode-langservers-extracted
+
+```

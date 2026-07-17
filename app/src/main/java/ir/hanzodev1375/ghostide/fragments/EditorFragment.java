@@ -20,6 +20,8 @@ import io.github.rosemoe.sora.event.EditorFocusChangeEvent;
 import io.github.rosemoe.sora.lang.Language;
 import ir.hanzodev1375.ghostide.activity.EditorActivity;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.ClangdServer;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.CssServer;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.HtmlServer;
 import ir.hanzodev1375.ghostide.editorlangs.LanguageManager;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.PylspServer;
@@ -145,7 +147,9 @@ public class EditorFragment extends Fragment {
     boolean isCpp = filePath != null && ClangdServer.isCppFile(filePath);
     boolean isJs = filePath != null && TsServer.isJsFile(filePath);
     boolean isPhp = filePath != null && PhpServer.isPhpFile(filePath);
-    if (isPython || isCpp || isJs || isPhp) {
+    boolean isHtml = filePath != null && HtmlServer.isHtmlFile(filePath);
+    boolean isCss = filePath != null && CssServer.isCssFile(filePath);
+    if (isPython || isCpp || isJs || isPhp || isHtml || isCss) {
       final String targetFilePath = filePath;
       final Context appContext = getContext() != null ? getContext().getApplicationContext() : null;
       final IdeEditor targetEditor = editor;
@@ -167,12 +171,21 @@ public class EditorFragment extends Fragment {
                             appContext, projectRoot, targetFilePath, targetEditor);
                   } else if (isJs) {
                     lspEditor =
-                        TsServer.connectFile(
+                        TsServer.connectFile(appContext, projectRoot, targetFilePath, targetEditor);
+                  } else if (isHtml) {
+                    lspEditor =
+                        HtmlServer.connectFile(
                             appContext, projectRoot, targetFilePath, targetEditor);
-                  } else {
+                  } else if (isPhp) {
                     lspEditor =
                         PhpServer.connectFile(
                             appContext, projectRoot, targetFilePath, targetEditor);
+                  } else if (isCss) {
+                    lspEditor =
+                        CssServer.connectFile(
+                            appContext, projectRoot, targetFilePath, targetEditor);
+                  } else {
+                    Log.w("Tag", "Server not found");
                   }
                 })
             .start();

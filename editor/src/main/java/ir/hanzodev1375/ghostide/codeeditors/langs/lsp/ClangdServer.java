@@ -20,6 +20,10 @@ import io.github.rosemoe.sora.widget.CodeEditor;
 
 import ir.hanzodev1375.ghostide.codeeditors.langs.cpp.CppLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
+import java.util.concurrent.CountDownLatch;
+import android.os.Handler;
+import android.os.Looper;
+import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 
 /**
  * اتصال Language Server سی پلاس پلاس (clangd) که داخل rootfsِ proot اجرا می شه.
@@ -144,9 +148,34 @@ public class ClangdServer {
     LspProject project = getOrCreateProject(projectRoot);
     ensureDefinitionRegistered(project, context, executablePath, projectRoot, ext);
 
-    LspEditor lspEditor = project.createEditor(filePath);
-    lspEditor.setWrapperLanguage(new CppLanguage(context));
-    lspEditor.setEditor(editor);
+    final LspEditor[] holder = new LspEditor[1];
+    final CountDownLatch latch = new CountDownLatch(1);
+
+    new Handler(Looper.getMainLooper())
+        .post(
+            () -> {
+              try {
+                LspEditor e = project.createEditor(filePath);
+                var cpp = new CppLanguage(context,editor);
+                e.setWrapperLanguage(cpp);
+                e.setEditor(editor);
+                var lang = (LspLanguage) editor.getEditorLanguage();
+                lang.setFormatter(cpp.getFormatter());
+                holder[0] = e;
+              } finally {
+                latch.countDown();
+              }
+            });
+
+    try {
+      latch.await();
+    } catch (InterruptedException ignored) {
+    }
+
+    LspEditor lspEditor = holder[0];
+    if (lspEditor == null) {
+      return null;
+    }
 
     try {
       lspEditor.connectWithTimeoutBlocking();

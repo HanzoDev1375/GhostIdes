@@ -141,6 +141,7 @@ public class HtmlLanguage implements Language {
       @NonNull CompletionPublisher publisher,
       @NonNull Bundle es) {
     String prefix = CompletionHelper.computePrefix(content, position, CharParser::parserHtml);
+    /*
     if (isInsideStyleTag(content, position)) {
       for (CssCompletionItem item : CssHelper.getPropertyItemsByPrefix(prefix)) {
         publisher.addItem(item);
@@ -245,6 +246,7 @@ public class HtmlLanguage implements Language {
       }
       return;
     }
+    */
   }
 
   private boolean isInsideStyleTag(ContentReference content, CharPosition pos) {

@@ -3,23 +3,17 @@ package ir.hanzodev1375.ghostide.codeeditors;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 import com.eup.codeopsstudio.editor.langs.widget.component.CustomEditorTextActionWindow;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.event.ScrollEvent;
-import io.github.rosemoe.sora.graphics.inlayHint.TextInlayHintRenderer;
-import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintsContainer;
-import io.github.rosemoe.sora.lang.styling.inlayHint.TextInlayHint;
-import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion;
 import io.github.rosemoe.sora.widget.component.EditorTextActionWindow;
 import io.github.rosemoe.sora.widget.component.Magnifier;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorrender.WebColorIde;
 import ir.hanzodev1375.ghostide.codeeditors.preview.ImagePreviewIde;
-import ir.hanzodev1375.ghostide.codeeditors.preview.htmltag.HtmlTagPreviewIde;
 import ir.hanzodev1375.ghostide.codeeditors.preview.url.OnLinkClickEventListener;
 import ir.hanzodev1375.ghostide.codeeditors.preview.url.UrlPreviewIde;
 import ir.hanzodev1375.ghostide.codeeditors.preview.xmlattr.XmlAttrPreviewIde;
@@ -45,7 +39,6 @@ public class IdeEditor extends CodeEditor
   private UrlPreviewIde urlPreviewIde;
   private StringResourceExtractorIde stringresourceextractoride;
   private XmlAttrPreviewIde xmlAttrPreviewIde;
-  private HtmlTagPreviewIde htmltagpreview;
 
   public IdeEditor(Context context) {
     super(context);
@@ -70,8 +63,7 @@ public class IdeEditor extends CodeEditor
     stringresourceextractoride.attach();
     xmlAttrPreviewIde = new XmlAttrPreviewIde(this);
     xmlAttrPreviewIde.attach();
-    htmltagpreview = new HtmlTagPreviewIde(this);
-    htmltagpreview.attach();
+    
     editorAutoCompletion.setAdapter(new CustomEditorCompletionAdapter());
     replaceComponent(EditorAutoCompletion.class, editorAutoCompletion);
     replaceComponent(EditorTextActionWindow.class, new CustomEditorTextActionWindow(this));

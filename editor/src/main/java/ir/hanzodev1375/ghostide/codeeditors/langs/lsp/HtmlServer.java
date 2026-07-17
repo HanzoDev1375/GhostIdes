@@ -2,7 +2,7 @@ package ir.hanzodev1375.ghostide.codeeditors.langs.lsp;
 
 import android.content.Context;
 import android.util.Log;
-
+import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,42 +11,47 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition;
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.LanguageServerDefinition;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import io.github.rosemoe.sora.lsp.editor.LspProject;
 import io.github.rosemoe.sora.widget.CodeEditor;
-
-import ir.hanzodev1375.ghostide.codeeditors.langs.php.PhpLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
 import java.util.concurrent.CountDownLatch;
 import android.os.Handler;
 import android.os.Looper;
-import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 
 /**
- * curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - apt install -y nodejs node -v npm
- * cache clean --force npm install -g intelephense
+ * اتصال Language Server اچ‌تی‌ام‌ال. از vscode-html-language-server (موجود در پکیج
+ * vscode-langservers-extracted) استفاده می‌کنه که دقیقاً همون موتور هوشمند HTML مربوط به VSCode
+ * هست.
+ *
+ * <p>نصب داخل ترمینال proot (نیاز به Node.js داره): npm install -g vscode-langservers-extracted
+ *
+ * <p>نکته: مثل TsServer، عملیات connectFile سنگین هست و حتماً باید توی ترد جدا (غیر از UI Thread)
+ * صدا زده بشه، اما بخش ساخت LspEditor و ست کردن اون روی CodeEditor باید روی UI Thread اجرا بشه.
  */
-public class PhpServer {
-
-  private static final String TAG = "PhpServer";
-  private static final String SERVER_NAME = "intelephense";
-
+public class HtmlServer {
+  private static final String TAG = "HtmlServer";
+  private static final String SERVER_NAME = "vscode-html-language-server";
   private static final Set<String> SUPPORTED_EXTENSIONS =
-      new HashSet<>(Arrays.asList("php", "php5", "phtml"));
+      new HashSet<>(Arrays.asList("html", "htm"));
 
+  // بسته به اینکه npm prefix تو rootfs چیه، ممکنه تو یکی از این مسیرها باشه.
   private static final String[] CANDIDATE_PATHS = {
-    "/usr/local/bin/intelephense", "/usr/bin/intelephense"
+    "/usr/bin/vscode-html-language-server",
+    "/usr/local/bin/vscode-html-language-server",
+    "/usr/bin/html-languageserver", // برخی نسخه‌های قدیمی‌تر یا فورک‌ها
+    "/usr/local/bin/html-languageserver"
   };
 
   private static final Map<String, LspProject> projects = new HashMap<>();
   private static final Set<String> registeredDefinitions = new HashSet<>();
 
-  private PhpServer() {}
+  private HtmlServer() {}
 
-  public static boolean isPhpFile(String filePath) {
+  public static boolean isHtmlFile(String filePath) {
     return SUPPORTED_EXTENSIONS.contains(extensionOf(filePath));
   }
 
@@ -57,7 +62,7 @@ public class PhpServer {
     return filePath.substring(dot + 1).toLowerCase(Locale.ROOT);
   }
 
-  /** مسیر باینری intelephense رو داخل rootfs پیدا می کنه؛ اگه نبود null. */
+  /** مسیر باینری language server رو داخل rootfs پیدا می‌کنه؛ اگه نبود null. */
   public static String findInstalledExecutable(Context context) {
     File rootfs = DebianBootstrap.getRootfsDir(context);
     if (rootfs == null || !rootfs.exists()) {
@@ -76,9 +81,9 @@ public class PhpServer {
     return findInstalledExecutable(context) != null;
   }
 
-  /** همون ریسکِ همیشگیِ constructor که در بقیه ی سرورها گفتم، اینجا هم صدق می کنه. */
   private static LanguageServerDefinition createDefinition(
       Context context, String executablePath, String ext) {
+    // سرور HTML برای اجرای stdio نیاز به آرگومان --stdio داره
     List<String> args = Arrays.asList("--stdio");
     return new CustomLanguageServerDefinition(
         ext,
@@ -108,15 +113,17 @@ public class PhpServer {
   }
 
   /**
-   * فایل PHP باز شده رو به intelephense وصل می کنه. حتما توی ترد جدا صدا بزن.
+   * فایل HTML باز شده رو به language server وصل می‌کنه. حتماً توی ترد جدا صدا بزن.
    *
-   * @return LspEditor ساخته شده، یا null اگه سرور نصب نباشه
+   * @return LspEditor ساخته شده (برای disconnectFile نگهش دار)، یا null اگه سرور نصب نباشه
    */
   public static LspEditor connectFile(
       Context context, String projectRoot, String filePath, CodeEditor editor) {
     String executablePath = findInstalledExecutable(context);
     if (executablePath == null) {
-      Log.e(TAG, "intelephense نصب نیست. داخل ترمینال proot اجرا کن: npm install -g intelephense");
+      Log.e(
+          TAG,
+          "vscode-html-language-server نصب نیست. داخل ترمینال proot اجرا کن: npm install -g vscode-langservers-extracted");
       return null;
     }
 
@@ -132,7 +139,7 @@ public class PhpServer {
             () -> {
               try {
                 LspEditor e = project.createEditor(filePath);
-                var html = new PhpLanguage(context);
+                var html = new HtmlLanguage(context, filePath);
                 e.setWrapperLanguage(html);
                 e.setEditor(editor);
                 var lang = (LspLanguage) editor.getEditorLanguage();
@@ -156,9 +163,21 @@ public class PhpServer {
     try {
       lspEditor.connectWithTimeoutBlocking();
     } catch (Exception e) {
-      Log.e(TAG, "اتصال به intelephense ناموفق بود", e);
+      Log.e(TAG, "اتصال به vscode-html-language-server ناموفق بود", e);
     }
 
     return lspEditor;
+  }
+
+  /** موقع بستن تب/فایل صدا بزن. */
+  public static void disconnectFile(LspEditor lspEditor) {
+    if (lspEditor == null) {
+      return;
+    }
+    try {
+      lspEditor.dispose();
+    } catch (Exception e) {
+      Log.e(TAG, "بستن اتصال lsp با خطا مواجه شد", e);
+    }
   }
 }

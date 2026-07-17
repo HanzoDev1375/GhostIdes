@@ -18,18 +18,22 @@ import io.github.rosemoe.sora.widget.CodeEditor;
 
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
 import ir.hanzodev1375.ghostide.codeeditors.langs.python3.Python3Language;
+import java.util.concurrent.CountDownLatch;
+import android.os.Handler;
+import android.os.Looper;
+import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
+import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 
 /**
  * اتصال Language Server پایتون (pylsp / python-lsp-server) که داخل rootfsِ proot اجرا می شه.
  * ترنسپورت stdio از همون ProotStdioConnectionProvider موجود در پروژه استفاده می کنه، هیچ فرآیند
  * proot جدیدی خارج از اون کلاس ساخته نمی شه.
  *
- * قبل از استفاده باید داخل ترمینال (rootfs proot) نصب بشه:
- *   pip install python-lsp-server
- * جزئیات کامل و عیب یابی داخل PYTHON_LSP_SETUP.md هست، حتما بخون.
+ * <p>قبل از استفاده باید داخل ترمینال (rootfs proot) نصب بشه: pip install python-lsp-server جزئیات
+ * کامل و عیب یابی داخل PYTHON_LSP_SETUP.md هست، حتما بخون.
  *
- * نکته ی مهم: متد connectFile عملیات I/O سنگین (اجرای proot + هندشیک LSP) انجام می ده،
- * پس هرگز روی UI thread صداش نزن؛ توی یک Thread/Executor جدا اجرا کن.
+ * <p>نکته ی مهم: متد connectFile عملیات I/O سنگین (اجرای proot + هندشیک LSP) انجام می ده، پس هرگز
+ * روی UI thread صداش نزن؛ توی یک Thread/Executor جدا اجرا کن.
  */
 public class PylspServer {
 
@@ -67,13 +71,14 @@ public class PylspServer {
   }
 
   /**
-   * تعریف زبان سرور رو می سازه. اگه اسم/امضای CustomLanguageServerDefinition توی کتابخونه ی
-   * فعلیت با اینجا فرق داشت (احتمالش کمه ولی چون به AAR کامپایل شده دسترسی مستقیم نداشتم)،
-   * روی این متد Ctrl+کلیک بزن توی اندروید استودیو و پارامترها رو match کن؛ همه ی ریسکِ کامپایل
-   * این پروژه فقط همینجاست.
+   * تعریف زبان سرور رو می سازه. اگه اسم/امضای CustomLanguageServerDefinition توی کتابخونه ی فعلیت
+   * با اینجا فرق داشت (احتمالش کمه ولی چون به AAR کامپایل شده دسترسی مستقیم نداشتم)، روی این متد
+   * Ctrl+کلیک بزن توی اندروید استودیو و پارامترها رو match کن؛ همه ی ریسکِ کامپایل این پروژه فقط
+   * همینجاست.
    */
   private static LanguageServerDefinition createDefinition(Context context, String executablePath) {
-    List<String> noArgs = Collections.emptyList(); // pylsp پیش فرض از stdio سرو می کنه، آرگومان اضافه لازم نیست
+    List<String> noArgs =
+        Collections.emptyList(); // pylsp پیش فرض از stdio سرو می کنه، آرگومان اضافه لازم نیست
     return new CustomLanguageServerDefinition(
         "py",
         workingDir -> new ProotStdioConnectionProvider(context, workingDir, executablePath, noArgs),
@@ -101,23 +106,42 @@ public class PylspServer {
    * @param projectRoot ریشه ی پروژه روی خودِ دستگاه (همون پوشه ای که در GhostIDE بازه)
    * @param filePath مسیر کامل فایل .py روی دستگاه (نه مسیر داخل proot)
    * @param editor ویجت CodeEditor که فایل توش باز شده
-   * @return LspEditor ساخته شده (برای disconnectFile موقع بستن تب نگهش دار)، یا null اگه pylsp نصب نباشه
+   * @return LspEditor ساخته شده (برای disconnectFile موقع بستن تب نگهش دار)، یا null اگه pylsp نصب
+   *     نباشه
    */
   public static LspEditor connectFile(
       Context context, String projectRoot, String filePath, CodeEditor editor) {
     String executablePath = findInstalledExecutable(context);
     if (executablePath == null) {
-      Log.e(
-          TAG,
-          "pylsp نصب نیست. داخل ترمینال proot اجرا کن: pip install python-lsp-server");
+      Log.e(TAG, "pylsp نصب نیست. داخل ترمینال proot اجرا کن: pip install python-lsp-server");
       return null;
     }
 
     LspProject project = getOrCreateProject(context, projectRoot, executablePath);
     LspEditor lspEditor = project.createEditor(filePath);
-    lspEditor.setWrapperLanguage(new Python3Language(context));
-    lspEditor.setEditor(editor);
+    final LspEditor[] holder = new LspEditor[1];
+    final CountDownLatch latch = new CountDownLatch(1);
 
+    new Handler(Looper.getMainLooper())
+        .post(
+            () -> {
+              try {
+                LspEditor e = project.createEditor(filePath);
+                var py = new Python3Language(context);
+                e.setWrapperLanguage(py);
+                e.setEditor(editor);
+                var lang = (LspLanguage) editor.getEditorLanguage();
+                lang.setFormatter(py.getFormatter());
+                holder[0] = e;
+              } finally {
+                latch.countDown();
+              }
+            });
+
+    try {
+      latch.await();
+    } catch (InterruptedException ignored) {
+    }
     try {
       lspEditor.connectWithTimeoutBlocking();
     } catch (Exception e) {
@@ -128,9 +152,9 @@ public class PylspServer {
   }
 
   /**
-   * موقع بستن تب/فایل صدا بزن تا اتصال lsp این فایل بسته بشه. اسم دقیق متد آزادسازی
-   * (dispose) رو مطمئن نیستم؛ اگه کامپایل نشد این خط رو موقتا کامنت کن، بقیه ی کد کار می کنه
-   * (فقط پروسه سروری تا بسته شدن پروژه زنده می مونه، مشکل عملکردی نیست).
+   * موقع بستن تب/فایل صدا بزن تا اتصال lsp این فایل بسته بشه. اسم دقیق متد آزادسازی (dispose) رو
+   * مطمئن نیستم؛ اگه کامپایل نشد این خط رو موقتا کامنت کن، بقیه ی کد کار می کنه (فقط پروسه سروری تا
+   * بسته شدن پروژه زنده می مونه، مشکل عملکردی نیست).
    */
   public static void disconnectFile(LspEditor lspEditor) {
     if (lspEditor == null) {

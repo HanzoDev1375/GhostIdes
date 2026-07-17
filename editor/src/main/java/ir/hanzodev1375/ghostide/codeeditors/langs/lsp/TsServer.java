@@ -20,19 +20,22 @@ import io.github.rosemoe.sora.widget.CodeEditor;
 
 import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
+import java.util.concurrent.CountDownLatch;
+import android.os.Handler;
+import android.os.Looper;
+import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 
 /**
  * اتصال Language Server جاوااسکریپت. دیگه از typescript-language-server استفاده نمی کنه چون
- * TypeScript 7 (که npm الان به صورت پیش فرض نصب می کنه) کامپایلرش رو با Go بازنویسی کرده و
- * دیگه tsserver.js قدیمی رو نداره؛ typescript-language-server هنوز باهاش سازگار نشده.
+ * TypeScript 7 (که npm الان به صورت پیش فرض نصب می کنه) کامپایلرش رو با Go بازنویسی کرده و دیگه
+ * tsserver.js قدیمی رو نداره؛ typescript-language-server هنوز باهاش سازگار نشده.
  *
- * به جاش مستقیم از حالت LSP بومیِ خودِ tsc استفاده می کنیم: «tsc --lsp -stdio». نیازی به
- * پکیج جدا (typescript-language-server) نیست، فقط خودِ typescript کافیه.
+ * <p>به جاش مستقیم از حالت LSP بومیِ خودِ tsc استفاده می کنیم: «tsc --lsp -stdio». نیازی به پکیج
+ * جدا (typescript-language-server) نیست، فقط خودِ typescript کافیه.
  *
- * نصب داخل ترمینال proot (نیاز به Node.js داره):
- *   npm install -g typescript
+ * <p>نصب داخل ترمینال proot (نیاز به Node.js داره): npm install -g typescript
  *
- * نکته: connectFile عملیات I/O سنگین انجام می ده، حتما توی ترد جدا صداش بزن.
+ * <p>نکته: connectFile عملیات I/O سنگین انجام می ده، حتما توی ترد جدا صداش بزن.
  */
 public class TsServer {
 
@@ -43,9 +46,7 @@ public class TsServer {
       new HashSet<>(Arrays.asList("js", "mjs", "cjs", "jsx"));
 
   // بسته به اینکه npm prefix تو rootfs چیه، معمولا یکی از این هاست (npm root -g رو چک کن).
-  private static final String[] CANDIDATE_PATHS = {
-    "/usr/bin/tsc", "/usr/local/bin/tsc"
-  };
+  private static final String[] CANDIDATE_PATHS = {"/usr/bin/tsc", "/usr/local/bin/tsc"};
 
   private static final Map<String, LspProject> projects = new HashMap<>();
   private static final Set<String> registeredDefinitions = new HashSet<>();
@@ -130,23 +131,25 @@ public class TsServer {
     LspProject project = getOrCreateProject(projectRoot);
     ensureDefinitionRegistered(project, context, executablePath, projectRoot, ext);
 
-    // ساخت LspEditor و ست کردن wrapperLanguage/editor روی خودِ CodeEditor (یه View) هست،
-    // باید حتما روی UI thread انجام بشه وگرنه بی صدا اثر نمی کنه یا کرش می ده. چون connectFile
-    // از یه ترد جدا صدا زده می شه، این بخش رو با Handler به UI thread پاس می دیم و منتظر می مونیم.
     final LspEditor[] holder = new LspEditor[1];
-    final java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
-    new android.os.Handler(android.os.Looper.getMainLooper())
+    final CountDownLatch latch = new CountDownLatch(1);
+
+    new Handler(Looper.getMainLooper())
         .post(
             () -> {
               try {
                 LspEditor e = project.createEditor(filePath);
-                e.setWrapperLanguage(new JsLanguage(context, filePath));
+                var js = new JsLanguage(context, filePath);
+                e.setWrapperLanguage(js);
                 e.setEditor(editor);
+                var lang = (LspLanguage) editor.getEditorLanguage();
+                lang.setFormatter(js.getFormatter());
                 holder[0] = e;
               } finally {
                 latch.countDown();
               }
             });
+
     try {
       latch.await();
     } catch (InterruptedException ignored) {
@@ -155,7 +158,6 @@ public class TsServer {
     if (lspEditor == null) {
       return null;
     }
-
     try {
       lspEditor.connectWithTimeoutBlocking();
     } catch (Exception e) {

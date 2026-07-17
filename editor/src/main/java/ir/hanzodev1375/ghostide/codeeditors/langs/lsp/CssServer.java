@@ -1,8 +1,10 @@
 package ir.hanzodev1375.ghostide.codeeditors.langs.lsp;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
-
+import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,42 +13,43 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition;
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.LanguageServerDefinition;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import io.github.rosemoe.sora.lsp.editor.LspProject;
 import io.github.rosemoe.sora.widget.CodeEditor;
-
-import ir.hanzodev1375.ghostide.codeeditors.langs.php.PhpLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
-import java.util.concurrent.CountDownLatch;
-import android.os.Handler;
-import android.os.Looper;
-import io.github.rosemoe.sora.lsp.editor.LspLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.css.CssLanguage;
 
 /**
- * curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - apt install -y nodejs node -v npm
- * cache clean --force npm install -g intelephense
+ * اتصال Language Server سی اس اس. از vscode-css-language-server (موجود در پکیج
+ * vscode-langservers-extracted) استفاده می کنه که موتور هوشمند و فرمت کننده CSS مربوط به VSCode
+ * هست.
+ *
+ * <p>نصب داخل ترمینال proot (نیاز به Node.js داره): npm install -g vscode-langservers-extracted
+ *
+ * <p>نکته: عملیات connectFile سنگین هست و حتماً باید توی ترد جدا صدا زده بشه.
  */
-public class PhpServer {
+public class CssServer {
+  private static final String TAG = "CssServer";
+  private static final String SERVER_NAME = "vscode-css-language-server";
 
-  private static final String TAG = "PhpServer";
-  private static final String SERVER_NAME = "intelephense";
-
-  private static final Set<String> SUPPORTED_EXTENSIONS =
-      new HashSet<>(Arrays.asList("php", "php5", "phtml"));
-
+  private static final Set<String> SUPPORTED_EXTENSIONS = new HashSet<>(Arrays.asList("css"));
   private static final String[] CANDIDATE_PATHS = {
-    "/usr/local/bin/intelephense", "/usr/bin/intelephense"
+    "/usr/bin/vscode-css-language-server",
+    "/usr/local/bin/vscode-css-language-server",
+    "/usr/bin/css-languageserver",
+    "/usr/local/bin/css-languageserver"
   };
 
   private static final Map<String, LspProject> projects = new HashMap<>();
   private static final Set<String> registeredDefinitions = new HashSet<>();
 
-  private PhpServer() {}
+  private CssServer() {}
 
-  public static boolean isPhpFile(String filePath) {
+  public static boolean isCssFile(String filePath) {
     return SUPPORTED_EXTENSIONS.contains(extensionOf(filePath));
   }
 
@@ -57,7 +60,7 @@ public class PhpServer {
     return filePath.substring(dot + 1).toLowerCase(Locale.ROOT);
   }
 
-  /** مسیر باینری intelephense رو داخل rootfs پیدا می کنه؛ اگه نبود null. */
+  /** مسیر باینری language server رو داخل rootfs پیدا می کنه؛ اگه نبود null. */
   public static String findInstalledExecutable(Context context) {
     File rootfs = DebianBootstrap.getRootfsDir(context);
     if (rootfs == null || !rootfs.exists()) {
@@ -76,7 +79,6 @@ public class PhpServer {
     return findInstalledExecutable(context) != null;
   }
 
-  /** همون ریسکِ همیشگیِ constructor که در بقیه ی سرورها گفتم، اینجا هم صدق می کنه. */
   private static LanguageServerDefinition createDefinition(
       Context context, String executablePath, String ext) {
     List<String> args = Arrays.asList("--stdio");
@@ -84,9 +86,8 @@ public class PhpServer {
         ext,
         workingDir -> new ProotStdioConnectionProvider(context, workingDir, executablePath, args),
         SERVER_NAME,
-        null, // extensionsOverride
-        null // expectedCapabilitiesOverride
-        );
+        null,
+        null);
   }
 
   private static synchronized LspProject getOrCreateProject(String projectRoot) {
@@ -108,15 +109,18 @@ public class PhpServer {
   }
 
   /**
-   * فایل PHP باز شده رو به intelephense وصل می کنه. حتما توی ترد جدا صدا بزن.
+   * فایل CSS باز شده رو به language server وصل می کنه. حتماً توی ترد جدا صدا بزن.
    *
    * @return LspEditor ساخته شده، یا null اگه سرور نصب نباشه
    */
   public static LspEditor connectFile(
       Context context, String projectRoot, String filePath, CodeEditor editor) {
+
     String executablePath = findInstalledExecutable(context);
     if (executablePath == null) {
-      Log.e(TAG, "intelephense نصب نیست. داخل ترمینال proot اجرا کن: npm install -g intelephense");
+      Log.e(
+          TAG,
+          "vscode-css-language-server نصب نیست. دستور: npm install -g vscode-langservers-extracted");
       return null;
     }
 
@@ -132,11 +136,11 @@ public class PhpServer {
             () -> {
               try {
                 LspEditor e = project.createEditor(filePath);
-                var html = new PhpLanguage(context);
-                e.setWrapperLanguage(html);
+                var css = new CssLanguage(context,filePath);
+                e.setWrapperLanguage(css);
                 e.setEditor(editor);
                 var lang = (LspLanguage) editor.getEditorLanguage();
-                lang.setFormatter(html.getFormatter());
+                lang.setFormatter(css.getFormatter());
                 holder[0] = e;
               } finally {
                 latch.countDown();
@@ -149,16 +153,22 @@ public class PhpServer {
     }
 
     LspEditor lspEditor = holder[0];
-    if (lspEditor == null) {
-      return null;
-    }
+    if (lspEditor == null) return null;
 
     try {
       lspEditor.connectWithTimeoutBlocking();
     } catch (Exception e) {
-      Log.e(TAG, "اتصال به intelephense ناموفق بود", e);
+      Log.e(TAG, "اتصال به vscode-css-language-server ناموفق بود", e);
     }
-
     return lspEditor;
+  }
+
+  public static void disconnectFile(LspEditor lspEditor) {
+    if (lspEditor == null) return;
+    try {
+      lspEditor.dispose();
+    } catch (Exception e) {
+      Log.e(TAG, "بستن اتصال lsp css با خطا مواجه شد", e);
+    }
   }
 }
