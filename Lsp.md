@@ -61,3 +61,13 @@ npm install -g typescript
 npm install -g vscode-langservers-extracted
 
 ```
+
+#Go Lsp 
+
+```bash
+apt update && apt install -y golang-go
+
+
+go install golang.org/x/tools/gopls@v0.14.2
+
+```

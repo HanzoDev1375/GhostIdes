@@ -5,6 +5,7 @@
  */
 package ir.hanzodev1375.ghostide.codeeditors.langs.go;
 
+import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +20,7 @@ import io.github.rosemoe.sora.lang.completion.SimpleSnippetCompletionItem;
 import io.github.rosemoe.sora.lang.completion.SnippetDescription;
 import io.github.rosemoe.sora.lang.completion.snippet.CodeSnippet;
 import io.github.rosemoe.sora.lang.completion.snippet.parser.CodeSnippetParser;
+import io.github.rosemoe.sora.lang.format.AsyncFormatter;
 import io.github.rosemoe.sora.lang.format.Formatter;
 import io.github.rosemoe.sora.lang.smartEnter.NewlineHandleResult;
 import io.github.rosemoe.sora.lang.smartEnter.NewlineHandler;
@@ -27,6 +29,7 @@ import io.github.rosemoe.sora.lang.styling.StylesUtils;
 import io.github.rosemoe.sora.text.CharPosition;
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentReference;
+import io.github.rosemoe.sora.text.TextRange;
 import io.github.rosemoe.sora.text.TextUtils;
 import io.github.rosemoe.sora.util.MyCharacter;
 import io.github.rosemoe.sora.widget.SymbolPairMatch;
@@ -53,7 +56,7 @@ public class GoLanguage implements Language {
 
   private static final CodeSnippet DEFER_SNIPPET =
       CodeSnippetParser.parse("defer ${1:func}(${2:args})$0");
-
+  private Context editor;
   private static final String[] KEYWORDS = {
     "break",
     "case",
@@ -91,10 +94,41 @@ public class GoLanguage implements Language {
 
   private final GoQuoteHandler quoteHandler = new GoQuoteHandler();
 
-  public GoLanguage() {
+  public GoLanguage(Context editor) {
+    this.editor = editor;
     autoComplete = new IdentifierAutoComplete(KEYWORDS);
     manager = new GoIncrementalAnalyzeManager();
   }
+
+  private final Formatter formatter =
+      new AsyncFormatter() {
+        @Nullable
+        @Override
+        public TextRange formatAsync(@NonNull Content text, @NonNull TextRange cursorRange) {
+          GoCodeFormatter formatted = new GoCodeFormatter();
+          String formatResult = formatted.formatGo(editor, text.toString());
+
+          if (!text.toString().equals(formatResult)) {
+            int oldCursor = cursorRange.getStartIndex();
+            text.delete(0, text.length());
+            text.insert(0, 0, formatResult);
+            int newCursor = Math.min(oldCursor, formatResult.length());
+            CharPosition pos = text.getIndexer().getCharPosition(newCursor);
+            return new TextRange(pos, pos);
+          }
+
+          return cursorRange;
+        }
+
+        @Nullable
+        @Override
+        public TextRange formatRegionAsync(
+            @NonNull Content text,
+            @NonNull TextRange rangeToFormat,
+            @NonNull TextRange cursorRange) {
+          return null;
+        }
+      };
 
   @NonNull
   @Override
@@ -201,7 +235,7 @@ public class GoLanguage implements Language {
   @NonNull
   @Override
   public Formatter getFormatter() {
-    return EmptyLanguage.EmptyFormatter.INSTANCE;
+    return formatter;
   }
 
   @Override

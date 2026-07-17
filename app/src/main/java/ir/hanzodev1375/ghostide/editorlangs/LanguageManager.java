@@ -63,7 +63,7 @@ public final class LanguageManager {
     register((c, p) -> new MarkdownLanguage(), "md", "markdown");
     register((c, p) -> new YamlLanguage(), "yml", "yaml");
     register((c, p) -> new LuaLanguage(), "lua");
-    register((c, p) -> new GoLanguage(), "go");
+    register((c, p) -> new GoLanguage(c), "go");
     register((c, p) -> new PhpLanguage(c), "php");
     register((c, p) -> new DartLanguage(), "dart");
     register((c, p) -> new TsxLanguage(), "tsx", "jsx");

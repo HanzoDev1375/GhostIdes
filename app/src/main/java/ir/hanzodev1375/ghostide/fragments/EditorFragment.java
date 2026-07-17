@@ -21,6 +21,7 @@ import io.github.rosemoe.sora.lang.Language;
 import ir.hanzodev1375.ghostide.activity.EditorActivity;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.ClangdServer;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.CssServer;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.GoServer;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.HtmlServer;
 import ir.hanzodev1375.ghostide.editorlangs.LanguageManager;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
@@ -149,7 +150,8 @@ public class EditorFragment extends Fragment {
     boolean isPhp = filePath != null && PhpServer.isPhpFile(filePath);
     boolean isHtml = filePath != null && HtmlServer.isHtmlFile(filePath);
     boolean isCss = filePath != null && CssServer.isCssFile(filePath);
-    if (isPython || isCpp || isJs || isPhp || isHtml || isCss) {
+    boolean isGo = filePath != null && GoServer.isGoFile(filePath);
+    if (isPython || isCpp || isJs || isPhp || isHtml || isCss || isGo) {
       final String targetFilePath = filePath;
       final Context appContext = getContext() != null ? getContext().getApplicationContext() : null;
       final IdeEditor targetEditor = editor;
@@ -184,6 +186,9 @@ public class EditorFragment extends Fragment {
                     lspEditor =
                         CssServer.connectFile(
                             appContext, projectRoot, targetFilePath, targetEditor);
+                  } else if (isGo) {
+                    lspEditor =
+                        GoServer.connectFile(appContext, projectRoot, targetFilePath, targetEditor);
                   } else {
                     Log.w("Tag", "Server not found");
                   }

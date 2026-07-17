@@ -4,16 +4,12 @@ import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import io.github.rosemoe.sora.lang.EmptyLanguage;
 import io.github.rosemoe.sora.lang.Language;
 import io.github.rosemoe.sora.lang.QuickQuoteHandler;
 import io.github.rosemoe.sora.lang.analysis.AnalyzeManager;
 import io.github.rosemoe.sora.lang.completion.CompletionHelper;
 import io.github.rosemoe.sora.lang.completion.CompletionPublisher;
 import io.github.rosemoe.sora.lang.completion.IdentifierAutoComplete;
-import io.github.rosemoe.sora.lang.completion.snippet.CodeSnippet;
-import io.github.rosemoe.sora.lang.completion.snippet.parser.CodeSnippetParser;
-import io.github.rosemoe.sora.lang.completion.SnippetDescription;
 import io.github.rosemoe.sora.lang.format.AsyncFormatter;
 import io.github.rosemoe.sora.lang.format.Formatter;
 import io.github.rosemoe.sora.lang.smartEnter.NewlineHandler;
@@ -26,19 +22,11 @@ import io.github.rosemoe.sora.text.TextRange;
 import io.github.rosemoe.sora.text.TextUtils;
 import io.github.rosemoe.sora.widget.SymbolPairMatch;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.CharParser;
-import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.SnippetCompletionItem;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.PrettierFormatter;
-import ir.hanzodev1375.ghostide.codeeditors.langs.html.CssHelper;
-import ir.hanzodev1375.ghostide.codeeditors.langs.html.CssCompletionItem;
 import ir.hanzodev1375.ghostide.codeeditors.langs.html.HTMLAnalyzer;
 import ir.hanzodev1375.ghostide.codeeditors.langs.html.HTMLLexer;
-import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlHelper;
-import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.Css3Server;
-import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.PathCompleter;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.List;
-import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.CustomCompletionItem;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
 import io.github.rosemoe.sora.lang.smartEnter.NewlineHandleResult;
@@ -117,19 +105,7 @@ public class CssLanguage implements Language {
     String prefix = CompletionHelper.computePrefix(content, position, CharParser::parserHtml);
     autoComplete.requireAutoComplete(
         content, position, prefix, publisher, analyzer.getSyncIdentifiers());
-    for (CssCompletionItem item : CssHelper.getPropertyItemsByPrefix(prefix)) {
-      publisher.addItem(item);
-    }
-
-    Css3Server cssServer = new Css3Server(context);
-    List<CustomCompletionItem> cssItems = cssServer.getCompletions(prefix);
-    for (CustomCompletionItem item : cssItems) {
-      publisher.addItem(item);
-    }
-
-    for (CustomCompletionItem item : HtmlHelper.getNormalTag(prefix)) {
-      publisher.addItem(item);
-    }
+    
     return;
   }
 
