@@ -114,7 +114,8 @@ public class ProotStdioConnectionProvider implements StreamConnectionProvider {
     pb.environment()
         .put("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/system/bin");
     pb.environment().put("HOME", "/root");
-
+    pb.environment().put("LANG", "C.UTF-8");
+    pb.environment().put("LC_ALL", "C.UTF-8");
     process = pb.start();
     closed = false;
 

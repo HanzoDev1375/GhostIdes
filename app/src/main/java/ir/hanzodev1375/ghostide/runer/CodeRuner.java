@@ -10,6 +10,7 @@ import ir.hanzodev1375.ghostide.terminal.sheet.TerminalBottomSheetFragment;
 import java.io.File;
 
 public class CodeRuner {
+
   private Context context;
 
   public CodeRuner(Context context) {
@@ -36,7 +37,7 @@ public class CodeRuner {
     context.startActivity(i);
   }
 
-   void runInBottomSheet(String command) {
+  void runInBottomSheet(String command) {
     FragmentManager fm = resolveFragmentManager();
     if (fm == null) {
       runInActivity(command);
@@ -74,9 +75,13 @@ public class CodeRuner {
       return lua(path);
     } else if (path.endsWith(".java")) {
       return java(path);
+    } else if (path.endsWith(".scss") || path.endsWith(".sass")) {
+      return sass(path);
     }
     return null;
   }
+
+  // ==================== زبان‌های قبلی ====================
 
   private String python(String path) {
     return "clear; if ! command -v python3 >/dev/null 2>&1; then apt update && apt install python3 -y; fi; python3 "
@@ -154,8 +159,36 @@ public class CodeRuner {
 
     return "clear; "
         + "if ! command -v javac >/dev/null 2>&1; then apt update && apt install default-jdk -y; fi; "
-        + "java \""
+        + "javac \""
         + path
-        + "\"";
+        + "\" && java "
+        + className;
+  }
+
+  private String sass(String path) {
+    String fileName = new File(path).getName();
+    String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
+    String ext = path.endsWith(".scss") ? "scss" : "sass";
+    String outputCss = baseName + ".css";
+    String dir = new File(path).getParent();
+    if (dir == null) dir = ".";
+
+    return "clear; "
+        + "echo '=== Compiling Sass to CSS ==='; "
+        + "if ! command -v sass >/dev/null 2>&1; then "
+        + "  echo 'Sass not found. Installing...'; "
+        + "  apt update && apt install nodejs npm -y && npm install -g sass; "
+        + "fi; "
+        + "sass \"" + path + "\" \"" + dir + "/" + outputCss + "\" --style=expanded --no-source-map; "
+        + "if [ $? -eq 0 ]; then "
+        + "  echo ''; "
+        + "  echo '✅ Compilation successful!'; "
+        + "  echo '📄 Output: " + outputCss + "'; "
+        + "  echo ''; "
+        + "  echo '--- Generated CSS ---'; "
+        + "  cat \"" + dir + "/" + outputCss + "\"; "
+        + "else "
+        + "  echo '❌ Compilation failed!'; "
+        + "fi";
   }
 }

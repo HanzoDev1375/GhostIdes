@@ -118,7 +118,6 @@ public class PylspServer {
     }
 
     LspProject project = getOrCreateProject(context, projectRoot, executablePath);
-    LspEditor lspEditor = project.createEditor(filePath);
     final LspEditor[] holder = new LspEditor[1];
     final CountDownLatch latch = new CountDownLatch(1);
 
@@ -141,13 +140,17 @@ public class PylspServer {
     try {
       latch.await();
     } catch (InterruptedException ignored) {
-    }
-    try {
-      lspEditor.connectWithTimeoutBlocking();
-    } catch (Exception e) {
-      Log.e(TAG, "اتصال به pylsp ناموفق بود", e);
+      Thread.currentThread().interrupt();
     }
 
+    LspEditor lspEditor = holder[0];
+    if (lspEditor != null) {
+      try {
+        lspEditor.connectWithTimeoutBlocking();
+      } catch (Exception e) {
+        Log.e(TAG, "اتصال به pylsp ناموفق بود", e);
+      }
+    }
     return lspEditor;
   }
 

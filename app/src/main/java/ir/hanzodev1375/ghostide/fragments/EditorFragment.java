@@ -19,15 +19,9 @@ import io.github.rosemoe.sora.event.SelectionChangeEvent;
 import io.github.rosemoe.sora.event.EditorFocusChangeEvent;
 import io.github.rosemoe.sora.lang.Language;
 import ir.hanzodev1375.ghostide.activity.EditorActivity;
-import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.ClangdServer;
-import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.CssServer;
-import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.GoServer;
-import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.HtmlServer;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.LspRouter;
 import ir.hanzodev1375.ghostide.editorlangs.LanguageManager;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
-import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.PylspServer;
-import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.TsServer;
-import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.PhpServer;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
@@ -42,7 +36,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
-import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -142,16 +135,11 @@ public class EditorFragment extends Fragment {
         viewModel.loadFile(filePath);
       }
     }
+
     Language lang = LanguageManager.resolve(getContext(), filePath);
     if (lang != null) editor.setEditorLanguage(lang);
-    boolean isPython = filePath != null && filePath.toLowerCase(Locale.ROOT).endsWith(".py");
-    boolean isCpp = filePath != null && ClangdServer.isCppFile(filePath);
-    boolean isJs = filePath != null && TsServer.isJsFile(filePath);
-    boolean isPhp = filePath != null && PhpServer.isPhpFile(filePath);
-    boolean isHtml = filePath != null && HtmlServer.isHtmlFile(filePath);
-    boolean isCss = filePath != null && CssServer.isCssFile(filePath);
-    boolean isGo = filePath != null && GoServer.isGoFile(filePath);
-    if (isPython || isCpp || isJs || isPhp || isHtml || isCss || isGo) {
+
+    if (LspRouter.isSupportedFile(filePath)) {
       final String targetFilePath = filePath;
       final Context appContext = getContext() != null ? getContext().getApplicationContext() : null;
       final IdeEditor targetEditor = editor;
@@ -163,39 +151,19 @@ public class EditorFragment extends Fragment {
                       targetFile.getParent() != null
                           ? targetFile.getParent()
                           : targetFile.getAbsolutePath();
-                  if (isPython) {
-                    lspEditor =
-                        PylspServer.connectFile(
-                            appContext, projectRoot, targetFilePath, targetEditor);
-                  } else if (isCpp) {
-                    lspEditor =
-                        ClangdServer.connectFile(
-                            appContext, projectRoot, targetFilePath, targetEditor);
-                  } else if (isJs) {
-                    lspEditor =
-                        TsServer.connectFile(appContext, projectRoot, targetFilePath, targetEditor);
-                  } else if (isHtml) {
-                    lspEditor =
-                        HtmlServer.connectFile(
-                            appContext, projectRoot, targetFilePath, targetEditor);
-                  } else if (isPhp) {
-                    lspEditor =
-                        PhpServer.connectFile(
-                            appContext, projectRoot, targetFilePath, targetEditor);
-                  } else if (isCss) {
-                    lspEditor =
-                        CssServer.connectFile(
-                            appContext, projectRoot, targetFilePath, targetEditor);
-                  } else if (isGo) {
-                    lspEditor =
-                        GoServer.connectFile(appContext, projectRoot, targetFilePath, targetEditor);
-                  } else {
-                    Log.w("Tag", "Server not found");
+                  lspEditor =
+                      LspRouter.connectFile(appContext, projectRoot, targetFilePath, targetEditor);
+                  targetEditor.setLspEditor(lspEditor);
+                  if (lspEditor != null) {
+                    lspEditor.setEnableInlayHint(true);
+                    lspEditor.setEnableHover(true);
+                    lspEditor.setEnableSignatureHelp(true);
                   }
                 })
             .start();
       }
     }
+
     GradientDrawable color = (GradientDrawable) binding.tvCursorPosition.getBackground().mutate();
     color.setColor(theme.getMenuColor());
     editor.subscribeEvent(
@@ -468,6 +436,9 @@ public class EditorFragment extends Fragment {
     if (lspEditor != null) {
       final LspEditor toClose = lspEditor;
       lspEditor = null;
+      if (editor != null) {
+        editor.setLspEditor(null);
+      }
       new Thread(
               () -> {
                 try {

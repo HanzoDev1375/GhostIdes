@@ -5,14 +5,17 @@ import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import com.eup.codeopsstudio.editor.langs.widget.component.CustomEditorTextActionWindow;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.event.ScrollEvent;
+import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion;
 import io.github.rosemoe.sora.widget.component.EditorTextActionWindow;
 import io.github.rosemoe.sora.widget.component.Magnifier;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorrender.WebColorIde;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.LspRouter;
 import ir.hanzodev1375.ghostide.codeeditors.preview.ImagePreviewIde;
 import ir.hanzodev1375.ghostide.codeeditors.preview.url.OnLinkClickEventListener;
 import ir.hanzodev1375.ghostide.codeeditors.preview.url.UrlPreviewIde;
@@ -24,6 +27,7 @@ import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorAutoCompletion;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorCompletionAdapter;
 import ir.hanzodev1375.ghostide.codeeditors.ui.power.PowerModeEffectManager;
 import ir.hanzodev1375.ghostide.codeeditors.ui.power.custom.CustomEffect;
+import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -39,6 +43,8 @@ public class IdeEditor extends CodeEditor
   private UrlPreviewIde urlPreviewIde;
   private StringResourceExtractorIde stringresourceextractoride;
   private XmlAttrPreviewIde xmlAttrPreviewIde;
+  private String currentFilePath;
+  private volatile LspEditor lspEditor;
 
   public IdeEditor(Context context) {
     super(context);
@@ -63,7 +69,7 @@ public class IdeEditor extends CodeEditor
     stringresourceextractoride.attach();
     xmlAttrPreviewIde = new XmlAttrPreviewIde(this);
     xmlAttrPreviewIde.attach();
-    
+
     editorAutoCompletion.setAdapter(new CustomEditorCompletionAdapter());
     replaceComponent(EditorAutoCompletion.class, editorAutoCompletion);
     replaceComponent(EditorTextActionWindow.class, new CustomEditorTextActionWindow(this));
@@ -128,11 +134,79 @@ public class IdeEditor extends CodeEditor
   }
 
   public void setCurrentFilePath(String htmlFilePath) {
+    this.currentFilePath = htmlFilePath;
     if (imagePreviewIde != null) {
       imagePreviewIde.setCurrentFilePath(htmlFilePath);
     }
     if (stringresourceextractoride != null) {
       stringresourceextractoride.setCurrentFilePath(htmlFilePath);
+    }
+  }
+
+  public String getCurrentFilePath() {
+    return currentFilePath;
+  }
+
+  /**
+   * چک سریع و بدون I/O سنگین که آیا برای فایل باز شده ی فعلی یک Language Server نصب شده یا نه (فقط
+   * وجود باینری سرور رو داخل rootfs نگاه می کنه). صدا زدنش روی UI thread امنه؛ برای تصمیم نشون
+   * دادن/قایم کردن دکمه های LSP توی CustomEditorTextActionWindow استفاده می شه.
+   */
+  public boolean isLspAvailableForCurrentFile() {
+    return currentFilePath != null && LspRouter.isInstalled(getContext(), currentFilePath);
+  }
+
+  public LspEditor getLspEditor() {
+    return lspEditor;
+  }
+
+  /**
+   * فرگمنت (EditorFragment) از قبل موقع باز شدن فایل به سرور LSP وصل می شه؛ این متد فقط همون
+   * LspEditor از قبل وصل شده رو به IdeEditor می ده تا CustomEditorTextActionWindow دوباره یک اتصال
+   * جدید نسازه. برخلاف disconnectLsp()، اینجا چیزی dispose نمی شه - فقط رفرنس ست/پاک می شه؛ مسئولیت
+   * dispose کردن اتصال هنوز دست خودِ فرگمنته (مثلا توی onDestroyView).
+   */
+  public void setLspEditor(LspEditor lspEditor) {
+    this.lspEditor = lspEditor;
+  }
+
+  /**
+   * اگه از قبل به سرور LSP وصل نشده، وصلش می کنه؛ اگه وصل بود همون اتصال قبلی رو برمی گردونه.
+   *
+   * <p>عملیات I/O سنگینه (اجرای proot + هندشیک LSP)، هرگز روی UI thread صداش نزن؛ از یک ترد پس
+   * زمینه (Thread/Executor) صدا بزن.
+   *
+   * <p>نکته: چون فرگمنت فقط مسیر فایل رو از setCurrentFilePath می ده و ریشه ی پروژه رو نمی دونیم،
+   * پوشه ی والدِ فایل به عنوان projectRoot استفاده می شه (برای clangd هم ایده آل ترین حالت نیست ولی
+   * طبق کامنت خودِ ClangdServer، پوشه ی فایل هم کار می کنه).
+   *
+   * @return LspEditor وصل شده، یا null اگه فایلی باز نباشه/سرور نصب نباشه/اتصال شکست بخوره
+   */
+  @WorkerThread
+  public LspEditor ensureLspConnected() {
+    if (lspEditor != null && lspEditor.isConnected()) {
+      return lspEditor;
+    }
+    if (currentFilePath == null) {
+      return null;
+    }
+    File file = new File(currentFilePath);
+    String projectRoot = file.getParent() != null ? file.getParent() : file.getAbsolutePath();
+    LspEditor connected = LspRouter.connectFile(getContext(), projectRoot, currentFilePath, this);
+    if (connected != null) {
+      lspEditor = connected;
+    }
+    return lspEditor;
+  }
+
+  /**
+   * موقع بسته شدن فایل/تب صدا بزن (اختیاری - چیزی اینجا خودکار صداش نمی زنه؛ اگه صدا زده نشه فقط
+   * پروسه ی سرور LSP تا بسته شدن کامل برنامه زنده می مونه، مشکل عملکردی نداره).
+   */
+  public void disconnectLsp() {
+    if (lspEditor != null) {
+      LspRouter.disconnectFile(lspEditor);
+      lspEditor = null;
     }
   }
 

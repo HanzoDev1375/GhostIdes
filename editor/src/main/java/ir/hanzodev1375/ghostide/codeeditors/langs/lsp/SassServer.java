@@ -2,7 +2,8 @@ package ir.hanzodev1375.ghostide.codeeditors.langs.lsp;
 
 import android.content.Context;
 import android.util.Log;
-
+import android.os.Handler;
+import android.os.Looper;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,49 +12,32 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
+import java.util.concurrent.CountDownLatch;
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition;
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.LanguageServerDefinition;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
+import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 import io.github.rosemoe.sora.lsp.editor.LspProject;
 import io.github.rosemoe.sora.widget.CodeEditor;
-
-import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
-import java.util.concurrent.CountDownLatch;
-import android.os.Handler;
-import android.os.Looper;
-import io.github.rosemoe.sora.lsp.editor.LspLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.sass.SassLanguage;
 
-/**
- * اتصال Language Server جاوااسکریپت. دیگه از typescript-language-server استفاده نمی کنه چون
- * TypeScript 7 (که npm الان به صورت پیش فرض نصب می کنه) کامپایلرش رو با Go بازنویسی کرده و دیگه
- * tsserver.js قدیمی رو نداره؛ typescript-language-server هنوز باهاش سازگار نشده.
- *
- * <p>به جاش مستقیم از حالت LSP بومیِ خودِ tsc استفاده می کنیم: «tsc --lsp -stdio». نیازی به پکیج
- * جدا (typescript-language-server) نیست، فقط خودِ typescript کافیه.
- *
- * <p>نصب داخل ترمینال proot (نیاز به Node.js داره): npm install -g typescript
- *
- * <p>نکته: connectFile عملیات I/O سنگین انجام می ده، حتما توی ترد جدا صداش بزن.
- */
-public class TsServer {
-
-  private static final String TAG = "TsServer";
-  private static final String SERVER_NAME = "tsc --lsp";
-
+public class SassServer {
+  private static final String TAG = "SassServer";
+  private static final String SERVER_NAME = "some-sass-language-server";
   private static final Set<String> SUPPORTED_EXTENSIONS =
-      new HashSet<>(Arrays.asList("js", "mjs", "cjs", "jsx","ts","tsx"));
+      new HashSet<>(Arrays.asList("scss", "sass"));
 
-  // بسته به اینکه npm prefix تو rootfs چیه، معمولا یکی از این هاست (npm root -g رو چک کن).
-  private static final String[] CANDIDATE_PATHS = {"/usr/bin/tsc", "/usr/local/bin/tsc"};
+  private static final String[] CANDIDATE_PATHS = {
+    "/usr/bin/some-sass-language-server", "/usr/local/bin/some-sass-language-server"
+  };
 
   private static final Map<String, LspProject> projects = new HashMap<>();
   private static final Set<String> registeredDefinitions = new HashSet<>();
 
-  private TsServer() {}
+  private SassServer() {}
 
-  public static boolean isJsFile(String filePath) {
+  public static boolean isSassFile(String filePath) {
     return SUPPORTED_EXTENSIONS.contains(extensionOf(filePath));
   }
 
@@ -64,17 +48,12 @@ public class TsServer {
     return filePath.substring(dot + 1).toLowerCase(Locale.ROOT);
   }
 
-  /** مسیر باینری tsc رو داخل rootfs پیدا می کنه؛ اگه نبود null. */
   public static String findInstalledExecutable(Context context) {
     File rootfs = DebianBootstrap.getRootfsDir(context);
-    if (rootfs == null || !rootfs.exists()) {
-      return null;
-    }
+    if (rootfs == null || !rootfs.exists()) return null;
     for (String candidate : CANDIDATE_PATHS) {
       File f = new File(rootfs, candidate.substring(1));
-      if (f.exists()) {
-        return candidate;
-      }
+      if (f.exists()) return candidate;
     }
     return null;
   }
@@ -83,17 +62,15 @@ public class TsServer {
     return findInstalledExecutable(context) != null;
   }
 
-  /** همون نکته ی ریسکِ constructor که در PylspServer/ClangdServer گفتم، اینجا هم صدق می کنه. */
   private static LanguageServerDefinition createDefinition(
       Context context, String executablePath, String ext) {
-    List<String> args = Arrays.asList("--lsp", "-stdio");
+    List<String> args = Arrays.asList("--stdio");
     return new CustomLanguageServerDefinition(
         ext,
         workingDir -> new ProotStdioConnectionProvider(context, workingDir, executablePath, args),
         SERVER_NAME,
-        null, // extensionsOverride
-        null // expectedCapabilitiesOverride
-        );
+        null,
+        null);
   }
 
   private static synchronized LspProject getOrCreateProject(String projectRoot) {
@@ -114,16 +91,11 @@ public class TsServer {
     }
   }
 
-  /**
-   * فایل JS باز شده رو به «tsc --lsp» وصل می کنه. حتما توی ترد جدا صدا بزن.
-   *
-   * @return LspEditor ساخته شده (برای disconnectFile نگهش دار)، یا null اگه tsc نصب نباشه
-   */
   public static LspEditor connectFile(
       Context context, String projectRoot, String filePath, CodeEditor editor) {
     String executablePath = findInstalledExecutable(context);
     if (executablePath == null) {
-      Log.e(TAG, "tsc نصب نیست. داخل ترمینال proot اجرا کن: npm install -g typescript");
+      Log.e(TAG, "some-sass-language-server not installed");
       return null;
     }
 
@@ -139,11 +111,10 @@ public class TsServer {
             () -> {
               try {
                 LspEditor e = project.createEditor(filePath);
-                var js = new JsLanguage(context, filePath);
-                e.setWrapperLanguage(js);
+                SassLanguage sass = new SassLanguage(context);
+                e.setWrapperLanguage(sass);
                 e.setEditor(editor);
-                var lang = (LspLanguage) editor.getEditorLanguage();
-                lang.setFormatter(js.getFormatter());
+                ((LspLanguage) editor.getEditorLanguage()).setFormatter(sass.getFormatter());
                 holder[0] = e;
               } finally {
                 latch.countDown();
@@ -154,28 +125,25 @@ public class TsServer {
       latch.await();
     } catch (InterruptedException ignored) {
     }
+
     LspEditor lspEditor = holder[0];
-    if (lspEditor == null) {
-      return null;
-    }
+    if (lspEditor == null) return null;
+
     try {
       lspEditor.connectWithTimeoutBlocking();
     } catch (Exception e) {
-      Log.e(TAG, "اتصال به tsc --lsp ناموفق بود", e);
+      Log.e(TAG, "Failed to connect to some-sass-language-server", e);
     }
 
     return lspEditor;
   }
 
-  /** موقع بستن تب/فایل صدا بزن. اگه dispose کامپایل نشد کامنتش کن. */
   public static void disconnectFile(LspEditor lspEditor) {
-    if (lspEditor == null) {
-      return;
-    }
+    if (lspEditor == null) return;
     try {
       lspEditor.dispose();
     } catch (Exception e) {
-      Log.e(TAG, "بستن اتصال lsp با خطا مواجه شد", e);
+      Log.e(TAG, "Error disconnecting LSP", e);
     }
   }
 }

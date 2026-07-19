@@ -70,7 +70,7 @@ public final class LanguageManager {
     register((c, p) -> new SqlLanguage(), "sql");
     register((c, p) -> new ShellLanguage(), "sh", "rc", "bash", "bashrc", "ash", "zsh", "zshrc");
     register((c, p) -> new RustLanguage(), "rs");
-    register((c, p) -> new RubyLanguage(), "rb");
+    register((c, p) -> new RubyLanguage(c), "rb");
     register((c, p) -> new AntlrLanguage(), "g4");
     register((c, p) -> new IniLanguage(), "ini");
     register((c, p) -> new ZigLanguage(), "zig");

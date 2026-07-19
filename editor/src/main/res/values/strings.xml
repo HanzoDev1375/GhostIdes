@@ -6,6 +6,9 @@
   <string name="editor_copy_text">Copy text</string>
   <string name="editor_paste_text">Paste text</string>
   <string name="editor_format">Format</string>
+  <string name="editor_lsp_definition">Go to definition</string>
+  <string name="editor_lsp_references">Find references</string>
+  <string name="editor_lsp_rename">Rename symbol</string>
   <string name="editor_long_select">Long select</string>
   <string name="editor_cut_text">Cut text</string>
   <string name="editor_selected">Selected</string>

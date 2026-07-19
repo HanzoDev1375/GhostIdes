@@ -35,19 +35,23 @@ Ghost IDE is an advanced mobile development environment built for Android develo
 - [x] Large file handling(Page)
 - [x] Custom themes
 - [x] Background customization
+- [x] Lsp
 
 ### 🛠️ Development Tools
-- Python execution soon
-- PHP execution soon
+- Python execution 
+- PHP execution 
 - Kotlin compiler soon
-- Java helper tools soon
-- Sass / SCSS / Less compilers soon
-- TypeScript / TSX / JSX support soon
+- Java helper tools 
+- Sass / SCSS / Less compilers 
+- TypeScript / TSX / JSX support 
 - JavaFX compiler soon
 - Git integration
 - HTML preview support 
 - Ftp 
 
+# Lsp 
+
+- how in install lsp? [click](https://github.com/HanzoDev1375/GhostIdes/blob/main/Lsp.md)
 
 ## Terminal 
 
