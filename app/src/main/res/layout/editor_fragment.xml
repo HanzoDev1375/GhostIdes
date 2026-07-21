@@ -31,6 +31,19 @@
          android:layout_gravity="top|end"
          android:text="Ln 1, Col 1" />
 
+    <ImageView
+         android:layout_height="30dp"
+         android:layout_width="30dp"
+         android:layout_marginEnd="9dp"
+         android:padding="2dp"
+         android:layout_marginTop="25dp"
+         android:layout_gravity="top|end"
+         android:layout_marginBottom="9dp"
+         android:scaleType="centerInside"
+         android:paddingVertical="7dp"
+         android:paddingHorizontal="12dp"
+         android:id="@+id/dlch" />
+
     <LinearLayout
          android:layout_height="wrap_content"
          android:layout_width="wrap_content"
@@ -49,7 +62,6 @@
              android:layout_height="18dp"
              android:layout_width="18dp"
              android:src="@drawable/ic_back"
-             
              android:id="@+id/ivWrapToggle1" />
 
         <TextView

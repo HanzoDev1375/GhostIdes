@@ -7,7 +7,11 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import ir.hanzodev1375.ghostide.terminal.activity.TerminalActivity;
 import ir.hanzodev1375.ghostide.terminal.sheet.TerminalBottomSheetFragment;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CodeRuner {
 
@@ -81,16 +85,61 @@ public class CodeRuner {
     return null;
   }
 
-  // ==================== زبان‌های قبلی ====================
+   private String python(String path) {
+    File file = new File(path);
+    File dir = file.getParentFile();
+    if (dir == null) dir = new File(".");
 
-  private String python(String path) {
-    return "clear; if ! command -v python3 >/dev/null 2>&1; then apt update && apt install python3 -y; fi; python3 "
-        + path;
+    String moduleName = file.getName();
+    int dot = moduleName.lastIndexOf('.');
+    if (dot != -1) moduleName = moduleName.substring(0, dot);
+
+    List<String> packageParts = new ArrayList<>();
+    packageParts.add(moduleName);
+
+    File current = dir;
+    File root = dir;
+    while (current != null && new File(current, "__init__.py").exists()) {
+      packageParts.add(0, current.getName());
+      root = current.getParentFile();
+      current = current.getParentFile();
+    }
+
+    String setup =
+        "if ! command -v python3 >/dev/null 2>&1; then apt update && apt install python3 -y; fi; ";
+
+    if (packageParts.size() > 1 && root != null) {
+     
+      StringBuilder dotted = new StringBuilder();
+      for (int i = 0; i < packageParts.size(); i++) {
+        if (i > 0) dotted.append('.');
+        dotted.append(packageParts.get(i));
+      }
+      return "clear; "
+          + setup
+          + "cd \""
+          + root.getAbsolutePath()
+          + "\" && python3 -m "
+          + dotted;
+    }
+
+    // اسکریپت ساده، بدون ساختار پکیج
+    return "clear; "
+        + setup
+        + "cd \""
+        + dir.getAbsolutePath()
+        + "\" && python3 \""
+        + file.getName()
+        + "\"";
   }
 
   private String php(String path) {
-    return "clear; if ! command -v php >/dev/null 2>&1; then apt update && apt install php -y; fi; php "
-        + path;
+    File file = new File(path);
+    File dir = file.getParentFile();
+    if (dir == null) dir = new File(".");
+    return "clear; "
+        + "if ! command -v php >/dev/null 2>&1; then apt update && apt install php -y; fi; "
+        + "cd \"" + dir.getAbsolutePath() + "\" && php \"" + file.getName() + "\"";
   }
 
   private String c(String path) {
@@ -153,16 +202,84 @@ public class CodeRuner {
         + "\"";
   }
 
+
   private String java(String path) {
-    String className = new File(path).getName();
-    className = className.substring(0, className.lastIndexOf('.'));
+    File file = new File(path);
+    File dir = file.getParentFile();
+    if (dir == null) dir = new File(".");
+
+    String className = file.getName();
+    int dot = className.lastIndexOf('.');
+    if (dot != -1) className = className.substring(0, dot);
+
+    String packageName = extractPackageName(file);
+    String fqcn = (packageName != null && !packageName.isEmpty())
+        ? packageName + "." + className
+        : className;
+
+    File sourceRoot = resolvePackageRoot(dir, packageName);
+    File outDir = new File(sourceRoot, ".ghostide_build");
+
+    String compileTargets;
+    if (sourceRoot.equals(dir)) {
+      compileTargets = "\"" + dir.getAbsolutePath() + "\"/*.java";
+    } else {
+      compileTargets = "\"" + path + "\"";
+    }
 
     return "clear; "
         + "if ! command -v javac >/dev/null 2>&1; then apt update && apt install default-jdk -y; fi; "
-        + "javac \""
-        + path
+        + "mkdir -p \""
+        + outDir.getAbsolutePath()
+        + "\" && javac -d \""
+        + outDir.getAbsolutePath()
+        + "\" -sourcepath \""
+        + sourceRoot.getAbsolutePath()
+        + "\" "
+        + compileTargets
+        + " && cd \""
+        + outDir.getAbsolutePath()
         + "\" && java "
-        + className;
+        + fqcn;
+  }
+
+
+  private File resolvePackageRoot(File dir, String packageName) {
+    if (packageName == null || packageName.isEmpty()) return dir;
+    String[] segments = packageName.split("\\.");
+    File current = dir;
+    for (int i = segments.length - 1; i >= 0; i--) {
+      if (current == null || !current.getName().equals(segments[i])) {
+        return dir;
+      }
+      current = current.getParentFile();
+    }
+    return current != null ? current : dir;
+  }
+
+
+  private String extractPackageName(File javaFile) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(javaFile))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String trimmed = line.trim();
+        if (trimmed.isEmpty()
+            || trimmed.startsWith("//")
+            || trimmed.startsWith("/*")
+            || trimmed.startsWith("*")) {
+          continue;
+        }
+        if (trimmed.startsWith("package ")) {
+          String pkg = trimmed.substring("package ".length()).trim();
+          if (pkg.endsWith(";")) pkg = pkg.substring(0, pkg.length() - 1).trim();
+          return pkg;
+        }
+        break;
+      }
+    } catch (Exception e) {
+      
+    }
+    return null;
   }
 
   private String sass(String path) {

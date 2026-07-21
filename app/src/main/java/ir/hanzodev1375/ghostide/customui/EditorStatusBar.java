@@ -48,7 +48,6 @@ import ir.hanzodev1375.ghostide.databinding.EditorStatusBarBinding;
  */
 public class EditorStatusBar extends FrameLayout {
 
-  // ---- Default values (Material 3 dark theme, tuned to match a VSCode-style bar) ----
   private static final float DEFAULT_CORNER_RADIUS_DP = 18f;
   private static final float DEFAULT_STROKE_WIDTH_DP = 1f;
   private static final float DEFAULT_TEXT_SIZE_SP = 12f;
@@ -63,10 +62,22 @@ public class EditorStatusBar extends FrameLayout {
   @ColorInt private static final int DEFAULT_DIVIDER_COLOR = Color.parseColor("#33FFFFFF");
   @ColorInt private static final int DEFAULT_RIPPLE_COLOR = Color.parseColor("#1FFFFFFF");
 
-  // ViewBinding for the internally-inflated layout — no findViewById() calls.
+  @ColorInt private static final int STATUS_COLOR_CONNECTED = Color.parseColor("#4CAF50");
+  @ColorInt private static final int STATUS_COLOR_WARNING = Color.parseColor("#FFC107");
+  @ColorInt private static final int STATUS_COLOR_ERROR = Color.parseColor("#F44336");
+  @ColorInt private static final int STATUS_COLOR_IDLE = Color.parseColor("#9E9E9E");
+  private static final int STATUS_DOT_SIZE_DP = 8;
+
+  public enum StatusIndicator {
+    IDLE,
+    CONNECTING,
+    CONNECTED,
+    WARNING,
+    ERROR
+  }
+
   private EditorStatusBarBinding binding;
 
-  // ---- Backing fields for every configurable property ----
   private float cornerRadius;
   @ColorInt private int backgroundColorValue;
   @ColorInt private int strokeColor;
@@ -84,12 +95,13 @@ public class EditorStatusBar extends FrameLayout {
   private int iconSize;
   private int iconTextSpacing;
 
-  // Drawables are created once and mutated in place to avoid per-update allocations.
   private GradientDrawable backgroundDrawable;
   private RippleDrawable rippleLanguage;
   private RippleDrawable rippleEncoding;
   private RippleDrawable rippleIndentation;
   private RippleDrawable rippleStatus;
+  private GradientDrawable statusDotDrawable;
+  private StatusIndicator currentStatusIndicator = StatusIndicator.IDLE;
 
   public EditorStatusBar(@NonNull Context context) {
     this(context, null);
@@ -104,24 +116,17 @@ public class EditorStatusBar extends FrameLayout {
     init(context, attrs, defStyleAttr);
   }
 
-  // ------------------------------------------------------------------
-  // Initialization
-  // ------------------------------------------------------------------
-
   private void init(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     binding = EditorStatusBarBinding.inflate(LayoutInflater.from(context), this, true);
 
-    // Start from the defaults; XML attributes (if any) override them below.
     cornerRadius = dpToPx(DEFAULT_CORNER_RADIUS_DP);
     backgroundColorValue = DEFAULT_BACKGROUND_COLOR;
     strokeColor = DEFAULT_STROKE_COLOR;
     strokeWidth = dpToPx(DEFAULT_STROKE_WIDTH_DP);
-
     textColor = DEFAULT_TEXT_COLOR;
     iconTint = DEFAULT_ICON_TINT;
     dividerColor = DEFAULT_DIVIDER_COLOR;
     rippleColor = DEFAULT_RIPPLE_COLOR;
-
     textSize = spToPx(DEFAULT_TEXT_SIZE_SP);
     typeface = Typeface.DEFAULT;
 
@@ -165,7 +170,6 @@ public class EditorStatusBar extends FrameLayout {
       }
     }
 
-    //    setupClipping();
     setupBackground();
     setupRipples();
     applyTextColor();
@@ -177,6 +181,7 @@ public class EditorStatusBar extends FrameLayout {
     applyIconTextSpacingToAll();
     applyDividerColor();
     updateDividerVisibility();
+    ensureStatusDotDrawable();
   }
 
   private void applyInitialText(TypedArray a) {
@@ -216,17 +221,12 @@ public class EditorStatusBar extends FrameLayout {
     }
   }
 
-  // ------------------------------------------------------------------
-  // Shape / clipping setup
-  // ------------------------------------------------------------------
-
   private void setupBackground() {
     backgroundDrawable = new GradientDrawable();
     backgroundDrawable.setShape(GradientDrawable.RECTANGLE);
     backgroundDrawable.setColor(backgroundColorValue);
     backgroundDrawable.setCornerRadius(cornerRadius);
     backgroundDrawable.setStroke(Math.round(strokeWidth), strokeColor);
-    // Applied to this FrameLayout so the rounded shape wraps all content.
     binding.getRoot().setBackground(backgroundDrawable);
     setBackgroundColor(Color.TRANSPARENT);
   }
@@ -251,7 +251,7 @@ public class EditorStatusBar extends FrameLayout {
 
   private RippleDrawable createRipple() {
     ColorStateList colorStateList = ColorStateList.valueOf(rippleColor);
-    // A rectangular mask bounds the ripple to each section's own area.
+
     return new RippleDrawable(colorStateList, null, new ColorDrawable(Color.WHITE));
   }
 
@@ -262,10 +262,6 @@ public class EditorStatusBar extends FrameLayout {
     rippleIndentation.setColor(colorStateList);
     rippleStatus.setColor(colorStateList);
   }
-
-  // ------------------------------------------------------------------
-  // Property → view application helpers
-  // ------------------------------------------------------------------
 
   private void applyTextColor() {
     binding.textLanguage.setTextColor(textColor);
@@ -278,12 +274,10 @@ public class EditorStatusBar extends FrameLayout {
     applyIconTint(binding.iconLanguage);
     applyIconTint(binding.iconEncoding);
     applyIconTint(binding.iconIndentation);
-    applyIconTint(binding.iconStatus);
   }
 
   private void applyIconTint(ImageView imageView) {
-    // Automatically apply a ColorFilter so every icon matches iconTint,
-    // regardless of the source drawable's original colors.
+
     if (imageView.getDrawable() != null) {
       imageView.setColorFilter(iconTint, PorterDuff.Mode.SRC_IN);
     }
@@ -365,10 +359,6 @@ public class EditorStatusBar extends FrameLayout {
     binding.dividerIndentationStatus.setVisibility(ind && stat ? VISIBLE : GONE);
   }
 
-  // ------------------------------------------------------------------
-  // Public API — Appearance
-  // ------------------------------------------------------------------
-
   /**
    * @param radiusPx corner radius, in pixels.
    */
@@ -384,19 +374,6 @@ public class EditorStatusBar extends FrameLayout {
     return cornerRadius;
   }
 
-  /**
-   * Overrides {@link View#setBackgroundColor(int)} to update only the fill color of the rounded
-   * background, preserving corner radius and stroke.
-   */
-  /*
-  @Override
-  public void setBackgroundColor(@ColorInt int color) {
-    this.backgroundColorValue = color;
-    if (backgroundDrawable != null) {
-      backgroundDrawable.setColor(color);
-    }
-  }
-  */
 
   @ColorInt
   public int getBackgroundColor() {
@@ -436,10 +413,6 @@ public class EditorStatusBar extends FrameLayout {
     return strokeWidth;
   }
 
-  // ------------------------------------------------------------------
-  // Public API — Section text
-  // ------------------------------------------------------------------
-
   public void setLanguageText(String text) {
     binding.textLanguage.setText(text);
   }
@@ -471,10 +444,6 @@ public class EditorStatusBar extends FrameLayout {
   public String getStatusText() {
     return binding.textStatus.getText().toString();
   }
-
-  // ------------------------------------------------------------------
-  // Public API — Icons
-  // ------------------------------------------------------------------
 
   public void setLanguageIcon(@Nullable Drawable drawable) {
     binding.iconLanguage.setImageDrawable(drawable);
@@ -516,9 +485,59 @@ public class EditorStatusBar extends FrameLayout {
     return binding.iconStatus.getDrawable();
   }
 
-  // ------------------------------------------------------------------
-  // Public API — Colors
-  // ------------------------------------------------------------------
+  
+  public void setStatusIndicator(@NonNull StatusIndicator state, @Nullable String label) {
+    ensureStatusDotDrawable();
+    currentStatusIndicator = state;
+
+    int color;
+    switch (state) {
+      case CONNECTED:
+        color = STATUS_COLOR_CONNECTED;
+        break;
+      case CONNECTING:
+      case WARNING:
+        color = STATUS_COLOR_WARNING;
+        break;
+      case ERROR:
+        color = STATUS_COLOR_ERROR;
+        break;
+      case IDLE:
+      default:
+        color = STATUS_COLOR_IDLE;
+        break;
+    }
+
+    statusDotDrawable.setColor(color);
+
+    binding.iconStatus.clearColorFilter();
+
+    if (label != null) {
+      binding.textStatus.setText(label);
+    }
+  }
+
+  /** Overload بدون تغییر متن - فقط رنگِ نقطه آپدیت می شه. */
+  public void setStatusIndicator(@NonNull StatusIndicator state) {
+    setStatusIndicator(state, null);
+  }
+
+  @NonNull
+  public StatusIndicator getStatusIndicator() {
+    return currentStatusIndicator;
+  }
+
+  private void ensureStatusDotDrawable() {
+    if (statusDotDrawable != null) {
+      return;
+    }
+    statusDotDrawable = new GradientDrawable();
+    statusDotDrawable.setShape(GradientDrawable.OVAL);
+    int dotSizePx = (int) dpToPx(STATUS_DOT_SIZE_DP);
+    statusDotDrawable.setSize(dotSizePx, dotSizePx);
+    statusDotDrawable.setColor(STATUS_COLOR_IDLE);
+    binding.iconStatus.setImageDrawable(statusDotDrawable);
+  }
 
   public void setTextColor(@ColorInt int color) {
     this.textColor = color;
@@ -560,10 +579,6 @@ public class EditorStatusBar extends FrameLayout {
     return rippleColor;
   }
 
-  // ------------------------------------------------------------------
-  // Public API — Typography
-  // ------------------------------------------------------------------
-
   /**
    * Sets the text size for all four sections, in SP — mirrors {@link
    * android.widget.TextView#setTextSize(float)}.
@@ -588,10 +603,6 @@ public class EditorStatusBar extends FrameLayout {
   public Typeface getTypeface() {
     return typeface;
   }
-
-  // ------------------------------------------------------------------
-  // Public API — Spacing
-  // ------------------------------------------------------------------
 
   /**
    * @param paddingPx horizontal padding, in pixels, applied inside each section.
@@ -629,10 +640,6 @@ public class EditorStatusBar extends FrameLayout {
     return iconTextSpacing;
   }
 
-  // ------------------------------------------------------------------
-  // Public API — Visibility
-  // ------------------------------------------------------------------
-
   public void setLanguageVisible(boolean visible) {
     binding.sectionLanguage.setVisibility(visible ? VISIBLE : GONE);
     updateDividerVisibility();
@@ -669,10 +676,6 @@ public class EditorStatusBar extends FrameLayout {
     return binding.sectionStatus.getVisibility() == VISIBLE;
   }
 
-  // ------------------------------------------------------------------
-  // Public API — Click listeners
-  // ------------------------------------------------------------------
-
   public void setOnLanguageClickListener(@Nullable OnClickListener listener) {
     binding.sectionLanguage.setOnClickListener(listener);
   }
@@ -688,10 +691,6 @@ public class EditorStatusBar extends FrameLayout {
   public void setOnStatusClickListener(@Nullable OnClickListener listener) {
     binding.sectionStatus.setOnClickListener(listener);
   }
-
-  // ------------------------------------------------------------------
-  // Unit conversion helpers
-  // ------------------------------------------------------------------
 
   private float dpToPx(float dp) {
     return TypedValue.applyDimension(

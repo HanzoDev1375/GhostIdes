@@ -1260,7 +1260,9 @@ public class FileManagerActivity extends BaseCompat
     String className = dot > 0 ? name.substring(0, dot) : name;
     ir.hanzodev1375.ghostide.refactor.renameclass.ui.RenameClassBottomSheet.newInstance(
             moduleRoot.getAbsolutePath(), file.getAbsolutePath(), className)
-        .show(getSupportFragmentManager(), ir.hanzodev1375.ghostide.refactor.renameclass.ui.RenameClassBottomSheet.TAG);
+        .show(
+            getSupportFragmentManager(),
+            ir.hanzodev1375.ghostide.refactor.renameclass.ui.RenameClassBottomSheet.TAG);
   }
 
   private void openRenamePackageSheet(FileManagerModel model) {

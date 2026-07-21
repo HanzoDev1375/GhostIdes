@@ -21,34 +21,35 @@ import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import io.github.rosemoe.sora.lsp.editor.LspProject;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
-import ir.hanzodev1375.ghostide.codeeditors.langs.css.CssLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.json.JsonLanguage;
 
 /**
- * اتصال Language Server جیسون. از vscode-css-language-server (موجود در پکیج
+ * اتصال Language Server جیسون. از vscode-json-language-server (موجود در پکیج
  * @t1ckbase/vscode-langservers-extracted) استفاده می کنه.
  *
  * <p>نصب داخل ترمینال proot: npm install -g @t1ckbase/vscode-langservers-extracted
  *
  * <p>نکته: عملیات connectFile سنگین هست و حتماً باید توی ترد جدا صدا زده بشه.
  */
-public class CssServer {
-  private static final String TAG = "CssServer";
-  private static final String SERVER_NAME = "vscode-css-language-server";
+public class JsonServer {
+  private static final String TAG = "JsonServer";
+  private static final String SERVER_NAME = "vscode-json-language-server";
 
-  private static final Set<String> SUPPORTED_EXTENSIONS = new HashSet<>(Arrays.asList("css"));
+  private static final Set<String> SUPPORTED_EXTENSIONS =
+      new HashSet<>(Arrays.asList("json", "jsonc"));
   private static final String[] CANDIDATE_PATHS = {
-    "/usr/bin/vscode-css-language-server",
-    "/usr/local/bin/vscode-css-language-server",
-    "/usr/bin/css-languageserver",
-    "/usr/local/bin/css-languageserver"
+    "/usr/bin/vscode-json-language-server",
+    "/usr/local/bin/vscode-json-language-server",
+    "/usr/bin/json-languageserver",
+    "/usr/local/bin/json-languageserver"
   };
 
   private static final Map<String, LspProject> projects = new HashMap<>();
   private static final Set<String> registeredDefinitions = new HashSet<>();
 
-  private CssServer() {}
+  private JsonServer() {}
 
-  public static boolean isCssFile(String filePath) {
+  public static boolean isJsonFile(String filePath) {
     return SUPPORTED_EXTENSIONS.contains(extensionOf(filePath));
   }
 
@@ -59,7 +60,6 @@ public class CssServer {
     return filePath.substring(dot + 1).toLowerCase(Locale.ROOT);
   }
 
-  /** مسیر باینری language server رو داخل rootfs پیدا می کنه؛ اگه نبود null. */
   public static String findInstalledExecutable(Context context) {
     File rootfs = DebianBootstrap.getRootfsDir(context);
     if (rootfs == null || !rootfs.exists()) {
@@ -107,11 +107,6 @@ public class CssServer {
     }
   }
 
-  /**
-   * فایل CSS باز شده رو به language server وصل می کنه. حتماً توی ترد جدا صدا بزن.
-   *
-   * @return LspEditor ساخته شده، یا null اگه سرور نصب نباشه
-   */
   public static LspEditor connectFile(
       Context context, String projectRoot, String filePath, CodeEditor editor) {
 
@@ -119,7 +114,7 @@ public class CssServer {
     if (executablePath == null) {
       Log.e(
           TAG,
-          "vscode-css-language-server نصب نیست. دستور: npm install -g vscode-langservers-extracted");
+          "vscode-json-language-server نصب نیست. دستور: npm install -g @t1ckbase/vscode-langservers-extracted");
       return null;
     }
 
@@ -135,11 +130,11 @@ public class CssServer {
             () -> {
               try {
                 LspEditor e = project.createEditor(filePath);
-                var css = new CssLanguage(context,filePath);
-                e.setWrapperLanguage(css);
+                var json = new JsonLanguage(context, filePath);
+                e.setWrapperLanguage(json);
                 e.setEditor(editor);
                 var lang = (LspLanguage) editor.getEditorLanguage();
-                lang.setFormatter(css.getFormatter());
+                lang.setFormatter(json.getFormatter());
                 holder[0] = e;
               } finally {
                 latch.countDown();
@@ -157,7 +152,7 @@ public class CssServer {
     try {
       lspEditor.connectWithTimeoutBlocking();
     } catch (Exception e) {
-      Log.e(TAG, "اتصال به vscode-css-language-server ناموفق بود", e);
+      Log.e(TAG, "اتصال به vscode-json-language-server ناموفق بود", e);
     }
     return lspEditor;
   }
@@ -167,7 +162,7 @@ public class CssServer {
     try {
       lspEditor.dispose();
     } catch (Exception e) {
-      Log.e(TAG, "بستن اتصال lsp css با خطا مواجه شد", e);
+      Log.e(TAG, "بستن اتصال lsp json با خطا مواجه شد", e);
     }
   }
 }

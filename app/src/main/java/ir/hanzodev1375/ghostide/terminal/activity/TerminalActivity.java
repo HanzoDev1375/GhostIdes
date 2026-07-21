@@ -156,7 +156,7 @@ public class TerminalActivity extends BaseCompat
         Toast.makeText(this, "Debian نصب نیست", Toast.LENGTH_LONG).show();
         return;
       }
-      addNewDebianSession(); 
+      addNewDebianSession();
       getIntent().removeExtra(EXTRA_COMMAND);
       return;
     }
@@ -172,7 +172,6 @@ public class TerminalActivity extends BaseCompat
     }
   }
 
- 
   private void setupEdgeToEdgeInsets() {
     ViewCompat.setOnApplyWindowInsetsListener(
         b.coordinator,
@@ -193,13 +192,12 @@ public class TerminalActivity extends BaseCompat
         });
   }
 
-  
   private void setupBackgroundBlur() {
     appsetting = new PreferencesUtils(this);
     themeutil = new ThemeUtils(new ThemeManager(this));
 
     if (!appsetting.isShowBackground()) {
-      return; 
+      return;
     }
 
     var theme = themeutil.getTheme();
@@ -580,6 +578,10 @@ public class TerminalActivity extends BaseCompat
                   Toast.makeText(TerminalActivity.this, "Debian نصب شد ✓", Toast.LENGTH_LONG)
                       .show();
                   invalidateOptionsMenu();
+                  b.terminalView.setVisibility(View.VISIBLE);
+                  if (service != null) {
+                    addNewDebianSession();
+                  }
                 });
           }
 

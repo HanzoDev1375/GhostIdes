@@ -557,6 +557,10 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
                       if (installDialog != null) installDialog.dismiss();
                       Toast.makeText(requireContext(), "Debian نصب شد ✓", Toast.LENGTH_LONG).show();
                       requireActivity().invalidateOptionsMenu();
+                      b.terminalView.setVisibility(View.VISIBLE);
+                      if (service != null) {
+                        addNewDebianSession();
+                      }
                     });
           }
 

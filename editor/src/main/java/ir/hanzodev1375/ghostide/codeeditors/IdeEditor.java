@@ -10,6 +10,7 @@ import com.eup.codeopsstudio.editor.langs.widget.component.CustomEditorTextActio
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.event.ScrollEvent;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
+import io.github.rosemoe.sora.lsp.editor.LspEditorStatus;
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion;
 import io.github.rosemoe.sora.widget.component.EditorTextActionWindow;
 import io.github.rosemoe.sora.widget.component.Magnifier;
@@ -208,6 +209,11 @@ public class IdeEditor extends CodeEditor
       LspRouter.disconnectFile(lspEditor);
       lspEditor = null;
     }
+  }
+
+  @Nullable
+  public LspEditorStatus getLspStatus() {
+    return lspEditor == null ? null : lspEditor.getStatus();
   }
 
   private void updateEditorPowerMode() {

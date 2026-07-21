@@ -1,6 +1,8 @@
 package ir.hanzodev1375.ghostide.fragments;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +15,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import com.blankj.utilcode.util.ThreadUtils;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.event.LongPressEvent;
 import io.github.rosemoe.sora.event.SelectionChangeEvent;
@@ -34,10 +37,12 @@ import ir.theme.ThemeUtils;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import ir.hanzodev1375.ghostide.R;
 import java.io.Reader;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.eclipse.lsp4j.DiagnosticSeverity;
 
 public class EditorFragment extends Fragment {
 
@@ -70,6 +75,8 @@ public class EditorFragment extends Fragment {
   private PagedEditSession pagedSession;
   private int pageIndex = -1;
   private volatile LspEditor lspEditor;
+  private static final int DIAGNOSTICS_COLOR_OK = Color.parseColor("#4CAF50"); 
+  private static final int DIAGNOSTICS_COLOR_ERROR = Color.parseColor("#F44336"); 
 
   public static EditorFragment newInstance(String path) {
     EditorFragment f = new EditorFragment();
@@ -151,14 +158,34 @@ public class EditorFragment extends Fragment {
                       targetFile.getParent() != null
                           ? targetFile.getParent()
                           : targetFile.getAbsolutePath();
-                  lspEditor =
-                      LspRouter.connectFile(appContext, projectRoot, targetFilePath, targetEditor);
-                  targetEditor.setLspEditor(lspEditor);
-                  if (lspEditor != null) {
-                    lspEditor.setEnableInlayHint(true);
-                    lspEditor.setEnableHover(true);
-                    lspEditor.setEnableSignatureHelp(true);
+                  LspEditor connected =
+                      LspRouter.connectFile(appContext, projectRoot, targetFilePath, targetEditor);                  
+                  if (!isAdded() || binding == null) {
+                    if (connected != null) {
+                      try {
+                        connected.dispose();
+                      } catch (Exception e) {
+                        Log.e("EditorFragment", "بستن اتصال یتیم LSP با خطا مواجه شد", e);
+                      }
+                    }
+                    return;
                   }
+
+                  lspEditor = connected;
+                  targetEditor.setLspEditor(lspEditor);
+                  ThreadUtils.runOnUiThread(
+                      () -> {
+                        if (binding == null || !isAdded()) {
+                          return;
+                        }
+                        if (lspEditor == null) {
+                          return;
+                        }
+                        lspEditor.setEnableInlayHint(true);
+                        lspEditor.setEnableHover(true);
+                        lspEditor.setEnableSignatureHelp(true);
+                        updateDiagnosticsIcon(lspEditor);
+                      });
                 })
             .start();
       }
@@ -459,6 +486,34 @@ public class EditorFragment extends Fragment {
 
   public IdeEditor getEditor() {
     return editor;
+  }
+
+  
+  private void updateDiagnosticsIcon(@NonNull LspEditor lspEditor) {
+    if (binding == null) {
+      return;
+    }
+    boolean connected = lspEditor.isConnected();
+    binding.dlch.setVisibility(connected ? View.VISIBLE : View.INVISIBLE);
+    if (!connected) {
+      return;
+    }
+
+    boolean hasError = false;
+    for (var diagnostic : lspEditor.getDiagnostics()) {
+      if (diagnostic.getSeverity() == DiagnosticSeverity.Error) {
+        hasError = true;
+        break;
+      }
+    }
+
+    if (hasError) {
+      binding.dlch.setImageResource(R.drawable.ic_close_24);
+      binding.dlch.setColorFilter(DIAGNOSTICS_COLOR_ERROR, PorterDuff.Mode.SRC_IN);
+    } else {
+      binding.dlch.setImageResource(R.drawable.check_24px);
+      binding.dlch.setColorFilter(DIAGNOSTICS_COLOR_OK, PorterDuff.Mode.SRC_IN);
+    }
   }
 
   void applyImeInsets(@NonNull final View target) {

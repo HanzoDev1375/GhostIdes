@@ -2,6 +2,9 @@ package ir.hanzodev1375.ghostide.codeeditors.langs.lsp;
 
 import android.content.Context;
 import android.util.Log;
+import android.os.Handler;
+import android.os.Looper;
+
 import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 import java.io.File;
 import java.util.Arrays;
@@ -11,6 +14,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition;
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.LanguageServerDefinition;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
@@ -18,31 +23,17 @@ import io.github.rosemoe.sora.lsp.editor.LspProject;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
-import java.util.concurrent.CountDownLatch;
-import android.os.Handler;
-import android.os.Looper;
 
-/**
- * اتصال Language Server اچ‌تی‌ام‌ال. از vscode-html-language-server (موجود در پکیج
- * vscode-langservers-extracted) استفاده می‌کنه که دقیقاً همون موتور هوشمند HTML مربوط به VSCode
- * هست.
- *
- * <p>نصب داخل ترمینال proot (نیاز به Node.js داره): npm install -g vscode-langservers-extracted
- *
- * <p>نکته: مثل TsServer، عملیات connectFile سنگین هست و حتماً باید توی ترد جدا (غیر از UI Thread)
- * صدا زده بشه، اما بخش ساخت LspEditor و ست کردن اون روی CodeEditor باید روی UI Thread اجرا بشه.
- */
 public class HtmlServer {
   private static final String TAG = "HtmlServer";
   private static final String SERVER_NAME = "vscode-html-language-server";
   private static final Set<String> SUPPORTED_EXTENSIONS =
       new HashSet<>(Arrays.asList("html", "htm"));
 
-  // بسته به اینکه npm prefix تو rootfs چیه، ممکنه تو یکی از این مسیرها باشه.
   private static final String[] CANDIDATE_PATHS = {
     "/usr/bin/vscode-html-language-server",
     "/usr/local/bin/vscode-html-language-server",
-    "/usr/bin/html-languageserver", // برخی نسخه‌های قدیمی‌تر یا فورک‌ها
+    "/usr/bin/html-languageserver",
     "/usr/local/bin/html-languageserver"
   };
 
@@ -62,17 +53,12 @@ public class HtmlServer {
     return filePath.substring(dot + 1).toLowerCase(Locale.ROOT);
   }
 
-  /** مسیر باینری language server رو داخل rootfs پیدا می‌کنه؛ اگه نبود null. */
   public static String findInstalledExecutable(Context context) {
     File rootfs = DebianBootstrap.getRootfsDir(context);
-    if (rootfs == null || !rootfs.exists()) {
-      return null;
-    }
+    if (rootfs == null || !rootfs.exists()) return null;
     for (String candidate : CANDIDATE_PATHS) {
       File f = new File(rootfs, candidate.substring(1));
-      if (f.exists()) {
-        return candidate;
-      }
+      if (f.exists()) return candidate;
     }
     return null;
   }
@@ -81,17 +67,15 @@ public class HtmlServer {
     return findInstalledExecutable(context) != null;
   }
 
-  private static LanguageServerDefinition createDefinition(
+  private static LanguageServerDefinition createHtmlDefinition(
       Context context, String executablePath, String ext) {
-    // سرور HTML برای اجرای stdio نیاز به آرگومان --stdio داره
     List<String> args = Arrays.asList("--stdio");
     return new CustomLanguageServerDefinition(
         ext,
         workingDir -> new ProotStdioConnectionProvider(context, workingDir, executablePath, args),
         SERVER_NAME,
-        null, // extensionsOverride
-        null // expectedCapabilitiesOverride
-        );
+        null,
+        null);
   }
 
   private static synchronized LspProject getOrCreateProject(String projectRoot) {
@@ -105,31 +89,35 @@ public class HtmlServer {
 
   private static synchronized void ensureDefinitionRegistered(
       LspProject project, Context context, String executablePath, String projectRoot, String ext) {
-    String key = projectRoot + "::" + ext;
+    String key = projectRoot + "::" + ext + "::html";
     if (!registeredDefinitions.contains(key)) {
-      project.addServerDefinition(createDefinition(context, executablePath, ext));
+      project.addServerDefinition(createHtmlDefinition(context, executablePath, ext));
       registeredDefinitions.add(key);
     }
   }
 
   /**
-   * فایل HTML باز شده رو به language server وصل می‌کنه. حتماً توی ترد جدا صدا بزن.
-   *
-   * @return LspEditor ساخته شده (برای disconnectFile نگهش دار)، یا null اگه سرور نصب نباشه
+   * اتصال فایل HTML به vscode-html-language-server و در صورت نصب بودن، به Emmet نیز متصل می‌شود.
+   * (هر دو در یک LspProject و یک LspEditor)
    */
   public static LspEditor connectFile(
       Context context, String projectRoot, String filePath, CodeEditor editor) {
-    String executablePath = findInstalledExecutable(context);
-    if (executablePath == null) {
-      Log.e(
-          TAG,
-          "vscode-html-language-server نصب نیست. داخل ترمینال proot اجرا کن: npm install -g vscode-langservers-extracted");
+    String htmlExecutable = findInstalledExecutable(context);
+    if (htmlExecutable == null) {
+      Log.e(TAG, "vscode-html-language-server نصب نیست");
       return null;
     }
 
     String ext = extensionOf(filePath);
     LspProject project = getOrCreateProject(projectRoot);
-    ensureDefinitionRegistered(project, context, executablePath, projectRoot, ext);
+    ensureDefinitionRegistered(project, context, htmlExecutable, projectRoot, ext);
+    String emmetExecutable = EmmetServer.findInstalledExecutable(context);
+    if (emmetExecutable != null) {
+      EmmetServer.ensureDefinitionRegistered(project, context, emmetExecutable, projectRoot, ext);
+      Log.d(TAG, "Emmet Language Server نیز به پروژه اضافه شد.");
+    } else {
+      Log.d(TAG, "Emmet Language Server نصب نیست، فقط از HTML Server استفاده می‌شود.");
+    }
 
     final LspEditor[] holder = new LspEditor[1];
     final CountDownLatch latch = new CountDownLatch(1);
@@ -143,7 +131,7 @@ public class HtmlServer {
                 e.setWrapperLanguage(html);
                 e.setEditor(editor);
                 var lang = (LspLanguage) editor.getEditorLanguage();
-                lang.setFormatter(html.getFormatter());
+                lang.setFormatter(html.getFormatter());    
                 holder[0] = e;
               } finally {
                 latch.countDown();
@@ -156,28 +144,23 @@ public class HtmlServer {
     }
 
     LspEditor lspEditor = holder[0];
-    if (lspEditor == null) {
-      return null;
-    }
+    if (lspEditor == null) return null;
 
     try {
       lspEditor.connectWithTimeoutBlocking();
     } catch (Exception e) {
-      Log.e(TAG, "اتصال به vscode-html-language-server ناموفق بود", e);
+      Log.e(TAG, "اتصال به HTML/Emmet LSP ناموفق بود", e);
     }
 
     return lspEditor;
   }
 
-  /** موقع بستن تب/فایل صدا بزن. */
   public static void disconnectFile(LspEditor lspEditor) {
-    if (lspEditor == null) {
-      return;
-    }
+    if (lspEditor == null) return;
     try {
       lspEditor.dispose();
     } catch (Exception e) {
-      Log.e(TAG, "بستن اتصال lsp با خطا مواجه شد", e);
+      Log.e(TAG, "خطا در قطع اتصال LSP", e);
     }
   }
 }

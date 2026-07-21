@@ -3,9 +3,13 @@
 ## Frist install node js in terminal 
 
 ```bash
- curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+ curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
  apt install -y nodejs
  node -v
+ apt update &&  apt upgrade -y
+ npm install -g typescript ts-node
+ npm install -g prettier
+ 
 ```
 
 ### Php Lsp 
@@ -28,6 +32,8 @@ npm install -g intelephense
 
 apt update && apt install -y clangd
 
+apt install clang-format astyle -y
+
 ```
 
 
@@ -37,7 +43,11 @@ apt update && apt install -y clangd
 
 ```bash
 
-pip install python-lsp-server
+apt update && apt install python3-pip -y
+
+pip install "python-lsp-server[all]" --break-system-packages
+
+pip install ruff --break-system-packages
 
 ```
 
@@ -47,16 +57,17 @@ pip install python-lsp-server
 
 ```bash
 
-npm install -g typescript typescript-language-server
+npm i -g typescript typescript-language-server
 
 ```
 
-# Html Lsp 
-# Css Lsp
+# Html Css Json Markdown
 
 ```bash
 
-npm install -g vscode-langservers-extracted
+npm i -g @t1ckbase/vscode-langservers-extracted
+
+npm i @olrtg/emmet-language-server
 
 ```
 

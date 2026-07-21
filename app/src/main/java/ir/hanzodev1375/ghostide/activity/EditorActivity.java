@@ -7,6 +7,8 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.TypedValue;
@@ -29,8 +31,10 @@ import com.google.gson.reflect.TypeToken;
 import com.skydoves.powermenu.PowerMenuItem;
 import com.blankj.utilcode.util.FileIOUtils;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
+import io.github.rosemoe.sora.lsp.editor.LspEditorStatus;
 import ir.hanzodev1375.filetreelib.widget.FileTreeView;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.ghostide.customui.EditorStatusBar;
 import ir.hanzodev1375.ghostide.customui.TabCustomView;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.jgit.GitHubProfileSheet;
@@ -94,7 +98,22 @@ public class EditorActivity extends BaseCompat
   private boolean isSplitViewActive = false;
   private PreferencesUtils settings;
   private int lastSplitRows = 1, lastSplitCols = 2;
-  private EditorPaneFragment activePane = null; // null = پین اصلی (primary)
+  private EditorPaneFragment activePane = null; 
+
+  
+  
+  
+  
+  private static final long LSP_STATUS_POLL_INTERVAL_MS = 1500;
+  private final Handler lspStatusHandler = new Handler(Looper.getMainLooper());
+  private final Runnable lspStatusPollRunnable =
+      new Runnable() {
+        @Override
+        public void run() {
+          refreshLspStatusIndicator();
+          lspStatusHandler.postDelayed(this, LSP_STATUS_POLL_INTERVAL_MS);
+        }
+      };
 
   private final EditorPaneFragment.PaneActionListener paneActionListener =
       new EditorPaneFragment.PaneActionListener() {
@@ -286,16 +305,19 @@ public class EditorActivity extends BaseCompat
   @Override
   protected void onResume() {
     super.onResume();
-    // Re-check git status whenever the activity resumes (e.g. after returning from the
-    // Git bottom sheet where the user may have committed/pushed changes).
+    
+    
     refreshGitStatus();
     ir.hanzodev1375.ghostide.refactor.rename.FileRenameNotifier.getInstance().addListener(this);
+    lspStatusHandler.removeCallbacks(lspStatusPollRunnable);
+    lspStatusHandler.post(lspStatusPollRunnable);
   }
 
   @Override
   protected void onPause() {
     super.onPause();
     ir.hanzodev1375.ghostide.refactor.rename.FileRenameNotifier.getInstance().removeListener(this);
+    lspStatusHandler.removeCallbacks(lspStatusPollRunnable);
   }
 
   @Override
@@ -338,6 +360,7 @@ public class EditorActivity extends BaseCompat
   @Override
   protected void onDestroy() {
     super.onDestroy();
+    lspStatusHandler.removeCallbacks(lspStatusPollRunnable);
     if (keyboardLayoutListener != null) {
       getWindow()
           .getDecorView()
@@ -922,6 +945,47 @@ public class EditorActivity extends BaseCompat
     if (tabsList == null || position < 0 || position >= tabsList.size()) return;
     String lang = getLanguageFromPath(tabsList.get(position).getFilePath());
     binding.editorStatusBar.setLanguageText(lang.isEmpty() ? "Text" : lang);
+    refreshLspStatusIndicator();
+  }
+
+  /**
+   * وضعیتِ اتصالِ LSP مربوط به تبِ الان دیده شده رو می‌خونه (از IdeEditor.getLspStatus()) و نقطه‌ی
+   * گِردِ داخل editorStatusBar رو بر همون اساس رنگ/متنش رو آپدیت می‌کنه.
+   *
+   * <p>هم از updateLanguageStatus() (موقع تعویض تب) صدا زده می‌شه، هم از lspStatusPollRunnable
+   * (هر ۱.۵ ثانیه، تا وضعیت‌هایی مثل CONNECTING → CONNECTED که وسط کار عوض می‌شن هم دیده بشن).
+   */
+  private void refreshLspStatusIndicator() {
+    if (binding == null) return;
+    IdeEditor editor = getEditor();
+    if (editor == null) {
+      binding.editorStatusBar.setStatusIndicator(EditorStatusBar.StatusIndicator.IDLE, "—");
+      return;
+    }
+    LspEditorStatus status = editor.getLspStatus();
+    if (status == null) {
+      
+      binding.editorStatusBar.setStatusIndicator(EditorStatusBar.StatusIndicator.IDLE, "—");
+      return;
+    }
+    switch (status) {
+      case CONNECTED:
+        binding.editorStatusBar.setStatusIndicator(
+            EditorStatusBar.StatusIndicator.CONNECTED, "Connected");
+        break;
+      case CONNECTING:
+        binding.editorStatusBar.setStatusIndicator(
+            EditorStatusBar.StatusIndicator.CONNECTING, "Connecting…");
+        break;
+      case DISCONNECTED:
+        binding.editorStatusBar.setStatusIndicator(
+            EditorStatusBar.StatusIndicator.ERROR, "Disconnected");
+        break;
+      case IDLE:
+      default:
+        binding.editorStatusBar.setStatusIndicator(EditorStatusBar.StatusIndicator.IDLE, "Idle");
+        break;
+    }
   }
 
   private void closeTab(int position) {
@@ -1058,8 +1122,7 @@ public class EditorActivity extends BaseCompat
     }
     for (TabModel tab : tabsList) {
       if (!activeFragPaths.contains(tab.getFilePath())) {
-        // فایل offscreen — محتوایش در SharedPreferences یا disk هست، نیاز به save ندارد
-        // فقط count رو بالا ببر تا user گیج نشه
+               
         savedCount++;
       }
     }

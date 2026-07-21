@@ -32,12 +32,14 @@ public final class LspRouter {
     GO,
     CSS,
     HTML,
+    JSON,
+    MARKDOWN,
     PHP,
     SASS,
     JS,
     RUBY,
     CSHARP
-  }
+}
 
  
   private static Lang langOf(String filePath) {
@@ -49,12 +51,14 @@ public final class LspRouter {
     if (PhpServer.isPhpFile(filePath)) return Lang.PHP;
     if (HtmlServer.isHtmlFile(filePath)) return Lang.HTML;
     if (CssServer.isCssFile(filePath)) return Lang.CSS;
+    if (JsonServer.isJsonFile(filePath)) return Lang.JSON;
+    if (MarkdownServer.isMarkdownFile(filePath)) return Lang.MARKDOWN;
     if (GoServer.isGoFile(filePath)) return Lang.GO;
     if (SassServer.isSassFile(filePath)) return Lang.SASS;
     if (RubyServer.isRubyFile(filePath)) return Lang.RUBY;
     if (CsharpServer.isCsharpFile(filePath)) return Lang.CSHARP;
     return Lang.NONE;
-  }
+}
 
   /** آیا اصلا برای این نوع فایل یک سرور LSP در پروژه تعریف شده (چه نصب باشه چه نه). */
   public static boolean isSupportedFile(String filePath) {
@@ -90,6 +94,10 @@ public final class LspRouter {
         return RubyServer.isInstalled(context);
       case CSHARP:
         return CsharpServer.isInstalled(context);
+     case JSON:
+        return JsonServer.isInstalled(context);
+     case MARKDOWN:
+       return MarkdownServer.isInstalled(context);
       default:
         return false;
     }
@@ -128,6 +136,10 @@ public final class LspRouter {
           return RubyServer.connectFile(context, projectRoot, filePath, editor);
         case CSHARP:
           return CsharpServer.connectFile(context, projectRoot, filePath, editor);
+        case JSON:
+          return JsonServer.connectFile(context, projectRoot, filePath, editor);
+        case MARKDOWN:
+          return MarkdownServer.connectFile(context, projectRoot, filePath, editor);
         default:
           return null;
       }
