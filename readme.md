@@ -52,6 +52,7 @@ Ghost IDE is an advanced mobile development environment built for Android develo
 # Lsp 
 
 - how in install lsp? [click](https://github.com/HanzoDev1375/GhostIdes/blob/main/Lsp.md)
+- نحوه نصب زبان سرور فارسی [click](https://github.com/HanzoDev1375/GhostIdes/blob/main/Lspfa.md)
 
 ## Terminal 
 

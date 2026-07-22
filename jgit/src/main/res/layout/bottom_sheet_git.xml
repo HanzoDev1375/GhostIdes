@@ -79,6 +79,7 @@
         android:layout_marginTop="4dp"
         app:tabMode="scrollable"
         app:tabGravity="start"
+        android:background="?attr/colorSurfaceContainerLow"
         app:tabIndicatorFullWidth="false"
         app:tabIndicatorHeight="3dp"
         app:tabRippleColor="@android:color/transparent" />

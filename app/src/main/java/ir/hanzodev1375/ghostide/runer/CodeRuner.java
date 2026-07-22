@@ -85,7 +85,7 @@ public class CodeRuner {
     return null;
   }
 
-   private String python(String path) {
+  private String python(String path) {
     File file = new File(path);
     File dir = file.getParentFile();
     if (dir == null) dir = new File(".");
@@ -109,7 +109,6 @@ public class CodeRuner {
         "if ! command -v python3 >/dev/null 2>&1; then apt update && apt install python3 -y; fi; ";
 
     if (packageParts.size() > 1 && root != null) {
-     
       StringBuilder dotted = new StringBuilder();
       for (int i = 0; i < packageParts.size(); i++) {
         if (i > 0) dotted.append('.');
@@ -123,7 +122,6 @@ public class CodeRuner {
           + dotted;
     }
 
-    // اسکریپت ساده، بدون ساختار پکیج
     return "clear; "
         + setup
         + "cd \""
@@ -202,20 +200,41 @@ public class CodeRuner {
         + "\"";
   }
 
-
   private String java(String path) {
     File file = new File(path);
     File dir = file.getParentFile();
     if (dir == null) dir = new File(".");
+
+    File gradleWrapper = findGradleWrapper(dir);
+    if (gradleWrapper != null) {
+      File projectRoot = gradleWrapper.getParentFile();
+      return "clear; "
+          + "if [ ! -x \"" + gradleWrapper.getAbsolutePath() + "\" ]; then chmod +x \"" + gradleWrapper.getAbsolutePath() + "\"; fi; "
+          + "cd \"" + projectRoot.getAbsolutePath() + "\" && sh gradlew build";
+    }
+
+    File pomFile = findPomXml(dir);
+    if (pomFile != null) {
+      File projectRoot = pomFile.getParentFile();
+      return "clear; "
+          + "if ! command -v mvn >/dev/null 2>&1; then apt update && apt install maven -y; fi; "
+          + "cd \"" + projectRoot.getAbsolutePath() + "\" && mvn package";
+    }
+
+    File gradleFile = findGradleBuildFile(dir);
+    if (gradleFile != null) {
+      File projectRoot = gradleFile.getParentFile();
+      return "clear; "
+          + "if ! command -v gradle >/dev/null 2>&1; then apt update && apt install gradle -y; fi; "
+          + "cd \"" + projectRoot.getAbsolutePath() + "\" && gradle build";
+    }
 
     String className = file.getName();
     int dot = className.lastIndexOf('.');
     if (dot != -1) className = className.substring(0, dot);
 
     String packageName = extractPackageName(file);
-    String fqcn = (packageName != null && !packageName.isEmpty())
-        ? packageName + "." + className
-        : className;
+    String fqcn = (packageName != null && !packageName.isEmpty()) ? packageName + "." + className : className;
 
     File sourceRoot = resolvePackageRoot(dir, packageName);
     File outDir = new File(sourceRoot, ".ghostide_build");
@@ -229,20 +248,37 @@ public class CodeRuner {
 
     return "clear; "
         + "if ! command -v javac >/dev/null 2>&1; then apt update && apt install default-jdk -y; fi; "
-        + "mkdir -p \""
-        + outDir.getAbsolutePath()
-        + "\" && javac -d \""
-        + outDir.getAbsolutePath()
-        + "\" -sourcepath \""
-        + sourceRoot.getAbsolutePath()
-        + "\" "
-        + compileTargets
-        + " && cd \""
-        + outDir.getAbsolutePath()
-        + "\" && java "
-        + fqcn;
+        + "mkdir -p \"" + outDir.getAbsolutePath() + "\" && javac -d \"" + outDir.getAbsolutePath() + "\" -sourcepath \"" + sourceRoot.getAbsolutePath() + "\" " + compileTargets;
   }
 
+  private File findGradleWrapper(File dir) {
+    while (dir != null) {
+      File wrapper = new File(dir, "gradlew");
+      if (wrapper.exists()) return wrapper;
+      dir = dir.getParentFile();
+    }
+    return null;
+  }
+
+  private File findPomXml(File dir) {
+    while (dir != null) {
+      File pom = new File(dir, "pom.xml");
+      if (pom.exists()) return pom;
+      dir = dir.getParentFile();
+    }
+    return null;
+  }
+
+  private File findGradleBuildFile(File dir) {
+    while (dir != null) {
+      File buildGradle = new File(dir, "build.gradle");
+      File buildGradleKts = new File(dir, "build.gradle.kts");
+      if (buildGradle.exists()) return buildGradle;
+      if (buildGradleKts.exists()) return buildGradleKts;
+      dir = dir.getParentFile();
+    }
+    return null;
+  }
 
   private File resolvePackageRoot(File dir, String packageName) {
     if (packageName == null || packageName.isEmpty()) return dir;
@@ -256,7 +292,6 @@ public class CodeRuner {
     }
     return current != null ? current : dir;
   }
-
 
   private String extractPackageName(File javaFile) {
     try (BufferedReader reader = new BufferedReader(new FileReader(javaFile))) {
@@ -277,7 +312,6 @@ public class CodeRuner {
         break;
       }
     } catch (Exception e) {
-      
     }
     return null;
   }

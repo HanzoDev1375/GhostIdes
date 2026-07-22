@@ -1,16 +1,35 @@
-# Lsp
+# In the name of God
 
-## Frist install node js in terminal 
+
+## server language (lsp)
+
+# To install the server language, do the following steps in order
+
+
+## If you need web side languages such as html js, be sure to install the latest version of node first
+
+- Note that if you receive an installation error in the packages, it is your own proxy 
+- Set to 8.8.8.8
+- With the help of this code
+
+```bash
+
+rm -f /etc/resolv.conf
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+```
+- Just copy the code above to install the packages on the Iranian server side
 
 ```bash
  curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
  apt install -y nodejs
  node -v
- apt update &&  apt upgrade -y
+ apt update && apt upgrade -y
  npm install -g typescript ts-node
  npm install -g prettier
  
 ```
+# This section is for php server language, if you haven't installed node, be sure to install it
 
 ### Php Lsp 
 
@@ -20,9 +39,10 @@
 
 npm cache clean --force
 
-npm install -g intelephense
+npm install -g intelligence
 
 ```
+# This section is for the language of the cpp server side, it is not supported in the future
 
 ### Cpp Lsp 
 
@@ -35,11 +55,13 @@ apt update && apt install -y clangd
 apt install clang-format astyle -y
 
 ```
+# This section is for Python, the favorite language of Iranian programmers
 
+- In Python, it is better to copy and paste the instructions one by one so that there is no problem with the installation, thank you
 
 ### Python Lsp 
 
-- Frist install in Terminal 
+- First install in Terminal 
 
 ```bash
 
@@ -51,17 +73,21 @@ pip install ruff --break-system-packages
 
 ```
 
+# This part is also for the web language and everything is clear, this also requires nodejs
+
+
 ### JavaScript && ts jsx tsx Lsp
 
-- Frist Install Node js and install TypeScript Lsp 
+- First install Node js and install TypeScript Lsp 
 
 ```bash
 
 npm i -g typescript typescript-language-server
 
 ```
+# This section also needs nodejs
 
-# Html Css Json Markdown
+## Html Css Json Markdown
 
 ```bash
 
@@ -70,8 +96,11 @@ npm i -g @t1ckbase/vscode-langservers-extracted
 npm i @olrtg/emmet-language-server
 
 ```
+# This section is for the fast go language, it may take a long time to install on some devices
 
-# Go Lsp 
+- Note that installation is difficult depending on the strength of your device and note
+
+## Go Lsp 
 
 ```bash
 apt update && apt install -y golang-go
@@ -80,15 +109,19 @@ apt update && apt install -y golang-go
 go install golang.org/x/tools/gopls@v0.14.2
 
 ```
+# This section is designed for those who work with sass, it requires nodejs
 
-# Sass Lsp
+## Sass Lsp
 
 ```bash
 npm install -g some-sass-language-server
 
 ```
+# As is clear, this section is for Ruby, which takes a little time to install
 
-# Ruby Lsp 
+- Ruby installation may take between 2 and 20 minutes
+
+## Ruby Lsp 
 
 ```bash
 
@@ -102,8 +135,9 @@ gem install solargraph
 gem install rufo
 
 ```
+# This section is being tested and may not work on some mobiles
 
-# Charp Lsp 
+## Charp Lsp 
 
 ```bash
 
