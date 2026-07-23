@@ -58,6 +58,7 @@ import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.FileChange;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
 import ir.hanzodev1375.ghostide.models.ZipEntryModel;
+import ir.hanzodev1375.ghostide.postman.PostManActivity;
 import ir.hanzodev1375.ghostide.refactor.rename.ui.RenamePackageBottomSheet;
 import ir.hanzodev1375.ghostide.bookmark.BookmarkBottomSheet;
 import ir.hanzodev1375.ghostide.bookmark.BookmarkViewModel;
@@ -1468,6 +1469,7 @@ public class FileManagerActivity extends BaseCompat
     menu.addItem(new PowerMenuItem(getString(R.string.aboutapp)));
     menu.addItem(new PowerMenuItem(getString(R.string.translator_title)));
     menu.addItem(new PowerMenuItem(getString(R.string.terminal_title)));
+    menu.addItem(new PowerMenuItem(getString(R.string.postman_title)));
     menu.setAutoDismiss(true);
     menu.setShowBackground(false);
     menu.setAnimation(MenuAnimation.FADE);
@@ -1526,6 +1528,7 @@ public class FileManagerActivity extends BaseCompat
             case 10 -> StringsTranslatorSheet.newInstance(viewModel.getCurrentPath().getValue())
                 .show(getSupportFragmentManager(), StringsTranslatorSheet.TAG);
             case 11 -> startActivity(new Intent(FileManagerActivity.this, TerminalActivity.class));
+            case 12 -> startActivity(new Intent(FileManagerActivity.this, PostManActivity.class));
           }
         });
     menu.showAsDropDown(bind.btnSettings);

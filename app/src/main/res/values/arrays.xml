@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="theme_names">
-        <item>پیش‌فرض (نارنجی)</item>
-        <item>قرمز</item>
-        <item>داینامیک (Material You)</item>
-    </string-array>
-    <array name="theme_styles">
-        <item>@style/AppTheme</item>
-        <item>@style/AppTheme.RED</item>
-        <item>@style/AppTheme.DYNAMIC</item> 
-    </array>
+  <string-array name="theme_names">
+    <item>پیش فرض (نارنجی)</item>
+    <item>قرمز</item>
+    <item>داینامیک (Material You)</item>
+  </string-array>
+  <array name="theme_styles">
+    <item>@style/AppTheme</item>
+    <item>@style/AppTheme.RED</item>
+    <item>@style/AppTheme.DYNAMIC</item>
+  </array>
+
+  <string-array name="http_methods">
+    <item>GET</item>
+    <item>POST</item>
+    <item>PUT</item>
+    <item>PATCH</item>
+    <item>DELETE</item>
+    <item>HEAD</item>
+    <item>OPTIONS</item>
+  </string-array>
+
+  <string-array name="content_types">
+    <item>application/json</item>
+    <item>text/plain</item>
+    <item>application/xml</item>
+    <item>text/html</item>
+  </string-array>
 </resources>

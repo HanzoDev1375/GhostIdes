@@ -1,0 +1,82 @@
+package ir.hanzodev1375.ghostide.postman;
+
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import ir.hanzodev1375.ghostide.postman.data.AppRepository;
+import ir.hanzodev1375.ghostide.postman.databinding.ActivitySettingsBinding;
+import ir.hanzodev1375.ghostide.postman.util.PrefsManager;
+import ir.hanzodev1375.ghostide.postman.util.SimpleTextWatcher;
+
+public class SettingsActivity extends AppCompatActivity {
+
+  private ActivitySettingsBinding binding;
+  private PrefsManager prefs;
+
+  @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    binding = ActivitySettingsBinding.inflate(getLayoutInflater());
+    setContentView(binding.getRoot());
+
+    prefs = new PrefsManager(this);
+    binding.toolbar.setNavigationOnClickListener(v -> finish());
+    setupTimeout();
+    setupSsl();
+    setupClearHistory();
+  }
+  private void setupTimeout() {
+    binding.timeoutInput.setText(String.valueOf(prefs.getTimeoutSeconds()));
+    binding.timeoutInput.addTextChangedListener(
+        new SimpleTextWatcher(
+            text -> {
+              try {
+                int seconds = Integer.parseInt(text.trim());
+                if (seconds < 1) seconds = 1;
+                if (seconds > 180) seconds = 180;
+                prefs.setTimeoutSeconds(seconds);
+              } catch (NumberFormatException ignored) {
+                // still typing, or the field is empty — leave the previously saved value alone
+              }
+            }));
+  }
+
+  private void setupSsl() {
+    binding.sslSwitch.setChecked(prefs.isSslVerificationDisabled());
+    binding.sslSwitch.setOnCheckedChangeListener(
+        (buttonView, isChecked) -> prefs.setSslVerificationDisabled(isChecked));
+  }
+
+  private void setupClearHistory() {
+    binding.clearHistoryButton.setOnClickListener(
+        v ->
+            new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_confirm_title)
+                .setMessage(R.string.msg_confirm_clear_history)
+                .setNegativeButton(R.string.action_cancel, null)
+                .setPositiveButton(
+                    R.string.action_clear_all,
+                    (dialog, which) -> {
+                      AppRepository repository = new AppRepository(this);
+                      new Thread(
+                              () -> {
+                                repository.clearHistory();
+                                runOnUiThread(
+                                    () ->
+                                        Toast.makeText(
+                                                this,
+                                                R.string.msg_history_cleared,
+                                                Toast.LENGTH_SHORT)
+                                            .show());
+                              })
+                          .start();
+                    })
+                .show());
+  }
+}
