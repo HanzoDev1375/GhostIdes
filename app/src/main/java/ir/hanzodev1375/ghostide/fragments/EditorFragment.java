@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,9 +42,11 @@ import java.io.IOException;
 import ir.hanzodev1375.ghostide.R;
 import java.io.Reader;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.model.BreadcrumbItem;
 
 public class EditorFragment extends Fragment {
 
@@ -77,6 +81,9 @@ public class EditorFragment extends Fragment {
   private volatile LspEditor lspEditor;
   private static final int DIAGNOSTICS_COLOR_OK = Color.parseColor("#4CAF50"); 
   private static final int DIAGNOSTICS_COLOR_ERROR = Color.parseColor("#F44336"); 
+  private final Handler breadcrumbHandler = new Handler(Looper.getMainLooper());
+  private static final long BREADCRUMB_DEBOUNCE_MS = 300;
+  private final Runnable breadcrumbRefreshRunnable = this::refreshBreadcrumbs;
 
   public static EditorFragment newInstance(String path) {
     EditorFragment f = new EditorFragment();
@@ -114,6 +121,7 @@ public class EditorFragment extends Fragment {
           if (setting.autoSaveFiles()) {
             saveCurrentFile();
           }
+          scheduleBreadcrumbRefresh();
         });
     viewModel
         .getLoading()
@@ -185,6 +193,7 @@ public class EditorFragment extends Fragment {
                         lspEditor.setEnableHover(true);
                         lspEditor.setEnableSignatureHelp(true);
                         updateDiagnosticsIcon(lspEditor);
+                        scheduleBreadcrumbRefresh();
                       });
                 })
             .start();
@@ -199,6 +208,7 @@ public class EditorFragment extends Fragment {
           var cursor = editor.getCursor();
           binding.tvCursorPosition.setText(
               "L " + (cursor.getLeftLine() + 1) + ", C " + (cursor.getLeftColumn() + 1));
+          scheduleBreadcrumbRefresh();
         });
     binding.tvCursorPosition.setVisibility(
         setting.getShowLineColPanel() ? View.VISIBLE : View.GONE);
@@ -459,6 +469,7 @@ public class EditorFragment extends Fragment {
   @Override
   public void onDestroyView() {
     super.onDestroyView();
+    breadcrumbHandler.removeCallbacksAndMessages(null);
     FileChangeReceiver.stopWatching();
     if (lspEditor != null) {
       final LspEditor toClose = lspEditor;
@@ -486,6 +497,33 @@ public class EditorFragment extends Fragment {
 
   public IdeEditor getEditor() {
     return editor;
+  }
+
+  public void scheduleBreadcrumbRefresh() {
+    if (lspEditor == null) return;
+    breadcrumbHandler.removeCallbacks(breadcrumbRefreshRunnable);
+    breadcrumbHandler.postDelayed(breadcrumbRefreshRunnable, BREADCRUMB_DEBOUNCE_MS);
+  }
+
+  private void refreshBreadcrumbs() {
+    LspEditor currentLspEditor = lspEditor;
+    IdeEditor currentEditor = editor;
+    String currentFilePath = filePath;
+    if (currentLspEditor == null || currentEditor == null || currentFilePath == null) return;
+    var cursor = currentEditor.getCursor();
+    int line = cursor.getLeftLine();
+    int column = cursor.getLeftColumn();
+    new Thread(
+            () -> {
+              List<BreadcrumbItem> items =
+                  LspRouter.fetchBreadcrumbs(currentLspEditor, currentFilePath, line, column);
+              ThreadUtils.runOnUiThread(
+                  () -> {
+                    if (!isAdded() || !(getActivity() instanceof EditorActivity)) return;
+                    ((EditorActivity) getActivity()).showBreadcrumbs(this, items);
+                  });
+            })
+        .start();
   }
 
   

@@ -33,6 +33,7 @@ import com.blankj.utilcode.util.FileIOUtils;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.lsp.editor.LspEditorStatus;
 import ir.hanzodev1375.filetreelib.widget.FileTreeView;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.model.BreadcrumbItem;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.customui.EditorStatusBar;
 import ir.hanzodev1375.ghostide.customui.TabCustomView;
@@ -56,6 +57,7 @@ import java.util.concurrent.Executors;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.adapters.EditorPagerAdapter;
 import ir.hanzodev1375.ghostide.adapters.ToolbarListAdapter;
+import ir.hanzodev1375.ghostide.adapters.BreadcrumbAdapter;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.customui.GhostIdeEditorSearch;
 import ir.hanzodev1375.ghostide.databinding.ActivityEditorBinding;
@@ -98,14 +100,11 @@ public class EditorActivity extends BaseCompat
   private boolean isSplitViewActive = false;
   private PreferencesUtils settings;
   private int lastSplitRows = 1, lastSplitCols = 2;
-  private EditorPaneFragment activePane = null; 
+  private EditorPaneFragment activePane = null;
 
-  
-  
-  
-  
   private static final long LSP_STATUS_POLL_INTERVAL_MS = 1500;
   private final Handler lspStatusHandler = new Handler(Looper.getMainLooper());
+  private BreadcrumbAdapter breadcrumbAdapter;
   private final Runnable lspStatusPollRunnable =
       new Runnable() {
         @Override
@@ -147,6 +146,15 @@ public class EditorActivity extends BaseCompat
     settings = new PreferencesUtils(this);
     setupViewPager();
     setupTabLayout();
+    breadcrumbAdapter = new BreadcrumbAdapter();
+    binding.rvBreadcrumb.setLayoutManager(
+        new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+    binding.rvBreadcrumb.setAdapter(breadcrumbAdapter);
+    breadcrumbAdapter.setOnItemClickListener(
+        item -> {
+          IdeEditor current = getEditor();
+          if (current != null) current.setSelection(item.getLine(), item.getColumn());
+        });
     setupFAB();
     loadSavedTabs();
     updateLanguageStatus(binding.viewPager.getCurrentItem());
@@ -305,8 +313,7 @@ public class EditorActivity extends BaseCompat
   @Override
   protected void onResume() {
     super.onResume();
-    
-    
+
     refreshGitStatus();
     ir.hanzodev1375.ghostide.refactor.rename.FileRenameNotifier.getInstance().addListener(this);
     lspStatusHandler.removeCallbacks(lspStatusPollRunnable);
@@ -952,8 +959,8 @@ public class EditorActivity extends BaseCompat
    * وضعیتِ اتصالِ LSP مربوط به تبِ الان دیده شده رو می‌خونه (از IdeEditor.getLspStatus()) و نقطه‌ی
    * گِردِ داخل editorStatusBar رو بر همون اساس رنگ/متنش رو آپدیت می‌کنه.
    *
-   * <p>هم از updateLanguageStatus() (موقع تعویض تب) صدا زده می‌شه، هم از lspStatusPollRunnable
-   * (هر ۱.۵ ثانیه، تا وضعیت‌هایی مثل CONNECTING → CONNECTED که وسط کار عوض می‌شن هم دیده بشن).
+   * <p>هم از updateLanguageStatus() (موقع تعویض تب) صدا زده می‌شه، هم از lspStatusPollRunnable (هر
+   * ۱.۵ ثانیه، تا وضعیت‌هایی مثل CONNECTING → CONNECTED که وسط کار عوض می‌شن هم دیده بشن).
    */
   private void refreshLspStatusIndicator() {
     if (binding == null) return;
@@ -964,7 +971,7 @@ public class EditorActivity extends BaseCompat
     }
     LspEditorStatus status = editor.getLspStatus();
     if (status == null) {
-      
+
       binding.editorStatusBar.setStatusIndicator(EditorStatusBar.StatusIndicator.IDLE, "—");
       return;
     }
@@ -986,6 +993,32 @@ public class EditorActivity extends BaseCompat
         binding.editorStatusBar.setStatusIndicator(EditorStatusBar.StatusIndicator.IDLE, "Idle");
         break;
     }
+    refreshBreadcrumbs();
+  }
+
+  private void refreshBreadcrumbs() {
+    if (binding == null || adapter == null) return;
+    if (activePane != null) {
+      breadcrumbAdapter.setItems(new ArrayList<>());
+      return;
+    }
+    if (binding.viewPager == null || adapter.getItemCount() == 0) {
+      breadcrumbAdapter.setItems(new ArrayList<>());
+      return;
+    }
+    int currentPos = binding.viewPager.getCurrentItem();
+    Fragment currentFragment = adapter.getFragmentAtPosition(currentPos, this);
+    if (currentFragment instanceof EditorFragment) {
+      ((EditorFragment) currentFragment).scheduleBreadcrumbRefresh();
+    } else {
+      breadcrumbAdapter.setItems(new ArrayList<>());
+    }
+  }
+
+  public void showBreadcrumbs(EditorFragment source, List<BreadcrumbItem> items) {
+    if (binding == null || activePane != null) return;
+    if (getEditor() != source.getEditor()) return;
+    breadcrumbAdapter.setItems(items);
   }
 
   private void closeTab(int position) {
@@ -1122,7 +1155,7 @@ public class EditorActivity extends BaseCompat
     }
     for (TabModel tab : tabsList) {
       if (!activeFragPaths.contains(tab.getFilePath())) {
-               
+
         savedCount++;
       }
     }
