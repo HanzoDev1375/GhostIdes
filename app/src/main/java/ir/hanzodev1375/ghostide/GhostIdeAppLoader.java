@@ -10,7 +10,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.util.Log;
+import com.downloader.PRDownloader;
 import ir.hanzodev1375.ghostide.activity.ErrorManagerActivity;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
 import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
 import java.util.Calendar;
@@ -20,7 +22,7 @@ public class GhostIdeAppLoader extends Application {
   private static Context mApplicationContext;
   private static GhostIdeAppLoader loader;
   private final StringBuilder softwareInfo = new StringBuilder();
-
+  private PreferencesUtils setting;
   public static Context getContext() {
     return mApplicationContext;
   }
@@ -33,10 +35,11 @@ public class GhostIdeAppLoader extends Application {
   public void onCreate() {
     super.onCreate();
     loader = this;
+    setting = new PreferencesUtils(this);
     mApplicationContext = getApplicationContext();
     ShizukuManager.registerListeners();
     ThemeEngine.applyToActivities(this);
-    com.downloader.PRDownloader.initialize(getApplicationContext());
+    PRDownloader.initialize(getApplicationContext());
 
     Thread.setDefaultUncaughtExceptionHandler(
         new Thread.UncaughtExceptionHandler() {
@@ -76,5 +79,8 @@ public class GhostIdeAppLoader extends Application {
     } catch (PackageManager.NameNotFoundException e) {
       return null;
     }
+  }
+  public PreferencesUtils getSetting(){
+    return setting;
   }
 }

@@ -1,530 +1,539 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootCoordinator"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/rootCoordinator"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+  <ImageView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    >
+    android:scaleType="centerCrop"
+    android:visibility="gone"
+    android:id="@+id/iconBackground" />
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        android:fitsSystemWindows="true"
-        android:elevation="0dp">
+  <com.google.android.material.appbar.AppBarLayout
+    android:id="@+id/appBarLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="@android:color/transparent"
+    android:elevation="0dp">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="@string/app_name"
-            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
+    <com.google.android.material.appbar.MaterialToolbar
+      android:id="@+id/toolbar"
+      android:layout_width="match_parent"
+      android:layout_height="?attr/actionBarSize"
+      app:title="@string/app_name"
+      app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
 
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/progressIndicator"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:visibility="invisible"
-            app:indicatorColor="?attr/colorPrimary"
-            app:trackColor="@android:color/transparent" />
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+      android:id="@+id/progressIndicator"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:indeterminate="true"
+      android:visibility="invisible"
+      app:indicatorColor="?attr/colorPrimary"
+      app:trackColor="@android:color/transparent" />
 
-    </com.google.android.material.appbar.AppBarLayout>
+  </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingBottom="24dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+  <androidx.core.widget.NestedScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:paddingBottom="24dp"
+    android:id="@+id/contentScroll"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <!-- ============== Method + URL + Send ============== -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.GhostIDE.CardView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/methodInputLayout"
-                            style="@style/Widget.GhostIDE.TextInputLayout.ExposedDropdown"
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content">
-
-                            <AutoCompleteTextView
-                                android:id="@+id/methodDropdown"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="none"
-                                android:text="GET"
-                                android:textStyle="bold" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/urlInput"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="10dp"
-                            android:background="@drawable/bg_input_row"
-                            android:gravity="center_vertical"
-                            android:hint="@string/hint_url"
-                            android:imeOptions="actionGo"
-                            android:inputType="textUri"
-                            android:maxLines="1"
-                            android:minHeight="56dp"
-                            android:paddingStart="14dp"
-                            android:paddingEnd="14dp"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textColorHint="?attr/colorOnSurfaceVariant"
-                            android:textSize="14sp" />
-                    </LinearLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/sendButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        app:icon="@drawable/ic_send"
-                        app:iconGravity="textStart"
-                        android:text="@string/action_send" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- ============== Params / Headers / Body tabs ============== -->
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/requestTabs"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:background="@android:color/transparent"
-                app:tabGravity="fill"
-                app:tabIndicatorColor="?attr/colorPrimary"
-                app:tabMode="fixed"
-                app:tabSelectedTextColor="?attr/colorPrimary"
-                app:tabTextColor="?attr/colorOnSurfaceVariant">
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/tab_params" />
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/tab_headers" />
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/tab_body" />
-            </com.google.android.material.tabs.TabLayout>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:minHeight="110dp">
-
-                <!-- Params panel -->
-                <LinearLayout
-                    android:id="@+id/paramsPanel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="visible">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/paramsRecyclerView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        tools:listitem="@layout/item_key_value" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/addParamButton"
-                        style="@style/Widget.GhostIDE.Button.Text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        app:icon="@drawable/ic_add"
-                        android:text="@string/action_add_row" />
-                </LinearLayout>
-
-                <!-- Headers panel -->
-                <LinearLayout
-                    android:id="@+id/headersPanel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/headersRecyclerView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        tools:listitem="@layout/item_key_value" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/addHeaderButton"
-                        style="@style/Widget.GhostIDE.Button.Text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        app:icon="@drawable/ic_add"
-                        android:text="@string/action_add_row" />
-                </LinearLayout>
-
-                <!-- Body panel -->
-                <LinearLayout
-                    android:id="@+id/bodyPanel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <com.google.android.material.button.MaterialButtonToggleGroup
-                        android:id="@+id/bodyTypeToggleGroup"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:selectionRequired="true"
-                        app:singleSelection="true">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/bodyTypeNone"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:checked="true"
-                            android:text="@string/body_none"
-                            android:textAllCaps="false" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/bodyTypeRaw"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/body_raw"
-                            android:textAllCaps="false" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/bodyTypeForm"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/body_form"
-                            android:textAllCaps="false" />
-                    </com.google.android.material.button.MaterialButtonToggleGroup>
-
-                    <TextView
-                        android:id="@+id/noneBodyText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:gravity="center"
-                        android:padding="16dp"
-                        android:text="@string/label_no_body"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:visibility="visible" />
-
-                    <LinearLayout
-                        android:id="@+id/rawBodyContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:visibility="gone">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="14dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <com.google.android.material.textfield.TextInputLayout
-                                android:id="@+id/contentTypeInputLayout"
-                                style="@style/Widget.GhostIDE.TextInputLayout.ExposedDropdown"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:hint="@string/hint_content_type">
-
-                                <AutoCompleteTextView
-                                    android:id="@+id/contentTypeDropdown"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:inputType="none" />
-                            </com.google.android.material.textfield.TextInputLayout>
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/formatJsonButton"
-                                style="@style/Widget.GhostIDE.Button.Text"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:text="@string/action_format_json" />
-                        </LinearLayout>
-
-                        <EditText
-                            android:id="@+id/bodyRawInput"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:background="@drawable/bg_input_row"
-                            android:fontFamily="monospace"
-                            android:gravity="top|start"
-                            android:hint="@string/hint_body_raw"
-                            android:inputType="textMultiLine|textNoSuggestions"
-                            android:minLines="6"
-                            android:padding="14dp"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textColorHint="?attr/colorOnSurfaceVariant"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/formBodyContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:orientation="vertical"
-                        android:visibility="gone">
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/formRecyclerView"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            tools:listitem="@layout/item_key_value" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/addFormFieldButton"
-                            style="@style/Widget.GhostIDE.Button.Text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            app:icon="@drawable/ic_add"
-                            android:text="@string/action_add_row" />
-                    </LinearLayout>
-                </LinearLayout>
-            </FrameLayout>
-
-            <!-- reserves room so content can scroll clear of the persistent response sheet -->
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="150dp" />
-
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-
-    <!-- ============== Persistent response bottom sheet ============== -->
     <LinearLayout
-        android:id="@+id/responseSheet"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      android:padding="16dp">
+
+
+      <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.GhostIDE.CardView"
+        android:layout_width="match_parent"
+        android:id="@+id/cardStatus"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:padding="16dp">
+
+          <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.textfield.TextInputLayout
+              android:id="@+id/methodInputLayout"
+              style="@style/Widget.GhostIDE.TextInputLayout.ExposedDropdown"
+              android:layout_width="120dp"
+              android:layout_height="wrap_content">
+
+              <AutoCompleteTextView
+                android:id="@+id/methodDropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:text="GET"
+                android:textStyle="bold" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputEditText
+              android:id="@+id/urlInput"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:layout_marginStart="10dp"
+              android:background="@drawable/bg_input_row"
+              android:gravity="center_vertical"
+              android:hint="@string/hint_url"
+              android:imeOptions="actionGo"
+              android:inputType="textUri"
+              android:maxLines="1"
+              android:minHeight="56dp"
+              android:paddingStart="14dp"
+              android:paddingEnd="14dp"
+              android:textColor="?attr/colorOnSurface"
+              android:textColorHint="?attr/colorOnSurfaceVariant"
+              android:textSize="14sp" />
+          </LinearLayout>
+
+          <com.google.android.material.button.MaterialButton
+            android:id="@+id/sendButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:icon="@drawable/ic_send"
+            app:iconGravity="textStart"
+            android:text="@string/action_send" />
+        </LinearLayout>
+      </com.google.android.material.card.MaterialCardView>
+
+      <com.google.android.material.tabs.TabLayout
+        android:id="@+id/requestTabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_bottom_sheet"
-        android:elevation="10dp"
-        android:orientation="vertical"
-        app:behavior_hideable="false"
-        app:behavior_peekHeight="96dp"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+        android:layout_marginTop="18dp"
+        android:background="@android:color/transparent"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="?attr/colorPrimary"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="?attr/colorPrimary"
+        app:tabTextColor="?attr/colorOnSurfaceVariant">
 
-        <eightbitlab.com.blurview.BlurView
-            android:id="@+id/blurHandleView"
-            android:layout_width="match_parent"
-            android:layout_height="96dp">
+        <com.google.android.material.tabs.TabItem
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/tab_params" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="vertical"
-                android:id="@+id/handleClickArea">
+        <com.google.android.material.tabs.TabItem
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/tab_headers" />
 
-                <View
-                    android:layout_width="40dp"
-                    android:layout_height="4dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/bg_drag_handle"
-                    android:contentDescription="@string/content_desc_drag_handle" />
+        <com.google.android.material.tabs.TabItem
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/tab_body" />
+      </com.google.android.material.tabs.TabLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="10dp">
+      <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:minHeight="110dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_response"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/responseStatusChip"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:background="@drawable/bg_chip_rounded"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingTop="2dp"
-                        android:paddingBottom="2dp"
-                        android:textColor="@color/status_on_chip"
-                        android:textSize="11sp"
-                        android:visibility="gone"
-                        tools:text="200 OK" />
-
-                    <TextView
-                        android:id="@+id/responseMetaText"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:gravity="end"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="12sp"
-                        tools:text="128 ms · 2.1 KB" />
-
-                    <ImageButton
-                        android:id="@+id/copyBodyButton"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="2dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/content_desc_copy"
-                        android:padding="7dp"
-                        android:src="@drawable/ic_content_copy"
-                        android:tint="?attr/colorOnSurfaceVariant"
-                        android:visibility="gone" />
-                </LinearLayout>
-            </LinearLayout>
-        </eightbitlab.com.blurview.BlurView>
-
+        <!-- Params panel -->
         <LinearLayout
-            android:id="@+id/responseEmptyState"
+          android:id="@+id/paramsPanel"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:visibility="visible">
+
+          <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/paramsRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="260dp"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="visible">
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/item_key_value" />
 
-            <ImageView
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_ghost_empty" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginEnd="32dp"
-                android:gravity="center"
-                android:text="@string/label_no_response_yet"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="14sp" />
+          <com.google.android.material.button.MaterialButton
+            android:id="@+id/addParamButton"
+            style="@style/Widget.GhostIDE.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            app:icon="@drawable/ic_add"
+            android:text="@string/action_add_row" />
         </LinearLayout>
 
+
         <LinearLayout
-            android:id="@+id/responseContentContainer"
+          android:id="@+id/headersPanel"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:visibility="gone">
+
+          <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/headersRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/item_key_value" />
+
+          <com.google.android.material.button.MaterialButton
+            android:id="@+id/addHeaderButton"
+            style="@style/Widget.GhostIDE.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            app:icon="@drawable/ic_add"
+            android:text="@string/action_add_row" />
+        </LinearLayout>
+
+
+        <LinearLayout
+          android:id="@+id/bodyPanel"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:visibility="gone">
+
+          <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/bodyTypeToggleGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.button.MaterialButton
+              android:id="@+id/bodyTypeNone"
+              style="@style/Widget.Material3.Button.OutlinedButton"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:checked="true"
+              android:text="@string/body_none"
+              android:textAllCaps="false" />
+
+            <com.google.android.material.button.MaterialButton
+              android:id="@+id/bodyTypeRaw"
+              style="@style/Widget.Material3.Button.OutlinedButton"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:text="@string/body_raw"
+              android:textAllCaps="false" />
+
+            <com.google.android.material.button.MaterialButton
+              android:id="@+id/bodyTypeForm"
+              style="@style/Widget.Material3.Button.OutlinedButton"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:text="@string/body_form"
+              android:textAllCaps="false" />
+          </com.google.android.material.button.MaterialButtonToggleGroup>
+
+          <TextView
+            android:id="@+id/noneBodyText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="@string/label_no_body"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="visible" />
+
+          <LinearLayout
+            android:id="@+id/rawBodyContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone">
 
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/responseTabs"
-                android:layout_width="match_parent"
+            <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="14dp"
+              android:gravity="center_vertical"
+              android:orientation="horizontal">
+
+              <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/contentTypeInputLayout"
+                style="@style/Widget.GhostIDE.TextInputLayout.ExposedDropdown"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:tabGravity="fill"
-                app:tabIndicatorColor="?attr/colorPrimary"
-                app:tabMode="fixed"
-                app:tabSelectedTextColor="?attr/colorPrimary"
-                app:tabTextColor="?attr/colorOnSurfaceVariant">
+                android:layout_weight="1"
+                android:hint="@string/hint_content_type">
 
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/tab_response_body" />
+                <AutoCompleteTextView
+                  android:id="@+id/contentTypeDropdown"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:inputType="none" />
+              </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/tab_response_headers" />
-            </com.google.android.material.tabs.TabLayout>
+              <com.google.android.material.button.MaterialButton
+                android:id="@+id/formatJsonButton"
+                style="@style/Widget.GhostIDE.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="@string/action_format_json" />
+            </LinearLayout>
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="420dp">
+            <EditText
+              android:id="@+id/bodyRawInput"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="10dp"
+              android:background="@drawable/bg_input_row"
+              android:fontFamily="monospace"
+              android:gravity="top|start"
+              android:hint="@string/hint_body_raw"
+              android:inputType="textMultiLine|textNoSuggestions"
+              android:minLines="6"
+              android:padding="14dp"
+              android:textColor="?attr/colorOnSurface"
+              android:textColorHint="?attr/colorOnSurfaceVariant"
+              android:textSize="13sp" />
+          </LinearLayout>
 
-                <androidx.core.widget.NestedScrollView
-                    android:id="@+id/responseBodyScroll"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="visible">
+          <LinearLayout
+            android:id="@+id/formBodyContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            android:visibility="gone">
 
-                    <TextView
-                        android:id="@+id/responseBodyText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="monospace"
-                        android:padding="16dp"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textIsSelectable="true"
-                        android:textSize="12.5sp"
-                        tools:text="{ }" />
-                </androidx.core.widget.NestedScrollView>
+            <androidx.recyclerview.widget.RecyclerView
+              android:id="@+id/formRecyclerView"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              tools:listitem="@layout/item_key_value" />
 
-                <androidx.core.widget.NestedScrollView
-                    android:id="@+id/responseHeadersScroll"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:id="@+id/responseHeadersText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="monospace"
-                        android:padding="16dp"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textIsSelectable="true"
-                        android:textSize="12.5sp"
-                        tools:text="content-type: application/json" />
-                </androidx.core.widget.NestedScrollView>
-            </FrameLayout>
+            <com.google.android.material.button.MaterialButton
+              android:id="@+id/addFormFieldButton"
+              style="@style/Widget.GhostIDE.Button.Text"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="2dp"
+              app:icon="@drawable/ic_add"
+              android:text="@string/action_add_row" />
+          </LinearLayout>
         </LinearLayout>
+      </FrameLayout>
+
+      <Space
+        android:layout_width="match_parent"
+        android:layout_height="150dp" />
 
     </LinearLayout>
+  </androidx.core.widget.NestedScrollView>
+  <!-- ============== Persistent response bottom sheet ============== -->
+  <LinearLayout
+    android:id="@+id/responseSheet"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="10dp"
+    android:orientation="vertical"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="96dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+    <eightbitlab.com.blurview.BlurView
+      android:id="@+id/responseSheetBlurView"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      >
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+          android:id="@+id/handleClickArea"
+          android:layout_width="match_parent"
+          android:layout_height="96dp"
+          android:background="?attr/selectableItemBackground"
+          android:clickable="true"
+          android:focusable="true"
+          android:orientation="vertical">
+
+          <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_drag_handle"
+            android:contentDescription="@string/content_desc_drag_handle" />
+
+          <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="20dp"
+            android:paddingEnd="10dp">
+
+            <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/label_response"
+              android:textColor="?attr/colorOnSurface"
+              android:textSize="16sp"
+              android:textStyle="bold" />
+
+            <TextView
+              android:id="@+id/responseStatusChip"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="10dp"
+              android:background="@drawable/bg_chip_rounded"
+              android:paddingStart="8dp"
+              android:paddingEnd="8dp"
+              android:paddingTop="2dp"
+              android:paddingBottom="2dp"
+              android:textColor="@color/status_on_chip"
+              android:textSize="11sp"
+              android:visibility="gone"
+              tools:text="200 OK" />
+
+            <TextView
+              android:id="@+id/responseMetaText"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:layout_marginStart="8dp"
+              android:gravity="end"
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="12sp"
+              tools:text="128 ms · 2.1 KB" />
+
+            <ImageButton
+              android:id="@+id/copyBodyButton"
+              android:layout_width="36dp"
+              android:layout_height="36dp"
+              android:layout_marginStart="2dp"
+              android:background="?attr/selectableItemBackgroundBorderless"
+              android:contentDescription="@string/content_desc_copy"
+              android:padding="7dp"
+              android:src="@drawable/ic_content_copy"
+              android:tint="?attr/colorOnSurfaceVariant"
+              android:visibility="gone" />
+          </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+          android:id="@+id/responseEmptyState"
+          android:layout_width="match_parent"
+          android:layout_height="260dp"
+          android:gravity="center"
+          android:orientation="vertical"
+          android:visibility="visible">
+
+          <ImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_ghost_empty" />
+
+          <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="32dp"
+            android:gravity="center"
+            android:text="@string/label_no_response_yet"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+          android:id="@+id/responseContentContainer"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:visibility="gone">
+
+          <com.google.android.material.tabs.TabLayout
+            android:id="@+id/responseTabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:tabGravity="fill"
+            app:tabIndicatorColor="?attr/colorPrimary"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="?attr/colorPrimary"
+            app:tabTextColor="?attr/colorOnSurfaceVariant">
+
+            <com.google.android.material.tabs.TabItem
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/tab_response_body" />
+
+            <com.google.android.material.tabs.TabItem
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/tab_response_headers" />
+          </com.google.android.material.tabs.TabLayout>
+
+          <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="420dp">
+
+            <androidx.core.widget.NestedScrollView
+              android:id="@+id/responseBodyScroll"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:visibility="visible">
+
+              <TextView
+                android:id="@+id/responseBodyText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:padding="16dp"
+                android:textColor="?attr/colorOnSurface"
+                android:textIsSelectable="true"
+                android:textSize="12.5sp"
+                tools:text="{ }" />
+            </androidx.core.widget.NestedScrollView>
+
+            <androidx.core.widget.NestedScrollView
+              android:id="@+id/responseHeadersScroll"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:visibility="gone">
+
+              <TextView
+                android:id="@+id/responseHeadersText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:padding="16dp"
+                android:textColor="?attr/colorOnSurface"
+                android:textIsSelectable="true"
+                android:textSize="12.5sp"
+                tools:text="content-type: application/json" />
+            </androidx.core.widget.NestedScrollView>
+          </FrameLayout>
+        </LinearLayout>
+
+      </LinearLayout>
+    </eightbitlab.com.blurview.BlurView>
+
+  </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

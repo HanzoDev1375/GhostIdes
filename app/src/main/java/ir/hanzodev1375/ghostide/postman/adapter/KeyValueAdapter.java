@@ -1,5 +1,6 @@
 package ir.hanzodev1375.ghostide.postman.adapter;
 
+import android.graphics.drawable.GradientDrawable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -7,6 +8,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
+import ir.theme.ThemeManager;
+import ir.theme.ThemeUtils;
 import java.util.List;
 
 import ir.hanzodev1375.ghostide.databinding.ItemKeyValueBinding;
@@ -92,6 +96,14 @@ public class KeyValueAdapter extends RecyclerView.Adapter<KeyValueAdapter.ViewHo
     void bind(KeyValueItem item) {
       if (keyWatcher != null) binding.keyInput.removeTextChangedListener(keyWatcher);
       if (valueWatcher != null) binding.valueInput.removeTextChangedListener(valueWatcher);
+      var themeManager = new ThemeManager(GhostIdeAppLoader.getContext());
+      var themeUtil = new ThemeUtils(themeManager);
+      var weget = themeManager.getTheme().getWidget();
+      var setting = GhostIdeAppLoader.getInstance().getSetting();
+      if(!setting.isShowBackground()) {
+      	return;
+      }
+      //بعدا کامل میکنمش
 
       binding.keyInput.setText(item.getKey());
       binding.valueInput.setText(item.getValue());

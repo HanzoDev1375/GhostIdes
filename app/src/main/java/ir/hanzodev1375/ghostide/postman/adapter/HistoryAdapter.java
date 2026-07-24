@@ -39,7 +39,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-  //  holder.bind(items.get(position));
+    holder.bind(items.get(position));
   }
 
   @Override

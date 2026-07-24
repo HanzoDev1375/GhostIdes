@@ -46,15 +46,35 @@ public class UiUtils {
     return code + " " + message;
   }
 
+  public static void fixUi(View topEdge, View bottomEdge) {
+    ViewCompat.setOnApplyWindowInsetsListener(
+        topEdge,
+        (v, insets) -> {
+          Insets status = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+          v.setPadding(v.getPaddingLeft(), status.top, v.getPaddingRight(), v.getPaddingBottom());
+          return insets;
+        });
+    ViewCompat.setOnApplyWindowInsetsListener(
+        bottomEdge,
+        (v, insets) -> {
+          Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+          Insets nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+          int bottom = Math.max(ime.bottom, nav.bottom);
+          v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottom);
+          return insets;
+        });
+  }
+
   public static void fixUi(View target) {
+    fixUi(target, target);
+  } 
+
+  public static void fixBottomBar(View target) {
     ViewCompat.setOnApplyWindowInsetsListener(
         target,
         (v, insets) -> {
-          Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
-          Insets navInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
-
-          int bottomInset = Math.max(imeInsets.bottom, navInsets.bottom);
-          v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottomInset);
+          Insets nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+          v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), nav.bottom);
           return insets;
         });
   }

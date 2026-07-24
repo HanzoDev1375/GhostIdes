@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,13 +18,20 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 
+import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.activity.SettingActivity;
+import ir.hanzodev1375.ghostide.postman.util.BlurUtils;
+import ir.hanzodev1375.ghostide.utils.BlurTransformation;
+import ir.theme.ThemeManager;
+import ir.theme.ThemeUtils;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.R;
@@ -73,19 +81,18 @@ public class PostManActivity extends BaseCompat {
     binding = ActivityPostmanBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
     setSupportActionBar(binding.toolbar);
-     UiUtils.fixUi(binding.getRoot());
+    UiUtils.fixUi(binding.appBarLayout, binding.contentScroll);
+    UiUtils.fixBottomBar(binding.responseSheet);
     repository = new AppRepository(this);
     prefs = new PrefsManager(this);
-
     setupMethodAndContentTypeDropdowns();
     setupRecyclerViews();
     setupRequestTabs();
     setupBodyTypeToggle();
     setupResponseSheet();
     setupSendButton();
+    stepBackground();
   }
-
-  // ------------------------------------------------------------- Setup
 
   private void setupMethodAndContentTypeDropdowns() {
     ArrayAdapter<String> methodAdapter =
@@ -103,6 +110,36 @@ public class PostManActivity extends BaseCompat {
             getResources().getStringArray(R.array.content_types));
     binding.contentTypeDropdown.setAdapter(contentTypeAdapter);
     binding.contentTypeDropdown.setText("application/json", false);
+  }
+
+  void stepBackground() {
+    var setting = GhostIdeAppLoader.getInstance().getSetting();
+    var themeManager = new ThemeManager(this);
+    var themeUtil = new ThemeUtils(themeManager);
+    var weget = themeUtil.getTheme().getWidget();
+    float ids = weget.getBlursize();
+    var getImagePath = weget.getImagepath();
+    if (!setting.isShowBackground()) {
+      return;
+    }
+    binding.iconBackground.setVisibility(View.VISIBLE);
+    getWindow().setStatusBarColor(Color.TRANSPARENT);
+    getWindow().setNavigationBarColor(Color.TRANSPARENT);
+    Glide.with(this)
+        .load(getImagePath)
+        .transform(new BlurTransformation((int) ids))
+        .into(binding.iconBackground);
+    binding.getRoot().setBackgroundColor(Color.TRANSPARENT);
+    int cardBackColor = MaterialColors.getColor(binding.cardStatus, R.attr.colorSurface);
+    int cardStrokeColor = MaterialColors.getColor(binding.cardStatus, R.attr.colorSecondaryVariant);
+    binding.cardStatus.setCardBackgroundColor(
+        androidx.core.graphics.ColorUtils.setAlphaComponent(cardBackColor, 128));
+    binding.cardStatus.setStrokeColor(
+        androidx.core.graphics.ColorUtils.setAlphaComponent(cardStrokeColor, 128));
+
+    binding.responseEmptyState.setBackgroundTintList(
+        ColorStateList.valueOf(
+            androidx.core.graphics.ColorUtils.setAlphaComponent(cardBackColor, 128)));
   }
 
   private void setupRecyclerViews() {
@@ -179,6 +216,10 @@ public class PostManActivity extends BaseCompat {
   }
 
   private void setupResponseSheet() {
+    int overlay =
+        androidx.core.graphics.ColorUtils.setAlphaComponent(
+            ColorUtils.resolveAttrColor(this, R.attr.colorSurface), 160);
+    BlurUtils.applyBlur(this, binding.responseSheetBlurView, binding.getRoot(), 18f);
     BottomSheetBehavior<LinearLayout> behavior = BottomSheetBehavior.from(binding.responseSheet);
     behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
@@ -227,8 +268,6 @@ public class PostManActivity extends BaseCompat {
           return true;
         });
   }
-
-  // ------------------------------------------------------------ Sending
 
   private void sendRequest() {
     RequestSnapshot snapshot = buildSnapshot();
@@ -346,8 +385,6 @@ public class PostManActivity extends BaseCompat {
     if (imm != null) imm.hideSoftInputFromWindow(focused.getWindowToken(), 0);
   }
 
-  // --------------------------------------------------- Loading a snapshot
-
   private void handlePickedSnapshotResult(androidx.activity.result.ActivityResult result) {
     if (result.getResultCode() != RESULT_OK || result.getData() == null) return;
     String json = result.getData().getStringExtra(EXTRA_SNAPSHOT_JSON);
@@ -398,8 +435,6 @@ public class PostManActivity extends BaseCompat {
 
     Snackbar.make(binding.getRoot(), R.string.msg_request_loaded, Snackbar.LENGTH_SHORT).show();
   }
-
-  // ------------------------------------------------------------- Menu
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
