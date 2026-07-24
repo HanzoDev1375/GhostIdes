@@ -116,7 +116,9 @@ public class UpadteAppView {
         (p, d) -> {
           downloder.setTitle(model.getTitle());
           downloder.setVisibility(View.VISIBLE);
-          downloder.setDownload(model.getLink(), model.getAppname());
+          String link = model.getLink();
+          String fileName = link.substring(link.lastIndexOf('/') + 1);
+          downloder.setDownload(link, fileName);
           if (call != null) {
             call.call();
           }

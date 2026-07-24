@@ -1,7 +1,6 @@
 package ninja.coder.appuploader.main;
 
 import android.annotation.SuppressLint;
-import android.os.AsyncTask;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -21,7 +20,7 @@ import java.io.File;
 import java.util.List;
 
 @SuppressWarnings("deprecation")
-public class ApkInstallerCompat extends AsyncTask<Void, Integer, String> {
+public class ApkInstallerCompat {
 
   public static String TAG = "Error";
   private final Context mContext;
@@ -51,7 +50,6 @@ public class ApkInstallerCompat extends AsyncTask<Void, Integer, String> {
                 new DialogInterface.OnClickListener() {
                   @Override
                   public void onClick(DialogInterface dialog, int which) {
-                    cancel(true);
                     dialog.dismiss();
                   }
                 })
@@ -60,43 +58,15 @@ public class ApkInstallerCompat extends AsyncTask<Void, Integer, String> {
     mAlertDialog = builder.create();
   }
 
-  @Override
-  protected String doInBackground(Void... params) {
-    if (!mApkFile.getName().endsWith(".apk")) {
-      return "Error: not an APK file";
-    }
-
-    if (!isInstallingAppsFromUnknownSourcesAllowed()) {
-      mIsInstallBlocked = true;
-      return "Installation from unknown sources is blocked";
-    }
-
-    Intent intent = new Intent(Intent.ACTION_VIEW);
-    Uri apkUri;
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-      apkUri =
-          FileProvider.getUriForFile(mContext, "ir.ninjacoder.ghostide.core.provider", mApkFile);
-    } else {
-      apkUri = Uri.fromFile(mApkFile);
-    }
-
-    intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-    try {
-      mContext.startActivity(intent);
-    } catch (Exception e) {
-      Log.e(TAG, "Error installing APK:", e);
-      return "Error: " + e.getMessage();
-    }
-    return null;
-  }
-
-  @Override
-  protected void onPostExecute(String result) {
-    super.onPostExecute(result);
+  /**
+   * Must be called from the main/UI thread. All the work below is fast and
+   * non-blocking (no network/disk I/O), so it no longer needs a background
+   * thread - that's what was causing the Looper.prepare() crash: startActivity()
+   * could internally trigger a Handler-based callback (e.g. a system dialog/toast)
+   * on a thread that never had a Looper.
+   */
+  public void execute() {
+    String result = installInternal();
 
     if (mAlertDialog.isShowing()) {
       mAlertDialog.dismiss();
@@ -118,6 +88,39 @@ public class ApkInstallerCompat extends AsyncTask<Void, Integer, String> {
     }
   }
 
+  private String installInternal() {
+    if (!mApkFile.getName().endsWith(".apk")) {
+      return "Error: not an APK file";
+    }
+
+    if (!isInstallingAppsFromUnknownSourcesAllowed()) {
+      mIsInstallBlocked = true;
+      return "Installation from unknown sources is blocked";
+    }
+
+    Intent intent = new Intent(Intent.ACTION_VIEW);
+    Uri apkUri;
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+      apkUri =
+          FileProvider.getUriForFile(mContext, "ir.hanzodev1375.ghostide.provider", mApkFile);
+    } else {
+      apkUri = Uri.fromFile(mApkFile);
+    }
+
+    intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+    try {
+      mContext.startActivity(intent);
+    } catch (Exception e) {
+      Log.e(TAG, "Error installing APK:", e);
+      return "Error: " + e.getMessage();
+    }
+    return null;
+  }
+
   private boolean isActivityRunning(Context context, String packageName) {
     ActivityManager activityManager =
         (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
@@ -131,11 +134,6 @@ public class ApkInstallerCompat extends AsyncTask<Void, Integer, String> {
     }
 
     return false;
-  }
-
-  @Override
-  protected void onProgressUpdate(Integer... values) {
-    super.onProgressUpdate(values);
   }
 
   private void showCustomDialog(String message) {

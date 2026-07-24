@@ -33,6 +33,7 @@ public class ViewDownloder extends RelativeLayout {
   protected LayoutDownloderChildBinding child;
   private OnClick onclick;
   private int id;
+  private String fileName;
 
   public ViewDownloder(Context c) {
     super(c);
@@ -80,6 +81,7 @@ public class ViewDownloder extends RelativeLayout {
 
   public void setDownload(String url, String name) {
 
+    this.fileName = name;
     child.iconfake.setVisibility(View.GONE);
     child.progrssdownload.setVisibility(View.VISIBLE);
     child.iconfake.setImageResource(android.R.drawable.arrow_down_float);
@@ -180,7 +182,7 @@ public class ViewDownloder extends RelativeLayout {
     } else {
       ApkInstallerCompat compat =
           new ApkInstallerCompat(
-              getContext(), new File("/storage/emulated/0/ghostide/apk/app.apk"));
+              getContext(), new File("/storage/emulated/0/ghostide/apk/" + fileName));
       compat.execute();
     }
   }
