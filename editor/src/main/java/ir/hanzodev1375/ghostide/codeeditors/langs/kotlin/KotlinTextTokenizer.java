@@ -24,6 +24,9 @@ public class KotlinTextTokenizer {
   public int length;
   private Tokens currToken;
   private boolean lcCal;
+  private int mode = 0;
+  private boolean tripleQuote;
+  private int exprDepth;
 
   public KotlinTextTokenizer(CharSequence src) {
     if (src == null) {
@@ -41,7 +44,22 @@ public class KotlinTextTokenizer {
     offset = 0;
     currToken = Tokens.WHITESPACE;
     lcCal = false;
+    mode = 0;
     this.bufferLen = source.length();
+  }
+
+  public void resumeStringContinuation(CharSequence src, boolean triple) {
+    reset(src);
+    mode = 1;
+    tripleQuote = triple;
+  }
+
+  public int getMode() {
+    return mode;
+  }
+
+  public boolean isPendingTriple() {
+    return tripleQuote;
   }
 
   // متد reset برای ریست کردن توکنایزر با سورس جدید
@@ -136,8 +154,27 @@ public class KotlinTextTokenizer {
     if (offset >= bufferLen) {
       return Tokens.EOF;
     }
+    if (mode == 1) {
+      length = 0;
+      return continueStringText();
+    }
+    if (mode == 3) {
+      return scanDollarIdentifier();
+    }
     char ch = source.charAt(offset);
     length = 1;
+    if (mode == 2 && ch == '}') {
+      if (exprDepth == 0) {
+        mode = 1;
+        return Tokens.STRING_TEMPLATE_EXPR_END;
+      }
+      exprDepth--;
+      return Tokens.RBRACE;
+    }
+    if (mode == 2 && ch == '{') {
+      exprDepth++;
+      return Tokens.LBRACE;
+    }
     if (ch == '\n') {
       return Tokens.NEWLINE;
     } else if (ch == '\r') {
@@ -215,8 +252,7 @@ public class KotlinTextTokenizer {
           scanCharLiteral();
           return Tokens.CHARACTER_LITERAL;
         case '"':
-          scanStringLiteral();
-          return Tokens.STRING_LITERAL;
+          return scanStringStart();
         case '_':
           return Tokens.UNDERSCORE;
         default:
@@ -267,57 +303,83 @@ public class KotlinTextTokenizer {
     }
   }
 
-  protected void scanStringLiteral() {
-    // Handle triple-quoted strings
-    if (offset + 2 < bufferLen && charAt(offset + 1) == '"' && charAt(offset + 2) == '"') {
-      length += 2;
-      while (offset + length + 2 < bufferLen) {
-        if (charAt(offset + length) == '"'
-            && charAt(offset + length + 1) == '"'
-            && charAt(offset + length + 2) == '"') {
-          length += 3;
-          return;
-        }
-        length++;
-      }
-      return;
-    }
+  private Tokens scanStringStart() {
+    boolean triple =
+        offset + 2 < bufferLen && charAt(offset + 1) == '"' && charAt(offset + 2) == '"';
+    length = triple ? 3 : 1;
+    mode = 1;
+    tripleQuote = triple;
+    return continueStringText();
+  }
 
-    // Normal string
-    if (offset + length == bufferLen) {
-      return;
-    }
-    char ch;
-    while (offset + length < bufferLen && (ch = charAt(offset + length)) != '"') {
-      if (ch == '\\') {
-        length++;
-        scanTrans();
-      } else if (ch == '$') {
-        length++;
-        if (offset + length < bufferLen && charAt(offset + length) == '{') {
-          length++;
-          int braceCount = 1;
-          while (offset + length < bufferLen && braceCount > 0) {
-            char c = charAt(offset + length);
-            if (c == '{') braceCount++;
-            else if (c == '}') braceCount--;
-            length++;
-          }
-        } else {
-          while (offset + length < bufferLen && isIdentifierPart(charAt(offset + length))) {
-            length++;
-          }
-        }
-      } else {
-        if (ch == '\n') {
-          return;
-        }
-        length++;
+  private Tokens continueStringText() {
+    while (offset + length < bufferLen) {
+      char c = charAt(offset + length);
+      if (!tripleQuote && c == '\n') {
+        mode = 0;
+        return Tokens.STRING_LITERAL;
       }
-    }
-    if (offset + length < bufferLen) {
+      if (!tripleQuote && c == '\\') {
+        length++;
+        if (offset + length < bufferLen) {
+          scanTrans();
+        }
+        continue;
+      }
+      if (c == '"') {
+        if (tripleQuote) {
+          if (offset + length + 2 < bufferLen
+              && charAt(offset + length + 1) == '"'
+              && charAt(offset + length + 2) == '"') {
+            length += 3;
+            mode = 0;
+            return Tokens.STRING_LITERAL;
+          }
+          length++;
+          continue;
+        }
+        length++;
+        mode = 0;
+        return Tokens.STRING_LITERAL;
+      }
+      if (c == '$') {
+        char next = offset + length + 1 < bufferLen ? charAt(offset + length + 1) : '\0';
+        if (next == '{') {
+          if (length == 0) {
+            length = 2;
+            mode = 2;
+            exprDepth = 0;
+            return Tokens.STRING_TEMPLATE_EXPR_START;
+          }
+          return Tokens.STRING_LITERAL;
+        }
+        if (isIdentifierStartPlain(next)) {
+          if (length == 0) {
+            length = 1;
+            mode = 3;
+            return Tokens.STRING_TEMPLATE_DOLLAR;
+          }
+          return Tokens.STRING_LITERAL;
+        }
+        length++;
+        continue;
+      }
       length++;
     }
+    return tripleQuote ? Tokens.STRING_INCOMPLETE : Tokens.STRING_LITERAL;
+  }
+
+  private boolean isIdentifierStartPlain(char c) {
+    return MyCharacter.isJavaIdentifierStart(c) || c == '_';
+  }
+
+  private Tokens scanDollarIdentifier() {
+    length = 1;
+    while (offset + length < bufferLen && isIdentifierPart(charAt(offset + length))) {
+      length++;
+    }
+    mode = 1;
+    return Tokens.IDENTIFIER;
   }
 
   protected void scanCharLiteral() {

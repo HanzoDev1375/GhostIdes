@@ -3,6 +3,7 @@ package ir.hanzodev1375.ghostide.terminal;
 import android.content.Context;
 import android.util.Log;
 import com.termux.terminal.TerminalSession;
+import ir.hanzodev1375.ghostide.R;
 import com.termux.terminal.TerminalSessionClient;
 import java.io.File;
 import java.util.ArrayList;
@@ -26,7 +27,8 @@ public final class ProotSessionFactory {
       throw e;
     } catch (Throwable t) {
       Log.e(LOG_TAG, "unexpected failure creating proot session", t);
-      throw new IllegalStateException("خطای غیرمنتظره: " + t, t);
+      throw new IllegalStateException(
+          context.getString(R.string.terminal_error_unexpected, String.valueOf(t)), t);
     }
   }
 
@@ -38,19 +40,20 @@ public final class ProotSessionFactory {
 
     File prootBinary = new File(nativeLibDir, PROOT_LIBRARY_NAME);
     if (!prootBinary.exists()) {
-      throw new IllegalStateException("libproot.so پیدا نشد: " + prootBinary.getAbsolutePath());
+      throw new IllegalStateException(
+          context.getString(R.string.terminal_error_libproot_not_found, prootBinary.getAbsolutePath()));
     }
 
     File loaderBinary = new File(nativeLibDir, LOADER_LIBRARY_NAME);
     if (!loaderBinary.exists()) {
       throw new IllegalStateException(
-          "libloader.so پیدا نشد: "
-              + loaderBinary.getAbsolutePath()
-              + " — بدون این فایل proot روی این دستگاه بالا نمیاد.");
+          context.getString(
+              R.string.terminal_error_libloader_not_found_detail, loaderBinary.getAbsolutePath()));
     }
 
     if (!rootfsDir.isDirectory()) {
-      throw new IllegalStateException("rootfs پیدا نشد: " + rootfsDir.getAbsolutePath());
+      throw new IllegalStateException(
+          context.getString(R.string.terminal_error_rootfs_not_found, rootfsDir.getAbsolutePath()));
     }
 
     File tmpDir = new File(context.getCacheDir(), "proot-tmp/" + System.currentTimeMillis());

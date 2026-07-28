@@ -16,6 +16,10 @@ public class CSharpState {
 
   public boolean hasBraces = false;
 
+  public int startBracketDepth = 0;
+
+  public int bracketDepth = 0;
+
   public List<String> identifiers = null;
 
   public void addIdentifier(CharSequence idt) {
@@ -28,10 +32,10 @@ public class CSharpState {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     CSharpState that = (CSharpState) o;
-    return state == that.state && hasBraces == that.hasBraces;
+    return state == that.state && hasBraces == that.hasBraces && bracketDepth == that.bracketDepth;
   }
   @Override
   public int hashCode() {
-    return Objects.hash(state, hasBraces);
+    return Objects.hash(state, hasBraces, bracketDepth);
   }
 }

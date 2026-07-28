@@ -2,6 +2,7 @@ package ir.hanzodev1375.ghostide.terminal;
 
 import android.content.Context;
 import android.util.Log;
+import ir.hanzodev1375.ghostide.R;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -80,11 +81,13 @@ public final class ProotExec {
 
     File prootBinary = new File(nativeLibDir, PROOT_LIBRARY_NAME);
     if (!prootBinary.exists()) {
-      throw new IOException("libproot.so پیدا نشد: " + prootBinary.getAbsolutePath());
+      throw new IOException(
+          context.getString(R.string.terminal_error_libproot_not_found, prootBinary.getAbsolutePath()));
     }
     File loaderBinary = new File(nativeLibDir, LOADER_LIBRARY_NAME);
     if (!loaderBinary.exists()) {
-      throw new IOException("libloader.so پیدا نشد: " + loaderBinary.getAbsolutePath());
+      throw new IOException(
+          context.getString(R.string.terminal_error_libloader_not_found, loaderBinary.getAbsolutePath()));
     }
 
     File tmpDir = new File(context.getCacheDir(), "proot-exec-tmp/" + System.nanoTime());

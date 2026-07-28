@@ -40,14 +40,16 @@ Ghost IDE is an advanced mobile development environment built for Android develo
 ### 🛠️ Development Tools
 - Python execution 
 - PHP execution 
-- Kotlin compiler soon
+- Kotlin compiler
 - Java helper tools 
 - Sass / SCSS / Less compilers 
 - TypeScript / TSX / JSX support 
-- JavaFX compiler soon
+- JavaFX compiler
 - Git integration
 - HTML preview support 
-- Ftp 
+- FTP
+- SFTP
+- SMB
 
 # Lsp 
 
@@ -96,7 +98,7 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
 - [x] ini
 - [x] ruby
 - [ ] javacc
-- [ ] vue
+- [x] vue
 - [ ] cmake
 - [x] antlr
 
@@ -116,8 +118,8 @@ The editor supports deep UI customization, including:
 - [x] Syntax colors
 - [x] Backgrounds and tab styles
 - [x] Autocomplete appearance
-- [ ] Bracket-level coloring
-- [ ] Selection styles
+- [x] Bracket-level coloring
+- [x] Selection styles
 
 ---
 ## 🚀 Why Ghost IDE?
@@ -125,7 +127,7 @@ The editor supports deep UI customization, including:
 - [x] Lightweight and fast
 - [x] Built natively for Android
 - [x] Real compiler integrations
-- [ ] Plugin-ready architecture
+- [ ] Plugin-ready architecture(hard mod)
 - [x] Material Design interface
 - [x] Fully open source
 - [x] Optimized typing experience

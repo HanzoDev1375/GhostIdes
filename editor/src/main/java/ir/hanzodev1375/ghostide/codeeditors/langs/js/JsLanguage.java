@@ -17,9 +17,12 @@ import io.github.rosemoe.sora.text.CharPosition;
 import io.github.rosemoe.sora.text.ContentReference;
 import io.github.rosemoe.sora.widget.SymbolPairMatch;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.CharParser;
-import ir.hanzodev1375.ghostide.codeeditors.langs.html.HTMLAnalyzer;
-import ir.hanzodev1375.ghostide.codeeditors.langs.html.HTMLLexer;
-import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlHelper;
+import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlIncrementalAnalyzeManager;
+import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlTextTokenizer;
+import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlTokens;
+import ir.hanzodev1375.ghostide.codeeditors.langs.sass.SassTextTokenizer;
+import ir.hanzodev1375.ghostide.codeeditors.langs.sass.SassTokens;
+import ir.hanzodev1375.ghostide.codeeditors.langs.tsx.TsxIncrementalAnalyzeManager;
 import java.io.IOException;
 import java.io.StringReader;
 import org.antlr.v4.runtime.CharStreams;
@@ -31,7 +34,7 @@ import io.github.rosemoe.sora.text.TextUtils;
 
 public class JsLanguage implements Language {
 
-  private final HTMLAnalyzer analyzer;
+  private final TsxIncrementalAnalyzeManager analyzer;
   private final IdentifierAutoComplete autoComplete;
   private Context context;
   private String path;
@@ -39,8 +42,7 @@ public class JsLanguage implements Language {
   public JsLanguage(Context context, String path) {
     String[] htmlKeywords = {"!", "DOCTYPE"};
     autoComplete = new IdentifierAutoComplete(htmlKeywords);
-    analyzer = new HTMLAnalyzer();
-    analyzer.init(context, path);
+    analyzer = new TsxIncrementalAnalyzeManager();
   }
 
   @NonNull
@@ -70,43 +72,33 @@ public class JsLanguage implements Language {
       @NonNull CompletionPublisher publisher,
       @NonNull Bundle es) {
     String prefix = CompletionHelper.computePrefix(content, position, CharParser::parserJava);
-    autoComplete.requireAutoComplete(
-        content, position, prefix, publisher, analyzer.getSyncIdentifiers());
-    for (var item : HtmlHelper.getJsKeywordItems(prefix)) {
-      publisher.addItem(item);
-    }
-
     return;
   }
 
   @Override
   public int getIndentAdvance(@NonNull ContentReference text, int line, int column) {
-
-    try {
-      var lexer = new HTMLLexer(CharStreams.fromReader(new StringReader(text.getLine(line))));
-      Token token;
-      int advance = 0;
-      while (((token = lexer.nextToken()) != null && token.getType() != token.EOF)) {
-        switch (token.getType()) {
-          case HTMLLexer.LBRACE:
-            advance++;
-            break;
-          case HTMLLexer.RBRACE:
-            advance--;
-            break;
-        }
+    var tokenizer = new SassTextTokenizer(text.getLine(line));
+    SassTokens token;
+    int advance = 0;
+    while ((token = tokenizer.nextToken()) != SassTokens.EOF) {
+      switch (token) {
+        case LBRACE:
+          advance++;
+          break;
+        case RBRACK:
+          advance--;
+          break;
+        default:
+          break;
       }
-      advance = Math.max(0, advance);
-      return advance * 2;
-    } catch (IOException e) {
-      e.printStackTrace();
     }
-    return 0;
+    advance = Math.max(0, advance);
+    return advance * 2;
   }
 
   @Override
   public boolean useTab() {
-    return false;
+    return true;
   }
 
   @NonNull

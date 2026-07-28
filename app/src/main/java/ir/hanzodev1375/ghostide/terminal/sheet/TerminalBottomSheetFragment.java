@@ -138,6 +138,7 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
       requireContext().unbindService(connection);
       isBound = false;
     }
+    DebianInstaller.detach(installListener);
     super.onStop();
   }
 
@@ -157,7 +158,7 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
     String command = getArguments().getString(EXTRA_COMMAND);
     if (command != null && !command.isEmpty()) {
       if (!DebianBootstrap.isInstalled(requireContext())) {
-        Toast.makeText(requireContext(), "Debian نصب نیست", Toast.LENGTH_LONG).show();
+        Toast.makeText(requireContext(), getString(R.string.terminal_debian_not_installed), Toast.LENGTH_LONG).show();
         return;
       }
       addNewDebianSession();
@@ -248,9 +249,12 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
   }
 
   private void stepDB() {
-    if (!DebianInstaller.isInstalled(requireContext())) {
-      startDebianInstall();
+    if (DebianInstaller.isInstalling()) {
       b.terminalView.setVisibility(View.INVISIBLE);
+      attachToRunningInstall();
+    } else if (!DebianInstaller.isInstalled(requireContext())) {
+      b.terminalView.setVisibility(View.INVISIBLE);
+      startDebianInstall();
     } else {
       b.terminalView.setVisibility(View.VISIBLE);
       addNewDebianSession();
@@ -261,9 +265,9 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
     if (!DebianBootstrap.isInstalled(requireContext())) {
       Toast.makeText(
               requireContext(),
-              "Debian rootfs پیدا نشد رو: "
-                  + DebianBootstrap.getRootfsDir(requireContext()).getAbsolutePath()
-                  + " — یه شل معمولی باز میشه",
+              getString(
+                  R.string.terminal_debian_rootfs_not_found_fallback,
+                  DebianBootstrap.getRootfsDir(requireContext()).getAbsolutePath()),
               Toast.LENGTH_LONG)
           .show();
       addNewSession();
@@ -453,11 +457,17 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
   private AlertDialog installDialog;
   private TextView installStatusText;
   private ProgressBar installProgressBar;
+  private DebianInstaller.InstallListener installListener;
 
   @Override
   public void onCreateOptionsMenu(Menu menu, android.view.MenuInflater inflater) {
     menu.add(
-        0, 1001, 0, DebianBootstrap.isInstalled(requireContext()) ? "حذف Debian" : "نصب Debian");
+        0,
+        1001,
+        0,
+        DebianBootstrap.isInstalled(requireContext())
+            ? getString(R.string.terminal_remove_debian)
+            : getString(R.string.terminal_install_debian));
     super.onCreateOptionsMenu(menu, inflater);
   }
 
@@ -476,29 +486,29 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
 
   private void confirmAndRemoveDebian() {
     new AlertDialog.Builder(requireContext())
-        .setTitle("حذف Debian")
-        .setMessage("کل rootfs دبیان پاک میشه (فایل های خودِ توی دبیان هم از بین میره). مطمئنی؟")
+        .setTitle(getString(R.string.terminal_remove_debian))
+        .setMessage(getString(R.string.terminal_confirm_remove_debian_message))
         .setPositiveButton(
-            "حذف کن",
+            getString(R.string.terminal_action_remove),
             (dialog, which) ->
                 DebianBootstrap.uninstall(
                     requireContext(),
                     () -> {
-                      Toast.makeText(requireContext(), "Debian حذف شد", Toast.LENGTH_SHORT).show();
+                      Toast.makeText(requireContext(), getString(R.string.terminal_debian_removed), Toast.LENGTH_SHORT).show();
                       requireActivity().invalidateOptionsMenu();
                     }))
-        .setNegativeButton("لغو", null)
+        .setNegativeButton(getString(R.string.terminal_action_cancel), null)
         .show();
   }
 
-  private void startDebianInstall() {
+  private void buildInstallDialogViews() {
     LinearLayout layout = new LinearLayout(requireContext());
     layout.setOrientation(LinearLayout.VERTICAL);
     int pad = (int) (16 * requireContext().getResources().getDisplayMetrics().density);
     layout.setPadding(pad, pad, pad, pad);
 
     installStatusText = new TextView(requireContext());
-    installStatusText.setText("در حال شروع دانلود...");
+    installStatusText.setText(getString(R.string.terminal_status_starting_download));
 
     installProgressBar =
         new ProgressBar(requireContext(), null, android.R.attr.progressBarStyleHorizontal);
@@ -510,20 +520,22 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
 
     installDialog =
         new AlertDialog.Builder(requireContext())
-            .setTitle("نصب Debian")
+            .setTitle(getString(R.string.terminal_install_debian))
             .setView(layout)
             .setCancelable(false)
             .setNegativeButton(
-                "لغو",
+                getString(R.string.terminal_action_cancel),
                 (dialog, which) -> {
                   DebianInstaller.cancelInstall();
-                  Toast.makeText(requireContext(), "نصب لغو شد", Toast.LENGTH_SHORT).show();
+                  Toast.makeText(requireContext(), getString(R.string.terminal_install_cancelled), Toast.LENGTH_SHORT).show();
                 })
             .create();
     installDialog.show();
+  }
 
-    DebianInstaller.installDebian(
-        requireContext(),
+  private DebianInstaller.InstallListener getOrCreateInstallListener() {
+    if (installListener != null) return installListener;
+    installListener =
         new DebianInstaller.InstallListener() {
           @Override
           public void onDownloadProgress(int percent) {
@@ -531,7 +543,8 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
             requireActivity()
                 .runOnUiThread(
                     () -> {
-                      installStatusText.setText("دانلود: " + percent + "%");
+                      installStatusText.setText(getString(R.string.terminal_status_downloading, percent));
+                      installProgressBar.setIndeterminate(false);
                       installProgressBar.setProgress(percent);
                     });
           }
@@ -543,7 +556,7 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
                 .runOnUiThread(
                     () -> {
                       installStatusText.setText(
-                          "در حال استخراج... (" + extractedEntries + " فایل)");
+                          getString(R.string.terminal_status_extracting, extractedEntries));
                       installProgressBar.setIndeterminate(true);
                     });
           }
@@ -555,7 +568,7 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
                 .runOnUiThread(
                     () -> {
                       if (installDialog != null) installDialog.dismiss();
-                      Toast.makeText(requireContext(), "Debian نصب شد ✓", Toast.LENGTH_LONG).show();
+                      Toast.makeText(requireContext(), getString(R.string.terminal_debian_installed_success), Toast.LENGTH_LONG).show();
                       requireActivity().invalidateOptionsMenu();
                       b.terminalView.setVisibility(View.VISIBLE);
                       if (service != null) {
@@ -574,6 +587,17 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
                       Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
                     });
           }
-        });
+        };
+    return installListener;
+  }
+
+  private void startDebianInstall() {
+    buildInstallDialogViews();
+    DebianInstaller.installDebian(requireContext(), getOrCreateInstallListener());
+  }
+
+  private void attachToRunningInstall() {
+    buildInstallDialogViews();
+    DebianInstaller.attach(getOrCreateInstallListener());
   }
 }

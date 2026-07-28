@@ -33,6 +33,19 @@ public class PhpIncrementalAnalyzeManager
 
   private static final int STATE_INCOMPLETE_BLOCK_COMMENT = 1;
 
+  private static final int[] BRACKET_COLORS = {
+      GhostColorScheme.BRACKET1,
+      GhostColorScheme.BRACKET2,
+      GhostColorScheme.BRACKET3,
+      GhostColorScheme.BRACKET4,
+      GhostColorScheme.BRACKET5,
+      GhostColorScheme.BRACKET6
+  };
+
+  private static long bracketStyle(int depth) {
+    return TextStyle.makeStyle(BRACKET_COLORS[depth % BRACKET_COLORS.length]);
+  }
+
   private static final Pattern URL_PATTERN =
       Pattern.compile(
           "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&/=]*)");
@@ -172,6 +185,8 @@ public class PhpIncrementalAnalyzeManager
     var tokens = new ArrayList<HighlightToken>();
     int newState = STATE_NORMAL;
     var stateObj = new PhpState();
+    stateObj.startBracketDepth = state.bracketDepth;
+    stateObj.bracketDepth = state.bracketDepth;
     if (state.state == STATE_NORMAL) {
       newState = tokenizeNormal(line, 0, tokens, stateObj);
     } else if (state.state == STATE_INCOMPLETE_BLOCK_COMMENT) {
@@ -242,6 +257,17 @@ public class PhpIncrementalAnalyzeManager
       if (token == PhpTokens.LBRACE || token == PhpTokens.RBRACE) {
         st.hasBraces = true;
       }
+      if (token == PhpTokens.LPAREN
+          || token == PhpTokens.LBRACE
+          || token == PhpTokens.LBRACK
+          || token == PhpTokens.STRING_TEMPLATE_EXPR_START) {
+        st.bracketDepth++;
+      } else if (token == PhpTokens.RPAREN
+          || token == PhpTokens.RBRACE
+          || token == PhpTokens.RBRACK
+          || token == PhpTokens.STRING_TEMPLATE_EXPR_END) {
+        st.bracketDepth = Math.max(0, st.bracketDepth - 1);
+      }
       if (token == PhpTokens.IDENTIFIER) {
         st.addIdentifier(tokenizer.getTokenText());
       }
@@ -276,6 +302,7 @@ public class PhpIncrementalAnalyzeManager
     var spans = new ArrayList<Span>();
     var tokens = lineResult.tokens;
     PhpTokens previous = PhpTokens.UNKNOWN;
+    int depth = lineResult.state.startBracketDepth;
 
     for (int i = 0; i < tokens.size(); i++) {
       var tokenRecord = tokens.get(i);
@@ -479,18 +506,26 @@ public class PhpIncrementalAnalyzeManager
         case DEC:
         case CONCAT:
         case CONCAT_ASSIGN:
-        case LBRACE:
-        case RBRACE:
-        case LPAREN:
-        case RPAREN:
-        case LBRACK:
-        case RBRACK:
         case SEMICOLON:
         case COLON:
         case COMMA:
         case DOT:
         case ELLIPSIS:
           span = SpanFactory.obtain(offset, GhostColorScheme.OPERATOR);
+          break;
+        case LPAREN:
+        case LBRACE:
+        case LBRACK:
+        case STRING_TEMPLATE_EXPR_START:
+          span = SpanFactory.obtain(offset, bracketStyle(depth));
+          depth++;
+          break;
+        case RPAREN:
+        case RBRACE:
+        case RBRACK:
+        case STRING_TEMPLATE_EXPR_END:
+          depth = Math.max(0, depth - 1);
+          span = SpanFactory.obtain(offset, bracketStyle(depth));
           break;
         case OBJECT_OPERATOR:
           span = SpanFactory.obtain(offset, GhostColorScheme.OPERATOR);

@@ -90,6 +90,7 @@ dependencies {
     implementation(libs.powermenu)
     implementation(libs.zip4j)
     implementation(libs.utilcode)
+    implementation(libs.eventbus)
     implementation(libs.glide.avif.integration)
     implementation(libs.androidx.recyclerview.selection)
     implementation(libs.androidx.swiperefreshlayout)

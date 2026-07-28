@@ -4,38 +4,31 @@ import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import io.github.rosemoe.sora.lang.format.AsyncFormatter;
-import io.github.rosemoe.sora.text.TextRange;
-import java.io.StringReader;
-
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.Token;
-
-import io.github.rosemoe.sora.lang.EmptyLanguage;
 import io.github.rosemoe.sora.lang.Language;
 import io.github.rosemoe.sora.lang.QuickQuoteHandler;
 import io.github.rosemoe.sora.lang.analysis.AnalyzeManager;
 import io.github.rosemoe.sora.lang.completion.CompletionHelper;
 import io.github.rosemoe.sora.lang.completion.CompletionPublisher;
 import io.github.rosemoe.sora.lang.completion.IdentifierAutoComplete;
+import io.github.rosemoe.sora.lang.completion.SnippetDescription;
 import io.github.rosemoe.sora.lang.completion.snippet.CodeSnippet;
 import io.github.rosemoe.sora.lang.completion.snippet.parser.CodeSnippetParser;
-import io.github.rosemoe.sora.lang.completion.SnippetDescription;
+import io.github.rosemoe.sora.lang.format.AsyncFormatter;
 import io.github.rosemoe.sora.lang.format.Formatter;
+import io.github.rosemoe.sora.lang.smartEnter.NewlineHandleResult;
 import io.github.rosemoe.sora.lang.smartEnter.NewlineHandler;
+import io.github.rosemoe.sora.lang.styling.Styles;
 import io.github.rosemoe.sora.text.CharPosition;
+import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentReference;
+import io.github.rosemoe.sora.text.TextRange;
+import io.github.rosemoe.sora.text.TextUtils;
 import io.github.rosemoe.sora.widget.SymbolPairMatch;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.SnippetCompletionItem;
-import io.github.rosemoe.sora.lang.smartEnter.NewlineHandleResult;
-import io.github.rosemoe.sora.lang.styling.Styles;
-import io.github.rosemoe.sora.text.Content;
-import io.github.rosemoe.sora.text.TextUtils;
 
 public class Python3Language implements Language {
 
-  private final Python3Analyzer analyzer;
+  private final PythonIncrementalAnalyzeManager manager;
   private final IdentifierAutoComplete autoComplete;
 
   private static final CodeSnippet SNIPPET_MAIN_GUARD =
@@ -63,6 +56,7 @@ public class Python3Language implements Language {
 
   private static final CodeSnippet SNIPPET_WITH =
       CodeSnippetParser.parse("with ${1:open('file.txt', 'r')} as ${2:f}:\n    $0");
+
   private Context context;
 
   public Python3Language(Context context) {
@@ -108,7 +102,7 @@ public class Python3Language implements Language {
       "type"
     };
     autoComplete = new IdentifierAutoComplete(pythonKeywords);
-    analyzer = new Python3Analyzer();
+    manager = new PythonIncrementalAnalyzeManager();
   }
 
   private final Formatter pythonFormatter =
@@ -147,7 +141,7 @@ public class Python3Language implements Language {
   @NonNull
   @Override
   public AnalyzeManager getAnalyzeManager() {
-    return analyzer;
+    return manager;
   }
 
   @Nullable
@@ -172,8 +166,10 @@ public class Python3Language implements Language {
       @NonNull Bundle es) {
 
     String prefix = CompletionHelper.computePrefix(content, position, this::isIdentifierChar);
-    autoComplete.requireAutoComplete(
-        content, position, prefix, publisher, analyzer.getSyncIdentifiers());
+    final var idt = manager.identifiers;
+    if (idt != null) {
+      autoComplete.requireAutoComplete(content, position, prefix, publisher, idt);
+    }
     if (prefix.length() > 0) {
       if ("main".startsWith(prefix)) {
         publisher.addItem(
@@ -215,51 +211,33 @@ public class Python3Language implements Language {
         name, desc, new SnippetDescription(prefix.length(), snippet, true));
   }
 
-  /**
-   * تشخیص می‌کند که آیا کاراکتر داده شده بخشی از یک شناسه پایتون است یا خیر. برای محاسبه پیشوند در
-   * CompletionHelper استفاده می‌شود.
-   */
   private boolean isIdentifierChar(char c) {
-    return Character.isLetterOrDigit(c) || c == '_';
+    return Character.isLetterOrDigit(c) || c == '_' || c == '.';
   }
 
   @Override
   public int getIndentAdvance(@NonNull ContentReference text, int line, int column) {
+    var content = text.getLine(line).substring(0, column);
+    return getIndentAdvance(content);
+  }
 
-    Token token;
+  private int getIndentAdvance(String content) {
+    PythonTextTokenizer t = new PythonTextTokenizer(content);
+    PythonTokens token;
     int advance = 0;
-    boolean openBlock = false;
-    try {
-      var lexer =
-          new PythonLexerCompat(CharStreams.fromReader(new StringReader(text.getLine(line))));
-      while (((token = lexer.nextToken()) != null && token.getType() != token.EOF)) {
-        switch (token.getType()) {
-          case PythonLexerCompat.CLASS:
-          case PythonLexerCompat.DEF:
-          case PythonLexerCompat.IF:
-          case PythonLexerCompat.ELIF:
-          case PythonLexerCompat.FOR:
-          case PythonLexerCompat.WHILE:
-          case PythonLexerCompat.ELSE:
-          case PythonLexerCompat.TRY:
-          case PythonLexerCompat.EXCEPT:
-            openBlock = !openBlock;
-            break;
-          case PythonLexerCompat.COLON:
-            advance++;
-            break;
-          case PythonLexerCompat.CONTINUE:
-          case PythonLexerCompat.BREAK:
-            openBlock = !openBlock;
-            advance--;
-            break;
-        }
+    while ((token = t.nextToken()) != PythonTokens.EOF) {
+      if (token == PythonTokens.LPAREN
+          || token == PythonTokens.LBRACE
+          || token == PythonTokens.LBRACK) {
+        advance++;
+      } else if (token == PythonTokens.RPAREN
+          || token == PythonTokens.RBRACE
+          || token == PythonTokens.RBRACK) {
+        advance--;
       }
-      advance = Math.max(0, advance);
-    } catch (Exception e) {
-      e.printStackTrace();
     }
-    return openBlock ? advance * 2 : 0;
+    advance = Math.max(0, advance);
+    return advance * 2;
   }
 
   @Override
@@ -275,7 +253,6 @@ public class Python3Language implements Language {
 
   @Override
   public SymbolPairMatch getSymbolPairs() {
-
     return new SymbolPairMatch.DefaultSymbolPairs();
   }
 

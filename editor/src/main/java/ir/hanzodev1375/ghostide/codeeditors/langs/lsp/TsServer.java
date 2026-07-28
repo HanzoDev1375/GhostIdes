@@ -43,7 +43,7 @@ public class TsServer {
   private static final String SERVER_NAME = "tsc --lsp";
 
   private static final Set<String> SUPPORTED_EXTENSIONS =
-      new HashSet<>(Arrays.asList("js", "mjs", "cjs", "jsx","ts","tsx"));
+      new HashSet<>(Arrays.asList("js", "mjs", "cjs", "jsx", "ts", "tsx"));
 
   // بسته به اینکه npm prefix تو rootfs چیه، معمولا یکی از این هاست (npm root -g رو چک کن).
   private static final String[] CANDIDATE_PATHS = {"/usr/bin/tsc", "/usr/local/bin/tsc"};
@@ -142,6 +142,9 @@ public class TsServer {
                 var js = new JsLanguage(context, filePath);
                 e.setWrapperLanguage(js);
                 e.setEditor(editor);
+                e.setEnableInlayHint(true);
+                e.setEnableSignatureHelp(true);
+                e.setEnableHover(true);
                 var lang = (LspLanguage) editor.getEditorLanguage();
                 lang.setFormatter(js.getFormatter());
                 holder[0] = e;

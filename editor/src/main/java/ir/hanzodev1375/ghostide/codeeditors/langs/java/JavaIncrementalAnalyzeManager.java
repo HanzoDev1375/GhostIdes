@@ -24,6 +24,7 @@
 package ir.hanzodev1375.ghostide.codeeditors.langs.java;
 
 import android.os.Bundle;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import io.github.rosemoe.sora.lang.analysis.AsyncIncrementalAnalyzeManager;
 import io.github.rosemoe.sora.lang.brackets.SimpleBracketsCollector;
@@ -50,6 +51,14 @@ public class JavaIncrementalAnalyzeManager
 
   private static final int STATE_NORMAL = 0;
   private static final int STATE_INCOMPLETE_COMMENT = 1;
+  private static final int[] BRACKET_COLORS = {
+    GhostColorScheme.BRACKET1,
+    GhostColorScheme.BRACKET2,
+    GhostColorScheme.BRACKET3,
+    GhostColorScheme.BRACKET4,
+    GhostColorScheme.BRACKET5,
+    GhostColorScheme.BRACKET6
+  };
   private static final Pattern URL_PATTERN =
       Pattern.compile(
           "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&/=]*)");
@@ -160,6 +169,10 @@ public class JavaIncrementalAnalyzeManager
     return token == Tokens.LBRACE || token == Tokens.LBRACK || token == Tokens.LPAREN;
   }
 
+  private static long bracketStyle(int depth) {
+    return TextStyle.makeStyle(BRACKET_COLORS[depth % BRACKET_COLORS.length]);
+  }
+
   @Override
   @NonNull
   public State getInitialState() {
@@ -201,6 +214,8 @@ public class JavaIncrementalAnalyzeManager
     var tokens = new ArrayList<HighlightToken>();
     int newState = 0;
     var stateObj = new State();
+    stateObj.startBracketDepth = state.bracketDepth;
+    stateObj.bracketDepth = state.bracketDepth;
     if (state.state == STATE_NORMAL) {
       newState = tokenizeNormal(line, 0, tokens, stateObj);
     } else if (state.state == STATE_INCOMPLETE_COMMENT) {
@@ -266,9 +281,15 @@ public class JavaIncrementalAnalyzeManager
         }
         continue;
       }
+      Log.w("State", String.valueOf(st.bracketDepth));
       tokens.add(new HighlightToken(token, tokenizer.offset));
       if (token == Tokens.LBRACE || token == Tokens.RBRACE) {
         st.hasBraces = true;
+      }
+      if (token == Tokens.LPAREN || token == Tokens.LBRACE || token == Tokens.LBRACK) {
+        st.bracketDepth++;
+      } else if (token == Tokens.RPAREN || token == Tokens.RBRACE || token == Tokens.RBRACK) {
+        st.bracketDepth = Math.max(0, st.bracketDepth - 1);
       }
       if (token == Tokens.IDENTIFIER) {
         st.addIdentifier(tokenizer.getTokenText());
@@ -305,6 +326,7 @@ public class JavaIncrementalAnalyzeManager
     var tokens = lineResult.tokens;
     Tokens previous = Tokens.UNKNOWN;
     boolean classNamePrevious = false;
+    int depth = lineResult.state.startBracketDepth;
     for (int i = 0; i < tokens.size(); i++) {
       var tokenRecord = tokens.get(i);
       var token = tokenRecord.token;
@@ -448,12 +470,23 @@ public class JavaIncrementalAnalyzeManager
             span = SpanFactory.obtain(offset, TextStyle.makeStyle(type));
             break;
           }
+        case LPAREN:
+        case LBRACE:
+        case LBRACK:
+          classNamePrevious = false;
+          span = SpanFactory.obtain(offset, bracketStyle(depth));
+          depth++;
+          Log.e("JavaIncrementalAnalyzeManager", String.valueOf(depth));
+          break;
+        case RPAREN:
+        case RBRACE:
+        case RBRACK:
+          classNamePrevious = false;
+          depth = Math.max(0, depth - 1);
+          span = SpanFactory.obtain(offset, bracketStyle(depth));
+          Log.e("JavaIncrementalAnalyzeManager", String.valueOf(depth));
+          break;
         default:
-          if (token == Tokens.LBRACK || (token == Tokens.RBRACK && previous == Tokens.LBRACK)) {
-            span = SpanFactory.obtain(offset, GhostColorScheme.OPERATOR);
-            break;
-          }
-
           classNamePrevious = false;
           span = SpanFactory.obtain(offset, GhostColorScheme.OPERATOR);
       }

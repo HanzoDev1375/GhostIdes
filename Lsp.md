@@ -93,7 +93,7 @@ npm i -g typescript typescript-language-server
 
 npm i -g @t1ckbase/vscode-langservers-extracted
 
-npm i @olrtg/emmet-language-server
+npm i -g @olrtg/emmet-language-server
 
 ```
 # This section is for the fast go language, it may take a long time to install on some devices
@@ -146,5 +146,15 @@ apt install mono-complete -y
 wget https://github.com/OmniSharp/omnisharp-roslyn/releases/latest/download/omnisharp-linux-arm64.tar.gz
 mkdir -p omnisharp && tar -xzf omnisharp-linux-arm64.tar.gz -C omnisharp
 chmod +x omnisharp/run
+
+```
+
+## Vue Lsp 
+
+- try to install node.js
+
+```bash
+
+npm install -g typescript @vue/language-server
 
 ```

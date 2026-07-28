@@ -33,6 +33,19 @@ public class ZigIncrementalAnalyzeManager
 
   private static final int STATE_INCOMPLETE_BLOCK_COMMENT = 1;
 
+  private static final int[] BRACKET_COLORS = {
+      GhostColorScheme.BRACKET1,
+      GhostColorScheme.BRACKET2,
+      GhostColorScheme.BRACKET3,
+      GhostColorScheme.BRACKET4,
+      GhostColorScheme.BRACKET5,
+      GhostColorScheme.BRACKET6
+  };
+
+  private static long bracketStyle(int depth) {
+    return TextStyle.makeStyle(BRACKET_COLORS[depth % BRACKET_COLORS.length]);
+  }
+
   private static final Pattern URL_PATTERN =
       Pattern.compile(
           "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&/=]*)");
@@ -164,6 +177,8 @@ public class ZigIncrementalAnalyzeManager
     var tokens = new ArrayList<HighlightToken>();
     int newState = STATE_NORMAL;
     var stateObj = new ZigState();
+    stateObj.startBracketDepth = state.bracketDepth;
+    stateObj.bracketDepth = state.bracketDepth;
     if (state.state == STATE_NORMAL) {
       newState = tokenizeNormal(line, 0, tokens, stateObj);
     } else if (state.state == STATE_INCOMPLETE_BLOCK_COMMENT) {
@@ -239,6 +254,13 @@ public class ZigIncrementalAnalyzeManager
       if (token == ZigTokens.LBRACE || token == ZigTokens.RBRACE) {
         st.hasBraces = true;
       }
+      if (token == ZigTokens.LPAREN || token == ZigTokens.LBRACE || token == ZigTokens.LBRACK) {
+        st.bracketDepth++;
+      } else if (token == ZigTokens.RPAREN
+          || token == ZigTokens.RBRACE
+          || token == ZigTokens.RBRACK) {
+        st.bracketDepth = Math.max(0, st.bracketDepth - 1);
+      }
       if (token == ZigTokens.IDENTIFIER) {
         st.addIdentifier(tokenizer.getTokenText());
       }
@@ -273,6 +295,7 @@ public class ZigIncrementalAnalyzeManager
     var spans = new ArrayList<Span>();
     var tokens = lineResult.tokens;
     ZigTokens previous = ZigTokens.UNKNOWN;
+    int depth = lineResult.state.startBracketDepth;
     boolean expectFnName = false;
     boolean expectType = false;
     for (int i = 0; i < tokens.size(); i++) {
@@ -452,12 +475,6 @@ public class ZigIncrementalAnalyzeManager
         case FAT_ARROW:
         case DOUBLE_DOT:
         case ELLIPSIS:
-        case LPAREN:
-        case RPAREN:
-        case LBRACE:
-        case RBRACE:
-        case LBRACK:
-        case RBRACK:
         case SEMICOLON:
         case NOT:
         case COLON:
@@ -465,6 +482,18 @@ public class ZigIncrementalAnalyzeManager
         case DOT:
         case AT:
           span = SpanFactory.obtain(offset, GhostColorScheme.OPERATOR);
+          break;
+        case LPAREN:
+        case LBRACE:
+        case LBRACK:
+          span = SpanFactory.obtain(offset, bracketStyle(depth));
+          depth++;
+          break;
+        case RPAREN:
+        case RBRACE:
+        case RBRACK:
+          depth = Math.max(0, depth - 1);
+          span = SpanFactory.obtain(offset, bracketStyle(depth));
           break;
         default:
           span = SpanFactory.obtain(offset, GhostColorScheme.TEXT_NORMAL);

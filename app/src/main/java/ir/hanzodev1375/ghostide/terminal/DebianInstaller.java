@@ -5,6 +5,7 @@ import android.os.Build;
 import com.downloader.Error;
 import com.downloader.OnDownloadListener;
 import com.downloader.PRDownloader;
+import ir.hanzodev1375.ghostide.R;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -21,8 +22,6 @@ public final class DebianInstaller {
 
   private static final String IMAGES_BASE =
       "https://images.linuxcontainers.org/images/debian/bookworm/";
-  // پوشه‌های snapshot اسمشون timestamp هست، مثلاً "20260712_07:36/" — هاردکد کردنِ یه تاریخ ثابت
-  // اشتباهه چون این پوشه‌ها مرتب پاک/عوض میشن؛ همیشه باید جدیدترینش رو از index بگیریم.
   private static final Pattern SNAPSHOT_PATTERN = Pattern.compile("(\\d{8}_\\d{2}:\\d{2})/");
   private static final ExecutorService resolveExecutor = Executors.newSingleThreadExecutor();
   private static final OkHttpClient http = new OkHttpClient();
@@ -37,18 +36,50 @@ public final class DebianInstaller {
     void onError(String message);
   }
 
+  /** فاز فعلیِ نصب. static و مستقل از عمر Activity/Fragment. */
+  public enum Phase {
+    IDLE,
+    DOWNLOADING,
+    EXTRACTING,
+    DONE,
+    ERROR
+  }
+
+  private static volatile Phase phase = Phase.IDLE;
+  private static volatile int progressValue = 0;
+  private static volatile InstallListener uiListener;
   private static int activeDownloadId = -1;
+
+  public static boolean isInstalling() {
+    return phase == Phase.DOWNLOADING || phase == Phase.EXTRACTING;
+  }
+
+  public static Phase getPhase() {
+    return phase;
+  }
+
+  /**
+   * یه UI تازه (مثلاً Activity‌ای که بعد از بیرون‌رفتن و برگشتن دوباره ساخته شده) رو به نصبِ در
+   * حالِ اجرا وصل میکنه و فوراً یه callback با آخرین progress شناخته‌شده میده — بدون این‌که
+   * دانلود/استخراج از اول شروع بشه. اگه در حالِ حاضر نصبی در جریان نباشه، این فقط listener رو
+   * برای آینده ثبت میکنه.
+   */
+  public static void attach(InstallListener listener) {
+    uiListener = listener;
+    if (listener == null) return;
+    if (phase == Phase.DOWNLOADING) listener.onDownloadProgress(progressValue);
+    else if (phase == Phase.EXTRACTING) listener.onExtractProgress(progressValue);
+  }
+
+  /** فقط اگه UI فعلی همین listener باشه قطعش کن (تا یه attach جدید رو اشتباهی پاک نکنه). */
+  public static void detach(InstallListener listener) {
+    if (uiListener == listener) uiListener = null;
+  }
 
   public static boolean isInstalled(Context context) {
     return DebianBootstrap.isInstalled(context);
   }
 
-  /**
-   * معماریِ linuxcontainers.org رو از اولین ABI پشتیبانی‌شده‌ی خودِ گوشی حدس میزنه — همون معماری‌ای
-   * که برای انتخاب libproot.so از jniLibs هم استفاده میشه. اگه این با معماریِ rootfs یکی نباشه
-   * (مثلاً proot آرم۶۴ ولی rootfs آرم۳۲/armhf)، اجرای /bin/bash داخل rootfs روی خیلی از گوشی‌های
-   * جدید اصلاً fail میشه (کرنل دیگه سازگاریِ ۳۲بیتی نداره) و سشن بی‌صدا فوراً می‌میره.
-   */
   private static String detectArch() {
     for (String abi : Build.SUPPORTED_ABIS) {
       switch (abi) {
@@ -62,34 +93,34 @@ public final class DebianInstaller {
           return "i386";
       }
     }
-    return "arm64"; // فال‌بک منطقی چون اکثر گوشی‌های امروزی arm64 هستن
+    return "arm64";
   }
 
-  /** معماریِ گوشی رو خودکار تشخیص میده و جدیدترین snapshot موجودش رو دانلود میکنه. */
   public static void installDebian(Context context, InstallListener listener) {
+    phase = Phase.DOWNLOADING;
+    progressValue = 0;
+    uiListener = listener;
+
     String arch = detectArch();
     resolveExecutor.execute(
         () -> {
           try {
-            String url = resolveLatestRootfsUrl(arch);
-            installFrom(context, url, listener);
+            String url = resolveLatestRootfsUrl(context, arch);
+            startDownloadAndExtract(context, url);
           } catch (IOException e) {
-            if (listener != null) {
-              listener.onError(
-                  "پیدا کردن آخرین rootfs برای معماریِ " + arch + " fail شد: " + e.getMessage());
-            }
+            fail(context.getString(R.string.terminal_error_resolve_rootfs_failed, arch, e.getMessage()));
           }
         });
   }
 
-  /** صفحه‌ی index رو می‌گیره و بین پوشه‌های snapshot، جدیدترین (بزرگ‌ترین timestamp) رو برمیگردونه. */
-  private static String resolveLatestRootfsUrl(String arch) throws IOException {
+  private static String resolveLatestRootfsUrl(Context context, String arch) throws IOException {
     String indexUrl = IMAGES_BASE + arch + "/default/";
     Request request = new Request.Builder().url(indexUrl).build();
     String latestSnapshot = null;
     try (Response response = http.newCall(request).execute()) {
       if (!response.isSuccessful() || response.body() == null) {
-        throw new IOException("HTTP " + response.code() + " از " + indexUrl);
+        throw new IOException(
+            context.getString(R.string.terminal_error_http_status, response.code(), indexUrl));
       }
       String html = response.body().string();
       Matcher matcher = SNAPSHOT_PATTERN.matcher(html);
@@ -101,13 +132,20 @@ public final class DebianInstaller {
       }
     }
     if (latestSnapshot == null) {
-      throw new IOException("هیچ snapshot‌ای تو " + indexUrl + " پیدا نشد");
+      throw new IOException(context.getString(R.string.terminal_error_no_snapshot_found, indexUrl));
     }
     return indexUrl + latestSnapshot.replace(":", "%3A") + "/rootfs.tar.xz";
   }
 
-  /** اگه خواستی از یه لینک دیگه (مثلاً کپیِ خودت رو گیت‌هاب) نصب کنی. */
+  /** اگه خواستی از یه لینک دیگه نصب کنی. UI رو با attach() وصل کن. */
   public static void installFrom(Context context, String url, InstallListener listener) {
+    phase = Phase.DOWNLOADING;
+    progressValue = 0;
+    uiListener = listener;
+    startDownloadAndExtract(context, url);
+  }
+
+  private static void startDownloadAndExtract(Context context, String url) {
     File downloadDir = context.getCacheDir();
     String fileName = "debian-rootfs.tar.xz";
     File downloadedFile = new File(downloadDir, fileName);
@@ -117,47 +155,57 @@ public final class DebianInstaller {
             .build()
             .setOnProgressListener(
                 progress -> {
-                  if (listener == null || progress.totalBytes <= 0) return;
+                  if (progress.totalBytes <= 0) return;
                   int percent = (int) (progress.currentBytes * 100 / progress.totalBytes);
-                  listener.onDownloadProgress(percent);
+                  progressValue = percent;
+                  if (uiListener != null) uiListener.onDownloadProgress(percent);
                 })
             .start(
                 new OnDownloadListener() {
                   @Override
                   public void onDownloadComplete() {
+                    phase = Phase.EXTRACTING;
+                    progressValue = 0;
                     DebianBootstrap.installFromTarXz(
                         context,
                         downloadedFile,
                         new DebianBootstrap.InstallCallback() {
                           @Override
                           public void onProgress(int extractedEntries) {
-                            if (listener != null) listener.onExtractProgress(extractedEntries);
+                            progressValue = extractedEntries;
+                            if (uiListener != null) uiListener.onExtractProgress(extractedEntries);
                           }
 
                           @Override
                           public void onSuccess() {
-                            downloadedFile.delete(); // خودِ tar.xz خام دیگه لازم نیست
-                            if (listener != null) listener.onSuccess();
+                            downloadedFile.delete();
+                            phase = Phase.DONE;
+                            if (uiListener != null) uiListener.onSuccess();
                           }
 
                           @Override
                           public void onError(Exception e) {
-                            if (listener != null) {
-                              listener.onError("استخراج fail شد: " + e.getMessage());
-                            }
+                            fail(
+                                context.getString(
+                                    R.string.terminal_error_extract_failed_prefix, e.getMessage()));
                           }
                         });
                   }
 
                   @Override
                   public void onError(Error error) {
-                    if (listener != null) {
-                      listener.onError(
-                          "دانلود fail شد: "
-                              + (error != null ? error.getServerErrorMessage() : "نامشخص"));
-                    }
+                    String detail =
+                        error != null
+                            ? error.getServerErrorMessage()
+                            : context.getString(R.string.terminal_unknown_error);
+                    fail(context.getString(R.string.terminal_error_download_failed_prefix, detail));
                   }
                 });
+  }
+
+  private static void fail(String message) {
+    phase = Phase.ERROR;
+    if (uiListener != null) uiListener.onError(message);
   }
 
   public static void cancelInstall() {
@@ -165,5 +213,6 @@ public final class DebianInstaller {
       PRDownloader.cancel(activeDownloadId);
       activeDownloadId = -1;
     }
+    phase = Phase.IDLE;
   }
 }

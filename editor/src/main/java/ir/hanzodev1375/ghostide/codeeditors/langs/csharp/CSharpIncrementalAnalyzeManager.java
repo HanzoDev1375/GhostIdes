@@ -34,6 +34,19 @@ public class CSharpIncrementalAnalyzeManager
 
   private static final int STATE_INCOMPLETE_BLOCK_COMMENT = 1;
 
+  private static final int[] BRACKET_COLORS = {
+    GhostColorScheme.BRACKET1,
+    GhostColorScheme.BRACKET2,
+    GhostColorScheme.BRACKET3,
+    GhostColorScheme.BRACKET4,
+    GhostColorScheme.BRACKET5,
+    GhostColorScheme.BRACKET6
+  };
+
+  private static long bracketStyle(int depth) {
+    return TextStyle.makeStyle(BRACKET_COLORS[depth % BRACKET_COLORS.length]);
+  }
+
   private static final Pattern URL_PATTERN =
       Pattern.compile(
           "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&/=]*)");
@@ -174,6 +187,8 @@ public class CSharpIncrementalAnalyzeManager
     var tokens = new ArrayList<HighlightToken>();
     int newState = STATE_NORMAL;
     var stateObj = new CSharpState();
+    stateObj.startBracketDepth = state.bracketDepth;
+    stateObj.bracketDepth = state.bracketDepth;
     if (state.state == STATE_NORMAL) {
       newState = tokenizeNormal(line, 0, tokens, stateObj);
     } else if (state.state == STATE_INCOMPLETE_BLOCK_COMMENT) {
@@ -244,6 +259,15 @@ public class CSharpIncrementalAnalyzeManager
       if (token == CSharpTokens.LBRACE || token == CSharpTokens.RBRACE) {
         st.hasBraces = true;
       }
+      if (token == CSharpTokens.LPAREN
+          || token == CSharpTokens.LBRACE
+          || token == CSharpTokens.LBRACK) {
+        st.bracketDepth++;
+      } else if (token == CSharpTokens.RPAREN
+          || token == CSharpTokens.RBRACE
+          || token == CSharpTokens.RBRACK) {
+        st.bracketDepth = Math.max(0, st.bracketDepth - 1);
+      }
       if (token == CSharpTokens.IDENTIFIER) {
         st.addIdentifier(tokenizer.getTokenText());
       }
@@ -279,6 +303,7 @@ public class CSharpIncrementalAnalyzeManager
     var spans = new ArrayList<Span>();
     var tokens = lineResult.tokens;
     CSharpTokens previous = CSharpTokens.UNKNOWN;
+    int depth = lineResult.state.startBracketDepth;
     for (int i = 0; i < tokens.size(); i++) {
       var tokenRecord = tokens.get(i);
       var token = tokenRecord.token;
@@ -513,12 +538,6 @@ public class CSharpIncrementalAnalyzeManager
         case POINTER_ACCESS:
         case INDEX_ACCESS:
         case RANGE:
-        case LBRACE:
-        case RBRACE:
-        case LPAREN:
-        case RPAREN:
-        case LBRACK:
-        case RBRACK:
         case SEMICOLON:
         case COLON:
         case COMMA:
@@ -526,6 +545,18 @@ public class CSharpIncrementalAnalyzeManager
         case ELLIPSIS:
         case QUESTION:
           span = SpanFactory.obtain(offset, GhostColorScheme.OPERATOR);
+          break;
+        case LPAREN:
+        case LBRACE:
+        case LBRACK:
+          span = SpanFactory.obtain(offset, bracketStyle(depth));
+          depth++;
+          break;
+        case RPAREN:
+        case RBRACE:
+        case RBRACK:
+          depth = Math.max(0, depth - 1);
+          span = SpanFactory.obtain(offset, bracketStyle(depth));
           break;
         default:
           span = SpanFactory.obtain(offset, GhostColorScheme.TEXT_NORMAL);

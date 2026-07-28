@@ -21,6 +21,8 @@ public class PhpTextTokenizer {
   public int offset;
   public int length;
   private PhpTokens currToken;
+  private int mode = 0;
+  private int exprDepth;
 
   public PhpTextTokenizer(CharSequence src) {
     if (src == null) throw new IllegalArgumentException("src cannot be null");
@@ -33,6 +35,7 @@ public class PhpTextTokenizer {
     index = 0;
     offset = 0;
     currToken = PhpTokens.WHITESPACE;
+    mode = 0;
     this.bufferLen = source.length();
   }
 
@@ -60,8 +63,29 @@ public class PhpTextTokenizer {
     offset += length;
     if (offset >= bufferLen) return PhpTokens.EOF;
 
+    if (mode == 1) {
+      length = 0;
+      return continueStringText();
+    }
+    if (mode == 4) {
+      return scanInterpIdentifier();
+    }
+
     char ch = source.charAt(offset);
     length = 1;
+
+    if (mode == 2 && ch == '}') {
+      if (exprDepth == 0) {
+        mode = 1;
+        return PhpTokens.STRING_TEMPLATE_EXPR_END;
+      }
+      exprDepth--;
+      return PhpTokens.RBRACE;
+    }
+    if (mode == 2 && ch == '{') {
+      exprDepth++;
+      return PhpTokens.LBRACE;
+    }
 
     if (ch == '\n') return PhpTokens.NEWLINE;
     if (ch == '\r') {
@@ -139,8 +163,12 @@ public class PhpTextTokenizer {
       return finished ? PhpTokens.BLOCK_COMMENT_COMPLETE : PhpTokens.BLOCK_COMMENT_INCOMPLETE;
     }
 
-    // String literal: "..." or '...'
-    if (ch == '"' || ch == '\'') {
+    // String literal: "..." (interpolation-aware) or '...' (literal, no interpolation)
+    if (ch == '"') {
+      mode = 1;
+      return continueStringText();
+    }
+    if (ch == '\'') {
       scanStringLiteral(ch);
       return PhpTokens.STRING_LITERAL;
     }
@@ -355,6 +383,61 @@ public class PhpTextTokenizer {
         length++;
       }
     }
+  }
+
+  private PhpTokens continueStringText() {
+    while (offset + length < bufferLen) {
+      char c = source.charAt(offset + length);
+      if (c == '"') {
+        length++;
+        mode = 0;
+        return PhpTokens.STRING_LITERAL;
+      }
+      if (c == '\\') {
+        length++;
+        if (offset + length < bufferLen) scanEscape();
+        continue;
+      }
+      if (c == '{') {
+        char next = offset + length + 1 < bufferLen ? source.charAt(offset + length + 1) : '\0';
+        if (next == '$') {
+          if (length == 0) {
+            length = 1;
+            mode = 2;
+            exprDepth = 0;
+            return PhpTokens.STRING_TEMPLATE_EXPR_START;
+          }
+          return PhpTokens.STRING_LITERAL;
+        }
+        length++;
+        continue;
+      }
+      if (c == '$') {
+        char next = offset + length + 1 < bufferLen ? source.charAt(offset + length + 1) : '\0';
+        if (isIdentifierStart(next)) {
+          if (length == 0) {
+            length = 1;
+            mode = 4;
+            return PhpTokens.DOLLAR;
+          }
+          return PhpTokens.STRING_LITERAL;
+        }
+        length++;
+        continue;
+      }
+      length++;
+    }
+    mode = 0;
+    return PhpTokens.STRING_LITERAL;
+  }
+
+  private PhpTokens scanInterpIdentifier() {
+    length = 1;
+    while (offset + length < bufferLen && isIdentifierPart(source.charAt(offset + length))) {
+      length++;
+    }
+    mode = 1;
+    return PhpTokens.IDENTIFIER;
   }
 
   private void scanEscape() {

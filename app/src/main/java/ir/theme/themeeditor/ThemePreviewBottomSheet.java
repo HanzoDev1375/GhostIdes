@@ -252,7 +252,7 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
     scheme.setColor(
         GhostColorScheme.MINIMAP_VIEWPORT_BORDER, parseColor(t.getMinimapViewportBorder()));
 
-    // editorPreview.setColorScheme(scheme);
+
   }
 
   private void applyBackgroundImage() {

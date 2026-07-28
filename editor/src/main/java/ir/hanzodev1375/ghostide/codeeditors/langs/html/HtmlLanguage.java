@@ -45,7 +45,7 @@ import io.github.rosemoe.sora.lang.styling.Styles;
 
 public class HtmlLanguage implements Language {
 
-  private final HTMLAnalyzer analyzer;
+  private final HtmlIncrementalAnalyzeManager analyzer;
   private final IdentifierAutoComplete autoComplete;
   private static final CodeSnippet HTML5_SNIPPET =
       CodeSnippetParser.parse(
@@ -72,7 +72,7 @@ public class HtmlLanguage implements Language {
   public HtmlLanguage(Context context, String path) {
     String[] htmlKeywords = {"!", "DOCTYPE"};
     autoComplete = new IdentifierAutoComplete(htmlKeywords);
-    analyzer = new HTMLAnalyzer();
+    analyzer = new HtmlIncrementalAnalyzeManager();
     analyzer.init(context, path);
     this.context = context;
     this.path = path;
@@ -163,7 +163,7 @@ public class HtmlLanguage implements Language {
     }
 
     autoComplete.requireAutoComplete(
-        content, position, prefix, publisher, analyzer.getSyncIdentifiers());
+        content, position, prefix, publisher, analyzer.identifiers);
 
     if (!prefix.isEmpty() && !isInsideTag(content, position)) {
       String htmlExpanded = EmmetParser.expandHtml(prefix);
@@ -373,28 +373,23 @@ public class HtmlLanguage implements Language {
 
   @Override
   public int getIndentAdvance(@NonNull ContentReference text, int line, int column) {
-    try {
-      var lexer = new HTMLLexer(CharStreams.fromReader(new StringReader(text.getLine(line))));
-      Token token;
-      int advance = 0;
-      while (((token = lexer.nextToken()) != null && token.getType() != token.EOF)) {
-        switch (token.getType()) {
-          case HTMLLexer.LBRACE:
-          case HTMLLexer.LT:
-            advance++;
-            break;
-          case HTMLLexer.SLASH_CLOSE:
-          case HTMLLexer.RBRACE:
-            advance--;
-            break;
-        }
+    var tokenizer = new HtmlTextTokenizer(text.getLine(line));
+    HtmlTokens token;
+    int advance = 0;
+    while ((token = tokenizer.nextToken()) != HtmlTokens.EOF) {
+      switch (token) {
+        case LT:
+          advance++;
+          break;
+        case SLASH_GT:
+          advance--;
+          break;
+        default:
+          break;
       }
-      advance = Math.max(0, advance);
-      return advance * 2;
-    } catch (IOException e) {
-      e.printStackTrace();
     }
-    return 0;
+    advance = Math.max(0, advance);
+    return advance * 2;
   }
 
   @Override

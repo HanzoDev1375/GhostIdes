@@ -29,6 +29,7 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.sql.SqlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.toml.TomlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.tsx.TsxLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.typescript.TypeScriptLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.vue.VueLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.xml.XmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.yaml.YamlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.zig.ZigLanguage;
@@ -75,6 +76,7 @@ public final class LanguageManager {
     register((c, p) -> new IniLanguage(), "ini");
     register((c, p) -> new ZigLanguage(), "zig");
     register((c, p) -> new EmptyLanguage(), "txt", "log");
+    register((c, p) -> new VueLanguage(c), "vue");
   }
 
   private static void register(LanguageFactory factory, String... extensions) {

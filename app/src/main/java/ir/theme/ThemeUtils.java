@@ -179,12 +179,6 @@ public class ThemeUtils {
     if (colors.getNavigationBar() != null) {
       window.setNavigationBarColor(parseColor(colors.getNavigationBar()));
     }
-    /*
-    if (colors.getBackground() != null) {
-        View decor = window.getDecorView();
-        decor.setBackgroundColor(parseColor(colors.getBackground()));
-      }
-      */
   }
 
   public PowerMenu apply(Context c) {
@@ -353,6 +347,12 @@ public class ThemeUtils {
     scheme.setColor(GhostColorScheme.MINIMAP_VIEWPORT, parseColor(t.getMinimapViewport()));
     scheme.setColor(
         GhostColorScheme.MINIMAP_VIEWPORT_BORDER, parseColor(t.getMinimapViewportBorder()));
+    scheme.setColor(GhostColorScheme.BRACKET1, parseColor(t.getBracketlevelmatch1()));
+    scheme.setColor(GhostColorScheme.BRACKET2, parseColor(t.getBracketlevelmatch2()));
+    scheme.setColor(GhostColorScheme.BRACKET3, parseColor(t.getBracketlevelmatch3()));
+    scheme.setColor(GhostColorScheme.BRACKET4, parseColor(t.getBracketlevelmatch4()));
+    scheme.setColor(GhostColorScheme.BRACKET5, parseColor(t.getBracketlevelmatch5()));
+    scheme.setColor(GhostColorScheme.BRACKET6, parseColor(t.getBracketlevelmatch6()));
   }
 
   public void applyTextView(TextView textView) {

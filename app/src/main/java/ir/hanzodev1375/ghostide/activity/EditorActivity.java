@@ -35,6 +35,7 @@ import io.github.rosemoe.sora.lsp.editor.LspEditorStatus;
 import ir.hanzodev1375.filetreelib.widget.FileTreeView;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.model.BreadcrumbItem;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.ghostide.codeeditors.ui.model.OpenFileLocationEvent;
 import ir.hanzodev1375.ghostide.customui.EditorStatusBar;
 import ir.hanzodev1375.ghostide.customui.TabCustomView;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
@@ -70,6 +71,9 @@ import ir.theme.ThemeUtils;
 import android.view.ViewTreeObserver;
 import ir.hanzodev1375.ghostide.splitlayout.EditorPaneFragment;
 import ir.hanzodev1375.ghostide.splitlayout.SplitLayoutPopup;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class EditorActivity extends BaseCompat
     implements ir.hanzodev1375.ghostide.refactor.rename.FileRenameNotifier.Listener {
@@ -144,6 +148,7 @@ public class EditorActivity extends BaseCompat
     setContentView(binding.getRoot());
     prefs = getSharedPreferences("editor", MODE_PRIVATE);
     settings = new PreferencesUtils(this);
+    EventBus.getDefault().register(this);
     setupViewPager();
     setupTabLayout();
     breadcrumbAdapter = new BreadcrumbAdapter();
@@ -367,6 +372,7 @@ public class EditorActivity extends BaseCompat
   @Override
   protected void onDestroy() {
     super.onDestroy();
+    EventBus.getDefault().unregister(this);
     lspStatusHandler.removeCallbacks(lspStatusPollRunnable);
     if (keyboardLayoutListener != null) {
       getWindow()
@@ -390,6 +396,22 @@ public class EditorActivity extends BaseCompat
     super.onNewIntent(intent);
     setIntent(intent);
     handleIncomingIntent(intent);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void onOpenFileLocationEvent(OpenFileLocationEvent event) {
+    openFileAtLocation(event.filePath, event.line, event.column);
+  }
+
+  private void openFileAtLocation(String filePath, int line, int column) {
+    for (int i = 0; i < tabsList.size(); i++) {
+      if (tabsList.get(i).getFilePath().equals(filePath)) {
+        final int pos = i;
+        binding.viewPager.setCurrentItem(pos, false);
+        return;
+      }
+    }
+    openFile(filePath, new File(filePath).getName());
   }
 
   private void handleIncomingIntent(Intent intent) {

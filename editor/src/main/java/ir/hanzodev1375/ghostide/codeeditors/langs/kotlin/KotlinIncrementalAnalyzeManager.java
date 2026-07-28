@@ -30,6 +30,21 @@ public class KotlinIncrementalAnalyzeManager
 
   private static final int STATE_NORMAL = 0;
   private static final int STATE_INCOMPLETE_COMMENT = 1;
+  private static final int STATE_INCOMPLETE_STRING = 2;
+
+  private static final int[] BRACKET_COLORS = {
+    GhostColorScheme.BRACKET1,
+    GhostColorScheme.BRACKET2,
+    GhostColorScheme.BRACKET3,
+    GhostColorScheme.BRACKET4,
+    GhostColorScheme.BRACKET5,
+    GhostColorScheme.BRACKET6
+  };
+
+  private static long bracketStyle(int depth) {
+    return TextStyle.makeStyle(BRACKET_COLORS[depth % BRACKET_COLORS.length]);
+  }
+
   private static final Pattern URL_PATTERN =
       Pattern.compile(
           "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&/=]*)");
@@ -64,7 +79,7 @@ public class KotlinIncrementalAnalyzeManager
         for (int i1 = 0; i1 < state.tokens.size(); i1++) {
           var tokenRecord = state.tokens.get(i1);
           var token = tokenRecord.token;
-          if (token == Tokens.LBRACE) {
+          if (token == Tokens.LBRACE && state.state.hasBraces) {
             var offset = tokenRecord.offset;
             if (stack.isEmpty()) {
               if (currSwitch > maxSwitch) {
@@ -77,7 +92,7 @@ public class KotlinIncrementalAnalyzeManager
             block.startLine = i;
             block.startColumn = offset;
             stack.push(block);
-          } else if (token == Tokens.RBRACE) {
+          } else if (token == Tokens.RBRACE && state.state.hasBraces) {
             var offset = tokenRecord.offset;
             if (!stack.isEmpty()) {
               CodeBlock block = stack.pop();
@@ -172,6 +187,8 @@ public class KotlinIncrementalAnalyzeManager
     var tokens = new ArrayList<HighlightToken>();
     int newState = 0;
     var stateObj = new State();
+    stateObj.startBracketDepth = state.bracketDepth;
+    stateObj.bracketDepth = state.bracketDepth;
     if (state.state == STATE_NORMAL) {
       newState = tokenizeNormal(line, 0, tokens, stateObj);
     } else if (state.state == STATE_INCOMPLETE_COMMENT) {
@@ -182,6 +199,8 @@ public class KotlinIncrementalAnalyzeManager
       } else {
         newState = STATE_INCOMPLETE_COMMENT;
       }
+    } else if (state.state == STATE_INCOMPLETE_STRING) {
+      newState = tokenizeStringContinuation(line, tokens, stateObj);
     }
     if (tokens.isEmpty()) {
       tokens.add(new HighlightToken(Tokens.UNKNOWN, 0));
@@ -218,11 +237,22 @@ public class KotlinIncrementalAnalyzeManager
     var tokenizer = obtainTokenizer();
     tokenizer.reset(text);
     tokenizer.offset = offset;
+    return consumeTokens(tokenizer, tokens, st);
+  }
+
+  private int tokenizeStringContinuation(CharSequence text, List<HighlightToken> tokens, State st) {
+    var tokenizer = obtainTokenizer();
+    tokenizer.resumeStringContinuation(text, true);
+    return consumeTokens(tokenizer, tokens, st);
+  }
+
+  private int consumeTokens(KotlinTextTokenizer tokenizer, List<HighlightToken> tokens, State st) {
     Tokens token;
     int state = STATE_NORMAL;
     while ((token = tokenizer.nextToken()) != Tokens.EOF) {
       if (tokenizer.getTokenLength() < 1000
           && (token == Tokens.STRING_LITERAL
+              || token == Tokens.STRING_INCOMPLETE
               || token == Tokens.LONG_COMMENT_COMPLETE
               || token == Tokens.LONG_COMMENT_INCOMPLETE
               || token == Tokens.LINE_COMMENT)) {
@@ -237,6 +267,17 @@ public class KotlinIncrementalAnalyzeManager
       if (token == Tokens.LBRACE || token == Tokens.RBRACE) {
         st.hasBraces = true;
       }
+      if (token == Tokens.LPAREN
+          || token == Tokens.LBRACE
+          || token == Tokens.LBRACK
+          || token == Tokens.STRING_TEMPLATE_EXPR_START) {
+        st.bracketDepth++;
+      } else if (token == Tokens.RPAREN
+          || token == Tokens.RBRACE
+          || token == Tokens.RBRACK
+          || token == Tokens.STRING_TEMPLATE_EXPR_END) {
+        st.bracketDepth = Math.max(0, st.bracketDepth - 1);
+      }
       if (token == Tokens.IDENTIFIER) {
         st.addIdentifier(tokenizer.getTokenText());
       }
@@ -244,6 +285,9 @@ public class KotlinIncrementalAnalyzeManager
         state = STATE_INCOMPLETE_COMMENT;
         break;
       }
+    }
+    if (state == STATE_NORMAL && tokenizer.getMode() == 1) {
+      state = STATE_INCOMPLETE_STRING;
     }
     return state;
   }
@@ -272,6 +316,7 @@ public class KotlinIncrementalAnalyzeManager
     var tokens = lineResult.tokens;
     Tokens previous = Tokens.UNKNOWN;
     boolean classNamePrevious = false;
+    int depth = lineResult.state.startBracketDepth;
     for (int i = 0; i < tokens.size(); i++) {
       var tokenRecord = tokens.get(i);
       var token = tokenRecord.token;
@@ -286,6 +331,7 @@ public class KotlinIncrementalAnalyzeManager
         case FLOATING_POINT_LITERAL:
         case INTEGER_LITERAL:
         case STRING_LITERAL:
+        case STRING_INCOMPLETE:
         case NULL_LITERAL:
           classNamePrevious = false;
           span = SpanFactory.obtain(offset, TextStyle.makeStyle(GhostColorScheme.LITERAL, true));
@@ -391,11 +437,27 @@ public class KotlinIncrementalAnalyzeManager
 
           span = SpanFactory.obtain(offset, TextStyle.makeStyle(type));
           break;
+        case LPAREN:
+        case LBRACE:
+        case LBRACK:
+        case STRING_TEMPLATE_EXPR_START:
+          classNamePrevious = false;
+          span = SpanFactory.obtain(offset, bracketStyle(depth));
+          depth++;
+          break;
+        case RPAREN:
+        case RBRACE:
+        case RBRACK:
+        case STRING_TEMPLATE_EXPR_END:
+          classNamePrevious = false;
+          depth = Math.max(0, depth - 1);
+          span = SpanFactory.obtain(offset, bracketStyle(depth));
+          break;
+        case STRING_TEMPLATE_DOLLAR:
+          classNamePrevious = false;
+          span = SpanFactory.obtain(offset, TextStyle.makeStyle(GhostColorScheme.LITERAL, true));
+          break;
         default:
-          if (token == Tokens.LBRACK || (token == Tokens.RBRACK && previous == Tokens.LBRACK)) {
-            span = SpanFactory.obtain(offset, GhostColorScheme.OPERATOR);
-            break;
-          }
           classNamePrevious = false;
           span = SpanFactory.obtain(offset, GhostColorScheme.OPERATOR);
       }

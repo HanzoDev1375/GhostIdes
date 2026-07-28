@@ -1,24 +1,9 @@
 package ir.hanzodev1375.ghostide.codeeditors.langs.cpp;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-import io.github.rosemoe.sora.lang.format.AsyncFormatter;
-import io.github.rosemoe.sora.text.TextRange;
-import io.github.rosemoe.sora.widget.CodeEditor;
-import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
-import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.CharParser;
-import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaQuoteHandler;
-import static java.lang.Character.isWhitespace;
-
-import java.io.File;
-
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import io.github.rosemoe.sora.lang.EmptyLanguage;
 import io.github.rosemoe.sora.lang.Language;
 import io.github.rosemoe.sora.lang.QuickQuoteHandler;
@@ -30,6 +15,7 @@ import io.github.rosemoe.sora.lang.completion.SimpleSnippetCompletionItem;
 import io.github.rosemoe.sora.lang.completion.SnippetDescription;
 import io.github.rosemoe.sora.lang.completion.snippet.CodeSnippet;
 import io.github.rosemoe.sora.lang.completion.snippet.parser.CodeSnippetParser;
+import io.github.rosemoe.sora.lang.format.AsyncFormatter;
 import io.github.rosemoe.sora.lang.format.Formatter;
 import io.github.rosemoe.sora.lang.smartEnter.NewlineHandleResult;
 import io.github.rosemoe.sora.lang.smartEnter.NewlineHandler;
@@ -38,12 +24,16 @@ import io.github.rosemoe.sora.lang.styling.StylesUtils;
 import io.github.rosemoe.sora.text.CharPosition;
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentReference;
+import io.github.rosemoe.sora.text.TextRange;
 import io.github.rosemoe.sora.text.TextUtils;
 import io.github.rosemoe.sora.util.MyCharacter;
+import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.SymbolPairMatch;
+import static java.lang.Character.isWhitespace;
 
 /**
- * Java language. Simple implementation.
+ * C++ language. Hand-written implementation, matching the same architecture used by the C, Rust, Go
+ * and other native-tokenizer languages.
  *
  * @author Rosemoe
  */
@@ -55,12 +45,12 @@ public class CppLanguage implements Language {
       CodeSnippetParser.parse(
           "private final static ${1:type} ${2/(.*)/${1:/upcase}/} = ${3:value};");
   private static final CodeSnippet CLIPBOARD_SNIPPET = CodeSnippetParser.parse("${1:${CLIPBOARD}}");
+
   private Context editor;
   private CodeEditor codeEditorRef;
-  private volatile boolean lspAttachAttempted = false;
   private IdentifierAutoComplete autoComplete;
-  private final CppAnalyzer manager;
-  private final JavaQuoteHandler javaQuoteHandler = new JavaQuoteHandler();
+  private final CppIncrementalAnalyzeManager manager;
+  private final CppQuoteHandler quoteHandler = new CppQuoteHandler();
 
   public CppLanguage(Context editor) {
     this(editor, null);
@@ -71,10 +61,9 @@ public class CppLanguage implements Language {
     this.codeEditorRef = codeEditor;
     String[] cppkeyword = {"const", "if", "for"};
     autoComplete = new IdentifierAutoComplete(cppkeyword);
-    manager = new CppAnalyzer();
+    manager = new CppIncrementalAnalyzeManager();
   }
 
-  
   private final Formatter formatter =
       new AsyncFormatter() {
         @Nullable
@@ -114,7 +103,7 @@ public class CppLanguage implements Language {
   @Nullable
   @Override
   public QuickQuoteHandler getQuickQuoteHandler() {
-    return javaQuoteHandler;
+    return quoteHandler;
   }
 
   @Override
@@ -127,15 +116,21 @@ public class CppLanguage implements Language {
     return INTERRUPTION_LEVEL_STRONG;
   }
 
+  private static boolean isIdentifierChar(char c) {
+    return MyCharacter.isJavaIdentifierPart(c) || c == '.';
+  }
+
   @Override
   public void requireAutoComplete(
       @NonNull ContentReference content,
       @NonNull CharPosition position,
       @NonNull CompletionPublisher publisher,
       @NonNull Bundle extraArguments) {
-    var prefix = CompletionHelper.computePrefix(content, position, CharParser::parserJava);
-    autoComplete.requireAutoComplete(
-        content, position, prefix, publisher, manager.getSyncIdentifiers());
+    var prefix = CompletionHelper.computePrefix(content, position, CppLanguage::isIdentifierChar);
+    final var idt = manager.identifiers;
+    if (idt != null && autoComplete != null) {
+      autoComplete.requireAutoComplete(content, position, prefix, publisher, idt);
+    }
     if ("fori".startsWith(prefix) && prefix.length() > 0) {
       publisher.addItem(
           new SimpleSnippetCompletionItem(
@@ -166,7 +161,16 @@ public class CppLanguage implements Language {
   }
 
   private int getIndentAdvance(String content) {
-    int advance = 1;
+    CppTextTokenizer t = new CppTextTokenizer(content);
+    CppTokens token;
+    int advance = 0;
+    while ((token = t.nextToken()) != CppTokens.EOF) {
+      if (token == CppTokens.LBRACE) {
+        advance++;
+      } else if (token == CppTokens.RBRACE) {
+        advance--;
+      }
+    }
     advance = Math.max(0, advance);
     return advance * 2;
   }

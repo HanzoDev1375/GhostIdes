@@ -79,8 +79,8 @@ public class EditorFragment extends Fragment {
   private PagedEditSession pagedSession;
   private int pageIndex = -1;
   private volatile LspEditor lspEditor;
-  private static final int DIAGNOSTICS_COLOR_OK = Color.parseColor("#4CAF50"); 
-  private static final int DIAGNOSTICS_COLOR_ERROR = Color.parseColor("#F44336"); 
+  private static final int DIAGNOSTICS_COLOR_OK = Color.parseColor("#4CAF50");
+  private static final int DIAGNOSTICS_COLOR_ERROR = Color.parseColor("#F44336");
   private final Handler breadcrumbHandler = new Handler(Looper.getMainLooper());
   private static final long BREADCRUMB_DEBOUNCE_MS = 300;
   private final Runnable breadcrumbRefreshRunnable = this::refreshBreadcrumbs;
@@ -167,7 +167,7 @@ public class EditorFragment extends Fragment {
                           ? targetFile.getParent()
                           : targetFile.getAbsolutePath();
                   LspEditor connected =
-                      LspRouter.connectFile(appContext, projectRoot, targetFilePath, targetEditor);                  
+                      LspRouter.connectFile(appContext, projectRoot, targetFilePath, targetEditor);
                   if (!isAdded() || binding == null) {
                     if (connected != null) {
                       try {
@@ -526,7 +526,6 @@ public class EditorFragment extends Fragment {
         .start();
   }
 
-  
   private void updateDiagnosticsIcon(@NonNull LspEditor lspEditor) {
     if (binding == null) {
       return;
@@ -574,5 +573,9 @@ public class EditorFragment extends Fragment {
             ViewCompat.requestApplyInsets(target);
           });
     }
+  }
+
+  public String getFilePath() {
+    return filePath;
   }
 }

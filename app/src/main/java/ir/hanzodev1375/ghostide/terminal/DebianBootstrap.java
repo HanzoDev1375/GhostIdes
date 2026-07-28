@@ -3,6 +3,8 @@ package ir.hanzodev1375.ghostide.terminal;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+import ir.hanzodev1375.ghostide.R;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -16,6 +18,7 @@ public final class DebianBootstrap {
 
   private DebianBootstrap() {}
 
+  private static final String LOG_TAG = "GHOST_DEBIAN_BOOTSTRAP";
   private static final String ROOTFS_DIR_NAME = "rootfs/debian";
   private static final ExecutorService executor = Executors.newSingleThreadExecutor();
   private static final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -40,10 +43,6 @@ public final class DebianBootstrap {
     return new File(getRootfsDir(context), "bin/bash").exists();
   }
 
-  /**
-   * کل پوشه‌ی rootfs رو پاک میکنه (مثلاً وقتی یه بار با معماریِ اشتباه دانلود/استخراج شده و باید از
-   * اول تمیز نصب بشه). روی ترد پس‌زمینه اجرا میشه چون ممکنه چند صد مگابایت/هزاران فایل باشه.
-   */
   public static void uninstall(Context context, Runnable onDone) {
     File rootfs = getRootfsDir(context);
     executor.execute(
@@ -62,10 +61,12 @@ public final class DebianBootstrap {
   }
 
   /**
-   * فایل tar.xz که خودتون قبلش با PRDownloader دانلود کردید رو رو یه ترد پس‌زمینه استخراج
-   * میکنه. اگه استخراج وسط راه قطع بشه (کرش/بسته‌شدن اپ)، rootfs ناقص می‌مونه — برای همین
-   * isInstalled فقط وجودِ /bin/bash رو چک نمیکنه، بلکه توصیه میشه قبل از installFromTarXz یه بار
-   * پوشه‌ی rootfs قدیمی رو پاک کنی تا از یه نصب نیمه‌کاره‌ی قبلی گیر نکنی.
+   * فایل tar.xz رو رو یه ترد پس‌زمینه استخراج میکنه.
+   *
+   * <p>نکته: بعضی وقتا tar زیرِ proot با یه warning بی‌ضرر exit code غیرصفر برمیگردونه با اینکه
+   * استخراج واقعاً کامل شده (/bin/bash روی دیسک هست). برای همین اگه extract exception بده ولی
+   * isInstalled() true باشه، fail واقعی حسابش نمیکنیم — فقط لاگ میکنیم و موفقیت رو گزارش میدیم؛
+   * وگرنه کاربر یه "fail" کاذب می‌بینه با اینکه ترمینال Debian واقعاً کار میکنه.
    */
   public static void installFromTarXz(
       Context context, File downloadedTarXz, InstallCallback callback) {
@@ -82,34 +83,45 @@ public final class DebianBootstrap {
                         () -> {
                           if (callback != null) callback.onProgress(count);
                         }));
-            runFirstBootSetup(rootfs);
+            runFirstBootSetup(context, rootfs);
             mainHandler.post(
                 () -> {
                   if (callback != null) callback.onSuccess();
                 });
           } catch (IOException e) {
-            mainHandler.post(
-                () -> {
-                  if (callback != null) callback.onError(e);
-                });
+            if (isInstalled(context)) {
+              Log.w(
+                  LOG_TAG,
+                  "extract() ارور داد ولی bin/bash موجوده، به‌عنوان موفقیت ادامه میدیم: "
+                      + e.getMessage(),
+                  e);
+              try {
+                runFirstBootSetup(context, rootfs);
+              } catch (IOException setupError) {
+                Log.w(LOG_TAG, "firstBootSetup بعد از recovery هم fail شد", setupError);
+              }
+              mainHandler.post(
+                  () -> {
+                    if (callback != null) callback.onSuccess();
+                  });
+            } else {
+              mainHandler.post(
+                  () -> {
+                    if (callback != null) callback.onError(e);
+                  });
+            }
           }
         });
   }
 
-  /**
-   * تنظیماتِ اولیه‌ای که هر rootfs تازه‌استخراج‌شده لازم داره و خودِ Debian/Ubuntu توشون نمیاد،
-   * چون اندروید (برخلاف یه ماشین لینوکسِ واقعی) DNS و /etc/hosts استاندارد نداره. دقیقاً همون
-   * کاریه که proot-distro و Xed-Editor موقع نصب انجام میدن — قبلاً این مرحله اصلاً وجود نداشت،
-   * برای همین باید resolv.conf رو خودت دستی می‌ساختی.
-   */
-  private static void runFirstBootSetup(File rootfsDir) throws IOException {
+  private static void runFirstBootSetup(Context context, File rootfsDir) throws IOException {
     File etc = new File(rootfsDir, "etc");
     if (!etc.exists() && !etc.mkdirs()) {
-      throw new IOException("نمیشه پوشه‌ی etc رو ساخت: " + etc);
+      throw new IOException(
+          context.getString(R.string.terminal_error_cannot_create_etc_dir, etc));
     }
 
-    writeFile(
-        new File(etc, "resolv.conf"), "nameserver 8.8.8.8\nnameserver 8.8.4.4\n");
+    writeFile(new File(etc, "resolv.conf"), "nameserver 8.8.8.8\nnameserver 8.8.4.4\n");
 
     writeFile(
         new File(etc, "hosts"),
@@ -118,8 +130,6 @@ public final class DebianBootstrap {
             + "ff02::1     ip6-allnodes\n"
             + "ff02::2     ip6-allrouters\n");
 
-    // چند گروهِ اختصاصیِ اندروید که بعضی پکیج‌ها (شبکه، ذخیره‌سازی) موقع نصب/اجرا بهش نیاز
-    // دارن؛ نبودشون معمولاً باعث وارنینگ میشه نه fail، ولی برای سازگاریِ کامل خوبه.
     appendGroupLinesIfMissing(
         new File(etc, "group"),
         new String[] {

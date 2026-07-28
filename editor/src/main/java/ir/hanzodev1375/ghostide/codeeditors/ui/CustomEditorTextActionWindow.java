@@ -36,6 +36,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.TooltipCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import io.github.rosemoe.sora.event.ColorSchemeUpdateEvent;
 import io.github.rosemoe.sora.event.HandleStateChangeEvent;
 import io.github.rosemoe.sora.event.InterceptTarget;
@@ -53,6 +54,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.R;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.ghostide.codeeditors.ui.model.OpenFileLocationEvent;
 import ir.hanzodev1375.ghostide.codeeditors.util.TranslateLanguages;
 
 import ir.hanzodev1375.ghostide.codeeditors.util.TranslateTask;
@@ -81,6 +83,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 
 /**
@@ -103,7 +106,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
   private final ImageButton translateBtn;
   private final ImageButton lspDefinitionBtn;
   private final ImageButton lspReferencesBtn;
-  private final ImageButton lspRenameBtn; 
+  private final ImageButton lspRenameBtn;
   private final View rootView;
   private final EditorTouchEventHandler handler;
   private long lastScroll;
@@ -512,7 +515,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
             return;
           }
           try {
-            
+
             String uri = new File(filePath).toURI().toString();
             ReferenceParams params = new ReferenceParams();
             params.setTextDocument(new TextDocumentIdentifier(uri));
@@ -550,11 +553,11 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       input.setText(selected);
       input.setSelection(0, selected.length());
     }
-    new AlertDialog.Builder(editor.getContext())
-        .setTitle("تغییر نام نماد")
+    new MaterialAlertDialogBuilder(editor.getContext())
+        .setTitle("Rename Symbol")
         .setView(input)
         .setPositiveButton(
-            "تغییر نام",
+            android.R.string.ok,
             (dialog, which) -> {
               String newName = input.getText().toString().trim();
               if (newName.isEmpty()) return;
@@ -600,8 +603,8 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
   /**
    * تغییرات WorkspaceEdit برگشتی از سرور رو اعمال می کنه. فقط تغییرات مربوط به فایل بازِ فعلی
    * مستقیم روی ادیتور اعمال می شن؛ چون این پنجره به فایل منیجر/تب های دیگه دسترسی نداره، اگه تغییر
-   * نام روی فایل های دیگه هم اثر بذاره فقط با یک پیام به کاربر اطلاع داده می شه (نیاز به اتصال
-   * این بخش به فایل منیجر برای اعمال خودکار روی همه ی فایل ها، خارج از اسکوپ همین پنجره است).
+   * نام روی فایل های دیگه هم اثر بذاره فقط با یک پیام به کاربر اطلاع داده می شه (نیاز به اتصال این
+   * بخش به فایل منیجر برای اعمال خودکار روی همه ی فایل ها، خارج از اسکوپ همین پنجره است).
    */
   private void applyWorkspaceEdit(WorkspaceEdit edit, String currentUri) {
     Map<String, List<TextEdit>> changes = edit.getChanges();
@@ -678,8 +681,20 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       showLspToast(emptyMessage);
       return;
     }
-    if (locations.size() == 1 && currentUri.equals(locations.get(0).getUri())) {
-      jumpToLocation(locations.get(0));
+    if (locations.size() == 1) {
+      Location loc = locations.get(0);
+      if (currentUri.equals(loc.getUri())) {
+        jumpToLocation(loc);
+      } else {
+        String filePath = uriToFilePath(loc.getUri());
+        if (filePath != null) {
+          Position pos = loc.getRange().getStart();
+          EventBus.getDefault()
+              .post(new OpenFileLocationEvent(filePath, pos.getLine(), pos.getCharacter()));
+        } else {
+          showLspToast("مسیر فایل نامعتبر");
+        }
+      }
       return;
     }
     editor.postInLifecycle(() -> showLocationsPicker(locations, currentUri));
@@ -695,7 +710,6 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
         });
   }
 
-  /** برای چند نتیجه (یا نتیجه ای در یک فایل دیگر)، یک لیست انتخابی نشون می ده. */
   private void showLocationsPicker(List<Location> locations, String currentUri) {
     String[] labels = new String[locations.size()];
     for (int i = 0; i < locations.size(); i++) {
@@ -710,22 +724,25 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       int line = location.getRange() != null ? location.getRange().getStart().getLine() + 1 : 0;
       labels[i] = name + "  :  " + line;
     }
-    new AlertDialog.Builder(editor.getContext())
-        .setTitle("نتایج")
+    new MaterialAlertDialogBuilder(editor.getContext())
+        .setTitle("Result")
         .setItems(
             labels,
             (dialog, which) -> {
               Location selected = locations.get(which);
-              if (currentUri.equals(selected.getUri())) {
+              String selectedUri = selected.getUri();
+              if (currentUri.equals(selectedUri)) {
                 jumpToLocation(selected);
               } else {
-                Toast.makeText(
-                        editor.getContext(),
-                        "این نتیجه در فایل دیگری است: "
-                            + labels[which]
-                            + " — باز کردن خودکار فایل های دیگر فعلاً پشتیبانی نمی شود",
-                        Toast.LENGTH_LONG)
-                    .show();
+                String filePath = uriToFilePath(selectedUri);
+                if (filePath != null) {
+                  Position pos = selected.getRange().getStart();
+                  EventBus.getDefault()
+                      .post(new OpenFileLocationEvent(filePath, pos.getLine(), pos.getCharacter()));
+                } else {
+                  Toast.makeText(editor.getContext(), "مسیر فایل نامعتبر", Toast.LENGTH_SHORT)
+                      .show();
+                }
               }
             })
         .show();
@@ -762,5 +779,14 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
 
   void setColorFilterById(int color, ImageButton btn) {
     btn.setColorFilter(color);
+  }
+
+  private String uriToFilePath(String uri) {
+    try {
+
+      return new File(URI.create(uri).getPath()).getAbsolutePath();
+    } catch (Exception e) {
+      return null;
+    }
   }
 }

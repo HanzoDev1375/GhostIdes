@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,27 +25,35 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
-import com.google.gson.GsonBuilder;
-import ir.hanzodev1375.ghostide.R;
-import com.blankj.utilcode.util.FileIOUtils;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.blankj.utilcode.util.FileIOUtils;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
+import ir.hanzodev1375.ghostide.codeeditors.colorrender.ColorPickerBottomSheetDialog;
 import ir.theme.ActivityTheme;
 import ir.theme.EditorTheme;
-import ir.theme.WidgetTheme;
-import ir.theme.ThemeManager;
 import ir.theme.GhostTheme;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import ir.hanzodev1375.ghostide.codeeditors.colorrender.ColorPickerBottomSheetDialog;
+import ir.theme.ThemeManager;
+import ir.theme.WidgetTheme;
 
 public class ThemeEditorActivity extends BaseCompat {
 
@@ -57,13 +66,14 @@ public class ThemeEditorActivity extends BaseCompat {
   private Gson gson = new GsonBuilder().setPrettyPrinting().create();
   private String currentThemePath;
   private SearchView searchView;
-  private String currentQuery = "";
+  private String currentQuery = "", colorToShow;
   private boolean isSearching = false;
   private List<ThemeRow> activityItems = new ArrayList<>();
   private List<ThemeRow> editorItems = new ArrayList<>();
   private List<ThemeRow> widgetItems = new ArrayList<>();
   private ImageItem pendingImageItem;
   private ActivityResultLauncher<String[]> pickImageLauncher;
+  private Map<String, String> titleToKeyMap = new HashMap<>();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +99,7 @@ public class ThemeEditorActivity extends BaseCompat {
 
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
+
     currentThemePath = getIntent().getStringExtra(EXTRA_THEME_PATH);
     if (currentThemePath == null || currentThemePath.isEmpty()) {
       Toast.makeText(this, "No theme file path", Toast.LENGTH_SHORT).show();
@@ -103,7 +114,7 @@ public class ThemeEditorActivity extends BaseCompat {
       return;
     }
 
-    String json = FileIOUtils.readFile2String(file);
+    String json = readFileToString(file);
     if (json == null || json.isEmpty()) {
       Toast.makeText(this, "Failed to read file", Toast.LENGTH_SHORT).show();
       finish();
@@ -122,6 +133,7 @@ public class ThemeEditorActivity extends BaseCompat {
       return;
     }
 
+    initTitleToKeyMap();
     tabLayout = findViewById(R.id.tabLayout);
     recyclerView = findViewById(R.id.recyclerView);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -162,8 +174,149 @@ public class ThemeEditorActivity extends BaseCompat {
     recyclerView.setAdapter(adapter);
   }
 
-  private void resetToDefault() {
+  private String readFileToString(File file) {
+    try (FileInputStream fis = new FileInputStream(file)) {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      byte[] buffer = new byte[1024];
+      int len;
+      while ((len = fis.read(buffer)) != -1) {
+        baos.write(buffer, 0, len);
+      }
+      return baos.toString(StandardCharsets.UTF_8.name());
+    } catch (IOException e) {
+      return null;
+    }
+  }
 
+  private void initTitleToKeyMap() {
+    // Activity
+    titleToKeyMap.put("Background", "background");
+    titleToKeyMap.put("Status Bar", "statusBar");
+    titleToKeyMap.put("Navigation Bar", "navigationBar");
+
+    // Editor
+    titleToKeyMap.put("Whole Background", "wholeBackground");
+    titleToKeyMap.put("Text Normal", "textNormal");
+    titleToKeyMap.put("Keyword", "keyword");
+    titleToKeyMap.put("Comment", "comment");
+    titleToKeyMap.put("Operator", "operator");
+    titleToKeyMap.put("Literal", "literal");
+    titleToKeyMap.put("Identifier Var", "identifierVar");
+    titleToKeyMap.put("Identifier Name", "identifierName");
+    titleToKeyMap.put("Function Name", "functionName");
+    titleToKeyMap.put("Annotation", "annotation");
+    titleToKeyMap.put("Current Line", "currentLine");
+    titleToKeyMap.put("Line Number", "lineNumber");
+    titleToKeyMap.put("Line Number Background", "lineNumberBackground");
+    titleToKeyMap.put("Selected Text Background", "selectedTextBackground");
+    titleToKeyMap.put("Selection Insert", "selectionInsert");
+    titleToKeyMap.put("Selection Handle", "selectionHandle");
+    titleToKeyMap.put("Underline", "underline");
+    titleToKeyMap.put("Scroll Bar Thumb", "scrollBarThumb");
+    titleToKeyMap.put("Scroll Bar Thumb Pressed", "scrollBarThumbPressed");
+    titleToKeyMap.put("Scroll Bar Track", "scrollBarTrack");
+    titleToKeyMap.put("Block Line", "blockLine");
+    titleToKeyMap.put("Block Line Current", "blockLineCurrent");
+    titleToKeyMap.put("Line Number Panel", "lineNumberPanel");
+    titleToKeyMap.put("Line Number Panel Text", "lineNumberPanelText");
+    titleToKeyMap.put("Completion Wnd Background", "completionWndBackground");
+    titleToKeyMap.put("Completion Wnd Corner", "completionWndCorner");
+    titleToKeyMap.put("Matched Text Background", "matchedTextBackground");
+    titleToKeyMap.put("Matched Text Border", "matchedTextBorder");
+    titleToKeyMap.put("Text Selected", "textSelected");
+    titleToKeyMap.put("Non Printable Char", "nonPrintableChar");
+    titleToKeyMap.put("HTML Tag", "htmlTag");
+    titleToKeyMap.put("Attribute Name", "attributeName");
+    titleToKeyMap.put("Attribute Value", "attributeValue");
+    titleToKeyMap.put("Problem Error", "problemError");
+    titleToKeyMap.put("Problem Warning", "problemWarning");
+    titleToKeyMap.put("Problem Typo", "problemTypo");
+    titleToKeyMap.put("Line Number Current", "lineNumberCurrent");
+    titleToKeyMap.put("Selected Text Border", "selectedTextBorder");
+    titleToKeyMap.put("Current Row Border", "currentRowBorder");
+    titleToKeyMap.put("Highlighted Delimiters Background", "highlightedDelimitersBackground");
+    titleToKeyMap.put("Highlighted Delimiters Underline", "highlightedDelimitersUnderline");
+    titleToKeyMap.put("Highlighted Delimiters Foreground", "highlightedDelimitersForeground");
+    titleToKeyMap.put("Highlighted Delimiters Border", "highlightedDelimitersBorder");
+    titleToKeyMap.put("Text Highlight Background", "textHighlightBackground");
+    titleToKeyMap.put("Text Highlight Border", "textHighlightBorder");
+    titleToKeyMap.put("Text Highlight Strong Background", "textHighlightStrongBackground");
+    titleToKeyMap.put("Text Highlight Strong Border", "textHighlightStrongBorder");
+    titleToKeyMap.put("Static Span Background", "staticSpanBackground");
+    titleToKeyMap.put("Static Span Foreground", "staticSpanForeground");
+    titleToKeyMap.put("Text Inlay Hint Background", "textInlayHintBackground");
+    titleToKeyMap.put("Text Inlay Hint Foreground", "textInlayHintForeground");
+    titleToKeyMap.put("Snippet Background Editing", "snippetBackgroundEditing");
+    titleToKeyMap.put("Snippet Background Related", "snippetBackgroundRelated");
+    titleToKeyMap.put("Snippet Background Inactive", "snippetBackgroundInactive");
+    titleToKeyMap.put("Hard Wrap Marker", "hardWrapMarker");
+    titleToKeyMap.put("Function Char Background Stroke", "functionCharBackgroundStroke");
+    titleToKeyMap.put("Diagnostic Tooltip Background", "diagnosticTooltipBackground");
+    titleToKeyMap.put("Diagnostic Tooltip Brief Msg", "diagnosticTooltipBriefMsg");
+    titleToKeyMap.put("Diagnostic Tooltip Detailed Msg", "diagnosticTooltipDetailedMsg");
+    titleToKeyMap.put("Diagnostic Tooltip Action", "diagnosticTooltipAction");
+    titleToKeyMap.put("Sticky Scroll Divider", "stickyScrollDivider");
+    titleToKeyMap.put("Strike Through", "strikeThrough");
+    titleToKeyMap.put("Side Block Line", "sideBlockLine");
+    titleToKeyMap.put("Completion Wnd Text Primary", "completionWndTextPrimary");
+    titleToKeyMap.put("Completion Wnd Text Secondary", "completionWndTextSecondary");
+    titleToKeyMap.put("Completion Wnd Item Current", "completionWndItemCurrent");
+    titleToKeyMap.put("Completion Wnd Text Matched", "completionWndTextMatched");
+    titleToKeyMap.put("Signature Background", "signatureBackground");
+    titleToKeyMap.put("Signature Border", "signatureBorder");
+    titleToKeyMap.put("Signature Text Normal", "signatureTextNormal");
+    titleToKeyMap.put("Signature Text Highlighted Parameter", "signatureTextHighlightedParameter");
+    titleToKeyMap.put("Hover Background", "hoverBackground");
+    titleToKeyMap.put("Hover Border", "hoverBorder");
+    titleToKeyMap.put("Hover Text Normal", "hoverTextNormal");
+    titleToKeyMap.put("Hover Text Highlighted", "hoverTextHighlighted");
+    titleToKeyMap.put("Text Action Window Background", "textActionWindowBackground");
+    titleToKeyMap.put("Text Action Window Icon Color", "textActionWindowIconColor");
+    titleToKeyMap.put("Minimap Background", "minimapBackground");
+    titleToKeyMap.put("Minimap Viewport", "minimapViewport");
+    titleToKeyMap.put("Minimap Viewport Border", "minimapViewportBorder");
+    titleToKeyMap.put("Bracket Level Match 1", "bracketlevelmatch1");
+    titleToKeyMap.put("Bracket Level Match 2", "bracketlevelmatch2");
+    titleToKeyMap.put("Bracket Level Match 3", "bracketlevelmatch3");
+    titleToKeyMap.put("Bracket Level Match 4", "bracketlevelmatch4");
+    titleToKeyMap.put("Bracket Level Match 5", "bracketlevelmatch5");
+    titleToKeyMap.put("Bracket Level Match 6", "bracketlevelmatch6");
+
+    // Widget
+    titleToKeyMap.put("Text", "text");
+    titleToKeyMap.put("Hint", "hint");
+    titleToKeyMap.put("Accent", "accent");
+    titleToKeyMap.put("Surface", "surface");
+    titleToKeyMap.put("Stroke", "stroke");
+    titleToKeyMap.put("FAB Background", "fabBackground");
+    titleToKeyMap.put("FAB Icon", "fabIcon");
+    titleToKeyMap.put("Tab Selected", "tabSelected");
+    titleToKeyMap.put("Tab Unselected", "tabUnselected");
+    titleToKeyMap.put("Image Tint", "imageTint");
+    titleToKeyMap.put("Menu Background", "menubackground");
+    titleToKeyMap.put("Menu Text Color", "menutextcolor");
+    titleToKeyMap.put("Selected Menu Color", "selectedmenucolor");
+    // Background قبلاً اضافه شد
+  }
+
+  private String getDefaultColorForTitle(String title) {
+    String key = titleToKeyMap.get(title);
+    if (key == null) return null;
+    try {
+      JsonObject defaultObj =
+          JsonParser.parseString(new ThemeManager(this).getDefaultThemeJson()).getAsJsonObject();
+      JsonObject activity = defaultObj.getAsJsonObject("activity");
+      if (activity.has(key)) return activity.get(key).getAsString();
+      JsonObject editor = defaultObj.getAsJsonObject("editor");
+      if (editor.has(key)) return editor.get(key).getAsString();
+      JsonObject widget = defaultObj.getAsJsonObject("widget");
+      if (widget.has(key)) return widget.get(key).getAsString();
+    } catch (Exception ignored) {
+    }
+    return null;
+  }
+
+  private void resetToDefault() {
     String oldImagePath = currentTheme.getWidget().getImagepath();
     float oldBlurSize = currentTheme.getWidget().getBlursize();
 
@@ -266,7 +419,6 @@ public class ThemeEditorActivity extends BaseCompat {
                   GhostTheme.class);
       ThemePreviewBottomSheet bottomSheet = ThemePreviewBottomSheet.newInstance(themeCopy);
       bottomSheet.show(getSupportFragmentManager(), "preview_theme");
-
       return true;
     }
     return super.onOptionsItemSelected(item);
@@ -637,13 +789,43 @@ public class ThemeEditorActivity extends BaseCompat {
             "Minimap Viewport Border",
             e.getMinimapViewportBorder(),
             (t, c) -> t.getEditor().setMinimapViewportBorder(c)));
+    editorItems.add(
+        new ColorItem(
+            "Bracket Level Match 1",
+            e.getBracketlevelmatch1(),
+            (t, c) -> t.getEditor().setBracketlevelmatch1(c)));
+    editorItems.add(
+        new ColorItem(
+            "Bracket Level Match 2",
+            e.getBracketlevelmatch2(),
+            (t, c) -> t.getEditor().setBracketlevelmatch2(c)));
+    editorItems.add(
+        new ColorItem(
+            "Bracket Level Match 3",
+            e.getBracketlevelmatch3(),
+            (t, c) -> t.getEditor().setBracketlevelmatch3(c)));
+    editorItems.add(
+        new ColorItem(
+            "Bracket Level Match 4",
+            e.getBracketlevelmatch4(),
+            (t, c) -> t.getEditor().setBracketlevelmatch4(c)));
+    editorItems.add(
+        new ColorItem(
+            "Bracket Level Match 5",
+            e.getBracketlevelmatch5(),
+            (t, c) -> t.getEditor().setBracketlevelmatch5(c)));
+    editorItems.add(
+        new ColorItem(
+            "Bracket Level Match 6",
+            e.getBracketlevelmatch6(),
+            (t, c) -> t.getEditor().setBracketlevelmatch6(c)));
 
     WidgetTheme w = currentTheme.getWidget();
+    widgetItems.add(
+        new ColorItem("Background", w.getBackground(), (t, c) -> t.getWidget().setBackground(c)));
     widgetItems.add(new ColorItem("Text", w.getText(), (t, c) -> t.getWidget().setText(c)));
     widgetItems.add(new ColorItem("Hint", w.getHint(), (t, c) -> t.getWidget().setHint(c)));
     widgetItems.add(new ColorItem("Accent", w.getAccent(), (t, c) -> t.getWidget().setAccent(c)));
-    widgetItems.add(
-        new ColorItem("Background", w.getBackground(), (t, c) -> t.getWidget().setBackground(c)));
     widgetItems.add(
         new ColorItem("Surface", w.getSurface(), (t, c) -> t.getWidget().setSurface(c)));
     widgetItems.add(new ColorItem("Stroke", w.getStroke(), (t, c) -> t.getWidget().setStroke(c)));
@@ -673,6 +855,7 @@ public class ThemeEditorActivity extends BaseCompat {
             "Selected Menu Color",
             w.getSelectedmenucolor(),
             (t, c) -> t.getWidget().setSelectedmenucolor(c)));
+
     widgetItems.add(
         new ImageItem(
             "Background Image",
@@ -680,12 +863,7 @@ public class ThemeEditorActivity extends BaseCompat {
             (t, p) -> t.getWidget().setImagepath(p)));
     widgetItems.add(
         new SliderItem(
-            "Blur Size",
-            w.getBlursize(),
-            0f,
-            25f,
-            1f,
-            (t, v) -> t.getWidget().setBlursize(v)));
+            "Blur Size", w.getBlursize(), 0f, 25f, 1f, (t, v) -> t.getWidget().setBlursize(v)));
   }
 
   private void saveThemeToFile() {
@@ -708,7 +886,7 @@ public class ThemeEditorActivity extends BaseCompat {
     adapter.setHighlightQuery(null);
   }
 
-  private class ThemeDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+  private class ThemeDetailAdapter extends RecyclerView.Adapter<RootHolder> {
     static final int TYPE_COLOR = 0;
     static final int TYPE_IMAGE = 1;
     static final int TYPE_SLIDER = 2;
@@ -740,7 +918,7 @@ public class ThemeEditorActivity extends BaseCompat {
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RootHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
       LayoutInflater inflater = LayoutInflater.from(parent.getContext());
       if (viewType == TYPE_IMAGE) {
         return new ImageViewHolder(inflater.inflate(R.layout.item_image_row, parent, false));
@@ -752,7 +930,7 @@ public class ThemeEditorActivity extends BaseCompat {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RootHolder holder, int position) {
       ThemeRow item = items.get(position);
       if (holder instanceof ColorViewHolder) {
         bindColor((ColorViewHolder) holder, (ColorItem) item);
@@ -784,8 +962,16 @@ public class ThemeEditorActivity extends BaseCompat {
 
     private void bindColor(ColorViewHolder holder, ColorItem item) {
       bindTitle(holder.title, item.title);
+      colorToShow = item.currentColor;
+      if (colorToShow == null || colorToShow.isEmpty()) {
+        String def = getDefaultColorForTitle(item.title);
+        if (def != null) colorToShow = def;
+      }
+      if (colorToShow == null || colorToShow.isEmpty()) {
+        colorToShow = "#000000";
+      }
       try {
-        shape(holder.colorPreview, Color.parseColor(item.currentColor));
+        shape(holder.colorPreview, Color.parseColor(colorToShow));
       } catch (Exception e) {
         holder.colorPreview.setBackgroundColor(Color.BLACK);
       }
@@ -793,7 +979,7 @@ public class ThemeEditorActivity extends BaseCompat {
           v -> {
             int initialColor;
             try {
-              initialColor = Color.parseColor(item.currentColor);
+              initialColor = Color.parseColor(colorToShow);
             } catch (Exception e) {
               initialColor = Color.BLACK;
             }
@@ -815,11 +1001,15 @@ public class ThemeEditorActivity extends BaseCompat {
       boolean hasImage = item.currentPath != null && !item.currentPath.isEmpty();
       holder.clearIcon.setVisibility(hasImage ? View.VISIBLE : View.GONE);
       if (hasImage) {
-        Glide.with(holder.imagePreview.getContext())
-            .load(Uri.parse(item.currentPath))
-            .placeholder(R.drawable.ic_photo)
-            .error(R.drawable.ic_photo)
-            .into(holder.imagePreview);
+        try {
+          Glide.with(holder.imagePreview.getContext())
+              .load(Uri.parse(item.currentPath))
+              .placeholder(R.drawable.ic_photo)
+              .error(R.drawable.ic_photo)
+              .into(holder.imagePreview);
+        } catch (Exception e) {
+          holder.imagePreview.setImageResource(R.drawable.ic_photo);
+        }
       } else {
         holder.imagePreview.setImageResource(R.drawable.ic_photo);
       }
@@ -881,7 +1071,7 @@ public class ThemeEditorActivity extends BaseCompat {
       return items.size();
     }
 
-    class ColorViewHolder extends RecyclerView.ViewHolder {
+    class ColorViewHolder extends RootHolder {
       TextView title;
       View colorPreview;
       ImageView editIcon;
@@ -894,7 +1084,7 @@ public class ThemeEditorActivity extends BaseCompat {
       }
     }
 
-    class ImageViewHolder extends RecyclerView.ViewHolder {
+    class ImageViewHolder extends RootHolder {
       TextView title;
       ImageView imagePreview;
       ImageView clearIcon;
@@ -909,7 +1099,7 @@ public class ThemeEditorActivity extends BaseCompat {
       }
     }
 
-    class SliderViewHolder extends RecyclerView.ViewHolder {
+    class SliderViewHolder extends RootHolder {
       TextView title;
       TextView valueText;
       ImageView editIcon;

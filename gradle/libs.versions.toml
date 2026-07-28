@@ -37,6 +37,8 @@ commons-net = "3.10.0"
 #palette
 palette = "1.0.0"
 lsp4j = "1.0.0"
+eventbus = "3.3.1"
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -84,3 +86,4 @@ shizuku-provider = { group = "dev.rikka.shizuku", name = "provider", version.ref
 jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
 palette = { group = "androidx.palette", name = "palette", version.ref = "palette" }
 lsp4j = { module = "org.eclipse.lsp4j:org.eclipse.lsp4j", version.ref = "lsp4j" }
+eventbus = { group = "org.greenrobot", name = "eventbus", version.ref = "eventbus" }

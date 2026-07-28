@@ -34,6 +34,19 @@ public class ShellIncrementalAnalyzeManager
 
   private static final int STATE_INCOMPLETE_COMMENT = 1;
 
+  private static final int[] BRACKET_COLORS = {
+      GhostColorScheme.BRACKET1,
+      GhostColorScheme.BRACKET2,
+      GhostColorScheme.BRACKET3,
+      GhostColorScheme.BRACKET4,
+      GhostColorScheme.BRACKET5,
+      GhostColorScheme.BRACKET6
+  };
+
+  private static long bracketStyle(int depth) {
+    return TextStyle.makeStyle(BRACKET_COLORS[depth % BRACKET_COLORS.length]);
+  }
+
   private static final Pattern URL_PATTERN =
       Pattern.compile(
           "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&/=]*)");
@@ -176,6 +189,8 @@ public class ShellIncrementalAnalyzeManager
     var tokens = new ArrayList<HighlightToken>();
     int newState = STATE_NORMAL;
     var stateObj = new ShellState();
+    stateObj.startBracketDepth = state.bracketDepth;
+    stateObj.bracketDepth = state.bracketDepth;
     if (state.state == STATE_NORMAL) {
       newState = tokenizeNormal(line, 0, tokens, stateObj);
     } else if (state.state == STATE_INCOMPLETE_COMMENT) {
@@ -210,6 +225,15 @@ public class ShellIncrementalAnalyzeManager
       if (token == ShellTokens.LBRACE || token == ShellTokens.RBRACE) {
         st.hasBraces = true;
       }
+      if (token == ShellTokens.LPAREN
+          || token == ShellTokens.LBRACE
+          || token == ShellTokens.LBRACK) {
+        st.bracketDepth++;
+      } else if (token == ShellTokens.RPAREN
+          || token == ShellTokens.RBRACE
+          || token == ShellTokens.RBRACK) {
+        st.bracketDepth = Math.max(0, st.bracketDepth - 1);
+      }
       if (token == ShellTokens.IDENTIFIER) {
         st.addIdentifier(tokenizer.getTokenText());
       }
@@ -241,6 +265,7 @@ public class ShellIncrementalAnalyzeManager
     var spans = new ArrayList<Span>();
     var tokens = lineResult.tokens;
     ShellTokens previous = ShellTokens.UNKNOWN;
+    int depth = lineResult.state.startBracketDepth;
     for (int i = 0; i < tokens.size(); i++) {
       var tokenRecord = tokens.get(i);
       var token = tokenRecord.token;
@@ -385,18 +410,24 @@ public class ShellIncrementalAnalyzeManager
         case NOT:
         case INC:
         case DEC:
-        case LPAREN:
-        case RPAREN:
-        case LBRACE:
-        case RBRACE:
-        case LBRACK:
-        case RBRACK:
         case SEMICOLON:
         case COLON:
         case COMMA:
         case DOT:
         case BACKTICK:
           span = SpanFactory.obtain(offset, GhostColorScheme.OPERATOR);
+          break;
+        case LPAREN:
+        case LBRACE:
+        case LBRACK:
+          span = SpanFactory.obtain(offset, bracketStyle(depth));
+          depth++;
+          break;
+        case RPAREN:
+        case RBRACE:
+        case RBRACK:
+          depth = Math.max(0, depth - 1);
+          span = SpanFactory.obtain(offset, bracketStyle(depth));
           break;
         default:
           span = SpanFactory.obtain(offset, GhostColorScheme.TEXT_NORMAL);

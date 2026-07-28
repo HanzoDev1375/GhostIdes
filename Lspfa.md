@@ -93,7 +93,7 @@ npm i -g typescript typescript-language-server
 
 npm i -g @t1ckbase/vscode-langservers-extracted
 
-npm i @olrtg/emmet-language-server
+npm i -g @olrtg/emmet-language-server
 
 ```
 # این بخش برای زبان سریع go هست ممکنه در برخی از دستگاه ها نصبش طولانی بشه
@@ -146,5 +146,16 @@ apt install mono-complete -y
 wget https://github.com/OmniSharp/omnisharp-roslyn/releases/latest/download/omnisharp-linux-arm64.tar.gz
 mkdir -p omnisharp && tar -xzf omnisharp-linux-arm64.tar.gz -C omnisharp
 chmod +x omnisharp/run
+
+```
+
+
+## Vue Lsp 
+
+- ابتدا نود جی اس را نصب کنید
+
+```bash
+
+npm install -g typescript @vue/language-server
 
 ```

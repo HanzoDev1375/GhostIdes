@@ -25,7 +25,6 @@ include(':components')
 include(':materialfileicon')
 include(':aimodel')
 include(':jgit')
-include(':javac')
 include(':prddownloader')
 include ':musicpreview'
 //include(':proot')

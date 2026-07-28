@@ -263,6 +263,25 @@ public class EditorTheme {
   @SerializedName("minimapViewportBorder")
   private String minimapViewportBorder;
 
+  /** add new item for theme in 1.1.4 */
+  @SerializedName("bracketlevelmatch1")
+  private String bracketlevelmatch1;
+
+  @SerializedName("bracketlevelmatch2")
+  private String bracketlevelmatch2;
+
+  @SerializedName("bracketlevelmatch3")
+  private String bracketlevelmatch3;
+
+  @SerializedName("bracketlevelmatch4")
+  private String bracketlevelmatch4;
+
+  @SerializedName("bracketlevelmatch5")
+  private String bracketlevelmatch5;
+
+  @SerializedName("bracketlevelmatch6")
+  private String bracketlevelmatch6;
+
   // Getters and Setters for all fields (only showing new ones for brevity, include all existing)
   public String getLineDivider() {
     return lineDivider;
@@ -951,5 +970,53 @@ public class EditorTheme {
 
   public void setMinimapViewportBorder(String minimapViewportBorder) {
     this.minimapViewportBorder = minimapViewportBorder;
+  }
+
+  public String getBracketlevelmatch1() {
+    return this.bracketlevelmatch1;
+  }
+
+  public void setBracketlevelmatch1(String bracketlevelmatch1) {
+    this.bracketlevelmatch1 = bracketlevelmatch1;
+  }
+
+  public String getBracketlevelmatch2() {
+    return this.bracketlevelmatch2;
+  }
+
+  public void setBracketlevelmatch2(String bracketlevelmatch2) {
+    this.bracketlevelmatch2 = bracketlevelmatch2;
+  }
+
+  public String getBracketlevelmatch3() {
+    return this.bracketlevelmatch3;
+  }
+
+  public void setBracketlevelmatch3(String bracketlevelmatch3) {
+    this.bracketlevelmatch3 = bracketlevelmatch3;
+  }
+
+  public String getBracketlevelmatch4() {
+    return this.bracketlevelmatch4;
+  }
+
+  public void setBracketlevelmatch4(String bracketlevelmatch4) {
+    this.bracketlevelmatch4 = bracketlevelmatch4;
+  }
+
+  public String getBracketlevelmatch5() {
+    return this.bracketlevelmatch5;
+  }
+
+  public void setBracketlevelmatch5(String bracketlevelmatch5) {
+    this.bracketlevelmatch5 = bracketlevelmatch5;
+  }
+
+  public String getBracketlevelmatch6() {
+    return this.bracketlevelmatch6;
+  }
+
+  public void setBracketlevelmatch6(String bracketlevelmatch6) {
+    this.bracketlevelmatch6 = bracketlevelmatch6;
   }
 }

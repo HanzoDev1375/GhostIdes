@@ -49,27 +49,12 @@ import ir.theme.ThemeUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-/**
- * ترمینال مستقل GhostIDE. چند سشن به‌صورت تب (مثل مرورگر) پشتیبانی میشه. خودِ سشن‌ها (پروسه‌ی شل)
- * توی {@link TerminalSessionService} زندگی میکنن، نه این اکتیویتی — یعنی چرخوندن صفحه، رفتن به یه
- * اکتیویتی دیگه، یا حتی بستن این صفحه، سشن‌ها رو نمی‌کشه؛ فقط با × زدن رو تب یا kill کردنِ خودِ
- * notification سرویس از بین میرن.
- *
- * <p>برای اجرا نیاز به این dependency در build.gradle ماژول app هست:
- *
- * <p>repositories { maven { url "https://jitpack.io" } } dependencies { implementation
- * 'com.termux.termux-app:terminal-view:0.118.3' }
- *
- * <p>و حتماً permission/service مربوط به {@link TerminalSessionService} رو توی AndroidManifest.xml
- * اضافه کن (توضیحش بالای اون کلاسه).
- */
 public class TerminalActivity extends BaseCompat
     implements GhostTerminalViewClient.KeyModifierState, TerminalSessionService.SessionListener {
 
-  /** اگه بخوای ترمینال رو مستقیم توی مسیر یه پروژه باز کنی: putExtra(EXTRA_WORKING_DIR, path) */
   public static final String EXTRA_WORKING_DIR = "working_dir";
-
   public static final String EXTRA_COMMAND = "command";
+
   private ActivityTerminalBinding b;
   private TerminalSessionService service;
   private boolean isBound = false;
@@ -133,6 +118,7 @@ public class TerminalActivity extends BaseCompat
       unbindService(connection);
       isBound = false;
     }
+    DebianInstaller.detach(installListener);
     super.onStop();
   }
 
@@ -146,14 +132,14 @@ public class TerminalActivity extends BaseCompat
     }
   }
 
-  /** بعد از اولین bind موفق به سرویس صدا زده میشه: آدابتور تب‌ها رو با لیست واقعیِ سرویس میسازه. */
   private void onServiceReady() {
     if (tabAdapter == null) setupSessionTabs();
 
     String command = getIntent().getStringExtra(EXTRA_COMMAND);
     if (command != null && !command.isEmpty()) {
       if (!DebianBootstrap.isInstalled(this)) {
-        Toast.makeText(this, "Debian نصب نیست", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, getString(R.string.terminal_debian_not_installed), Toast.LENGTH_LONG)
+            .show();
         return;
       }
       addNewDebianSession();
@@ -248,23 +234,23 @@ public class TerminalActivity extends BaseCompat
   }
 
   private void stepDB() {
-    if (!DebianInstaller.isInstalled(this)) {
+    if (DebianInstaller.isInstalling()) {
+      attachToRunningInstall();
+    } else if (!DebianInstaller.isInstalled(this)) {
       startDebianInstall();
-      b.terminalView.setVisibility(View.INVISIBLE);
     } else {
       b.terminalView.setVisibility(View.VISIBLE);
       addNewDebianSession();
     }
   }
 
-  /** اگه Debian نصب شده باشه، بین Shell/Debian می‌پرسه؛ وگرنه با توضیح، شل ساده میسازه. */
   private void showNewSessionMenu(View anchor) {
     if (!DebianBootstrap.isInstalled(this)) {
       Toast.makeText(
               this,
-              "Debian rootfs پیدا نشد رو: "
-                  + DebianBootstrap.getRootfsDir(this).getAbsolutePath()
-                  + " — یه شل معمولی باز میشه",
+              getString(
+                  R.string.terminal_debian_rootfs_not_found_fallback,
+                  DebianBootstrap.getRootfsDir(this).getAbsolutePath()),
               Toast.LENGTH_LONG)
           .show();
       addNewSession();
@@ -314,9 +300,6 @@ public class TerminalActivity extends BaseCompat
         });
   }
 
-  /**
-   * چون دیگه ToggleButton نیستن (اون ایندیکیتور توکار زشت بود)، حالت on/off رو خودمون رنگ میکنیم.
-   */
   private void updateModifierButtonStyle(android.widget.Button button, boolean active) {
     if (active) {
       int bg = MaterialColors.getColor(button, R.attr.colorPrimary);
@@ -343,9 +326,6 @@ public class TerminalActivity extends BaseCompat
             });
   }
 
-  /**
-   * یه KeyEvent واقعی رو از طریق مسیر ورودیِ خودِ TerminalView دیسپچ میکنه (ESC/TAB/جهت‌نما‌ها).
-   */
   private void sendKeyEvent(int keyCode) {
     long now = SystemClock.uptimeMillis();
     b.terminalView.dispatchKeyEvent(new KeyEvent(now, now, KeyEvent.ACTION_DOWN, keyCode, 0));
@@ -424,8 +404,6 @@ public class TerminalActivity extends BaseCompat
     return -1;
   }
 
-  // ───────────────────────── TerminalSessionService.SessionListener ─────────────────────────
-
   @Override
   public void onTextChanged(TerminalSession session) {
     if (session == currentSession()) b.terminalView.invalidate();
@@ -439,7 +417,6 @@ public class TerminalActivity extends BaseCompat
 
   @Override
   public void onSessionFinished(TerminalSession session) {
-    // سرویس خودش این سشن رو از لیستش حذف کرده؛ فقط UI رو با وضعیت فعلی sync میکنیم
     tabAdapter.notifyDataSetChanged();
     List<TerminalTab> sessions = service.getSessions();
     if (sessions.isEmpty()) {
@@ -449,8 +426,6 @@ public class TerminalActivity extends BaseCompat
     int newIndex = Math.min(Math.max(currentTabIndex, 0), sessions.size() - 1);
     switchToTab(newIndex);
   }
-
-  // ───────────────────────── GhostTerminalViewClient.KeyModifierState ─────────────────────────
 
   @Override
   public boolean isCtrlToggled() {
@@ -474,15 +449,20 @@ public class TerminalActivity extends BaseCompat
     updateModifierButtonStyle(b.keyAlt, false);
   }
 
-  // ───────────────────────── نصب Debian (منوی تولبار) ─────────────────────────
-
   private AlertDialog installDialog;
   private TextView installStatusText;
   private ProgressBar installProgressBar;
+  private DebianInstaller.InstallListener installListener;
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    menu.add(0, 1001, 0, DebianBootstrap.isInstalled(this) ? "حذف Debian" : "نصب Debian");
+    menu.add(
+        0,
+        1001,
+        0,
+        DebianBootstrap.isInstalled(this)
+            ? getString(R.string.terminal_remove_debian)
+            : getString(R.string.terminal_install_debian));
     return true;
   }
 
@@ -499,34 +479,34 @@ public class TerminalActivity extends BaseCompat
     return super.onOptionsItemSelected(item);
   }
 
-  /**
-   * قبل از پاک کردنِ rootfs (مثلاً برای رفعِ یه نصبِ ناقص/معماریِ اشتباه) از کاربر تأیید میگیره.
-   */
   private void confirmAndRemoveDebian() {
     new AlertDialog.Builder(this)
-        .setTitle("حذف Debian")
-        .setMessage("کل rootfs دبیان پاک میشه (فایل های خودِ توی دبیان هم از بین میره). مطمئنی؟")
+        .setTitle(getString(R.string.terminal_remove_debian))
+        .setMessage(getString(R.string.terminal_confirm_remove_debian_message))
         .setPositiveButton(
-            "حذف کن",
+            getString(R.string.terminal_action_remove),
             (dialog, which) ->
                 DebianBootstrap.uninstall(
                     this,
                     () -> {
-                      Toast.makeText(this, "Debian حذف شد", Toast.LENGTH_SHORT).show();
+                      Toast.makeText(
+                              this, getString(R.string.terminal_debian_removed), Toast.LENGTH_SHORT)
+                          .show();
                       invalidateOptionsMenu();
                     }))
-        .setNegativeButton("لغو", null)
+        .setNegativeButton(getString(R.string.terminal_action_cancel), null)
         .show();
   }
 
-  private void startDebianInstall() {
+  /** فقط UI (دیالوگ + status/progress) رو میسازه؛ شروعِ نصب یا وصل‌شدن جداست. */
+  private void buildInstallDialogViews() {
     LinearLayout layout = new LinearLayout(this);
     layout.setOrientation(LinearLayout.VERTICAL);
     int pad = (int) (16 * getResources().getDisplayMetrics().density);
     layout.setPadding(pad, pad, pad, pad);
 
     installStatusText = new TextView(this);
-    installStatusText.setText("در حال شروع دانلود...");
+    installStatusText.setText(getString(R.string.terminal_status_starting_download));
 
     installProgressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
     installProgressBar.setMax(100);
@@ -537,26 +517,30 @@ public class TerminalActivity extends BaseCompat
 
     installDialog =
         new AlertDialog.Builder(this)
-            .setTitle("نصب Debian")
+            .setTitle(getString(R.string.terminal_install_debian))
             .setView(layout)
             .setCancelable(false)
             .setNegativeButton(
-                "لغو",
+                getString(R.string.terminal_action_cancel),
                 (dialog, which) -> {
                   DebianInstaller.cancelInstall();
-                  Toast.makeText(this, "نصب لغو شد", Toast.LENGTH_SHORT).show();
+                  Toast.makeText(this, getString(R.string.terminal_install_cancelled), Toast.LENGTH_SHORT)
+                      .show();
                 })
             .create();
     installDialog.show();
+  }
 
-    DebianInstaller.installDebian(
-        this,
+  private DebianInstaller.InstallListener getOrCreateInstallListener() {
+    if (installListener != null) return installListener;
+    installListener =
         new DebianInstaller.InstallListener() {
           @Override
           public void onDownloadProgress(int percent) {
             runOnUiThread(
                 () -> {
-                  installStatusText.setText("دانلود: " + percent + "%");
+                  installStatusText.setText(getString(R.string.terminal_status_downloading, percent));
+                  installProgressBar.setIndeterminate(false);
                   installProgressBar.setProgress(percent);
                 });
           }
@@ -565,7 +549,8 @@ public class TerminalActivity extends BaseCompat
           public void onExtractProgress(int extractedEntries) {
             runOnUiThread(
                 () -> {
-                  installStatusText.setText("در حال استخراج... (" + extractedEntries + " فایل)");
+                  installStatusText.setText(
+                      getString(R.string.terminal_status_extracting, extractedEntries));
                   installProgressBar.setIndeterminate(true);
                 });
           }
@@ -575,7 +560,10 @@ public class TerminalActivity extends BaseCompat
             runOnUiThread(
                 () -> {
                   if (installDialog != null) installDialog.dismiss();
-                  Toast.makeText(TerminalActivity.this, "Debian نصب شد ✓", Toast.LENGTH_LONG)
+                  Toast.makeText(
+                          TerminalActivity.this,
+                          getString(R.string.terminal_debian_installed_success),
+                          Toast.LENGTH_LONG)
                       .show();
                   invalidateOptionsMenu();
                   b.terminalView.setVisibility(View.VISIBLE);
@@ -593,6 +581,17 @@ public class TerminalActivity extends BaseCompat
                   Toast.makeText(TerminalActivity.this, message, Toast.LENGTH_LONG).show();
                 });
           }
-        });
+        };
+    return installListener;
+  }
+
+  private void startDebianInstall() {
+    buildInstallDialogViews();
+    DebianInstaller.installDebian(this, getOrCreateInstallListener());
+  }
+
+  private void attachToRunningInstall() {
+    buildInstallDialogViews();
+    DebianInstaller.attach(getOrCreateInstallListener());
   }
 }

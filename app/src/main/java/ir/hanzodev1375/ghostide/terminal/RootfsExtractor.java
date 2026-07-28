@@ -1,6 +1,7 @@
 package ir.hanzodev1375.ghostide.terminal;
 
 import android.content.Context;
+import ir.hanzodev1375.ghostide.R;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,37 +10,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 
 /**
  * یه rootfs (مثل Debian از linuxcontainers.org) که فرمتش tar.xz هست رو استخراج میکنه. باید رو یه
  * ترد جدا (نه UI thread) صدا زده بشه چون کاملاً بلاکینگ و طولانیه.
  *
- * <p><b>⚠️ چرا این کلاس عوض شد:</b> نسخه‌ی قبلی خودش با commons-compress فایل‌به‌فایلِ rootfs رو
- * می‌ساخت (mkdir/FileOutputStream/setExecutable...) و پرمیژن‌ها و هاردلینک‌های آرشیو رو کامل و
- * درست حفظ نمی‌کرد. نتیجه‌ش این بود که اولین apt/dpkg با ارور
+ * <p>لایه‌ی xz فقط تو جاوا باز میشه (بایت‌به‌بایت، به پرمیژن‌ها کاری نداره)؛ خودِ extract با
+ * tar واقعیِ اندروید (toybox) زیرِ proot -0 --link2symlink انجام میشه تا پرمیژن‌ها/هاردلینک‌ها
+ * درست حفظ بشن (دقیقاً مثل Termux/proot-distro و Xed-Editor).
  *
- * <pre>dpkg: error: error creating new backup file '/var/lib/dpkg/status-old': Permission denied</pre>
- *
- * روبرو می‌شد. چون فایل‌ها بیرون از لایه‌ی فیک‌روتِ proot، مستقیم با UID واقعیِ اپ اندروید ساخته
- * می‌شدن، نه با tar واقعی زیرِ proot -0 --link2symlink. Termux/proot-distro و Xed-Editor هردو
- * دقیقاً همینو انجام می‌دن: خودِ استخراج rootfs رو هم زیرِ proot، با tar واقعیِ اندروید (toybox،
- * /system/bin/tar) انجام می‌دن.
- *
- * <p>برای همین این نسخه فقط لایه‌ی xz رو تو جاوا باز می‌کنه (این کار صرفاً یه کپیِ بایت‌به‌بایتِ
- * ساده‌ست و به پرمیژن‌ها کاری نداره، پس امنه)، و خودِ extract را می‌سپاره به {@link ProotExec}
- * که tar واقعی رو زیرِ proot صدا می‌زنه.
- *
- * <p>نیاز به این dependency تو build.gradle ماژول app (از قبل هست، دست نخورده):
- *
- * <pre>{@code
- * implementation 'org.apache.commons:commons-compress:1.26.0'
- * implementation 'org.tukaani:xz:1.9'
- * }</pre>
+ * <p>progress دیگه از رویِ خطوطِ verbose تار (-v) نمی‌خونیم — چون بافرِ پایپ محدوده و جاوا
+ * سرعتِ خودِ tar رو گیر می‌نداخت — به‌جاش با یه ترد جدا هر ۴۰۰ms تعداد فایل‌های زیرِ destDir رو
+ * می‌شماریم؛ هم سریع‌تره هم tail خروجی برای دیباگ تمیز می‌مونه.
  */
 public final class RootfsExtractor {
 
   private static final File SYSTEM_TAR = new File("/system/bin/tar");
+  private static final long PROGRESS_POLL_INTERVAL_MS = 400;
 
   private RootfsExtractor() {}
 
@@ -51,19 +40,18 @@ public final class RootfsExtractor {
   public static void extract(
       Context context, File tarXzFile, File destDir, ProgressListener listener) throws IOException {
     if (!destDir.exists() && !destDir.mkdirs()) {
-      throw new IOException("نمیشه پوشه‌ی مقصد رو ساخت: " + destDir);
+      throw new IOException(
+          context.getString(R.string.terminal_error_cannot_create_dest_dir, destDir));
     }
 
     if (!SYSTEM_TAR.exists()) {
-      // اکثر دستگاه‌های اندرویدی (از 6.0 به بعد، از طریق toybox) این باینری رو دارن؛ اگه یه
-      // دستگاه خاص نداشتش، به‌جای خراب‌کردنِ خاموش rootfs، همینجا با یه پیام روشن fail کن.
-      throw new IOException(
-          "روی این دستگاه /system/bin/tar پیدا نشد؛ بدون یه tar واقعی نمیشه rootfs رو با پرمیژن‌های"
-              + " درست استخراج کرد. راه‌حل جایگزین: یه busybox/tar استاتیک با اپ باندل کن و مسیرش رو"
-              + " اینجا جایگزین کن.");
+      throw new IOException(context.getString(R.string.terminal_error_no_system_tar));
     }
 
     File plainTar = new File(destDir.getParentFile(), destDir.getName() + ".extract.tar");
+    AtomicBoolean extracting = new AtomicBoolean(true);
+    Thread progressThread = startProgressPolling(destDir, extracting, listener);
+
     try {
       decompressXz(tarXzFile, plainTar);
 
@@ -72,38 +60,59 @@ public final class RootfsExtractor {
               + plainTar.getAbsolutePath()
               + "' -C '"
               + destDir.getAbsolutePath()
-              + "' -v";
+              + "'";
 
-      int[] count = {0};
       ProotExec.Result result;
       try {
-        result =
-            ProotExec.run(
-                context,
-                new File("/"),
-                Collections.emptyList(),
-                command,
-                line -> {
-                  count[0]++;
-                  if (listener != null && count[0] % 200 == 0) listener.onProgress(count[0]);
-                });
+        result = ProotExec.run(context, new File("/"), Collections.emptyList(), command);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
-        throw new IOException("استخراج زیر proot قطع شد", e);
+        throw new IOException(context.getString(R.string.terminal_error_extract_interrupted), e);
       }
 
       if (!result.isSuccess()) {
         throw new IOException(
-            "استخراج زیرِ proot شکست خورد (exit="
-                + result.exitCode
-                + ").\nخروجیِ آخر:\n"
-                + result.tailOutput);
+            context.getString(
+                R.string.terminal_error_extract_failed_exit, result.exitCode, result.tailOutput));
       }
 
-      if (listener != null) listener.onProgress(count[0]);
+      if (listener != null) listener.onProgress(countEntries(destDir));
     } finally {
+      extracting.set(false);
+      progressThread.interrupt();
       plainTar.delete();
     }
+  }
+
+  private static Thread startProgressPolling(
+      File destDir, AtomicBoolean extracting, ProgressListener listener) {
+    Thread t =
+        new Thread(
+            () -> {
+              while (extracting.get()) {
+                try {
+                  Thread.sleep(PROGRESS_POLL_INTERVAL_MS);
+                } catch (InterruptedException e) {
+                  return;
+                }
+                if (listener != null) listener.onProgress(countEntries(destDir));
+              }
+            },
+            "rootfs-extract-progress");
+    t.setDaemon(true);
+    t.start();
+    return t;
+  }
+
+  private static int countEntries(File dir) {
+    File[] children = dir.listFiles();
+    if (children == null) return 0;
+    int count = 0;
+    for (File child : children) {
+      count++;
+      if (child.isDirectory()) count += countEntries(child);
+    }
+    return count;
   }
 
   private static void decompressXz(File xzFile, File outTar) throws IOException {

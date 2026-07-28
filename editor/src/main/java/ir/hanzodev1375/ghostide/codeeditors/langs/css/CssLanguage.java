@@ -23,8 +23,10 @@ import io.github.rosemoe.sora.text.TextUtils;
 import io.github.rosemoe.sora.widget.SymbolPairMatch;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.CharParser;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.PrettierFormatter;
-import ir.hanzodev1375.ghostide.codeeditors.langs.html.HTMLAnalyzer;
-import ir.hanzodev1375.ghostide.codeeditors.langs.html.HTMLLexer;
+import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlIncrementalAnalyzeManager;
+import ir.hanzodev1375.ghostide.codeeditors.langs.sass.SassIncrementalAnalyzeManager;
+import ir.hanzodev1375.ghostide.codeeditors.langs.sass.SassTextTokenizer;
+import ir.hanzodev1375.ghostide.codeeditors.langs.sass.SassTokens;
 import java.io.IOException;
 import java.io.StringReader;
 import org.antlr.v4.runtime.CharStreams;
@@ -34,7 +36,7 @@ import io.github.rosemoe.sora.lang.styling.Styles;
 
 public class CssLanguage implements Language {
 
-  private final HTMLAnalyzer analyzer;
+  private final SassIncrementalAnalyzeManager analyzer;
   private final IdentifierAutoComplete autoComplete;
   private Context context;
   private String path;
@@ -42,8 +44,7 @@ public class CssLanguage implements Language {
   public CssLanguage(Context context, String path) {
     String[] htmlKeywords = {"!", "DOCTYPE"};
     autoComplete = new IdentifierAutoComplete(htmlKeywords);
-    analyzer = new HTMLAnalyzer();
-    analyzer.init(context, path);
+    analyzer = new SassIncrementalAnalyzeManager();
   }
 
   @NonNull
@@ -103,35 +104,27 @@ public class CssLanguage implements Language {
       @NonNull CompletionPublisher publisher,
       @NonNull Bundle es) {
     String prefix = CompletionHelper.computePrefix(content, position, CharParser::parserHtml);
-    autoComplete.requireAutoComplete(
-        content, position, prefix, publisher, analyzer.getSyncIdentifiers());
-    
-    return;
   }
 
   @Override
   public int getIndentAdvance(@NonNull ContentReference text, int line, int column) {
-
-    try {
-      var lexer = new HTMLLexer(CharStreams.fromReader(new StringReader(text.getLine(line))));
-      Token token;
-      int advance = 0;
-      while (((token = lexer.nextToken()) != null && token.getType() != token.EOF)) {
-        switch (token.getType()) {
-          case HTMLLexer.LBRACE:
-            advance++;
-            break;
-          case HTMLLexer.RBRACE:
-            advance--;
-            break;
-        }
+    var tokenizer = new SassTextTokenizer(text.getLine(line));
+    SassTokens token;
+    int advance = 0;
+    while ((token = tokenizer.nextToken()) != SassTokens.EOF) {
+      switch (token) {
+        case LBRACE:
+          advance++;
+          break;
+        case RBRACK:
+          advance--;
+          break;
+        default:
+          break;
       }
-      advance = Math.max(0, advance);
-      return advance * 2;
-    } catch (IOException e) {
-      e.printStackTrace();
     }
-    return 0;
+    advance = Math.max(0, advance);
+    return advance * 2;
   }
 
   @Override

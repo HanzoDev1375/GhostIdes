@@ -32,8 +32,6 @@ import io.github.rosemoe.sora.util.MyCharacter;
 import io.github.rosemoe.sora.widget.SymbolPairMatch;
 
 public class TsxLanguage implements Language {
-
-  // Snippet‌های React + TS
   private static final CodeSnippet FUNCTION_COMPONENT =
       CodeSnippetParser.parse(
           "const ${1:ComponentName}: React.FC<${2:Props}> = (${3:props}) => {\n    $0\n};");
@@ -183,7 +181,7 @@ public class TsxLanguage implements Language {
     if (idt != null && autoComplete != null) {
       autoComplete.requireAutoComplete(content, position, prefix, publisher, idt);
     }
-    // Snippet‌ها
+   
     if ("fc".startsWith(prefix) && !prefix.isEmpty())
       publisher.addItem(
           new SimpleSnippetCompletionItem(

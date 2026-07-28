@@ -129,6 +129,9 @@ public class PylspServer {
                 var py = new Python3Language(context);
                 e.setWrapperLanguage(py);
                 e.setEditor(editor);
+                e.setEnableInlayHint(true);
+                e.setEnableSignatureHelp(true);
+                e.setEnableHover(true);
                 var lang = (LspLanguage) editor.getEditorLanguage();
                 lang.setFormatter(py.getFormatter());
                 holder[0] = e;

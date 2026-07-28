@@ -168,7 +168,8 @@ public class FileManagerActivity extends BaseCompat
               ".rb",
               ".g4",
               ".ini",
-              ".zig"));
+              ".zig",
+              ".vue"));
   private Set<String> images =
       new HashSet<>(
           Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp", ".avif", ".webp", ".svg"));

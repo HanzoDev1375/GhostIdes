@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.androidsvg)
     implementation(libs.jsoup)
+    implementation(libs.eventbus)
     implementation(libs.powermenu) //for Animator
     implementation(libs.markwon.core)
     implementation(libs.markwon.ext.strikethrough)
