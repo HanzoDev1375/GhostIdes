@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.gson)
     implementation(libs.palette)
+    implementation(libs.utilcode)
     implementation project(":editor")
     implementation project(":materialfileicon")
 

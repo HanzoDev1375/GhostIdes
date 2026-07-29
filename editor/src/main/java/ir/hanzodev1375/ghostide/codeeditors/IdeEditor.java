@@ -6,7 +6,7 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
-import com.eup.codeopsstudio.editor.langs.widget.component.CustomEditorTextActionWindow;
+import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorTextActionWindow;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.event.ScrollEvent;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;

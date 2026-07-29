@@ -1,30 +1,8 @@
-/*
- * This file is part of CodeOps Studio.
- * CodeOps Studio - Code anywhere anytime
- * https://github.com/euptron/CodeOps-Studio
- * Copyright (C) 2024-2026 Etido Peter
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see https://www.gnu.org/licenses/
- */
-
-package com.eup.codeopsstudio.editor.langs.widget.component;
+package ir.hanzodev1375.ghostide.codeeditors.ui;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
-import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,10 +10,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.TooltipCompat;
-
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import io.github.rosemoe.sora.event.ColorSchemeUpdateEvent;
 import io.github.rosemoe.sora.event.HandleStateChangeEvent;
@@ -47,34 +23,31 @@ import io.github.rosemoe.sora.event.Unsubscribe;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import io.github.rosemoe.sora.text.Cursor;
 import io.github.rosemoe.sora.widget.EditorTouchEventHandler;
-import io.github.rosemoe.sora.widget.component.EditorAutoCompletion;
 import io.github.rosemoe.sora.widget.component.EditorTextActionWindow;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
-
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.R;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.codeeditors.ui.model.OpenFileLocationEvent;
-import ir.hanzodev1375.ghostide.codeeditors.util.TranslateLanguages;
-
 import ir.hanzodev1375.ghostide.codeeditors.util.TranslateTask;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionContext;
+import org.eclipse.lsp4j.CodeActionParams;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.DefinitionParams;
+import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
@@ -82,9 +55,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-
 import org.greenrobot.eventbus.EventBus;
-import org.json.JSONArray;
 
 /**
  * This window will show when selecting text to present text actions.
@@ -107,6 +78,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
   private final ImageButton lspDefinitionBtn;
   private final ImageButton lspReferencesBtn;
   private final ImageButton lspRenameBtn;
+  private final ImageButton lspCodeActionBtn;
   private final View rootView;
   private final EditorTouchEventHandler handler;
   private long lastScroll;
@@ -133,10 +105,11 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     longSelectBtn = root.findViewById(R.id.panel_btn_long_select);
     expandSelectionBtn = root.findViewById(R.id.panel_btn_expand_selection);
     formatBtn = root.findViewById(R.id.panel_btn_format);
-    translateBtn = root.findViewById(R.id.panel_btn_translate); // ← جدید
-    lspDefinitionBtn = root.findViewById(R.id.panel_btn_lsp_definition); // ← جدید
-    lspReferencesBtn = root.findViewById(R.id.panel_btn_lsp_references); // ← جدید
-    lspRenameBtn = root.findViewById(R.id.panel_btn_lsp_rename); // ← جدید
+    translateBtn = root.findViewById(R.id.panel_btn_translate);
+    lspDefinitionBtn = root.findViewById(R.id.panel_btn_lsp_definition);
+    lspReferencesBtn = root.findViewById(R.id.panel_btn_lsp_references);
+    lspRenameBtn = root.findViewById(R.id.panel_btn_lsp_rename);
+    lspCodeActionBtn = root.findViewById(R.id.panel_btn_lsp_code_action);
 
     pasteBtn.setOnClickListener(this);
     copyBtn.setOnClickListener(this);
@@ -149,6 +122,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     lspDefinitionBtn.setOnClickListener(this);
     lspReferencesBtn.setOnClickListener(this);
     lspRenameBtn.setOnClickListener(this);
+    lspCodeActionBtn.setOnClickListener(this);
     applyColorScheme(root, editor.getColorScheme());
     editor.subscribeEvent(
         ColorSchemeUpdateEvent.class,
@@ -231,6 +205,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     setColorFilterById(textColor, lspDefinitionBtn);
     setColorFilterById(textColor, lspReferencesBtn);
     setColorFilterById(textColor, lspRenameBtn);
+    setColorFilterById(textColor, lspCodeActionBtn);
   }
 
   @Override
@@ -324,12 +299,11 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     expandSelectionBtn.setVisibility(View.GONE);
     translateBtn.setVisibility(isSelected ? View.VISIBLE : View.GONE);
 
-    // آیکون های LSP فقط وقتی نشون داده می شن که یک Language Server برای نوع فایل فعلی نصب باشه.
-    // نیازی به انتخاب متن نیست؛ رفتن به تعریف/ارجاعات/تغییرنام روی نمادِ زیر مکان نما عمل می کنن.
     boolean lspAvailable = isEditable && editor.isLspAvailableForCurrentFile();
     lspDefinitionBtn.setVisibility(lspAvailable ? View.VISIBLE : View.GONE);
     lspReferencesBtn.setVisibility(lspAvailable ? View.VISIBLE : View.GONE);
     lspRenameBtn.setVisibility(lspAvailable ? View.VISIBLE : View.GONE);
+    lspCodeActionBtn.setVisibility(lspAvailable ? View.VISIBLE : View.GONE);
 
     rootView.measure(
         View.MeasureSpec.makeMeasureSpec(1000000, View.MeasureSpec.AT_MOST),
@@ -394,6 +368,10 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       attachTooltip(lspRenameBtn, "Rename symbol");
       handleRenameSymbol();
       return;
+    } else if (id == R.id.panel_btn_lsp_code_action) {
+      attachTooltip(lspCodeActionBtn, "Code action");
+      handleCodeAction();
+      return;
     }
     dismiss();
   }
@@ -448,11 +426,6 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
         .execute();
   }
 
-  // =====================================================================================
-  // ویژگی های LSP: برو به تعریف، یافتن ارجاعات، تغییر نام نماد
-  // =====================================================================================
-
-  /** درخواست LSP باید همیشه روی یک ترد پس زمینه اجرا بشه، نه UI thread. */
   private void runLspAction(Runnable backgroundWork) {
     new Thread(backgroundWork, "GhostIDE-LspAction").start();
   }
@@ -600,12 +573,6 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     }
   }
 
-  /**
-   * تغییرات WorkspaceEdit برگشتی از سرور رو اعمال می کنه. فقط تغییرات مربوط به فایل بازِ فعلی
-   * مستقیم روی ادیتور اعمال می شن؛ چون این پنجره به فایل منیجر/تب های دیگه دسترسی نداره، اگه تغییر
-   * نام روی فایل های دیگه هم اثر بذاره فقط با یک پیام به کاربر اطلاع داده می شه (نیاز به اتصال این
-   * بخش به فایل منیجر برای اعمال خودکار روی همه ی فایل ها، خارج از اسکوپ همین پنجره است).
-   */
   private void applyWorkspaceEdit(WorkspaceEdit edit, String currentUri) {
     Map<String, List<TextEdit>> changes = edit.getChanges();
     if (changes == null || changes.isEmpty()) {
@@ -617,7 +584,6 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     int otherFilesCount = changes.size() - (currentFileEdits != null ? 1 : 0);
 
     if (currentFileEdits != null && !currentFileEdits.isEmpty()) {
-      // مرتب سازی نزولی بر اساس موقعیت شروع، تا اعمال یک TextEdit آفستِ بقیه رو خراب نکنه
       List<TextEdit> sorted = new ArrayList<>(currentFileEdits);
       sorted.sort(
           (a, b) -> {
@@ -630,12 +596,17 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
           });
       editor.postInLifecycle(
           () -> {
-            // Content.replace(startLine, startColumn, endLine, endColumn, CharSequence) — همون
-            // متدیه که subContent هم همینجا ازش استفاده می کنه؛ اگه امضاش با نسخه ی فعلی
-            // sora-editor فرق داشت، جایگزینش یه insert/delete دستی با همون رنج هست.
             for (TextEdit textEdit : sorted) {
               Position start = textEdit.getRange().getStart();
               Position end = textEdit.getRange().getEnd();
+              Log.w(
+                  "RenameSys",
+                  "LineStart : "
+                      + String.valueOf(start.getLine())
+                      + "LineEnd : "
+                      + String.valueOf(end.getLine())
+                      + "CharName : "
+                      + textEdit.getNewText());
               editor
                   .getText()
                   .replace(
@@ -656,7 +627,139 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     }
   }
 
-  /** نتایج Either سرور (Location یا LocationLink) رو به یک لیست یکدست از Location تبدیل می کنه. */
+  private void handleCodeAction() {
+    Cursor cursor = editor.getCursor();
+    final int startLine = cursor.getLeftLine();
+    final int startColumn = cursor.getLeftColumn();
+    final int endLine = cursor.getRightLine();
+    final int endColumn = cursor.getRightColumn();
+    final String filePath = editor.getCurrentFilePath();
+    dismiss();
+    if (filePath == null) return;
+
+    runLspAction(
+        () -> {
+          LspEditor lsp = editor.ensureLspConnected();
+          var requestManager = lsp == null ? null : lsp.getRequestManager();
+          if (requestManager == null) {
+            showLspToast("اتصال به سرور LSP برقرار نشد");
+            return;
+          }
+          try {
+            String uri = new File(filePath).toURI().toString();
+            Range range =
+                new Range(new Position(startLine, startColumn), new Position(endLine, endColumn));
+
+            List<Diagnostic> rangeDiagnostics = new ArrayList<>();
+            List<Diagnostic> fileDiagnostics = lsp.getDiagnostics();
+            if (fileDiagnostics != null) {
+              for (Diagnostic d : fileDiagnostics) {
+                if (rangesOverlap(d.getRange(), range)) {
+                  rangeDiagnostics.add(d);
+                }
+              }
+            }
+
+            CodeActionParams params = new CodeActionParams();
+            params.setTextDocument(new TextDocumentIdentifier(uri));
+            params.setRange(range);
+            params.setContext(new CodeActionContext(rangeDiagnostics));
+
+            var future = requestManager.codeAction(params);
+            if (future == null) {
+              showLspToast("این سرور از «code action» پشتیبانی نمی کند");
+              return;
+            }
+            List<Either<Command, CodeAction>> actions = future.get(12, TimeUnit.SECONDS);
+            if (actions == null || actions.isEmpty()) {
+              showLspToast("اکشنی برای این موقعیت پیدا نشد");
+              return;
+            }
+            if (actions.size() == 1) {
+              applyCodeAction(actions.get(0), uri);
+            } else {
+              editor.postInLifecycle(() -> showCodeActionsPicker(actions, uri));
+            }
+          } catch (TimeoutException e) {
+            showLspToast("پاسخ سرور LSP بیش از حد طول کشید");
+          } catch (Exception e) {
+            Log.e(TAG, "code action failed", e);
+            showLspToast("خطا در دریافت code action");
+          }
+        });
+  }
+
+  private boolean rangesOverlap(Range a, Range b) {
+    Position aStart = a.getStart();
+    Position aEnd = a.getEnd();
+    Position bStart = b.getStart();
+    Position bEnd = b.getEnd();
+    boolean aBeforeB =
+        aEnd.getLine() < bStart.getLine()
+            || (aEnd.getLine() == bStart.getLine() && aEnd.getCharacter() < bStart.getCharacter());
+    boolean bBeforeA =
+        bEnd.getLine() < aStart.getLine()
+            || (bEnd.getLine() == aStart.getLine() && bEnd.getCharacter() < aStart.getCharacter());
+    return !aBeforeB && !bBeforeA;
+  }
+
+  private void showCodeActionsPicker(List<Either<Command, CodeAction>> actions, String uri) {
+    String[] labels = new String[actions.size()];
+    for (int i = 0; i < actions.size(); i++) {
+      Either<Command, CodeAction> item = actions.get(i);
+      labels[i] = item.isRight() ? item.getRight().getTitle() : item.getLeft().getTitle();
+    }
+    new MaterialAlertDialogBuilder(editor.getContext())
+        .setTitle("Code Action")
+        .setItems(labels, (dialog, which) -> applyCodeAction(actions.get(which), uri))
+        .show();
+  }
+
+  private void applyCodeAction(Either<Command, CodeAction> item, String uri) {
+    if (item.isRight()) {
+      CodeAction action = item.getRight();
+      boolean handled = false;
+      if (action.getEdit() != null) {
+        applyWorkspaceEdit(action.getEdit(), uri);
+        handled = true;
+      }
+      if (action.getCommand() != null) {
+        runLspAction(() -> executeLspCommand(action.getCommand()));
+        handled = true;
+      }
+      if (!handled) {
+        showLspToast("این اکشن پشتیبانی نمی شود");
+      }
+    } else if (item.isLeft()) {
+      runLspAction(() -> executeLspCommand(item.getLeft()));
+    }
+  }
+
+  private void executeLspCommand(Command command) {
+    LspEditor lsp = editor.ensureLspConnected();
+    var requestManager = lsp == null ? null : lsp.getRequestManager();
+    if (requestManager == null) {
+      showLspToast("اتصال به سرور LSP برقرار نشد");
+      return;
+    }
+    try {
+      ExecuteCommandParams params = new ExecuteCommandParams();
+      params.setCommand(command.getCommand());
+      params.setArguments(command.getArguments());
+      var future = requestManager.executeCommand(params);
+      if (future == null) {
+        showLspToast("این سرور از اجرای این دستور پشتیبانی نمی کند");
+        return;
+      }
+      future.get(12, TimeUnit.SECONDS);
+    } catch (TimeoutException e) {
+      showLspToast("پاسخ سرور LSP بیش از حد طول کشید");
+    } catch (Exception e) {
+      Log.e(TAG, "execute command failed", e);
+      showLspToast("خطا در اجرای دستور");
+    }
+  }
+
   private static List<Location> toLocations(Either<List<Location>, List<LocationLink>> either) {
     List<Location> result = new ArrayList<>();
     if (either == null) return result;

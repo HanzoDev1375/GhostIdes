@@ -140,6 +140,19 @@
              android:id="@+id/panel_btn_lsp_rename"
              android:foreground="?attr/selectableItemBackgroundBorderless" />
 
+        <ImageButton
+             android:layout_height="48dp"
+             android:layout_width="48dp"
+             android:visibility="gone"
+             android:contentDescription="@string/editor_lsp_rename"
+             android:scaleType="centerInside"
+             android:src="@drawable/ic_lsp_rename"
+             android:background="@android:color/transparent"
+             android:clickable="true"
+             android:focusable="true"
+             android:id="@+id/panel_btn_lsp_code_action"
+             android:foreground="?attr/selectableItemBackgroundBorderless" />
+
       
         <ImageButton
              android:layout_height="48dp"

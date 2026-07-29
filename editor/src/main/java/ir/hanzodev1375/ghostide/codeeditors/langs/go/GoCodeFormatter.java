@@ -20,7 +20,7 @@ import java.util.List;
 public class GoCodeFormatter {
 
   private static final String TAG = "GoFormatter";
-  private static final String GOFMT_PATH = "/usr/bin/gofmt"; // مسیر پیش‌فرض gofmt
+  private static final String GOFMT_PATH = "/usr/bin/gofmt"; // مسیر پیش فرض gofmt
 
   /**
    * فرمت کردن کد Go با سبک استاندارد (gofmt)

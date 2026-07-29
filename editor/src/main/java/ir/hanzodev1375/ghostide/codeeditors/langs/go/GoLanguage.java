@@ -235,7 +235,7 @@ public class GoLanguage implements Language {
   @NonNull
   @Override
   public Formatter getFormatter() {
-    return formatter;
+    return null;
   }
 
   @Override

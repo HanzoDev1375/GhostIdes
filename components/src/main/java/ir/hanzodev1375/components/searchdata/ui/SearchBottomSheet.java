@@ -1,17 +1,20 @@
 package ir.hanzodev1375.components.searchdata.ui;
 
+import android.graphics.Color;
+import android.graphics.Outline;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.view.inputmethod.EditorInfo;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.blankj.utilcode.util.SizeUtils;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.snackbar.Snackbar;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.databinding.BottomSheetSearchBinding;
@@ -23,6 +26,7 @@ import ir.hanzodev1375.components.searchdata.model.SearchQuery;
 import ir.hanzodev1375.components.searchdata.model.SearchType;
 import ir.hanzodev1375.components.searchdata.viewmodel.SearchViewModel;
 import java.util.regex.Pattern;
+import jp.wasabeef.blurry.Blurry;
 
 public class SearchBottomSheet extends BottomSheetDialogFragment {
   public static final String TAG = "SearchBottomSheet";
@@ -57,6 +61,25 @@ public class SearchBottomSheet extends BottomSheetDialogFragment {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
+
+    View root = binding.getRoot();
+    float cornerRadius = getResources().getDimension(R.dimen.bottom_sheet_corner_radius);
+    root.setClipToOutline(true);
+    root.setOutlineProvider(
+        new ViewOutlineProvider() {
+          @Override
+          public void getOutline(View v, Outline outline) {
+            outline.setRoundRect(
+                0, 0, v.getWidth(), v.getHeight() + (int) cornerRadius, cornerRadius);
+          }
+        });
+    requireDialog().getWindow().setStatusBarColor(Color.TRANSPARENT);
+    requireDialog().getWindow().setNavigationBarColor(Color.TRANSPARENT);
+
+    root.addOnLayoutChangeListener(
+        (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+          v.invalidateOutline();
+        });
     expandSheet();
     viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
     setupRecyclerView();
@@ -67,7 +90,6 @@ public class SearchBottomSheet extends BottomSheetDialogFragment {
   }
 
   private void expandSheet() {
-    /*
     View bottomSheet =
         requireDialog().findViewById(com.google.android.material.R.id.design_bottom_sheet);
     if (bottomSheet != null) {
@@ -77,13 +99,20 @@ public class SearchBottomSheet extends BottomSheetDialogFragment {
 
       bottomSheet.post(
           () -> {
-            ViewGroup.LayoutParams lp = bottomSheet.getLayoutParams();
-            lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
-            bottomSheet.setLayoutParams(lp);
+            behavior.setPeekHeight(SizeUtils.dp2px(300));
+            behavior.setFitToContents(false);
+            behavior.setHideable(false);
+            bottomSheet.setBackgroundColor(Color.TRANSPARENT);
+            View root =
+                requireActivity().getWindow().getDecorView().findViewById(android.R.id.content);
+            Blurry.with(requireActivity())
+                .radius(24)
+                .sampling(4)
+                .async()
+                .capture(root)
+                .into(binding.blurBackground);
           });
-
     }
-    */
   }
 
   private void setupRecyclerView() {
