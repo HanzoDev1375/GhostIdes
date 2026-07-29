@@ -57,11 +57,6 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.greenrobot.eventbus.EventBus;
 
-/**
- * This window will show when selecting text to present text actions.
- *
- * @author Ghost
- */
 public class CustomEditorTextActionWindow extends EditorTextActionWindow {
 
   private static final String TAG = "CustomEditorTextActionWindow";
@@ -321,25 +316,25 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
   public void onClick(@NonNull View view) {
     int id = view.getId();
     if (id == R.id.panel_btn_select_all) {
-      attachTooltip(selectAllBtn, "Select all");
+      attachTooltip(selectAllBtn, editor.getContext().getString(R.string.editor_select_all));
       editor.selectAll();
       return;
     } else if (id == R.id.panel_btn_cut) {
-      attachTooltip(cutBtn, "Cut");
+      attachTooltip(cutBtn, editor.getContext().getString(R.string.editor_cut_text));
       if (editor.getCursor().isSelected()) editor.cutText();
     } else if (id == R.id.panel_btn_paste) {
-      attachTooltip(pasteBtn, "Paste");
+      attachTooltip(pasteBtn, editor.getContext().getString(R.string.editor_paste_text));
       editor.pasteText();
       editor.setSelection(editor.getCursor().getRightLine(), editor.getCursor().getRightColumn());
     } else if (id == R.id.panel_btn_copy) {
-      attachTooltip(copyBtn, "Copy");
+      attachTooltip(copyBtn, editor.getContext().getString(R.string.editor_copy_text));
       editor.copyText();
       editor.setSelection(editor.getCursor().getRightLine(), editor.getCursor().getRightColumn());
     } else if (id == R.id.panel_btn_long_select) {
-      attachTooltip(longSelectBtn, "Long select");
+      attachTooltip(longSelectBtn, editor.getContext().getString(R.string.editor_long_select));
       editor.beginLongSelect();
     } else if (id == R.id.panel_btn_format) {
-      attachTooltip(formatBtn, "Format");
+      attachTooltip(formatBtn, editor.getContext().getString(R.string.editor_format));
       Cursor cursor = editor.getText().getCursor();
       if (cursor.isSelected()) {
         editor.formatCodeAsync(cursor.left(), cursor.right());
@@ -348,28 +343,28 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       }
       return;
     } else if (id == R.id.panel_btn_expand_selection) {
-      attachTooltip(expandSelectionBtn, "Expand selection");
+      attachTooltip(expandSelectionBtn, editor.getContext().getString(R.string.editor_expand_selection));
       if (editor.getEditable()) {
         // TODO: Handle
       }
     } else if (id == R.id.panel_btn_translate) {
-      attachTooltip(translateBtn, "Translate");
+      attachTooltip(translateBtn, editor.getContext().getString(R.string.editor_translate));
       handleTranslate();
       return;
     } else if (id == R.id.panel_btn_lsp_definition) {
-      attachTooltip(lspDefinitionBtn, "Go to definition");
+      attachTooltip(lspDefinitionBtn, editor.getContext().getString(R.string.editor_lsp_definition));
       handleGoToDefinition();
       return;
     } else if (id == R.id.panel_btn_lsp_references) {
-      attachTooltip(lspReferencesBtn, "Find references");
+      attachTooltip(lspReferencesBtn, editor.getContext().getString(R.string.editor_lsp_references));
       handleFindReferences();
       return;
     } else if (id == R.id.panel_btn_lsp_rename) {
-      attachTooltip(lspRenameBtn, "Rename symbol");
+      attachTooltip(lspRenameBtn, editor.getContext().getString(R.string.editor_lsp_rename));
       handleRenameSymbol();
       return;
     } else if (id == R.id.panel_btn_lsp_code_action) {
-      attachTooltip(lspCodeActionBtn, "Code action");
+      attachTooltip(lspCodeActionBtn, editor.getContext().getString(R.string.code_action));
       handleCodeAction();
       return;
     }
@@ -391,7 +386,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
   private void handleTranslate() {
     String selectedText = getSelectedText();
     if (selectedText == null || selectedText.isEmpty()) {
-      Toast.makeText(editor.getContext(), "متنی انتخاب نشده است", Toast.LENGTH_SHORT).show();
+      Toast.makeText(editor.getContext(), R.string.dontselecttext, Toast.LENGTH_SHORT).show();
       dismiss();
       return;
     }
@@ -419,7 +414,9 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
               public void onFailure(String error) {
                 editor.post(
                     () ->
-                        Toast.makeText(editor.getContext(), "error: " + error, Toast.LENGTH_SHORT)
+                        Toast.makeText(editor.getContext(),
+                                editor.getContext().getString(R.string.lsp_translate_error_prefix) + error,
+                                Toast.LENGTH_SHORT)
                             .show());
               }
             })
@@ -447,7 +444,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
           LspEditor lsp = editor.ensureLspConnected();
           var requestManager = lsp == null ? null : lsp.getRequestManager();
           if (requestManager == null) {
-            showLspToast("اتصال به سرور LSP برقرار نشد");
+            showLspToast(editor.getContext().getString(R.string.error_toconnectedlsp));
             return;
           }
           try {
@@ -458,16 +455,17 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
 
             var future = requestManager.definition(params);
             if (future == null) {
-              showLspToast("این سرور از «برو به تعریف» پشتیبانی نمی کند");
+              showLspToast(editor.getContext().getString(R.string.lsp_definition_not_supported));
               return;
             }
             var result = future.get(12, TimeUnit.SECONDS);
-            handleLocations(toLocations(result), uri, "تعریفی برای این نماد پیدا نشد");
+            handleLocations(toLocations(result), uri,
+                editor.getContext().getString(R.string.lsp_definition_not_found));
           } catch (TimeoutException e) {
-            showLspToast("پاسخ سرور LSP بیش از حد طول کشید");
+            showLspToast(editor.getContext().getString(R.string.lsp_timeout));
           } catch (Exception e) {
             Log.e(TAG, "go to definition failed", e);
-            showLspToast("خطا در دریافت تعریف نماد");
+            showLspToast(editor.getContext().getString(R.string.lsp_definition_failed));
           }
         });
   }
@@ -484,7 +482,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
           LspEditor lsp = editor.ensureLspConnected();
           var requestManager = lsp == null ? null : lsp.getRequestManager();
           if (requestManager == null) {
-            showLspToast("اتصال به سرور LSP برقرار نشد");
+            showLspToast(editor.getContext().getString(R.string.error_toconnectedlsp));
             return;
           }
           try {
@@ -499,16 +497,17 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
 
             var future = requestManager.references(params);
             if (future == null) {
-              showLspToast("این سرور از «یافتن ارجاعات» پشتیبانی نمی کند");
+              showLspToast(editor.getContext().getString(R.string.lsp_references_not_supported));
               return;
             }
             List<Location> locations = future.get(12, TimeUnit.SECONDS);
-            handleLocations(locations, uri, "ارجاعی برای این نماد پیدا نشد");
+            handleLocations(locations, uri,
+                editor.getContext().getString(R.string.lsp_references_not_found));
           } catch (TimeoutException e) {
-            showLspToast("پاسخ سرور LSP بیش از حد طول کشید");
+            showLspToast(editor.getContext().getString(R.string.lsp_timeout));
           } catch (Exception e) {
             Log.e(TAG, "find references failed", e);
-            showLspToast("خطا در یافتن ارجاعات");
+            showLspToast(editor.getContext().getString(R.string.lsp_references_failed));
           }
         });
   }
@@ -527,7 +526,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       input.setSelection(0, selected.length());
     }
     new MaterialAlertDialogBuilder(editor.getContext())
-        .setTitle("Rename Symbol")
+        .setTitle(R.string.lsp_rename_dialog_title)
         .setView(input)
         .setPositiveButton(
             android.R.string.ok,
@@ -536,7 +535,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
               if (newName.isEmpty()) return;
               runLspAction(() -> performRename(filePath, line, column, newName));
             })
-        .setNegativeButton("انصراف", null)
+        .setNegativeButton(R.string.lsp_cancel, null)
         .show();
   }
 
@@ -544,7 +543,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     LspEditor lsp = editor.ensureLspConnected();
     var requestManager = lsp == null ? null : lsp.getRequestManager();
     if (requestManager == null) {
-      showLspToast("اتصال به سرور LSP برقرار نشد");
+      showLspToast(editor.getContext().getString(R.string.error_toconnectedlsp));
       return;
     }
     try {
@@ -556,27 +555,27 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
 
       var future = requestManager.rename(params);
       if (future == null) {
-        showLspToast("این سرور از «تغییر نام نماد» پشتیبانی نمی کند");
+        showLspToast(editor.getContext().getString(R.string.lsp_rename_not_supported));
         return;
       }
       WorkspaceEdit edit = future.get(12, TimeUnit.SECONDS);
       if (edit == null) {
-        showLspToast("تغییری از سرور برنگشت");
+        showLspToast(editor.getContext().getString(R.string.lsp_rename_no_changes));
         return;
       }
       applyWorkspaceEdit(edit, uri);
     } catch (TimeoutException e) {
-      showLspToast("پاسخ سرور LSP بیش از حد طول کشید");
+      showLspToast(editor.getContext().getString(R.string.lsp_timeout));
     } catch (Exception e) {
       Log.e(TAG, "rename symbol failed", e);
-      showLspToast("خطا در تغییر نام نماد");
+      showLspToast(editor.getContext().getString(R.string.lsp_rename_failed));
     }
   }
 
   private void applyWorkspaceEdit(WorkspaceEdit edit, String currentUri) {
     Map<String, List<TextEdit>> changes = edit.getChanges();
     if (changes == null || changes.isEmpty()) {
-      showLspToast("تغییری برای اعمال پیدا نشد");
+      showLspToast(editor.getContext().getString(R.string.lsp_no_edits_to_apply));
       return;
     }
 
@@ -621,9 +620,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
 
     if (otherFilesCount > 0) {
       showLspToast(
-          otherFilesCount
-              + " فایل دیگر هم به این تغییر نیاز دارند؛ اعمال خودکار آن روی فایل های دیگر"
-              + " فعلاً پشتیبانی نمی شود");
+          editor.getContext().getString(R.string.lsp_other_files_need_update, otherFilesCount));
     }
   }
 
@@ -642,7 +639,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
           LspEditor lsp = editor.ensureLspConnected();
           var requestManager = lsp == null ? null : lsp.getRequestManager();
           if (requestManager == null) {
-            showLspToast("اتصال به سرور LSP برقرار نشد");
+            showLspToast(editor.getContext().getString(R.string.error_toconnectedlsp));
             return;
           }
           try {
@@ -667,12 +664,12 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
 
             var future = requestManager.codeAction(params);
             if (future == null) {
-              showLspToast("این سرور از «code action» پشتیبانی نمی کند");
+              showLspToast(editor.getContext().getString(R.string.lsp_code_action_not_supported));
               return;
             }
             List<Either<Command, CodeAction>> actions = future.get(12, TimeUnit.SECONDS);
             if (actions == null || actions.isEmpty()) {
-              showLspToast("اکشنی برای این موقعیت پیدا نشد");
+              showLspToast(editor.getContext().getString(R.string.lsp_code_action_not_found));
               return;
             }
             if (actions.size() == 1) {
@@ -681,10 +678,10 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
               editor.postInLifecycle(() -> showCodeActionsPicker(actions, uri));
             }
           } catch (TimeoutException e) {
-            showLspToast("پاسخ سرور LSP بیش از حد طول کشید");
+            showLspToast(editor.getContext().getString(R.string.lsp_timeout));
           } catch (Exception e) {
             Log.e(TAG, "code action failed", e);
-            showLspToast("خطا در دریافت code action");
+            showLspToast(editor.getContext().getString(R.string.lsp_code_action_failed));
           }
         });
   }
@@ -710,7 +707,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       labels[i] = item.isRight() ? item.getRight().getTitle() : item.getLeft().getTitle();
     }
     new MaterialAlertDialogBuilder(editor.getContext())
-        .setTitle("Code Action")
+        .setTitle(R.string.code_action)
         .setItems(labels, (dialog, which) -> applyCodeAction(actions.get(which), uri))
         .show();
   }
@@ -728,7 +725,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
         handled = true;
       }
       if (!handled) {
-        showLspToast("این اکشن پشتیبانی نمی شود");
+        showLspToast(editor.getContext().getString(R.string.lsp_code_action_not_supported_2));
       }
     } else if (item.isLeft()) {
       runLspAction(() -> executeLspCommand(item.getLeft()));
@@ -739,7 +736,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     LspEditor lsp = editor.ensureLspConnected();
     var requestManager = lsp == null ? null : lsp.getRequestManager();
     if (requestManager == null) {
-      showLspToast("اتصال به سرور LSP برقرار نشد");
+      showLspToast(editor.getContext().getString(R.string.error_toconnectedlsp));
       return;
     }
     try {
@@ -748,15 +745,15 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       params.setArguments(command.getArguments());
       var future = requestManager.executeCommand(params);
       if (future == null) {
-        showLspToast("این سرور از اجرای این دستور پشتیبانی نمی کند");
+        showLspToast(editor.getContext().getString(R.string.lsp_execute_command_not_supported));
         return;
       }
       future.get(12, TimeUnit.SECONDS);
     } catch (TimeoutException e) {
-      showLspToast("پاسخ سرور LSP بیش از حد طول کشید");
+      showLspToast(editor.getContext().getString(R.string.lsp_timeout));
     } catch (Exception e) {
       Log.e(TAG, "execute command failed", e);
-      showLspToast("خطا در اجرای دستور");
+      showLspToast(editor.getContext().getString(R.string.lsp_execute_command_failed));
     }
   }
 
@@ -795,7 +792,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
           EventBus.getDefault()
               .post(new OpenFileLocationEvent(filePath, pos.getLine(), pos.getCharacter()));
         } else {
-          showLspToast("مسیر فایل نامعتبر");
+          showLspToast(editor.getContext().getString(R.string.lsp_invalid_file_path));
         }
       }
       return;
@@ -828,7 +825,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       labels[i] = name + "  :  " + line;
     }
     new MaterialAlertDialogBuilder(editor.getContext())
-        .setTitle("Result")
+        .setTitle(R.string.lsp_result_dialog_title)
         .setItems(
             labels,
             (dialog, which) -> {
@@ -843,7 +840,9 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
                   EventBus.getDefault()
                       .post(new OpenFileLocationEvent(filePath, pos.getLine(), pos.getCharacter()));
                 } else {
-                  Toast.makeText(editor.getContext(), "مسیر فایل نامعتبر", Toast.LENGTH_SHORT)
+                  Toast.makeText(editor.getContext(),
+                          editor.getContext().getString(R.string.lsp_invalid_file_path),
+                          Toast.LENGTH_SHORT)
                       .show();
                 }
               }

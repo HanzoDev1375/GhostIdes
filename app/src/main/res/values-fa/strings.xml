@@ -406,4 +406,33 @@
   <string name="menu_settings">تنظیمات</string>
   <string name="menu_clear_all">پاک کردن همه</string>
   <string name="postman_title">مرد پست</string>
+  <string name="terminal_error_cannot_create_etc_dir">نمی توان دایرکتوری غیره ایجاد کرد: %1$s</string>
+  <string name="terminal_error_resolve_rootfs_failed">یافتن آخرین rootf ها برای معماری %1$s انجام نشد: %2$s</string>
+  <string name="terminal_error_http_status">HTTP %1$d از %2$s</string>
+  <string name="terminal_error_no_snapshot_found">هیچ عکس فوری در %1$s یافت نشد</string>
+  <string name="terminal_error_extract_failed_prefix">استخراج انجام نشد: %1$s</string>
+  <string name="terminal_error_download_failed_prefix">دانلود انجام نشد: %1$s</string>
+  <string name="terminal_unknown_error">ناشناس</string>
+  <string name="terminal_error_libproot_not_found">libproot.so یافت نشد: %1$s</string>
+  <string name="terminal_error_libloader_not_found">libloader.so یافت نشد: %1$s</string>
+  <string name="terminal_error_libloader_not_found_detail">libloader.so یافت نشد: %1$s — پروت بدون این فایل در این دستگاه کار نخواهد کرد.</string>
+  <string name="terminal_error_unexpected">خطای غیرمنتظره: %1$s</string>
+  <string name="terminal_error_rootfs_not_found">rootfs پیدا نشد: %1$s</string>
+  <string name="terminal_error_cannot_create_dest_dir">نمی توان دایرکتوری مقصد ایجاد کرد: %1$s</string>
+  <string name="terminal_error_no_system_tar">/system/bin/tar در این دستگاه یافت نشد. نمی تواند rootf ها را با مجوزهای صحیح بدون تار واقعی استخراج کند. راه حل: یک busybox/tar ثابت را با برنامه همراه کنید و مسیر را در اینجا جایگزین کنید.</string>
+  <string name="terminal_error_extract_interrupted">استخراج تحت ریشه قطع شد</string>
+  <string name="terminal_error_extract_failed_exit">استخراج تحت ریشه انجام نشد (خروج=%1$d).\nآخرین خروجی:\n%2$s</string>
+  <string name="terminal_debian_not_installed">دبیان نصب نشده است</string>
+  <string name="terminal_debian_rootfs_not_found_fallback">ریشه‌های دبیان در: %1$s یافت نشد - در حال بازگشت به پوسته معمولی</string>
+  <string name="terminal_remove_debian">Debian را حذف کنید</string>
+  <string name="terminal_install_debian">دبیان را نصب کنید</string>
+  <string name="terminal_confirm_remove_debian_message">کل روت اف های دبیان (از جمله فایل های داخل دبیان) حذف خواهند شد. مطمئنی؟</string>
+  <string name="terminal_action_remove">حذف کنید</string>
+  <string name="terminal_debian_removed">دبیان حذف شد</string>
+  <string name="terminal_action_cancel">لغو کنید</string>
+  <string name="terminal_status_starting_download">شروع دانلود...</string>
+  <string name="terminal_install_cancelled">نصب لغو شد</string>
+  <string name="terminal_status_downloading">در حال بارگیری: %1$d%%</string>
+  <string name="terminal_status_extracting">در حال استخراج... (%1$d فایل)</string>
+  <string name="terminal_debian_installed_success">دبیان نصب شد ✓</string>
 </resources>

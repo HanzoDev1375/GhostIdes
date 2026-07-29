@@ -1,43 +1,131 @@
-<?xml version="1.0" encoding="utf-8"?>
-
 <resources>
-  <string name="editor_expand_selection">Expand selection</string>
-  <string name="editor_select_all">Select all</string>
-  <string name="editor_copy_text">Copy text</string>
-  <string name="editor_paste_text">Paste text</string>
-  <string name="editor_format">Format</string>
-  <string name="editor_lsp_definition">Go to definition</string>
-  <string name="editor_lsp_references">Find references</string>
-  <string name="editor_lsp_rename">Rename symbol</string>
-  <string name="editor_long_select">Long select</string>
-  <string name="editor_cut_text">Cut text</string>
-  <string name="editor_selected">Selected</string>
-  <string name="editor_completion_result_item_icon">completion result item icon</string>
-  <string name="editor_no_search_match">No results</string>
-  <string name="editor_unable_to_format">Unable to format sequence</string>
-  <string name="editor_clip_text_length_too_large">Text is too large to copy</string>
-  <string name="editor_conversion_failed">Conversion failed</string>
-  <string name="editor_converting_to_title">Converting to %s</string>
-  <string name="editor_upper_case">Upper case</string>
-  <string name="editor_lower_case">Lower case</string>
-  <string name="editor_select_convert_text_first">Please select the text to be converted first</string>
-  <string name="editor_applying_changes">Applying changes…</string>
-  <plurals name="editor_search_matches">
-    <item quantity="one">Match</item>
-    <item quantity="other">Matches</item>
+  <string
+    name="editor_expand_selection">Expand selection</string>
+  <string
+    name="editor_select_all">Select all</string>
+  <string
+    name="editor_copy_text">Copy text</string>
+  <string
+    name="editor_paste_text">Paste text</string>
+  <string
+    name="editor_format">Format</string>
+  <string
+    name="editor_lsp_definition">Go to definition</string>
+  <string
+    name="editor_lsp_references">Find references</string>
+  <string
+    name="editor_lsp_rename">Rename symbol</string>
+  <string
+    name="editor_long_select">Long select</string>
+  <string
+    name="editor_cut_text">Cut text</string>
+  <string
+    name="editor_translate">Translate</string>
+  <string
+    name="editor_selected">Selected</string>
+  <string
+    name="editor_completion_result_item_icon">completion result item icon</string>
+  <string
+    name="editor_no_search_match">No results</string>
+  <string
+    name="editor_unable_to_format">Unable to format sequence</string>
+  <string
+    name="editor_clip_text_length_too_large">Text is too large to copy</string>
+  <string
+    name="editor_conversion_failed">Conversion failed</string>
+  <string
+    name="editor_converting_to_title">Converting to %s</string>
+  <string
+    name="editor_upper_case">Upper case</string>
+  <string
+    name="editor_lower_case">Lower case</string>
+  <string
+    name="editor_select_convert_text_first">Please select the text to be converted first</string>
+  <string
+    name="editor_applying_changes">Applying changes…</string>
+  <plurals
+    name="editor_search_matches">
+    <item
+      quantity="one">Match</item>
+    <item
+      quantity="other">Matches</item>
   </plurals>
-  <string name="extract_string_dialog_title">Extract to strings.xml</string>
-  <string name="extract_string_name_hint">String name (name)</string>
-  <string name="extract_string_value_hint">Value (value)</string>
-  <string name="extract_string_confirm">Confirm</string>
-  <string name="extract_string_cancel">Cancel</string>
-  <string name="extract_string_name_empty">String name cannot be empty</string>
-  <string name="extract_string_multiline_error">Please select a string within a single line only</string>
-  <string name="extract_string_empty_selection">No text selected</string>
-  <string name="extract_string_invalid_path">Could not locate strings.xml (invalid project structure)</string>
-  <string name="extract_string_success">Added to strings.xml: %s</string>
-  <string name="extract_string_error">Error: %s</string>
-  <string name="xml_attr_doc_code_label">Code</string>
-  <string name="xml_attr_doc_example_label">Example</string>
-
+  <string
+    name="extract_string_dialog_title">Extract to strings.xml</string>
+  <string
+    name="extract_string_name_hint">String name (name)</string>
+  <string
+    name="extract_string_value_hint">Value (value)</string>
+  <string
+    name="extract_string_confirm">Confirm</string>
+  <string
+    name="extract_string_cancel">Cancel</string>
+  <string
+    name="extract_string_name_empty">String name cannot be empty</string>
+  <string
+    name="extract_string_multiline_error">Please select a string within a single line only</string>
+  <string
+    name="extract_string_empty_selection">No text selected</string>
+  <string
+    name="extract_string_invalid_path">Could not locate strings.xml (invalid project structure)</string>
+  <string
+    name="extract_string_success">Added to strings.xml: %s</string>
+  <string
+    name="extract_string_error">Error: %s</string>
+  <string
+    name="xml_attr_doc_code_label">Code</string>
+  <string
+    name="xml_attr_doc_example_label">Example</string>
+  <string
+    name="code_action">Code action</string>
+  <string
+    name="dontselecttext">No text selected</string>
+  <string
+    name="error_toconnectedlsp">Failed to connect to LSP server</string>
+  <string
+    name="lsp_timeout">LSP server response timed out</string>
+  <string
+    name="lsp_definition_not_supported">This server does not support \&apos;Go to definition\&apos;</string>
+  <string
+    name="lsp_definition_failed">Failed to get symbol definition</string>
+  <string
+    name="lsp_definition_not_found">No definition found for this symbol</string>
+  <string
+    name="lsp_references_not_supported">This server does not support \&apos;Find references\&apos;</string>
+  <string
+    name="lsp_references_not_found">No references found for this symbol</string>
+  <string
+    name="lsp_references_failed">Failed to find references</string>
+  <string
+    name="lsp_rename_not_supported">This server does not support \&apos;Rename symbol\&apos;</string>
+  <string
+    name="lsp_rename_no_changes">No changes returned from server</string>
+  <string
+    name="lsp_rename_failed">Failed to rename symbol</string>
+  <string
+    name="lsp_rename_dialog_title">Rename Symbol</string>
+  <string
+    name="lsp_no_edits_to_apply">No edits to apply</string>
+  <string
+    name="lsp_other_files_need_update">%d other file(s) also need this change; automatic application on other files is not yet supported</string>
+  <string
+    name="lsp_code_action_not_supported">This server does not support \&apos;Code Action\&apos;</string>
+  <string
+    name="lsp_code_action_not_found">No action found for this position</string>
+  <string
+    name="lsp_code_action_failed">Failed to get code action</string>
+  <string
+    name="lsp_code_action_not_supported_2">This action is not supported</string>
+  <string
+    name="lsp_execute_command_not_supported">This server does not support executing this command</string>
+  <string
+    name="lsp_execute_command_failed">Failed to execute command</string>
+  <string
+    name="lsp_invalid_file_path">Invalid file path</string>
+  <string
+    name="lsp_result_dialog_title">Result</string>
+  <string
+    name="lsp_cancel">Cancel</string>
+  <string
+    name="lsp_translate_error_prefix">Error:</string>
 </resources>

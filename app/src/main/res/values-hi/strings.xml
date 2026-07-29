@@ -406,4 +406,33 @@
   <string name="menu_settings">सेटिंग्स</string>
   <string name="menu_clear_all">सभी साफ करें</string>
   <string name="postman_title">पोस्ट यार</string>
+  <string name="terminal_error_cannot_create_etc_dir">आदि निर्देशिका नहीं बना सकते: %1$s</string>
+  <string name="terminal_error_resolve_rootfs_failed">%1$s आर्किटेक्चर के लिए नवीनतम रूटफ़्स ढूंढने में विफल: %2$s</string>
+  <string name="terminal_error_http_status">HTTP %1$d %2$s से</string>
+  <string name="terminal_error_no_snapshot_found">%1$s में कोई स्नैपशॉट नहीं मिला</string>
+  <string name="terminal_error_extract_failed_prefix">निष्कर्षण विफल: %1$s</string>
+  <string name="terminal_error_download_failed_prefix">डाउनलोड विफल: %1$s</string>
+  <string name="terminal_unknown_error">अज्ञात</string>
+  <string name="terminal_error_libproot_not_found">libproot.so नहीं मिला: %1$s</string>
+  <string name="terminal_error_libloader_not_found">libloader.so नहीं मिला: %1$s</string>
+  <string name="terminal_error_libloader_not_found_detail">libloader.so नहीं मिला: %1$s - इस फ़ाइल के बिना इस डिवाइस पर रूट काम नहीं करेगा।</string>
+  <string name="terminal_error_unexpected">अनपेक्षित त्रुटि: %1$s</string>
+  <string name="terminal_error_rootfs_not_found">रूटफ़्स नहीं मिले: %1$s</string>
+  <string name="terminal_error_cannot_create_dest_dir">गंतव्य निर्देशिका नहीं बना सकते: %1$s</string>
+  <string name="terminal_error_no_system_tar">/system/bin/tar इस डिवाइस पर नहीं मिला; वास्तविक टार के बिना सही अनुमतियों के साथ रूटफ़्स नहीं निकाला जा सकता। समाधान: ऐप के साथ एक स्थिर बिजीबॉक्स/टार को बंडल करें और यहां पथ बदलें।</string>
+  <string name="terminal_error_extract_interrupted">जड़ के नीचे निष्कर्षण बाधित हो गया था</string>
+  <string name="terminal_error_extract_failed_exit">रूट के अंतर्गत निष्कर्षण विफल (exit=%1$d).\nअंतिम आउटपुट:\n%2$s</string>
+  <string name="terminal_debian_not_installed">डेबियन स्थापित नहीं है</string>
+  <string name="terminal_debian_rootfs_not_found_fallback">डेबियन रूटफ़्स यहां नहीं मिले: %1$s - एक नियमित शेल पर वापस आ रहा है</string>
+  <string name="terminal_remove_debian">डेबियन हटाएँ</string>
+  <string name="terminal_install_debian">डेबियन स्थापित करें</string>
+  <string name="terminal_confirm_remove_debian_message">संपूर्ण डेबियन रूटफ़्स हटा दिए जाएंगे (डेबियन के अंदर की किसी भी फ़ाइल सहित)। क्या आपको यकीन है?</string>
+  <string name="terminal_action_remove">निकालना</string>
+  <string name="terminal_debian_removed">डेबियन हटा दिया गया</string>
+  <string name="terminal_action_cancel">रद्द करना</string>
+  <string name="terminal_status_starting_download">डाउनलोड शुरू करना...</string>
+  <string name="terminal_install_cancelled">स्थापना रद्द कर दी गई</string>
+  <string name="terminal_status_downloading">डाउनलोड हो रहा है: %1$d%%</string>
+  <string name="terminal_status_extracting">निकाला जा रहा है... (%1$d फ़ाइलें)</string>
+  <string name="terminal_debian_installed_success">डेबियन स्थापित ✓</string>
 </resources>

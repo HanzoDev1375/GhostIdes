@@ -406,4 +406,33 @@
   <string name="menu_settings">Configurações</string>
   <string name="menu_clear_all">Limpar tudo</string>
   <string name="postman_title">Posteiro</string>
+  <string name="terminal_error_cannot_create_etc_dir">Não é possível criar o diretório etc: %1$s</string>
+  <string name="terminal_error_resolve_rootfs_failed">Falha ao encontrar os rootfs mais recentes para a arquitetura %1$s: %2$s</string>
+  <string name="terminal_error_http_status">HTTP %1$d de %2$s</string>
+  <string name="terminal_error_no_snapshot_found">Nenhum instantâneo encontrado em %1$s</string>
+  <string name="terminal_error_extract_failed_prefix">Falha na extração: %1$s</string>
+  <string name="terminal_error_download_failed_prefix">Falha no download: %1$s</string>
+  <string name="terminal_unknown_error">Desconhecido</string>
+  <string name="terminal_error_libproot_not_found">libroot.so não encontrado: %1$s</string>
+  <string name="terminal_error_libloader_not_found">libloader.so não encontrado: %1$s</string>
+  <string name="terminal_error_libloader_not_found_detail">libloader.so não encontrado: %1$s — proot não funcionará neste dispositivo sem este arquivo.</string>
+  <string name="terminal_error_unexpected">Erro inesperado: %1$s</string>
+  <string name="terminal_error_rootfs_not_found">rootfs não encontrado: %1$s</string>
+  <string name="terminal_error_cannot_create_dest_dir">Não é possível criar o diretório de destino: %1$s</string>
+  <string name="terminal_error_no_system_tar">/system/bin/tar não encontrado neste dispositivo; não é possível extrair rootfs com permissões corretas sem um tar real. Solução alternativa: agrupe um busybox/tar estático com o aplicativo e substitua o caminho aqui.</string>
+  <string name="terminal_error_extract_interrupted">A extração sob raiz foi interrompida</string>
+  <string name="terminal_error_extract_failed_exit">Falha na extração sob proot (saída=%1$d).\nÚltima saída:\n%2$s</string>
+  <string name="terminal_debian_not_installed">Debian não instalado</string>
+  <string name="terminal_debian_rootfs_not_found_fallback">Rootfs Debian não encontrados em: %1$s — voltando para um shell normal</string>
+  <string name="terminal_remove_debian">Remover Debian</string>
+  <string name="terminal_install_debian">Instale o Debian</string>
+  <string name="terminal_confirm_remove_debian_message">Todos os rootfs do Debian serão excluídos (incluindo quaisquer arquivos dentro do Debian). Tem certeza?</string>
+  <string name="terminal_action_remove">Remover</string>
+  <string name="terminal_debian_removed">Debian removido</string>
+  <string name="terminal_action_cancel">Cancelar</string>
+  <string name="terminal_status_starting_download">Iniciando o download...</string>
+  <string name="terminal_install_cancelled">Instalação cancelada</string>
+  <string name="terminal_status_downloading">Baixando: %1$d%%</string>
+  <string name="terminal_status_extracting">Extraindo... (%1$d arquivos)</string>
+  <string name="terminal_debian_installed_success">Debian instalado ✓</string>
 </resources>

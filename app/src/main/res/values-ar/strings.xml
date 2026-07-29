@@ -406,4 +406,33 @@
   <string name="menu_settings">إعدادات</string>
   <string name="menu_clear_all">مسح الكل</string>
   <string name="postman_title">رجل البريد</string>
+  <string name="terminal_error_cannot_create_etc_dir">لا يمكن إنشاء دليل آخر: %1$s</string>
+  <string name="terminal_error_resolve_rootfs_failed">فشل العثور على أحدث الجذور لبنية %1$s: %2$s</string>
+  <string name="terminal_error_http_status">HTTP %1$d من %2$s</string>
+  <string name="terminal_error_no_snapshot_found">لم يتم العثور على لقطة في %1$s</string>
+  <string name="terminal_error_extract_failed_prefix">فشل الاستخراج: %1$s</string>
+  <string name="terminal_error_download_failed_prefix">فشل التنزيل: %1$s</string>
+  <string name="terminal_unknown_error">مجهول</string>
+  <string name="terminal_error_libproot_not_found">لم يتم العثور على libproot.so: %1$s</string>
+  <string name="terminal_error_libloader_not_found">لم يتم العثور على libloader.so: %1$s</string>
+  <string name="terminal_error_libloader_not_found_detail">لم يتم العثور على libloader.so: %1$s — لن يعمل proot على هذا الجهاز بدون هذا الملف.</string>
+  <string name="terminal_error_unexpected">خطأ غير متوقع: %1$s</string>
+  <string name="terminal_error_rootfs_not_found">لم يتم العثور على الجذور: %1$s</string>
+  <string name="terminal_error_cannot_create_dest_dir">لا يمكن إنشاء دليل الوجهة: %1$s</string>
+  <string name="terminal_error_no_system_tar">/system/bin/tar غير موجود على هذا الجهاز؛ لا يمكن استخراج rootfs بالأذونات الصحيحة بدون قطران حقيقي. الحل البديل: قم بتجميع صندوق مشغول/قطران ثابت مع التطبيق واستبدل المسار هنا.</string>
+  <string name="terminal_error_extract_interrupted">تمت مقاطعة الاستخراج تحت الجذر</string>
+  <string name="terminal_error_extract_failed_exit">فشل الاستخراج ضمن الجذر (الخروج=%1$d).\nآخر إخراج:\n%2$s</string>
+  <string name="terminal_debian_not_installed">ديبيان غير مثبت</string>
+  <string name="terminal_debian_rootfs_not_found_fallback">لم يتم العثور على جذور دبيان في: %1$s — يعود إلى الصدفة العادية</string>
+  <string name="terminal_remove_debian">إزالة ديبيان</string>
+  <string name="terminal_install_debian">قم بتثبيت ديبيان</string>
+  <string name="terminal_confirm_remove_debian_message">سيتم حذف جذور دبيان بأكملها (بما في ذلك أي ملفات داخل دبيان). هل أنت متأكد؟</string>
+  <string name="terminal_action_remove">يزيل</string>
+  <string name="terminal_debian_removed">تمت إزالة دبيان</string>
+  <string name="terminal_action_cancel">يلغي</string>
+  <string name="terminal_status_starting_download">جارٍ بدء التنزيل...</string>
+  <string name="terminal_install_cancelled">تم إلغاء التثبيت</string>
+  <string name="terminal_status_downloading">التنزيل: %1$d%%</string>
+  <string name="terminal_status_extracting">جارٍ الاستخراج... (%1$d ملف)</string>
+  <string name="terminal_debian_installed_success">تم تثبيت دبيان ✓</string>
 </resources>

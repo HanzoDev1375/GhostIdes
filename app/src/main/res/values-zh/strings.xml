@@ -406,4 +406,33 @@
   <string name="menu_settings">设置</string>
   <string name="menu_clear_all">全部清除</string>
   <string name="postman_title">邮递员</string>
+  <string name="terminal_error_cannot_create_etc_dir">无法创建 etc 目录：%1$s</string>
+  <string name="terminal_error_resolve_rootfs_failed">无法找到 %1$s 架构的最新 rootfs：%2$s</string>
+  <string name="terminal_error_http_status">来自 %2$s 的 HTTP %1$d</string>
+  <string name="terminal_error_no_snapshot_found">在 %1$s 中找不到快照</string>
+  <string name="terminal_error_extract_failed_prefix">提取失败：%1$s</string>
+  <string name="terminal_error_download_failed_prefix">下载失败：%1$s</string>
+  <string name="terminal_unknown_error">未知</string>
+  <string name="terminal_error_libproot_not_found">未找到 libproot.so：%1$s</string>
+  <string name="terminal_error_libloader_not_found">未找到 libloader.so：%1$s</string>
+  <string name="terminal_error_libloader_not_found_detail">libloader.so 未找到：%1$s — 如果没有此文件，proot 将无法在此设备上运行。</string>
+  <string name="terminal_error_unexpected">意外错误：%1$s</string>
+  <string name="terminal_error_rootfs_not_found">未找到 rootfs：%1$s</string>
+  <string name="terminal_error_cannot_create_dest_dir">无法创建目标目录：%1$s</string>
+  <string name="terminal_error_no_system_tar">在此设备上找不到 /system/bin/tar；如果没有真正的 tar，则无法使用正确的权限提取 rootfs。解决方法：将静态 busybox/tar 与应用程序捆绑在一起并替换此处的路径。</string>
+  <string name="terminal_error_extract_interrupted">proroot 下的提取被中断</string>
+  <string name="terminal_error_extract_failed_exit">在根目录下提取失败(退出=%1$d)。\n最后输出:\n%2$s</string>
+  <string name="terminal_debian_not_installed">Debian 未安装</string>
+  <string name="terminal_debian_rootfs_not_found_fallback">Debian rootfs 未在以下位置找到：%1$s — 回退到常规 shell</string>
+  <string name="terminal_remove_debian">删除 Debian</string>
+  <string name="terminal_install_debian">安装Debian</string>
+  <string name="terminal_confirm_remove_debian_message">整个 Debian rootfs 将被删除（包括 Debian 内的任何文件）。你确定吗？</string>
+  <string name="terminal_action_remove">消除</string>
+  <string name="terminal_debian_removed">Debian 已删除</string>
+  <string name="terminal_action_cancel">取消</string>
+  <string name="terminal_status_starting_download">开始下载...</string>
+  <string name="terminal_install_cancelled">安装已取消</string>
+  <string name="terminal_status_downloading">正在下载：%1$d%%</string>
+  <string name="terminal_status_extracting">正在提取...（%1$d 个文件）</string>
+  <string name="terminal_debian_installed_success">已安装 Debian ✓</string>
 </resources>

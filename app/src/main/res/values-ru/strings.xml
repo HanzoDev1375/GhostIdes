@@ -406,4 +406,33 @@
   <string name="menu_settings">Настройки</string>
   <string name="menu_clear_all">Очистить все</string>
   <string name="postman_title">Почтальон</string>
+  <string name="terminal_error_cannot_create_etc_dir">Невозможно создать каталог и т. д.: %1$s</string>
+  <string name="terminal_error_resolve_rootfs_failed">Не удалось найти последнюю rootfs для архитектуры %1$s: %2$s.</string>
+  <string name="terminal_error_http_status">HTTP %1$d от %2$s</string>
+  <string name="terminal_error_no_snapshot_found">В %1$s не найден снимок</string>
+  <string name="terminal_error_extract_failed_prefix">Не удалось извлечь: %1$s</string>
+  <string name="terminal_error_download_failed_prefix">Не удалось загрузить: %1$s</string>
+  <string name="terminal_unknown_error">Неизвестный</string>
+  <string name="terminal_error_libproot_not_found">libproot.so не найден: %1$s</string>
+  <string name="terminal_error_libloader_not_found">libloader.so не найден: %1$s</string>
+  <string name="terminal_error_libloader_not_found_detail">libloader.so не найден: %1$s — без этого файла proot не будет работать на этом устройстве.</string>
+  <string name="terminal_error_unexpected">Непредвиденная ошибка: %1$s</string>
+  <string name="terminal_error_rootfs_not_found">rootfs не найден: %1$s</string>
+  <string name="terminal_error_cannot_create_dest_dir">Невозможно создать каталог назначения: %1$s.</string>
+  <string name="terminal_error_no_system_tar">/system/bin/tar не найден на этом устройстве; не может извлечь rootfs с правильными разрешениями без настоящего tar. Обходной путь: свяжите статический busybox/tar с приложением и замените путь здесь.</string>
+  <string name="terminal_error_extract_interrupted">Извлечение под proot было прервано</string>
+  <string name="terminal_error_extract_failed_exit">Извлечение под proot не удалось (exit=%1$d).\nПоследний вывод:\n%2$s</string>
+  <string name="terminal_debian_not_installed">Дебиан не установлен</string>
+  <string name="terminal_debian_rootfs_not_found_fallback">Корневая файловая система Debian не найдена по адресу: %1$s — возврат к обычной оболочке</string>
+  <string name="terminal_remove_debian">Удалить Дебиан</string>
+  <string name="terminal_install_debian">Установить Дебиан</string>
+  <string name="terminal_confirm_remove_debian_message">Вся корневая файловая система Debian будет удалена (включая любые файлы внутри Debian). Вы уверены?</string>
+  <string name="terminal_action_remove">Удалять</string>
+  <string name="terminal_debian_removed">Дебиан удален</string>
+  <string name="terminal_action_cancel">Отмена</string>
+  <string name="terminal_status_starting_download">Начинаю загрузку...</string>
+  <string name="terminal_install_cancelled">Установка отменена</string>
+  <string name="terminal_status_downloading">Загрузка: %1$d%%</string>
+  <string name="terminal_status_extracting">Извлечение... (%1$d файлов)</string>
+  <string name="terminal_debian_installed_success">Debian установлен ✓</string>
 </resources>

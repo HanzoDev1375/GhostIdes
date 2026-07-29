@@ -1,0 +1,124 @@
+<resources>
+  <string
+    name="editor_expand_selection">चयन का विस्तार करें</string>
+  <string
+    name="editor_select_all">सबका चयन करें</string>
+  <string
+    name="editor_copy_text">पाठ कॉपी करें</string>
+  <string
+    name="editor_paste_text">पाठ चिपकाएँ</string>
+  <string
+    name="editor_format">प्रारूप</string>
+  <string
+    name="editor_lsp_definition">परिभाषा पर जाएँ</string>
+  <string
+    name="editor_lsp_references">सन्दर्भ खोजें</string>
+  <string
+    name="editor_lsp_rename">प्रतीक का नाम बदलें</string>
+  <string
+    name="editor_long_select">लंबा चयन करें</string>
+  <string
+    name="editor_cut_text">पाठ काटें</string>
+  <string
+    name="editor_translate">अनुवाद</string>
+  <string
+    name="editor_selected">चयनित</string>
+  <string
+    name="editor_completion_result_item_icon">पूर्णता परिणाम आइटम आइकन</string>
+  <string
+    name="editor_no_search_match">कोई परिणाम नहीं</string>
+  <string
+    name="editor_unable_to_format">अनुक्रम स्वरूपित करने में असमर्थ</string>
+  <string
+    name="editor_clip_text_length_too_large">कॉपी करने के लिए टेक्स्ट बहुत बड़ा है</string>
+  <string
+    name="editor_conversion_failed">रूपांतरण असफल</string>
+  <string
+    name="editor_converting_to_title">%s में कनवर्ट किया जा रहा है</string>
+  <string
+    name="editor_upper_case">ऊपरी मामला</string>
+  <string
+    name="editor_lower_case">निचला मामला</string>
+  <string
+    name="editor_select_convert_text_first">कृपया पहले कनवर्ट किए जाने वाले टेक्स्ट का चयन करें</string>
+  <string
+    name="editor_applying_changes">परिवर्तन लागू हो रहे हैं...</string>
+  <string
+    name="extract_string_dialog_title">strings.xml में निकालें</string>
+  <string
+    name="extract_string_name_hint">स्ट्रिंग नाम (नाम)</string>
+  <string
+    name="extract_string_value_hint">मूल्य (मूल्य)</string>
+  <string
+    name="extract_string_confirm">पुष्टि करना</string>
+  <string
+    name="extract_string_cancel">रद्द करना</string>
+  <string
+    name="extract_string_name_empty">स्ट्रिंग नाम खाली नहीं हो सकता</string>
+  <string
+    name="extract_string_multiline_error">कृपया केवल एक पंक्ति के भीतर एक स्ट्रिंग का चयन करें</string>
+  <string
+    name="extract_string_empty_selection">कोई पाठ चयनित नहीं</string>
+  <string
+    name="extract_string_invalid_path">strings.xml का पता नहीं लगाया जा सका (अमान्य प्रोजेक्ट संरचना)</string>
+  <string
+    name="extract_string_success">strings.xml में जोड़ा गया: %s</string>
+  <string
+    name="extract_string_error">त्रुटि: %s</string>
+  <string
+    name="xml_attr_doc_code_label">कोड</string>
+  <string
+    name="xml_attr_doc_example_label">उदाहरण</string>
+  <string
+    name="code_action">कोड क्रिया</string>
+  <string
+    name="dontselecttext">कोई पाठ चयनित नहीं</string>
+  <string
+    name="error_toconnectedlsp">एलएसपी सर्वर से कनेक्ट करने में विफल</string>
+  <string
+    name="lsp_timeout">एलएसपी सर्वर प्रतिक्रिया का समय समाप्त हो गया</string>
+  <string
+    name="lsp_definition_not_supported">यह सर्वर \&apos;परिभाषा पर जाएं\&apos; का समर्थन नहीं करता</string>
+  <string
+    name="lsp_definition_failed">प्रतीक परिभाषा प्राप्त करने में विफल</string>
+  <string
+    name="lsp_definition_not_found">इस प्रतीक की कोई परिभाषा नहीं मिली</string>
+  <string
+    name="lsp_references_not_supported">यह सर्वर \&apos;संदर्भ खोजें\&apos; का समर्थन नहीं करता</string>
+  <string
+    name="lsp_references_not_found">इस प्रतीक के लिए कोई संदर्भ नहीं मिला</string>
+  <string
+    name="lsp_references_failed">सन्दर्भ ढूंढने में विफल</string>
+  <string
+    name="lsp_rename_not_supported">यह सर्वर \&apos;नाम बदलें प्रतीक\&apos; का समर्थन नहीं करता</string>
+  <string
+    name="lsp_rename_no_changes">सर्वर से कोई परिवर्तन नहीं लौटाया गया</string>
+  <string
+    name="lsp_rename_failed">प्रतीक का नाम बदलने में विफल</string>
+  <string
+    name="lsp_rename_dialog_title">प्रतीक का नाम बदलें</string>
+  <string
+    name="lsp_no_edits_to_apply">लागू करने के लिए कोई संपादन नहीं</string>
+  <string
+    name="lsp_other_files_need_update">%d अन्य फ़ाइल(फ़ाइलों) को भी इस परिवर्तन की आवश्यकता है; अन्य फ़ाइलों पर स्वचालित अनुप्रयोग अभी तक समर्थित नहीं है</string>
+  <string
+    name="lsp_code_action_not_supported">यह सर्वर \&apos;कोड एक्शन\&apos; का समर्थन नहीं करता</string>
+  <string
+    name="lsp_code_action_not_found">इस पद के लिए कोई कार्रवाई नहीं मिली</string>
+  <string
+    name="lsp_code_action_failed">कोड कार्रवाई प्राप्त करने में विफल</string>
+  <string
+    name="lsp_code_action_not_supported_2">यह क्रिया समर्थित नहीं है</string>
+  <string
+    name="lsp_execute_command_not_supported">यह सर्वर इस आदेश को निष्पादित करने का समर्थन नहीं करता है</string>
+  <string
+    name="lsp_execute_command_failed">आदेश निष्पादित करने में विफल</string>
+  <string
+    name="lsp_invalid_file_path">अमान्य फ़ाइल पथ</string>
+  <string
+    name="lsp_result_dialog_title">परिणाम</string>
+  <string
+    name="lsp_cancel">रद्द करना</string>
+  <string
+    name="lsp_translate_error_prefix">गलती:</string>
+</resources>
