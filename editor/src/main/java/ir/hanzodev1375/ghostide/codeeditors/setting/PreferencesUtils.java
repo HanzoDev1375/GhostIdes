@@ -48,6 +48,14 @@ public class PreferencesUtils {
     getDefaultPreferences().edit().putBoolean(Constants.SharedPreferenceKeys.KRY_TERM, b).apply();
   }
 
+  public void setBlurMod(boolean mod) {
+    getDefaultPreferences().edit().putBoolean(Constants.SharedPreferenceKeys.KEY_BLUR, mod).apply();
+  }
+
+  public boolean isBlurMod() {
+    return getDefaultPreferences().getBoolean(Constants.SharedPreferenceKeys.KEY_BLUR, true);
+  }
+
   public void setGitLocalUserName(String name) {
     getDefaultPreferences()
         .edit()

@@ -26,16 +26,12 @@ public class ColorPickerBottomSheetDialog {
   public static void show(
       @NonNull Context context, int initialColor, @NonNull OnColorPickedListener listener) {
 
-    BottomSheetDialog dialog = new BottomSheetDialog(context);
+    var dialog = new BottomSheetDialog(context);
     View view = LayoutInflater.from(context).inflate(R.layout.color_picker_bottom_sheet, null);
-
-    // ویوهای جدید
     ColorSpectrumView spectrum = view.findViewById(R.id.colorSpectrum);
     HueSliderView hueBar = view.findViewById(R.id.hueSliderView);
     Slider alphaSlider = view.findViewById(R.id.alphaSlider);
     ShapeableImageView preview = view.findViewById(R.id.colorPreview);
-
-    // فیلدهای متنی
     TextInputEditText hexInput = view.findViewById(R.id.hexValue);
     TextInputEditText rgbInput = view.findViewById(R.id.rgbValue);
     TextInputEditText rgbaInput = view.findViewById(R.id.rgbaValue);

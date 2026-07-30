@@ -8,9 +8,6 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
-import android.util.Log;
-import androidx.appcompat.widget.PopupMenu;
-import androidx.core.app.ActivityCompat;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -19,21 +16,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
-import ir.hanzodev1375.ghostide.R;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
 import com.google.android.material.color.MaterialColors;
 import com.termux.terminal.TerminalSession;
+import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.ActivityTerminalBinding;
@@ -85,6 +84,11 @@ public class TerminalActivity extends BaseCompat
         }
       };
 
+  private AlertDialog installDialog;
+  private TextView installStatusText;
+  private ProgressBar installProgressBar;
+  private DebianInstaller.InstallListener installListener;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -106,9 +110,7 @@ public class TerminalActivity extends BaseCompat
   @Override
   protected void onStart() {
     super.onStart();
-    Intent serviceIntent = new Intent(this, TerminalSessionService.class);
-    ContextCompat.startForegroundService(this, serviceIntent);
-    bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
+    initializeTerminal();
   }
 
   @Override
@@ -122,12 +124,32 @@ public class TerminalActivity extends BaseCompat
     super.onStop();
   }
 
+  private void initializeTerminal() {
+    if (DebianBootstrap.isInstalled(this)) {
+      bindServiceAndStart();
+      return;
+    }
+    if (DebianInstaller.isInstalling()) {
+      b.terminalView.setVisibility(View.INVISIBLE);
+      attachToRunningInstall();
+      return;
+    }
+    b.terminalView.setVisibility(View.INVISIBLE);
+    startDebianInstall();
+  }
+
+  private void bindServiceAndStart() {
+    Intent serviceIntent = new Intent(this, TerminalSessionService.class);
+    ContextCompat.startForegroundService(this, serviceIntent);
+    bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
+  }
+
   private void maybeRequestNotificationPermission() {
     if (Build.VERSION.SDK_INT >= 33) {
       if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
           != PackageManager.PERMISSION_GRANTED) {
         ActivityCompat.requestPermissions(
-            this, new String[] {android.Manifest.permission.POST_NOTIFICATIONS}, 4821);
+            this, new String[] {Manifest.permission.POST_NOTIFICATIONS}, 4821);
       }
     }
   }
@@ -137,18 +159,14 @@ public class TerminalActivity extends BaseCompat
 
     String command = getIntent().getStringExtra(EXTRA_COMMAND);
     if (command != null && !command.isEmpty()) {
-      if (!DebianBootstrap.isInstalled(this)) {
-        Toast.makeText(this, getString(R.string.terminal_debian_not_installed), Toast.LENGTH_LONG)
-            .show();
-        return;
-      }
       addNewDebianSession();
       getIntent().removeExtra(EXTRA_COMMAND);
       return;
     }
+
     List<TerminalTab> sessions = service.getSessions();
     if (sessions.isEmpty()) {
-      stepDB();
+      addNewDebianSession();
     } else {
       int index =
           (currentTabIndex >= 0 && currentTabIndex < sessions.size())
@@ -231,17 +249,6 @@ public class TerminalActivity extends BaseCompat
         new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
     b.sessionTabs.setAdapter(tabAdapter);
     b.btnNewSession.setOnClickListener(this::showNewSessionMenu);
-  }
-
-  private void stepDB() {
-    if (DebianInstaller.isInstalling()) {
-      attachToRunningInstall();
-    } else if (!DebianInstaller.isInstalled(this)) {
-      startDebianInstall();
-    } else {
-      b.terminalView.setVisibility(View.VISIBLE);
-      addNewDebianSession();
-    }
   }
 
   private void showNewSessionMenu(View anchor) {
@@ -449,11 +456,6 @@ public class TerminalActivity extends BaseCompat
     updateModifierButtonStyle(b.keyAlt, false);
   }
 
-  private AlertDialog installDialog;
-  private TextView installStatusText;
-  private ProgressBar installProgressBar;
-  private DebianInstaller.InstallListener installListener;
-
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     menu.add(
@@ -498,7 +500,6 @@ public class TerminalActivity extends BaseCompat
         .show();
   }
 
-  /** فقط UI (دیالوگ + status/progress) رو میسازه؛ شروعِ نصب یا وصل‌شدن جداست. */
   private void buildInstallDialogViews() {
     LinearLayout layout = new LinearLayout(this);
     layout.setOrientation(LinearLayout.VERTICAL);
@@ -524,7 +525,8 @@ public class TerminalActivity extends BaseCompat
                 getString(R.string.terminal_action_cancel),
                 (dialog, which) -> {
                   DebianInstaller.cancelInstall();
-                  Toast.makeText(this, getString(R.string.terminal_install_cancelled), Toast.LENGTH_SHORT)
+                  Toast.makeText(
+                          this, getString(R.string.terminal_install_cancelled), Toast.LENGTH_SHORT)
                       .show();
                 })
             .create();
@@ -539,7 +541,8 @@ public class TerminalActivity extends BaseCompat
           public void onDownloadProgress(int percent) {
             runOnUiThread(
                 () -> {
-                  installStatusText.setText(getString(R.string.terminal_status_downloading, percent));
+                  installStatusText.setText(
+                      getString(R.string.terminal_status_downloading, percent));
                   installProgressBar.setIndeterminate(false);
                   installProgressBar.setProgress(percent);
                 });
@@ -567,9 +570,7 @@ public class TerminalActivity extends BaseCompat
                       .show();
                   invalidateOptionsMenu();
                   b.terminalView.setVisibility(View.VISIBLE);
-                  if (service != null) {
-                    addNewDebianSession();
-                  }
+                  bindServiceAndStart();
                 });
           }
 

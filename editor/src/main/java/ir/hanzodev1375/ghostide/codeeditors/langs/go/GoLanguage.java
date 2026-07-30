@@ -100,36 +100,6 @@ public class GoLanguage implements Language {
     manager = new GoIncrementalAnalyzeManager();
   }
 
-  private final Formatter formatter =
-      new AsyncFormatter() {
-        @Nullable
-        @Override
-        public TextRange formatAsync(@NonNull Content text, @NonNull TextRange cursorRange) {
-          GoCodeFormatter formatted = new GoCodeFormatter();
-          String formatResult = formatted.formatGo(editor, text.toString());
-
-          if (!text.toString().equals(formatResult)) {
-            int oldCursor = cursorRange.getStartIndex();
-            text.delete(0, text.length());
-            text.insert(0, 0, formatResult);
-            int newCursor = Math.min(oldCursor, formatResult.length());
-            CharPosition pos = text.getIndexer().getCharPosition(newCursor);
-            return new TextRange(pos, pos);
-          }
-
-          return cursorRange;
-        }
-
-        @Nullable
-        @Override
-        public TextRange formatRegionAsync(
-            @NonNull Content text,
-            @NonNull TextRange rangeToFormat,
-            @NonNull TextRange cursorRange) {
-          return null;
-        }
-      };
-
   @NonNull
   @Override
   public AnalyzeManager getAnalyzeManager() {
@@ -235,7 +205,7 @@ public class GoLanguage implements Language {
   @NonNull
   @Override
   public Formatter getFormatter() {
-    return null;
+    return EmptyLanguage.EmptyFormatter.INSTANCE;
   }
 
   @Override

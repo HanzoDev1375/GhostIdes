@@ -35,8 +35,6 @@ import ir.hanzodev1375.ghostide.codeeditors.util.CustomFormatter;
 import ir.hanzodev1375.ghostide.codeeditors.util.formatter.HtmlFormatter;
 import java.io.File;
 import java.io.StringReader;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.Token;
 import java.io.IOException;
 import java.util.List;
 import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.CustomCompletionItem;

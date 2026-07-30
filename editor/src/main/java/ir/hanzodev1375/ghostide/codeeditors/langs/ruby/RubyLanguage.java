@@ -9,7 +9,6 @@ import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import io.github.rosemoe.sora.lang.EmptyLanguage;
 import io.github.rosemoe.sora.lang.Language;
 import io.github.rosemoe.sora.lang.QuickQuoteHandler;
 import io.github.rosemoe.sora.lang.analysis.AnalyzeManager;
@@ -33,9 +32,6 @@ import io.github.rosemoe.sora.text.TextRange;
 import io.github.rosemoe.sora.text.TextUtils;
 import io.github.rosemoe.sora.util.MyCharacter;
 import io.github.rosemoe.sora.widget.SymbolPairMatch;
-import java.io.StringReader;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.Token;
 
 public class RubyLanguage implements Language {
 
@@ -115,7 +111,7 @@ public class RubyLanguage implements Language {
 
   private IdentifierAutoComplete autoComplete;
 
-  private final RubyAnalyzer manager;
+  private final RubyIncrementalAnalyzeManager manager;
 
   private final RubyQuoteHandler quoteHandler = new RubyQuoteHandler();
   private Context context;
@@ -123,7 +119,7 @@ public class RubyLanguage implements Language {
   public RubyLanguage(Context context) {
     this.context = context;
     autoComplete = new IdentifierAutoComplete(KEYWORDS);
-    manager = new RubyAnalyzer();
+    manager = new RubyIncrementalAnalyzeManager();
   }
 
   private final Formatter formatter =
@@ -266,19 +262,14 @@ public class RubyLanguage implements Language {
   }
 
   int getIndentAdvance(String content) {
-    try {
-      var lexer = new Ruby(CharStreams.fromReader(new StringReader(content)));
-      Token token;
-      int advance = 0;
+    var tokenizer = new RubyTextTokenizer(content);
+    RubyTokens token;
+    int advance = 0;
 
-      while ((token = lexer.nextToken()) != null && token.getType() != Token.EOF) {
-        if (token.getType() == Ruby.END) advance++;
-      }
-      return Math.max(0, advance) * 2;
-
-    } catch (Exception e) {
-      return 0;
+    while ((token = tokenizer.nextToken()) != RubyTokens.EOF) {
+      if (token == RubyTokens.END) advance++;
     }
+    return Math.max(0, advance) * 2;
   }
 
   private final NewlineHandler[] newlineHandlers = new NewlineHandler[] {new BraceHandler()};

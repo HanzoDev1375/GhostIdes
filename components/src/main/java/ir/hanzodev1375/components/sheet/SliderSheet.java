@@ -16,11 +16,6 @@ public class SliderSheet extends BaseSheet {
     setContentView(binding.getRoot());
   }
 
-  @Override
-  public View getView() {
-    return binding.getRoot();
-  }
-
   public void setButtonOk(View.OnClickListener listener, int textRes) {
     binding.btnok.setOnClickListener(listener);
     binding.btnok.setText(textRes);

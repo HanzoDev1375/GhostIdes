@@ -1,95 +1,81 @@
 package ir.hanzodev1375.ghostide.terminal.sheet;
 
 import android.Manifest;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import androidx.annotation.MainThread;
-import androidx.appcompat.widget.PopupMenu;
-import androidx.core.app.ActivityCompat;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.SystemClock;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import android.widget.FrameLayout;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import ir.hanzodev1375.ghostide.R;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.bumptech.glide.Glide;
 import com.google.android.material.color.MaterialColors;
 import com.termux.terminal.TerminalSession;
-import ir.hanzodev1375.ghostide.activity.BaseCompat;
-import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
+import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.databinding.ActivityTerminalBinding;
 import ir.hanzodev1375.ghostide.terminal.DebianBootstrap;
 import ir.hanzodev1375.ghostide.terminal.DebianInstaller;
+import ir.hanzodev1375.ghostide.terminal.GhostTerminalSessionClient;
 import ir.hanzodev1375.ghostide.terminal.GhostTerminalViewClient;
-import ir.hanzodev1375.ghostide.terminal.TerminalSessionService;
+import ir.hanzodev1375.ghostide.terminal.ProotSessionFactory;
+import ir.hanzodev1375.ghostide.terminal.TerminalSessionFactory;
 import ir.hanzodev1375.ghostide.terminal.TerminalTab;
 import ir.hanzodev1375.ghostide.terminal.adapters.TerminalTabAdapter;
-import ir.hanzodev1375.ghostide.utils.BlurTransformation;
-import ir.theme.ThemeManager;
-import ir.theme.ThemeUtils;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
-public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
-    implements GhostTerminalViewClient.KeyModifierState, TerminalSessionService.SessionListener {
+public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
+    implements GhostTerminalViewClient.KeyModifierState {
 
   public static final String EXTRA_WORKING_DIR = "working_dir";
   public static final String EXTRA_COMMAND = "command";
 
-  private ActivityTerminalBinding b;
-  private TerminalSessionService service;
-  private boolean isBound = false;
-  private TerminalTabAdapter tabAdapter;
+  private ActivityTerminalBinding terminalBinding;
+  private final List<TerminalTab> sessions = new ArrayList<>();
   private int currentTabIndex = -1;
+  private int nextSessionId = 1;
 
   private boolean ctrlToggled = false;
   private boolean altToggled = false;
   private int defaultKeyBackgroundColor;
   private int defaultKeyTextColor;
-  private PreferencesUtils appsetting;
-  private ThemeUtils themeutil;
 
-  private final ServiceConnection connection =
-      new ServiceConnection() {
+  private AlertDialog installDialog;
+  private TextView installStatusText;
+  private ProgressBar installProgressBar;
+  private DebianInstaller.InstallListener installListener;
+  private TerminalTabAdapter tabAdapter;
+
+  private final GhostTerminalSessionClient.Callback internalCallback =
+      new GhostTerminalSessionClient.Callback() {
         @Override
-        public void onServiceConnected(ComponentName name, IBinder binderObj) {
-          service = ((TerminalSessionService.LocalBinder) binderObj).getService();
-          isBound = true;
-          service.setUiListener(TerminalBottomSheetFragment.this);
-          onServiceReady();
+        public void onTextChanged(TerminalSession session) {
+          if (session == currentSession()) terminalBinding.terminalView.invalidate();
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
-          isBound = false;
-          service = null;
+        public void onTitleChanged(TerminalSession session) {
+          int index = indexOfSession(session);
+          if (index >= 0 && tabAdapter != null) tabAdapter.notifyItemChanged(index);
+        }
+
+        @Override
+        public void onSessionFinished(TerminalSession session) {
+          removeSession(session);
         }
       };
 
@@ -104,42 +90,43 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
   }
 
   @Override
-  @MainThread
-  @Nullable
-  public View onCreateView(LayoutInflater arg0, ViewGroup arg1, Bundle arg2) {
-    b = ActivityTerminalBinding.inflate(getLayoutInflater());
-    return b.getRoot();
-  }
+  protected void onContentReady(ViewGroup contentContainer) {
+    terminalBinding = ActivityTerminalBinding.inflate(getLayoutInflater(), contentContainer, false);
+    contentContainer.addView(terminalBinding.getRoot());
 
-  @Override
-  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-
-    setupToolbar();
     setupTerminalView();
     setupExtraKeys();
-    setupBackHandler();
-    setupBackgroundBlur();
     maybeRequestNotificationPermission();
+    initializeTerminal();
   }
 
   @Override
-  public void onStart() {
-    super.onStart();
-    Intent serviceIntent = new Intent(requireContext(), TerminalSessionService.class);
-    ContextCompat.startForegroundService(requireContext(), serviceIntent);
-    requireContext().bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
+  public void onDestroyView() {
+    for (TerminalTab tab : sessions) {
+      tab.session.finishIfRunning();
+    }
+    sessions.clear();
+    super.onDestroyView();
   }
 
   @Override
   public void onStop() {
-    if (isBound) {
-      service.setUiListener(null);
-      requireContext().unbindService(connection);
-      isBound = false;
-    }
     DebianInstaller.detach(installListener);
     super.onStop();
+  }
+
+  private void initializeTerminal() {
+    if (DebianBootstrap.isInstalled(requireContext())) {
+      createInitialSession();
+      return;
+    }
+    if (DebianInstaller.isInstalling()) {
+      terminalBinding.terminalView.setVisibility(View.INVISIBLE);
+      attachToRunningInstall();
+      return;
+    }
+    terminalBinding.terminalView.setVisibility(View.INVISIBLE);
+    startDebianInstall();
   }
 
   private void maybeRequestNotificationPermission() {
@@ -152,85 +139,156 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
     }
   }
 
-  private void onServiceReady() {
-    if (tabAdapter == null) setupSessionTabs();
-
+  private void createInitialSession() {
     String command = getArguments().getString(EXTRA_COMMAND);
     if (command != null && !command.isEmpty()) {
-      if (!DebianBootstrap.isInstalled(requireContext())) {
-        Toast.makeText(requireContext(), getString(R.string.terminal_debian_not_installed), Toast.LENGTH_LONG).show();
-        return;
-      }
       addNewDebianSession();
       getArguments().remove(EXTRA_COMMAND);
       return;
     }
-
-    List<TerminalTab> sessions = service.getSessions();
     if (sessions.isEmpty()) {
-      stepDB();
+      addNewDebianSession();
     } else {
-      int index =
-          (currentTabIndex >= 0 && currentTabIndex < sessions.size())
-              ? currentTabIndex
-              : sessions.size() - 1;
-      switchToTab(index);
+      switchToTab(sessions.size() - 1);
     }
-  }
-
-  private void setupBackgroundBlur() {
-    appsetting = new PreferencesUtils(requireContext());
-    themeutil = new ThemeUtils(new ThemeManager(requireContext()));
-
-    if (!appsetting.isShowBackground()) {
-      return;
-    }
-
-    var theme = themeutil.getTheme();
-    if (theme == null || theme.getWidget() == null) return;
-    var widget = theme.getWidget();
-    if (widget.getImagepath() == null || widget.getImagepath().isEmpty()) return;
-    b.sessionTabsRow.setBackgroundColor(Color.parseColor(widget.getAccent()));
-    b.extraKeysScroll.setBackgroundColor(Color.parseColor(widget.getAccent()));
-    b.terminalView.setBackgroundColor(Color.TRANSPARENT);
-    b.keyAlt.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
-    b.keyCtrl.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
-    b.keyDash.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
-    b.keyDown.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
-    b.keyEsc.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
-    b.keyLeft.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
-    b.keyRight.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
-    b.keyTab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
-    b.keyUp.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
-    b.keyPipe.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
-    b.keySlash.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(widget.getHint())));
-    b.backgroundIconTerminal.setVisibility(View.VISIBLE);
-    Glide.with(this)
-        .load(widget.getImagepath())
-        .transform(new BlurTransformation((int) widget.getBlursize()))
-        .into(b.backgroundIconTerminal);
-    var dialog = getDialog();
-    if (!(dialog instanceof BottomSheetDialog)) return;
-    BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) dialog;
-    FrameLayout bottomSheet =
-        bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-    if (bottomSheet == null) return;
-    BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
-    bottomSheet.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
-  }
-
-  private void setupToolbar() {
-    b.toolbar.setVisibility(View.GONE);
   }
 
   private void setupTerminalView() {
-    b.terminalView.setTerminalViewClient(new GhostTerminalViewClient(b.terminalView, this));
+    terminalBinding.terminalView.setTerminalViewClient(
+        new GhostTerminalViewClient(terminalBinding.terminalView, this));
+  }
+
+  private void setupExtraKeys() {
+    defaultKeyBackgroundColor =
+        terminalBinding.keyCtrl.getBackgroundTintList() != null
+            ? terminalBinding.keyCtrl.getBackgroundTintList().getDefaultColor()
+            : MaterialColors.getColor(
+                terminalBinding.keyCtrl,
+                com.google.android.material.R.attr.colorSecondaryContainer);
+    defaultKeyTextColor = terminalBinding.keyCtrl.getCurrentTextColor();
+
+    terminalBinding.keyEsc.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_ESCAPE));
+    terminalBinding.keyTab.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_TAB));
+    terminalBinding.keyUp.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_DPAD_UP));
+    terminalBinding.keyDown.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_DPAD_DOWN));
+    terminalBinding.keyLeft.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_DPAD_LEFT));
+    terminalBinding.keyRight.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_DPAD_RIGHT));
+    terminalBinding.keySlash.setOnClickListener(v -> typeText("/"));
+    terminalBinding.keyDash.setOnClickListener(v -> typeText("-"));
+    terminalBinding.keyPipe.setOnClickListener(v -> typeText("|"));
+    terminalBinding.keyCtrl.setOnClickListener(
+        v -> {
+          ctrlToggled = !ctrlToggled;
+          updateModifierButtonStyle(terminalBinding.keyCtrl, ctrlToggled);
+        });
+    terminalBinding.keyAlt.setOnClickListener(
+        v -> {
+          altToggled = !altToggled;
+          updateModifierButtonStyle(terminalBinding.keyAlt, altToggled);
+        });
+  }
+
+  private void updateModifierButtonStyle(android.widget.Button button, boolean active) {
+    if (active) {
+      int bg = MaterialColors.getColor(button, R.attr.colorPrimary);
+      int fg = MaterialColors.getColor(button, R.attr.colorOnPrimary);
+      button.setBackgroundTintList(ColorStateList.valueOf(bg));
+      button.setTextColor(fg);
+    } else {
+      button.setBackgroundTintList(ColorStateList.valueOf(defaultKeyBackgroundColor));
+      button.setTextColor(defaultKeyTextColor);
+    }
+  }
+
+  private void sendKeyEvent(int keyCode) {
+    long now = SystemClock.uptimeMillis();
+    terminalBinding.terminalView.dispatchKeyEvent(
+        new KeyEvent(now, now, KeyEvent.ACTION_DOWN, keyCode, 0));
+    terminalBinding.terminalView.dispatchKeyEvent(
+        new KeyEvent(now, now, KeyEvent.ACTION_UP, keyCode, 0));
+  }
+
+  private void typeText(String text) {
+    TerminalSession session = currentSession();
+    if (session == null) return;
+    byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+    session.write(bytes, 0, bytes.length);
+  }
+
+  private void addNewSession() {
+    GhostTerminalSessionClient client =
+        new GhostTerminalSessionClient(requireContext(), internalCallback);
+    String workingDir = getArguments().getString(EXTRA_WORKING_DIR);
+    TerminalSession session =
+        TerminalSessionFactory.createSession(requireContext(), workingDir, client);
+    TerminalTab tab = new TerminalTab(nextSessionId++, session);
+    sessions.add(tab);
+    if (tabAdapter == null) setupSessionTabs();
+    else tabAdapter.notifyDataSetChanged();
+    switchToTab(sessions.size() - 1);
+  }
+
+  private void addNewDebianSession() {
+    GhostTerminalSessionClient client =
+        new GhostTerminalSessionClient(requireContext(), internalCallback);
+    TerminalSession session =
+        ProotSessionFactory.createProotSession(
+            requireContext(), DebianBootstrap.getRootfsDir(requireContext()), "/bin/bash", client);
+    TerminalTab tab = new TerminalTab(nextSessionId++, session);
+    sessions.add(tab);
+    if (tabAdapter == null) setupSessionTabs();
+    else tabAdapter.notifyDataSetChanged();
+    switchToTab(sessions.size() - 1);
+
+    String command = getArguments().getString(EXTRA_COMMAND);
+    if (command != null && !command.isEmpty()) {
+      session.write(command + "\n");
+    }
+  }
+
+  private void removeSession(TerminalSession session) {
+    for (int i = 0; i < sessions.size(); i++) {
+      if (sessions.get(i).session == session) {
+        sessions.remove(i);
+        if (sessions.isEmpty()) {
+          dismiss();
+          return;
+        }
+        int newIndex = Math.min(i, sessions.size() - 1);
+        if (tabAdapter != null) tabAdapter.notifyDataSetChanged();
+        switchToTab(newIndex);
+        return;
+      }
+    }
+  }
+
+  private void switchToTab(int position) {
+    if (position < 0 || position >= sessions.size()) return;
+    currentTabIndex = position;
+    terminalBinding.terminalView.attachSession(sessions.get(position).session);
+    if (tabAdapter != null) {
+      tabAdapter.setSelectedPosition(position);
+      terminalBinding.sessionTabs.scrollToPosition(position);
+    }
+  }
+
+  private int indexOfSession(TerminalSession session) {
+    for (int i = 0; i < sessions.size(); i++) {
+      if (sessions.get(i).session == session) return i;
+    }
+    return -1;
+  }
+
+  @Nullable
+  private TerminalSession currentSession() {
+    if (currentTabIndex < 0 || currentTabIndex >= sessions.size()) return null;
+    return sessions.get(currentTabIndex).session;
   }
 
   private void setupSessionTabs() {
     tabAdapter =
         new TerminalTabAdapter(
-            service.getSessions(),
+            sessions,
             new TerminalTabAdapter.Listener() {
               @Override
               public void onTabSelected(int position) {
@@ -239,26 +297,22 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
 
               @Override
               public void onTabClosed(int position) {
-                closeTab(position);
+                TerminalTab tab = sessions.get(position);
+                tab.session.finishIfRunning();
+                sessions.remove(position);
+                if (sessions.isEmpty()) {
+                  dismiss();
+                  return;
+                }
+                int newIndex = Math.min(position, sessions.size() - 1);
+                tabAdapter.notifyDataSetChanged();
+                switchToTab(newIndex);
               }
             });
-    b.sessionTabs.setLayoutManager(
+    terminalBinding.sessionTabs.setLayoutManager(
         new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-    b.sessionTabs.setAdapter(tabAdapter);
-    b.btnNewSession.setOnClickListener(this::showNewSessionMenu);
-  }
-
-  private void stepDB() {
-    if (DebianInstaller.isInstalling()) {
-      b.terminalView.setVisibility(View.INVISIBLE);
-      attachToRunningInstall();
-    } else if (!DebianInstaller.isInstalled(requireContext())) {
-      b.terminalView.setVisibility(View.INVISIBLE);
-      startDebianInstall();
-    } else {
-      b.terminalView.setVisibility(View.VISIBLE);
-      addNewDebianSession();
-    }
+    terminalBinding.sessionTabs.setAdapter(tabAdapter);
+    terminalBinding.btnNewSession.setOnClickListener(this::showNewSessionMenu);
   }
 
   private void showNewSessionMenu(View anchor) {
@@ -273,7 +327,7 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
       addNewSession();
       return;
     }
-    var popup = new PopupMenu(requireContext(), anchor);
+    PopupMenu popup = new PopupMenu(requireContext(), anchor);
     popup.getMenu().add(0, 1, 0, "Shell");
     popup.getMenu().add(0, 2, 1, "Debian");
     popup.setOnMenuItemClickListener(
@@ -286,150 +340,6 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
           return true;
         });
     popup.show();
-  }
-
-  private void setupExtraKeys() {
-    defaultKeyBackgroundColor =
-        b.keyCtrl.getBackgroundTintList() != null
-            ? b.keyCtrl.getBackgroundTintList().getDefaultColor()
-            : MaterialColors.getColor(
-                b.keyCtrl, com.google.android.material.R.attr.colorSecondaryContainer);
-    defaultKeyTextColor = b.keyCtrl.getCurrentTextColor();
-
-    b.keyEsc.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_ESCAPE));
-    b.keyTab.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_TAB));
-    b.keyUp.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_DPAD_UP));
-    b.keyDown.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_DPAD_DOWN));
-    b.keyLeft.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_DPAD_LEFT));
-    b.keyRight.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_DPAD_RIGHT));
-    b.keySlash.setOnClickListener(v -> typeText("/"));
-    b.keyDash.setOnClickListener(v -> typeText("-"));
-    b.keyPipe.setOnClickListener(v -> typeText("|"));
-    b.keyCtrl.setOnClickListener(
-        v -> {
-          ctrlToggled = !ctrlToggled;
-          updateModifierButtonStyle(b.keyCtrl, ctrlToggled);
-        });
-    b.keyAlt.setOnClickListener(
-        v -> {
-          altToggled = !altToggled;
-          updateModifierButtonStyle(b.keyAlt, altToggled);
-        });
-  }
-
-  private void updateModifierButtonStyle(android.widget.Button button, boolean active) {
-    if (active) {
-      int bg = MaterialColors.getColor(button, R.attr.colorPrimary);
-      int fg = MaterialColors.getColor(button, R.attr.colorOnPrimary);
-      button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(bg));
-      button.setTextColor(fg);
-    } else {
-      button.setBackgroundTintList(ColorStateList.valueOf(defaultKeyBackgroundColor));
-      button.setTextColor(defaultKeyTextColor);
-    }
-  }
-
-  private void setupBackHandler() {}
-
-  private void sendKeyEvent(int keyCode) {
-    long now = SystemClock.uptimeMillis();
-    b.terminalView.dispatchKeyEvent(new KeyEvent(now, now, KeyEvent.ACTION_DOWN, keyCode, 0));
-    b.terminalView.dispatchKeyEvent(new KeyEvent(now, now, KeyEvent.ACTION_UP, keyCode, 0));
-  }
-
-  private void typeText(String text) {
-    TerminalSession session = currentSession();
-    if (session == null) return;
-    byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
-    session.write(bytes, 0, bytes.length);
-  }
-
-  private void addNewSession() {
-    if (service == null) return;
-    String workingDir = getArguments().getString(EXTRA_WORKING_DIR);
-    service.createSession(workingDir);
-    tabAdapter.notifyDataSetChanged();
-    switchToTab(service.getSessions().size() - 1);
-  }
-
-  private void addNewDebianSession() {
-    if (service == null) return;
-    service.createDebianSession();
-    tabAdapter.notifyDataSetChanged();
-    switchToTab(service.getSessions().size() - 1);
-
-    String command = getArguments().getString(EXTRA_COMMAND);
-    if (command != null && !command.isEmpty()) {
-      TerminalSession session = currentSession();
-      session.write(command + "\n");
-    }
-  }
-
-  private void switchToTab(int position) {
-    if (service == null) return;
-    List<TerminalTab> sessions = service.getSessions();
-    if (position < 0 || position >= sessions.size()) return;
-    currentTabIndex = position;
-    b.terminalView.attachSession(sessions.get(position).session);
-    tabAdapter.setSelectedPosition(position);
-    b.sessionTabs.scrollToPosition(position);
-  }
-
-  private void closeTab(int position) {
-    if (service == null) return;
-    List<TerminalTab> sessions = service.getSessions();
-    if (position < 0 || position >= sessions.size()) return;
-    TerminalTab tab = sessions.get(position);
-    service.removeSession(tab.session);
-    tabAdapter.notifyDataSetChanged();
-
-    sessions = service.getSessions();
-    if (sessions.isEmpty()) {
-      dismiss();
-      return;
-    }
-    int newIndex = Math.min(position, sessions.size() - 1);
-    switchToTab(newIndex);
-  }
-
-  @Nullable
-  private TerminalSession currentSession() {
-    if (service == null) return null;
-    List<TerminalTab> sessions = service.getSessions();
-    if (currentTabIndex < 0 || currentTabIndex >= sessions.size()) return null;
-    return sessions.get(currentTabIndex).session;
-  }
-
-  private int indexOfSession(TerminalSession session) {
-    if (service == null) return -1;
-    List<TerminalTab> sessions = service.getSessions();
-    for (int i = 0; i < sessions.size(); i++) {
-      if (sessions.get(i).session == session) return i;
-    }
-    return -1;
-  }
-
-  @Override
-  public void onTextChanged(TerminalSession session) {
-    if (session == currentSession()) b.terminalView.invalidate();
-  }
-
-  @Override
-  public void onTitleChanged(TerminalSession session) {
-    int index = indexOfSession(session);
-    if (index >= 0) tabAdapter.notifyItemChanged(index);
-  }
-
-  @Override
-  public void onSessionFinished(TerminalSession session) {
-    tabAdapter.notifyDataSetChanged();
-    List<TerminalTab> sessions = service.getSessions();
-    if (sessions.isEmpty()) {
-      dismiss();
-      return;
-    }
-    int newIndex = Math.min(Math.max(currentTabIndex, 0), sessions.size() - 1);
-    switchToTab(newIndex);
   }
 
   @Override
@@ -445,60 +355,13 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
   @Override
   public void consumeCtrlToggle() {
     ctrlToggled = false;
-    updateModifierButtonStyle(b.keyCtrl, false);
+    updateModifierButtonStyle(terminalBinding.keyCtrl, false);
   }
 
   @Override
   public void consumeAltToggle() {
     altToggled = false;
-    updateModifierButtonStyle(b.keyAlt, false);
-  }
-
-  private AlertDialog installDialog;
-  private TextView installStatusText;
-  private ProgressBar installProgressBar;
-  private DebianInstaller.InstallListener installListener;
-
-  @Override
-  public void onCreateOptionsMenu(Menu menu, android.view.MenuInflater inflater) {
-    menu.add(
-        0,
-        1001,
-        0,
-        DebianBootstrap.isInstalled(requireContext())
-            ? getString(R.string.terminal_remove_debian)
-            : getString(R.string.terminal_install_debian));
-    super.onCreateOptionsMenu(menu, inflater);
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    if (item.getItemId() == 1001) {
-      if (DebianBootstrap.isInstalled(requireContext())) {
-        confirmAndRemoveDebian();
-      } else {
-        startDebianInstall();
-      }
-      return true;
-    }
-    return super.onOptionsItemSelected(item);
-  }
-
-  private void confirmAndRemoveDebian() {
-    new AlertDialog.Builder(requireContext())
-        .setTitle(getString(R.string.terminal_remove_debian))
-        .setMessage(getString(R.string.terminal_confirm_remove_debian_message))
-        .setPositiveButton(
-            getString(R.string.terminal_action_remove),
-            (dialog, which) ->
-                DebianBootstrap.uninstall(
-                    requireContext(),
-                    () -> {
-                      Toast.makeText(requireContext(), getString(R.string.terminal_debian_removed), Toast.LENGTH_SHORT).show();
-                      requireActivity().invalidateOptionsMenu();
-                    }))
-        .setNegativeButton(getString(R.string.terminal_action_cancel), null)
-        .show();
+    updateModifierButtonStyle(terminalBinding.keyAlt, false);
   }
 
   private void buildInstallDialogViews() {
@@ -527,7 +390,11 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
                 getString(R.string.terminal_action_cancel),
                 (dialog, which) -> {
                   DebianInstaller.cancelInstall();
-                  Toast.makeText(requireContext(), getString(R.string.terminal_install_cancelled), Toast.LENGTH_SHORT).show();
+                  Toast.makeText(
+                          requireContext(),
+                          getString(R.string.terminal_install_cancelled),
+                          Toast.LENGTH_SHORT)
+                      .show();
                 })
             .create();
     installDialog.show();
@@ -543,7 +410,8 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
             requireActivity()
                 .runOnUiThread(
                     () -> {
-                      installStatusText.setText(getString(R.string.terminal_status_downloading, percent));
+                      installStatusText.setText(
+                          getString(R.string.terminal_status_downloading, percent));
                       installProgressBar.setIndeterminate(false);
                       installProgressBar.setProgress(percent);
                     });
@@ -568,12 +436,13 @@ public class TerminalBottomSheetFragment extends BottomSheetDialogFragment
                 .runOnUiThread(
                     () -> {
                       if (installDialog != null) installDialog.dismiss();
-                      Toast.makeText(requireContext(), getString(R.string.terminal_debian_installed_success), Toast.LENGTH_LONG).show();
-                      requireActivity().invalidateOptionsMenu();
-                      b.terminalView.setVisibility(View.VISIBLE);
-                      if (service != null) {
-                        addNewDebianSession();
-                      }
+                      Toast.makeText(
+                              requireContext(),
+                              getString(R.string.terminal_debian_installed_success),
+                              Toast.LENGTH_LONG)
+                          .show();
+                      terminalBinding.terminalView.setVisibility(View.VISIBLE);
+                      createInitialSession();
                     });
           }
 

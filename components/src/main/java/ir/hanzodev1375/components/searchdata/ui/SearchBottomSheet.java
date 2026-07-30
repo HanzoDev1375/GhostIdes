@@ -1,20 +1,14 @@
 package ir.hanzodev1375.components.searchdata.ui;
 
-import android.graphics.Color;
-import android.graphics.Outline;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewOutlineProvider;
 import android.view.inputmethod.EditorInfo;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.blankj.utilcode.util.SizeUtils;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.snackbar.Snackbar;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.databinding.BottomSheetSearchBinding;
@@ -25,10 +19,11 @@ import ir.hanzodev1375.components.searchdata.model.SearchMode;
 import ir.hanzodev1375.components.searchdata.model.SearchQuery;
 import ir.hanzodev1375.components.searchdata.model.SearchType;
 import ir.hanzodev1375.components.searchdata.viewmodel.SearchViewModel;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import java.util.regex.Pattern;
-import jp.wasabeef.blurry.Blurry;
 
-public class SearchBottomSheet extends BottomSheetDialogFragment {
+public class SearchBottomSheet extends BaseBlurBottomSheet {
+
   public static final String TAG = "SearchBottomSheet";
   private static final String ARG_ROOT_PATH = "root_path";
   private BottomSheetSearchBinding binding;
@@ -48,71 +43,20 @@ public class SearchBottomSheet extends BottomSheetDialogFragment {
     this.lineClickListener = l;
   }
 
-  @Nullable
   @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    binding = BottomSheetSearchBinding.inflate(inflater, container, false);
-    return binding.getRoot();
-  }
+  protected void onContentReady(ViewGroup contentContainer) {
+    binding = BottomSheetSearchBinding.inflate(getLayoutInflater(), contentContainer, false);
+    contentContainer.addView(
+        binding.getRoot(),
+        new ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-
-    View root = binding.getRoot();
-    float cornerRadius = getResources().getDimension(R.dimen.bottom_sheet_corner_radius);
-    root.setClipToOutline(true);
-    root.setOutlineProvider(
-        new ViewOutlineProvider() {
-          @Override
-          public void getOutline(View v, Outline outline) {
-            outline.setRoundRect(
-                0, 0, v.getWidth(), v.getHeight() + (int) cornerRadius, cornerRadius);
-          }
-        });
-    requireDialog().getWindow().setStatusBarColor(Color.TRANSPARENT);
-    requireDialog().getWindow().setNavigationBarColor(Color.TRANSPARENT);
-
-    root.addOnLayoutChangeListener(
-        (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-          v.invalidateOutline();
-        });
-    expandSheet();
     viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
     setupRecyclerView();
     setupSearchBar();
     setupModeToggle();
     setupTypeSwitch();
     observeViewModel();
-  }
-
-  private void expandSheet() {
-    View bottomSheet =
-        requireDialog().findViewById(com.google.android.material.R.id.design_bottom_sheet);
-    if (bottomSheet != null) {
-      BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
-      behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-      behavior.setSkipCollapsed(true);
-
-      bottomSheet.post(
-          () -> {
-            behavior.setPeekHeight(SizeUtils.dp2px(300));
-            behavior.setFitToContents(false);
-            behavior.setHideable(false);
-            bottomSheet.setBackgroundColor(Color.TRANSPARENT);
-            View root =
-                requireActivity().getWindow().getDecorView().findViewById(android.R.id.content);
-            Blurry.with(requireActivity())
-                .radius(24)
-                .sampling(4)
-                .async()
-                .capture(root)
-                .into(binding.blurBackground);
-          });
-    }
   }
 
   private void setupRecyclerView() {

@@ -61,6 +61,7 @@ public class Constants {
     public static final String KEY_CODE_EDITOR_POWER_MODE_EFFECT =
         "pref_code_editor_power_mode_effect";
     public static final String KRY_TERM = "terminal_fragment";
+    public static final String KEY_BLUR= "app_blurmod_allstate";
 
     private SharedPreferenceKeys() {
       throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

@@ -36,7 +36,6 @@ dependencies {
     api(libs.other.sora.editor.lsp)
     implementation(libs.utilcode)
     implementation(libs.gson)
-    implementation(libs.antlr)
     implementation(libs.guava)
     implementation(libs.glide)
     implementation(libs.androidsvg)

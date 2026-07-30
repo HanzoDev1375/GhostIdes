@@ -29,8 +29,6 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.sass.SassTextTokenizer;
 import ir.hanzodev1375.ghostide.codeeditors.langs.sass.SassTokens;
 import java.io.IOException;
 import java.io.StringReader;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.Token;
 import io.github.rosemoe.sora.lang.smartEnter.NewlineHandleResult;
 import io.github.rosemoe.sora.lang.styling.Styles;
 

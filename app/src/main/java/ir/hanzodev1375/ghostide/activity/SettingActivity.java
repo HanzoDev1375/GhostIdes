@@ -577,6 +577,13 @@ public class SettingActivity extends BaseCompat {
             prefs.isTerminalFragment(),
             0,
             prefs::setTerminalFragment));
+    items.add(
+        new SettingItem(
+            getString(R.string.all_blur),
+            getString(R.string.all_blur_subtitle),
+            prefs.isBlurMod(),
+            0,
+            prefs::setBlurMod));
 
     return items;
   }

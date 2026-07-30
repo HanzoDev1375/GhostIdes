@@ -19,8 +19,6 @@ glide = "5.0.7"
 okhttp = "5.3.2"
 #Android util code 
 utilcodev = "1.31.1"
-#antlr4
-antlrv = "4.13.2"
 #powermenu
 powermenu = "2.2.4"
 #git
@@ -55,7 +53,6 @@ other-sora-editor-code = { group = "io.github.rosemoe", name = "editor", version
 other-sora-editor-lsp = { group = "io.github.rosemoe", name = "editor-lsp", version.ref = "soraEditorVersion" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gsonversion" }
 utilcode = { group = "com.blankj", name = "utilcodex",version.ref = "utilcodev" }
-antlr = { group = "org.antlr", name = "antlr4",version.ref = "antlrv" }
 powermenu = { group = "com.github.skydoves", name = "powermenu", version.ref = "powermenu" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }

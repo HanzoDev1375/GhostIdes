@@ -5,7 +5,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.ibm.icu.impl.number.parse.SymbolMatcher;
 import io.github.rosemoe.sora.lang.EmptyLanguage;
 import io.github.rosemoe.sora.lang.Language;
 import io.github.rosemoe.sora.lang.QuickQuoteHandler;

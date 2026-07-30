@@ -20,13 +20,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.CharParser;
 import ir.hanzodev1375.ghostide.codeeditors.util.CustomFormatter;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.Token;
-import java.io.StringReader;
 
 public class JsonLanguage implements Language {
 
-  private final JsonAnalyzer analyzer;
+  private final JsonIncrementalAnalyzeManager analyzer;
   private final IdentifierAutoComplete autoComplete;
   private final CustomFormatter formatter = new CustomFormatter();
 
@@ -36,7 +33,7 @@ public class JsonLanguage implements Language {
 
     autoComplete = new IdentifierAutoComplete(keywords);
 
-    analyzer = new JsonAnalyzer();
+    analyzer = new JsonIncrementalAnalyzeManager();
     analyzer.init(ctx, path);
 
     formatter.setFormatAction(this::formatJson);
@@ -73,22 +70,16 @@ public class JsonLanguage implements Language {
 
   @Override
   public int getIndentAdvance(@NonNull ContentReference text, int line, int column) {
+    var tokenizer = new JsonTextTokenizer(text.getLine(line));
+    JsonTokens token;
+    int advance = 0;
 
-    try {
-      var lexer = new JSONLexer(CharStreams.fromReader(new StringReader(text.getLine(line))));
-      Token token;
-      int advance = 0;
-
-      while ((token = lexer.nextToken()) != null && token.getType() != Token.EOF) {
-        if (token.getType() == JSONLexer.LBRACE) advance++;
-        if (token.getType() == JSONLexer.RBRACE) advance--;
-      }
-
-      return Math.max(0, advance) * 2;
-
-    } catch (Exception e) {
-      return 0;
+    while ((token = tokenizer.nextToken()) != JsonTokens.EOF) {
+      if (token == JsonTokens.LBRACE) advance++;
+      if (token == JsonTokens.RBRACE) advance--;
     }
+
+    return Math.max(0, advance) * 2;
   }
 
   @Override

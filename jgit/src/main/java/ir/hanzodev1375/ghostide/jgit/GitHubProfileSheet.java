@@ -14,11 +14,10 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import ir.hanzodev1375.ghostide.jgit.R;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.ghostide.jgit.adapter.EventAdapter;
 import ir.hanzodev1375.ghostide.jgit.adapter.RepoAdapter;
 import ir.hanzodev1375.ghostide.jgit.model.GitHubEvent;
@@ -26,41 +25,43 @@ import ir.hanzodev1375.ghostide.jgit.model.GitHubRepo;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class GitHubProfileSheet extends BottomSheetDialogFragment {
+public class GitHubProfileSheet extends BaseBlurBottomSheet {
 
   private GitHubClient gitHub;
   private RecyclerView recyclerView;
   private ProgressBar progressBar;
   private ViewGroup layoutEmpty;
+  private TabLayout tabLayout;
+  private ImageView ivAvatar;
+  private TextView tvName, tvUsername;
   private final Gson gson = new Gson();
 
   public static GitHubProfileSheet newInstance() {
     return new GitHubProfileSheet();
   }
 
-  @Nullable
   @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.fragment_github_profile_sheet, container, false);
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  protected void onContentReady(ViewGroup contentContainer) {
+    View root =
+        getLayoutInflater()
+            .inflate(R.layout.fragment_github_profile_sheet, contentContainer, false);
+    contentContainer.addView(
+        root,
+        new ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
     gitHub = new GitHubClient(requireContext());
 
-    ImageView ivAvatar = view.findViewById(R.id.ivAvatar);
-    TextView tvName = view.findViewById(R.id.tvName);
-    TextView tvUsername = view.findViewById(R.id.tvUsername);
-    TabLayout tabLayout = view.findViewById(R.id.tabLayout);
-    progressBar = view.findViewById(R.id.progressBar);
-    layoutEmpty = view.findViewById(R.id.layoutEmpty);
-    recyclerView = view.findViewById(R.id.recyclerView);
+    ivAvatar = root.findViewById(R.id.ivAvatar);
+    tvName = root.findViewById(R.id.tvName);
+    tvUsername = root.findViewById(R.id.tvUsername);
+    tabLayout = root.findViewById(R.id.tabLayout);
+    progressBar = root.findViewById(R.id.progressBar);
+    layoutEmpty = root.findViewById(R.id.layoutEmpty);
+    recyclerView = root.findViewById(R.id.recyclerView);
+
     recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
     tvName.setText(gitHub.getName());
     tvUsername.setText("@" + gitHub.getUsername());
     Glide.with(this)
@@ -75,6 +76,7 @@ public class GitHubProfileSheet extends BottomSheetDialogFragment {
     tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.rss_feed_24px).setText("Feed"));
 
     loadRepos();
+    setHasPeekMod(false);
 
     tabLayout.addOnTabSelectedListener(
         new TabLayout.OnTabSelectedListener() {
@@ -203,7 +205,7 @@ public class GitHubProfileSheet extends BottomSheetDialogFragment {
               if (hasData) {
                 layoutEmpty.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
-                recyclerView.addItemDecoration(new MarginItemDecoration(getContext()));
+                recyclerView.addItemDecoration(new MarginItemDecoration(requireContext()));
                 recyclerView.setAdapter(adapter);
               } else {
                 showEmpty();
@@ -211,7 +213,7 @@ public class GitHubProfileSheet extends BottomSheetDialogFragment {
             });
   }
 
-  public class MarginItemDecoration extends RecyclerView.ItemDecoration {
+  public static class MarginItemDecoration extends RecyclerView.ItemDecoration {
     private final int itemMargin;
 
     public MarginItemDecoration(Context context) {
