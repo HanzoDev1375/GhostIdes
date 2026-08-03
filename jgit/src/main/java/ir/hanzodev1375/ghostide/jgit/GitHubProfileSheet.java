@@ -1,6 +1,7 @@
 package ir.hanzodev1375.ghostide.jgit;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,13 +12,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.jgit.adapter.EventAdapter;
 import ir.hanzodev1375.ghostide.jgit.adapter.RepoAdapter;
 import ir.hanzodev1375.ghostide.jgit.model.GitHubEvent;
@@ -33,6 +37,7 @@ public class GitHubProfileSheet extends BaseBlurBottomSheet {
   private ViewGroup layoutEmpty;
   private TabLayout tabLayout;
   private ImageView ivAvatar;
+  private PreferencesUtils app;
   private TextView tvName, tvUsername;
   private final Gson gson = new Gson();
 
@@ -49,6 +54,7 @@ public class GitHubProfileSheet extends BaseBlurBottomSheet {
         root,
         new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    app = new PreferencesUtils(getContext());
 
     gitHub = new GitHubClient(requireContext());
 
@@ -74,7 +80,11 @@ public class GitHubProfileSheet extends BaseBlurBottomSheet {
     tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.star_24px).setText("Starred"));
     tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_bolt).setText("Activity"));
     tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.rss_feed_24px).setText("Feed"));
-
+    int orginalColor = MaterialColors.getColor(tabLayout, R.attr.colorSurfaceContainerLow);
+    if (app.isBlurMod()) {
+      tabLayout.setBackgroundTintList(
+          ColorStateList.valueOf(ColorUtils.setAlphaComponent(orginalColor, 128)));
+    } else tabLayout.setBackgroundTintList(ColorStateList.valueOf(orginalColor));
     loadRepos();
     setHasPeekMod(false);
 

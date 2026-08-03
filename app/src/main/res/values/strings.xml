@@ -454,4 +454,5 @@
     <string name="terminal_debian_installed_success">Debian installed ✓</string>
     <string name="all_blur">Blur mod</string>
     <string name="all_blur_subtitle">Blur all components.</string>
+    <string name="webcolor"> Show Color PickerWeb</string>
 </resources>

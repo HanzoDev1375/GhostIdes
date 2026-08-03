@@ -343,7 +343,8 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       }
       return;
     } else if (id == R.id.panel_btn_expand_selection) {
-      attachTooltip(expandSelectionBtn, editor.getContext().getString(R.string.editor_expand_selection));
+      attachTooltip(
+          expandSelectionBtn, editor.getContext().getString(R.string.editor_expand_selection));
       if (editor.getEditable()) {
         // TODO: Handle
       }
@@ -352,11 +353,13 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       handleTranslate();
       return;
     } else if (id == R.id.panel_btn_lsp_definition) {
-      attachTooltip(lspDefinitionBtn, editor.getContext().getString(R.string.editor_lsp_definition));
+      attachTooltip(
+          lspDefinitionBtn, editor.getContext().getString(R.string.editor_lsp_definition));
       handleGoToDefinition();
       return;
     } else if (id == R.id.panel_btn_lsp_references) {
-      attachTooltip(lspReferencesBtn, editor.getContext().getString(R.string.editor_lsp_references));
+      attachTooltip(
+          lspReferencesBtn, editor.getContext().getString(R.string.editor_lsp_references));
       handleFindReferences();
       return;
     } else if (id == R.id.panel_btn_lsp_rename) {
@@ -414,8 +417,10 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
               public void onFailure(String error) {
                 editor.post(
                     () ->
-                        Toast.makeText(editor.getContext(),
-                                editor.getContext().getString(R.string.lsp_translate_error_prefix) + error,
+                        Toast.makeText(
+                                editor.getContext(),
+                                editor.getContext().getString(R.string.lsp_translate_error_prefix)
+                                    + error,
                                 Toast.LENGTH_SHORT)
                             .show());
               }
@@ -448,7 +453,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
             return;
           }
           try {
-            String uri = new File(filePath).toURI().toString();
+            String uri = getFileUri(filePath);
             DefinitionParams params = new DefinitionParams();
             params.setTextDocument(new TextDocumentIdentifier(uri));
             params.setPosition(new Position(line, column));
@@ -459,7 +464,9 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
               return;
             }
             var result = future.get(12, TimeUnit.SECONDS);
-            handleLocations(toLocations(result), uri,
+            handleLocations(
+                toLocations(result),
+                uri,
                 editor.getContext().getString(R.string.lsp_definition_not_found));
           } catch (TimeoutException e) {
             showLspToast(editor.getContext().getString(R.string.lsp_timeout));
@@ -487,7 +494,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
           }
           try {
 
-            String uri = new File(filePath).toURI().toString();
+            String uri = getFileUri(filePath);
             ReferenceParams params = new ReferenceParams();
             params.setTextDocument(new TextDocumentIdentifier(uri));
             params.setPosition(new Position(line, column));
@@ -501,8 +508,8 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
               return;
             }
             List<Location> locations = future.get(12, TimeUnit.SECONDS);
-            handleLocations(locations, uri,
-                editor.getContext().getString(R.string.lsp_references_not_found));
+            handleLocations(
+                locations, uri, editor.getContext().getString(R.string.lsp_references_not_found));
           } catch (TimeoutException e) {
             showLspToast(editor.getContext().getString(R.string.lsp_timeout));
           } catch (Exception e) {
@@ -547,7 +554,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       return;
     }
     try {
-      String uri = new File(filePath).toURI().toString();
+      String uri = getFileUri(filePath);
       RenameParams params = new RenameParams();
       params.setTextDocument(new TextDocumentIdentifier(uri));
       params.setPosition(new Position(line, column));
@@ -579,7 +586,15 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       return;
     }
 
-    List<TextEdit> currentFileEdits = changes.get(currentUri);
+    String normalizedCurrent = normalizeUri(currentUri);
+    List<TextEdit> currentFileEdits = null;
+    for (Map.Entry<String, List<TextEdit>> entry : changes.entrySet()) {
+      if (normalizeUri(entry.getKey()).equals(normalizedCurrent)) {
+        currentFileEdits = entry.getValue();
+        break;
+      }
+    }
+
     int otherFilesCount = changes.size() - (currentFileEdits != null ? 1 : 0);
 
     if (currentFileEdits != null && !currentFileEdits.isEmpty()) {
@@ -593,19 +608,12 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
             return Integer.compare(
                 b.getRange().getStart().getCharacter(), a.getRange().getStart().getCharacter());
           });
+
       editor.postInLifecycle(
           () -> {
             for (TextEdit textEdit : sorted) {
               Position start = textEdit.getRange().getStart();
               Position end = textEdit.getRange().getEnd();
-              Log.w(
-                  "RenameSys",
-                  "LineStart : "
-                      + String.valueOf(start.getLine())
-                      + "LineEnd : "
-                      + String.valueOf(end.getLine())
-                      + "CharName : "
-                      + textEdit.getNewText());
               editor
                   .getText()
                   .replace(
@@ -643,12 +651,12 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
             return;
           }
           try {
-            String uri = new File(filePath).toURI().toString();
+            String uri = getFileUri(filePath);
             Range range =
                 new Range(new Position(startLine, startColumn), new Position(endLine, endColumn));
 
-            List<Diagnostic> rangeDiagnostics = new ArrayList<>();
             List<Diagnostic> fileDiagnostics = lsp.getDiagnostics();
+            List<Diagnostic> rangeDiagnostics = new ArrayList<>();
             if (fileDiagnostics != null) {
               for (Diagnostic d : fileDiagnostics) {
                 if (rangesOverlap(d.getRange(), range)) {
@@ -656,7 +664,6 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
                 }
               }
             }
-
             CodeActionParams params = new CodeActionParams();
             params.setTextDocument(new TextDocumentIdentifier(uri));
             params.setRange(range);
@@ -715,6 +722,10 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
   private void applyCodeAction(Either<Command, CodeAction> item, String uri) {
     if (item.isRight()) {
       CodeAction action = item.getRight();
+      if (action.getEdit() == null && action.getCommand() == null) {
+        runLspAction(() -> resolveAndApplyCodeAction(action, uri));
+        return;
+      }
       boolean handled = false;
       if (action.getEdit() != null) {
         applyWorkspaceEdit(action.getEdit(), uri);
@@ -729,6 +740,42 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       }
     } else if (item.isLeft()) {
       runLspAction(() -> executeLspCommand(item.getLeft()));
+    }
+  }
+
+  private void resolveAndApplyCodeAction(CodeAction action, String uri) {
+    LspEditor lsp = editor.ensureLspConnected();
+    if (lsp == null) {
+      showLspToast(editor.getContext().getString(R.string.error_toconnectedlsp));
+      return;
+    }
+    CodeAction resolved = null;
+    for (var manager : lsp.getRequestManagers()) {
+      var service = manager.getTextDocumentService();
+      if (service == null) continue;
+      try {
+        var future = service.resolveCodeAction(action);
+        resolved = future.get(12, TimeUnit.SECONDS);
+        if (resolved != null) break;
+      } catch (Exception e) {
+        Log.w(TAG, "resolve code action failed", e);
+      }
+    }
+    if (resolved == null) {
+      showLspToast(editor.getContext().getString(R.string.lsp_code_action_not_supported_2));
+      return;
+    }
+    boolean handled = false;
+    if (resolved.getEdit() != null) {
+      applyWorkspaceEdit(resolved.getEdit(), uri);
+      handled = true;
+    }
+    if (resolved.getCommand() != null) {
+      executeLspCommand(resolved.getCommand());
+      handled = true;
+    }
+    if (!handled) {
+      showLspToast(editor.getContext().getString(R.string.lsp_code_action_not_supported_2));
     }
   }
 
@@ -840,7 +887,8 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
                   EventBus.getDefault()
                       .post(new OpenFileLocationEvent(filePath, pos.getLine(), pos.getCharacter()));
                 } else {
-                  Toast.makeText(editor.getContext(),
+                  Toast.makeText(
+                          editor.getContext(),
                           editor.getContext().getString(R.string.lsp_invalid_file_path),
                           Toast.LENGTH_SHORT)
                       .show();
@@ -883,10 +931,25 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     btn.setColorFilter(color);
   }
 
+  private String normalizeUri(String uri) {
+    if (uri == null) return null;
+    try {
+      return URI.create(uri).normalize().toString();
+    } catch (Exception e) {
+      return uri;
+    }
+  }
+
+  private String getFileUri(String filePath) {
+    if (filePath == null) return null;
+    
+    return "file://" + new File(filePath).getAbsolutePath();
+  }
+
   private String uriToFilePath(String uri) {
     try {
-
-      return new File(URI.create(uri).getPath()).getAbsolutePath();
+      String path = URI.create(uri).getPath();
+      return path != null ? new File(path).getAbsolutePath() : null;
     } catch (Exception e) {
       return null;
     }

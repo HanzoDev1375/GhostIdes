@@ -85,33 +85,28 @@ public class BaseSheet extends BottomSheetDialog {
     setContentView(view);
   }
 
-  private void expandSheet() {
+ private void expandSheet() {
     View bottomSheet = findViewById(R.id.design_bottom_sheet);
     if (bottomSheet != null) {
-      BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
-      behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-      behavior.setSkipCollapsed(true);
-      bottomSheet.post(
-          () -> {
-            if (hasPeekMod) {
-              behavior.setPeekHeight(SizeUtils.dp2px(300));
-              behavior.setFitToContents(false);
-              behavior.setHideable(false);
-            }
-            if (app.isBlurMod()) {
-              bottomSheet.setBackgroundColor(Color.TRANSPARENT);
-              View decorView = getWindow().getDecorView().findViewById(android.R.id.content);
-              Blurry.with(getContext())
-                  .radius(24)
-                  .sampling(4)
-                  .async()
-                  .capture(decorView)
-                  .into(binding.blurBackground);
-            }
-          });
-    }
-  }
+        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
+        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        behavior.setSkipCollapsed(true);
 
+        bottomSheet.post(() -> {
+            
+            if (app.isBlurMod()) {
+                bottomSheet.setBackgroundColor(Color.TRANSPARENT);
+                View decorView = getWindow().getDecorView().findViewById(android.R.id.content);
+                Blurry.with(getContext())
+                        .radius(24)
+                        .sampling(4)
+                        .async()
+                        .capture(decorView)
+                        .into(binding.blurBackground);
+            }
+        });
+    }
+}
   @Override
   public void dismiss() {
     binding = null;

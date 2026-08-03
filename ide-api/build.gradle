@@ -1,0 +1,17 @@
+plugins {
+  id 'java-library'
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
+  withSourcesJar()
+}
+
+group = 'ir.hanzodev1375.ghostide'
+version = project.findProperty('ideApiVersion') ?: '0.1.0'
+
+dependencies {
+  api project(':plugin-api')
+  api(libs.lsp4j)
+}

@@ -69,6 +69,7 @@ public final class LspRouter {
 
   public static boolean isInstalled(Context context, String filePath) {
     if (context == null || filePath == null) return false;
+
     switch (langOf(filePath)) {
       case PYTHON:
         return PylspServer.isInstalled(context);
@@ -107,6 +108,7 @@ public final class LspRouter {
       Context context, String projectRoot, String filePath, CodeEditor editor) {
     if (context == null || filePath == null || editor == null) return null;
     try {
+      LspHoverHighlighter.install(context, editor);
       switch (langOf(filePath)) {
         case PYTHON:
           return PylspServer.connectFile(context, projectRoot, filePath, editor);

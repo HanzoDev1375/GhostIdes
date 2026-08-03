@@ -31,6 +31,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
 import com.google.android.material.color.MaterialColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.termux.terminal.TerminalSession;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
@@ -283,7 +284,7 @@ public class TerminalActivity extends BaseCompat
         b.keyCtrl.getBackgroundTintList() != null
             ? b.keyCtrl.getBackgroundTintList().getDefaultColor()
             : MaterialColors.getColor(
-                b.keyCtrl, com.google.android.material.R.attr.colorSecondaryContainer);
+                b.keyCtrl, R.attr.colorSecondaryContainer);
     defaultKeyTextColor = b.keyCtrl.getCurrentTextColor();
 
     b.keyEsc.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_ESCAPE));
@@ -482,7 +483,7 @@ public class TerminalActivity extends BaseCompat
   }
 
   private void confirmAndRemoveDebian() {
-    new AlertDialog.Builder(this)
+    new MaterialAlertDialogBuilder(this)
         .setTitle(getString(R.string.terminal_remove_debian))
         .setMessage(getString(R.string.terminal_confirm_remove_debian_message))
         .setPositiveButton(
@@ -517,7 +518,7 @@ public class TerminalActivity extends BaseCompat
     layout.addView(installProgressBar);
 
     installDialog =
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.terminal_install_debian))
             .setView(layout)
             .setCancelable(false)

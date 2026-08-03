@@ -24,6 +24,7 @@ import java.util.concurrent.CountDownLatch;
 import android.os.Handler;
 import android.os.Looper;
 import io.github.rosemoe.sora.lsp.editor.LspLanguage;
+import org.eclipse.lsp4j.ServerCapabilities;
 
 /**
  * curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - apt install -y nodejs node -v npm
@@ -76,17 +77,21 @@ public class PhpServer {
     return findInstalledExecutable(context) != null;
   }
 
-  /** همون ریسکِ همیشگیِ constructor که در بقیه ی سرورها گفتم، اینجا هم صدق می کنه. */
   private static LanguageServerDefinition createDefinition(
       Context context, String executablePath, String ext) {
     List<String> args = Arrays.asList("--stdio");
+    ServerCapabilities cap = new ServerCapabilities();
+    cap.setCodeActionProvider(true);
+    cap.setInlayHintProvider(true);
+    cap.setRenameProvider(true);
+    cap.setReferencesProvider(true);
+
     return new CustomLanguageServerDefinition(
         ext,
         workingDir -> new ProotStdioConnectionProvider(context, workingDir, executablePath, args),
         SERVER_NAME,
-        null, // extensionsOverride
-        null // expectedCapabilitiesOverride
-        );
+        cap,
+        null);
   }
 
   private static synchronized LspProject getOrCreateProject(String projectRoot) {
@@ -123,6 +128,13 @@ public class PhpServer {
     String ext = extensionOf(filePath);
     LspProject project = getOrCreateProject(projectRoot);
     ensureDefinitionRegistered(project, context, executablePath, projectRoot, ext);
+    String emmetExecutable = EmmetServer.findInstalledExecutable(context);
+    if (emmetExecutable != null) {
+      EmmetServer.ensureDefinitionRegistered(project, context, emmetExecutable, projectRoot, ext);
+      Log.d(TAG, "Emmet Language Server نیز به پروژه اضافه شد.");
+    } else {
+      Log.d(TAG, "Emmet Language Server نصب نیست، فقط از HTML Server استفاده می‌شود.");
+    }
 
     final LspEditor[] holder = new LspEditor[1];
     final CountDownLatch latch = new CountDownLatch(1);
@@ -135,8 +147,7 @@ public class PhpServer {
                 var html = new PhpLanguage(context);
                 e.setWrapperLanguage(html);
                 e.setEditor(editor);
-                var lang = (LspLanguage) editor.getEditorLanguage();
-                lang.setFormatter(html.getFormatter());
+                e.setEnableInlayHint(true);
                 holder[0] = e;
               } finally {
                 latch.countDown();

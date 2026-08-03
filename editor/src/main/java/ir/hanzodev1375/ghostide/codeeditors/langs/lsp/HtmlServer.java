@@ -130,8 +130,7 @@ public class HtmlServer {
                 var html = new HtmlLanguage(context, filePath);
                 e.setWrapperLanguage(html);
                 e.setEditor(editor);
-                var lang = (LspLanguage) editor.getEditorLanguage();
-                lang.setFormatter(html.getFormatter());    
+                e.setEnableInlayHint(true);
                 holder[0] = e;
               } finally {
                 latch.countDown();

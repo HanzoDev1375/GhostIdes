@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_height="wrap_content"
+     android:layout_width="wrap_content"
+     android:maxHeight="320dp"
+     android:fillViewport="false"
+     android:id="@+id/diagnostic_tooltip_scroll">
+
+    <LinearLayout
+         android:layout_height="wrap_content"
+         android:layout_width="wrap_content"
+         android:orientation="vertical"
+         android:minWidth="240dp">
+
+        <LinearLayout
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:paddingEnd="8dp"
+             android:gravity="center_vertical"
+             android:orientation="horizontal"
+             android:paddingBottom="10dp"
+             android:paddingStart="12dp"
+             android:id="@+id/diagnostic_header_row"
+             android:paddingTop="10dp">
+
+            <View
+                 android:layout_height="10dp"
+                 android:layout_width="10dp"
+                 android:layout_marginEnd="10dp"
+                 android:id="@+id/diagnostic_severity_dot" />
+
+            <TextView
+                 android:layout_height="wrap_content"
+                 android:layout_width="0dp"
+                 android:textSize="13sp"
+                 android:layout_weight="1"
+                 android:id="@+id/diagnostic_message_text" />
+
+            <TextView
+                 android:layout_height="wrap_content"
+                 android:layout_width="wrap_content"
+                 android:background="?attr/selectableItemBackgroundBorderless"
+                 android:padding="6dp"
+                 android:textSize="11sp"
+                 android:textAllCaps="false"
+                 android:layout_marginStart="8dp"
+                 android:id="@+id/diagnostic_copy_button" />
+
+        </LinearLayout>
+
+        <View
+             android:layout_height="1dp"
+             android:layout_width="match_parent"
+             android:id="@+id/diagnostic_divider" />
+
+        <LinearLayout
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:paddingEnd="12dp"
+             android:gravity="center_vertical"
+             android:orientation="horizontal"
+             android:paddingBottom="2dp"
+             android:paddingStart="12dp"
+             android:id="@+id/quick_fixes_header_row"
+             android:paddingTop="8dp">
+
+            <TextView
+                 android:layout_height="wrap_content"
+                 android:layout_width="0dp"
+                 android:textSize="12sp"
+                 android:layout_weight="1"
+                 android:id="@+id/quick_fixes_label"
+                 android:textStyle="bold" />
+
+            <ProgressBar
+                 android:layout_height="16dp"
+                 android:layout_width="16dp"
+                 android:visibility="gone"
+                 style="?android:attr/progressBarStyleSmall"
+                 android:id="@+id/quick_fixes_progress" />
+
+        </LinearLayout>
+
+        <TextView
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:visibility="gone"
+             android:paddingEnd="12dp"
+             android:paddingBottom="10dp"
+             android:textSize="12sp"
+             android:paddingStart="12dp"
+             android:id="@+id/quick_fixes_empty_text" />
+
+        <LinearLayout
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:orientation="vertical"
+             android:paddingBottom="6dp"
+             android:id="@+id/quick_fixes_list">
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

@@ -166,24 +166,43 @@ public class JavaServer {
       String projectRoot,
       String guestBasePath) {
 
-    File dataDir = new File(context.getCacheDir(), "jdtls-workspace/" + sanitize(projectRoot));
+    String workspaceId = sanitize(projectRoot);
+
+    File dataDir = new File(context.getCacheDir(), "jdtls-workspace/" + workspaceId);
     dataDir.mkdirs();
 
+    File configurationDir = new File(context.getCacheDir(), "jdtls-config/" + workspaceId);
+    configurationDir.mkdirs();
+
+    String sharedConfigPath = guestBasePath + "/" + configDirName;
+
     List<String> args = new ArrayList<>();
+    args.add("-Djdk.lang.Process.launchMechanism=FORK");
+    args.add("-Djdk.xml.maxGeneralEntitySizeLimit=0");
+    args.add("-Djdk.xml.totalEntitySizeLimit=0");
     args.add("-Declipse.application=org.eclipse.jdt.ls.core.id1");
     args.add("-Dosgi.bundles.defaultStartLevel=4");
     args.add("-Declipse.product=org.eclipse.jdt.ls.core.product");
-    args.add("-Dlog.level=ALL");
+    args.add("-Dlog.level=WARNING");
+    args.add("-Xms256m");
     args.add("-Xmx1G");
+    args.add("-XX:+UseG1GC");
+    args.add("-XX:+TieredCompilation");
+    args.add("-XX:TieredStopAtLevel=1");
+    args.add("-Dorg.eclipse.jdt.ls.lombok.support=false");
     args.add("--add-modules=ALL-SYSTEM");
     args.add("--add-opens");
     args.add("java.base/java.util=ALL-UNNAMED");
     args.add("--add-opens");
     args.add("java.base/java.lang=ALL-UNNAMED");
+    args.add("-Dosgi.checkConfiguration=false");
+    args.add("-Dosgi.sharedConfiguration.area=" + sharedConfigPath);
+    args.add("-Dosgi.sharedConfiguration.area.readOnly=true");
+    args.add("-Dosgi.configuration.cascaded=true");
     args.add("-jar");
     args.add(guestBasePath + "/plugins/" + launcherJarName);
     args.add("-configuration");
-    args.add(guestBasePath + "/" + configDirName);
+    args.add(configurationDir.getAbsolutePath());
     args.add("-data");
     args.add(dataDir.getAbsolutePath());
 

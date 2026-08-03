@@ -32,6 +32,7 @@ import com.skydoves.powermenu.PowerMenuItem;
 import com.blankj.utilcode.util.FileIOUtils;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.lsp.editor.LspEditorStatus;
+import ir.hanzodev1375.components.colors.ColorPickerBottomSheet;
 import ir.hanzodev1375.filetreelib.widget.FileTreeView;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.model.BreadcrumbItem;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
@@ -775,11 +776,17 @@ public class EditorActivity extends BaseCompat
     var menu = theme.apply(this);
     menu.addItem(new PowerMenuItem(getString(R.string.saveitemthis), false, R.drawable.save));
     menu.addItem(new PowerMenuItem(getString(R.string.saveitemall), false, R.drawable.save));
+    menu.addItem(
+        new PowerMenuItem(getString(R.string.webcolor), false, R.drawable.outline_color_lens));
     menu.setOnMenuItemClickListener(
         (pos, c) -> {
           switch (pos) {
             case 0 -> saveCurrentTab();
             case 1 -> saveAllTabs();
+            case 2 -> {
+              var colors = new ColorPickerBottomSheet();
+              colors.show(getSupportFragmentManager(), "");
+            }
           }
         });
     menu.setIconSize(25);

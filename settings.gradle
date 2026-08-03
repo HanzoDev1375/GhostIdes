@@ -27,4 +27,7 @@ include(':aimodel')
 include(':jgit')
 include(':prddownloader')
 include ':musicpreview'
+include(':plugin-api')
+include(':ide-api')
+include(':ide-ui-api')
 //include(':proot')

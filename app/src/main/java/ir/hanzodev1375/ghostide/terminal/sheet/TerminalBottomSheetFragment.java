@@ -14,17 +14,19 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.google.android.material.color.MaterialColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.termux.terminal.TerminalSession;
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.ghostide.R;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.theme.ThemeUtils;
+import ir.theme.ThemeManager;
 import ir.hanzodev1375.ghostide.databinding.ActivityTerminalBinding;
 import ir.hanzodev1375.ghostide.terminal.DebianBootstrap;
 import ir.hanzodev1375.ghostide.terminal.DebianInstaller;
@@ -93,11 +95,13 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
   protected void onContentReady(ViewGroup contentContainer) {
     terminalBinding = ActivityTerminalBinding.inflate(getLayoutInflater(), contentContainer, false);
     contentContainer.addView(terminalBinding.getRoot());
-
+    terminalBinding.getRoot().setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
     setupTerminalView();
     setupExtraKeys();
     maybeRequestNotificationPermission();
     initializeTerminal();
+    setupBackgroundBlur();
+    setHasPeekMod(false);
   }
 
   @Override
@@ -153,6 +157,26 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
     }
   }
 
+  private void setupBackgroundBlur() {
+    var appsetting = new PreferencesUtils(getContext());
+   var themeutil = new ThemeUtils(new ThemeManager(getContext()));
+
+    if (!appsetting.isBlurMod()) {
+      return;
+    }
+
+    var theme = themeutil.getTheme();
+    if (theme == null || theme.getWidget() == null) return;
+    var widget = theme.getWidget();
+    if (widget.getImagepath() == null || widget.getImagepath().isEmpty()) return;
+
+    terminalBinding.toolbar.setBackgroundColor(Color.TRANSPARENT);
+    terminalBinding.sessionTabsRow.setBackgroundColor(Color.TRANSPARENT);
+    terminalBinding.extraKeysScroll.setBackgroundColor(Color.TRANSPARENT);
+    terminalBinding.terminalView.setBackgroundColor(Color.TRANSPARENT);
+    terminalBinding.backgroundIconTerminal.setVisibility(View.VISIBLE);
+  }
+
   private void setupTerminalView() {
     terminalBinding.terminalView.setTerminalViewClient(
         new GhostTerminalViewClient(terminalBinding.terminalView, this));
@@ -162,9 +186,7 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
     defaultKeyBackgroundColor =
         terminalBinding.keyCtrl.getBackgroundTintList() != null
             ? terminalBinding.keyCtrl.getBackgroundTintList().getDefaultColor()
-            : MaterialColors.getColor(
-                terminalBinding.keyCtrl,
-                com.google.android.material.R.attr.colorSecondaryContainer);
+            : MaterialColors.getColor(terminalBinding.keyCtrl, R.attr.colorSecondaryContainer);
     defaultKeyTextColor = terminalBinding.keyCtrl.getCurrentTextColor();
 
     terminalBinding.keyEsc.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_ESCAPE));
@@ -382,7 +404,7 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
     layout.addView(installProgressBar);
 
     installDialog =
-        new AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.terminal_install_debian))
             .setView(layout)
             .setCancelable(false)

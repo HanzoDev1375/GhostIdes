@@ -70,6 +70,8 @@ configurations.all {
 
 dependencies {
     implementation project(":editor")
+    implementation project(":ide-api")
+    implementation project(":ide-ui-api")
     implementation project(":logcat")
     implementation project(":components")
     implementation project(":jgit")

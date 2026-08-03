@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
+import io.github.rosemoe.sora.widget.component.EditorDiagnosticTooltipWindow;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.LspInitParamsHook;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorTextActionWindow;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.event.ScrollEvent;
@@ -26,6 +28,7 @@ import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.codeeditors.stringres.StringResourceExtractorIde;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorAutoCompletion;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorCompletionAdapter;
+import ir.hanzodev1375.ghostide.codeeditors.ui.GhostDiagnosticTooltipLayout;
 import ir.hanzodev1375.ghostide.codeeditors.ui.power.PowerModeEffectManager;
 import ir.hanzodev1375.ghostide.codeeditors.ui.power.custom.CustomEffect;
 import java.io.File;
@@ -76,7 +79,8 @@ public class IdeEditor extends CodeEditor
     replaceComponent(EditorTextActionWindow.class, new CustomEditorTextActionWindow(this));
     getComponent(EditorAutoCompletion.class)
         .setEnabledAnimation(setting.enableAutoCompleteWindowAnimation());
-
+    getComponent(EditorDiagnosticTooltipWindow.class)
+        .setLayout(new GhostDiagnosticTooltipLayout(ensureLspConnected()));
     updateEditorTabSize();
     updateEditorStickyScroll();
     updateEditorHardWareAcceleration();
@@ -185,6 +189,7 @@ public class IdeEditor extends CodeEditor
    */
   @WorkerThread
   public LspEditor ensureLspConnected() {
+    LspInitParamsHook.install();
     if (lspEditor != null && lspEditor.isConnected()) {
       return lspEditor;
     }

@@ -14,6 +14,7 @@ public class SliderSheet extends BaseSheet {
     super(context);
     binding = SliderSheetBinding.inflate(LayoutInflater.from(context));
     setContentView(binding.getRoot());
+    setHasPeekMod(false);
   }
 
   public void setButtonOk(View.OnClickListener listener, int textRes) {

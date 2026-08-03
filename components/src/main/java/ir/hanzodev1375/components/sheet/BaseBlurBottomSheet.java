@@ -18,6 +18,7 @@ import ir.hanzodev1375.components.databinding.BaseBlurBottomSheetBinding;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import jp.wasabeef.blurry.Blurry;
 
+/** root has LinearLayout pls adding call contentContainer.addView(#View,ViewGroup.LayoutParam) */
 public abstract class BaseBlurBottomSheet extends BottomSheetDialogFragment {
 
   protected BaseBlurBottomSheetBinding binding;
@@ -60,24 +61,14 @@ public abstract class BaseBlurBottomSheet extends BottomSheetDialogFragment {
   }
 
   private void expandSheet() {
-    View bottomSheet =
-        requireDialog().findViewById(com.google.android.material.R.id.design_bottom_sheet);
+    View bottomSheet = requireDialog().findViewById(R.id.design_bottom_sheet);
     if (bottomSheet != null) {
       BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
       behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
       behavior.setSkipCollapsed(true);
+
       bottomSheet.post(
           () -> {
-            if (hasPeekMod) {
-              hasPeekMod = true;
-              behavior.setPeekHeight(SizeUtils.dp2px(300));
-              behavior.setFitToContents(false);
-              behavior.setHideable(false);
-            } else {
-              hasPeekMod = false;
-              Log.e("Peek", "Peek Has off");
-            }
-
             if (app.isBlurMod()) {
               bottomSheet.setBackgroundColor(Color.TRANSPARENT);
               View decorView =

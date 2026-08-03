@@ -19,6 +19,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.components.views.SegmentedAvatarView;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.jgit.R;
@@ -30,7 +31,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GitBottomSheetFragment extends BottomSheetDialogFragment {
+public class GitBottomSheetFragment extends BaseBlurBottomSheet {
 
   private GitViewModel viewModel;
   private LinearProgressIndicator progressBar;
@@ -59,21 +60,15 @@ public class GitBottomSheetFragment extends BottomSheetDialogFragment {
     }
   }
 
-  @Nullable
   @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-
-    return inflater.inflate(R.layout.bottom_sheet_git, container, false);
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  protected void onContentReady(ViewGroup contentContainer) {
+    View view = getLayoutInflater().inflate(R.layout.bottom_sheet_git, contentContainer, false);
+    contentContainer.addView(
+        view,
+        new ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     viewModel = new ViewModelProvider(requireActivity()).get(GitViewModel.class);
-
+    setHasPeekMod(false);
     progressBar = view.findViewById(R.id.progressBar);
     setupHeader(view);
 

@@ -163,6 +163,11 @@
             android:exported="false"
             android:launchMode="singleTop" />
 
+        <activity
+            android:name=".activity.PluginScreenActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <activity android:name=".activity.ErrorManagerActivity" />
         <activity android:name=".activity.WebViewActivity" />
         <activity
