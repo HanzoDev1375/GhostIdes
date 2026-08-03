@@ -41,7 +41,7 @@ public final class LspExtensionBridge {
         workingDir -> toStreamConnectionProvider(definition, request),
         definition.getDisplayName(),
         definition.getExpectedCapabilities(),
-        definition.getInitializationOptions());
+        null);
   }
 
   private static StreamConnectionProvider toStreamConnectionProvider(
