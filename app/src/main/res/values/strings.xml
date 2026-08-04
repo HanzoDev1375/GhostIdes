@@ -419,6 +419,14 @@
     <string name="menu_settings">Settings</string>
     <string name="menu_clear_all">Clear all</string>
     <string name="postman_title">Post man</string>
+    <string name="plugin_manager_title">Plugin Manager</string>
+    <string name="plugin_manager_empty">No plugins installed yet. Tap + to install a .gpl file.</string>
+    <string name="plugin_manager_search_hint">Search plugins</string>
+    <string name="plugin_manager_uninstall">Uninstall</string>
+    <string name="plugin_manager_uninstalled_toast">Uninstalled %1$s</string>
+    <string name="plugin_manager_install_error">Could not install plugin: %1$s</string>
+    <string name="plugin_manager_installed_toast">Installed %1$s</string>
+    <string name="plugin_manager_not_gpl_file">Please choose a .gpl plugin file</string>
     <string name="terminal_error_cannot_create_etc_dir">Cannot create etc directory: %1$s</string>
 
     <string name="terminal_error_resolve_rootfs_failed">Failed to find latest rootfs for %1$s architecture: %2$s</string>

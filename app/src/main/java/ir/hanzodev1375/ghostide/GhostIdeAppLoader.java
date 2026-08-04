@@ -13,6 +13,8 @@ import android.util.Log;
 import com.downloader.PRDownloader;
 import ir.hanzodev1375.ghostide.activity.ErrorManagerActivity;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.ghostide.plugin.gpl.GplInstalledPlugins;
+import ir.hanzodev1375.ghostide.plugin.gpl.GplPluginLoader;
 import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
 import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
 import java.util.Calendar;
@@ -40,6 +42,7 @@ public class GhostIdeAppLoader extends Application {
     ShizukuManager.registerListeners();
     ThemeEngine.applyToActivities(this);
     PRDownloader.initialize(getApplicationContext());
+    GplInstalledPlugins.loadAll(this, GplPluginLoader.getInstance(this));
 
     Thread.setDefaultUncaughtExceptionHandler(
         new Thread.UncaughtExceptionHandler() {

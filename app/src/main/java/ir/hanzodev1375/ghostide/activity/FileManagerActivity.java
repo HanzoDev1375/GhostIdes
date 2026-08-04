@@ -68,7 +68,11 @@ import ir.hanzodev1375.ghostide.history.HistoryBottomSheet;
 import ir.hanzodev1375.ghostide.history.HistoryViewModel;
 
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.FileViewModel;
+import ir.hanzodev1375.ghostide.activity.pluginmanager.FileManagerHostAdapter;
+import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
+import ir.hanzodev1375.ghostide.plugin.api.Disposable;
+import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
 import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
 import androidx.core.content.FileProvider;
 import ir.hanzodev1375.ghostide.terminal.activity.TerminalActivity;
@@ -105,6 +109,7 @@ public class FileManagerActivity extends BaseCompat
 
   private ActivityFilemanagerBinding bind;
   private FileViewModel viewModel;
+  private Disposable fileManagerHostRegistration;
   private FileManagerAdapter adapter;
   private ZipBrowserAdapter zipAdapter;
   private View selectionPanel;
@@ -223,6 +228,9 @@ public class FileManagerActivity extends BaseCompat
             100);
 
     viewModel = new ViewModelProvider(this).get(FileViewModel.class);
+    fileManagerHostRegistration =
+        GlobalRegistry.services()
+            .register(IdeHostServices.FILE_MANAGER_HOST, new FileManagerHostAdapter(this));
     historyViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
     bookmarkViewModel = new ViewModelProvider(this).get(BookmarkViewModel.class);
     gitViewModel = new ViewModelProvider(this).get(GitViewModel.class);
@@ -757,7 +765,15 @@ public class FileManagerActivity extends BaseCompat
     return screenHeight - fabBottom;
   }
 
-  void setupClick(String path, String name) {
+  public String getCurrentDirectoryPath() {
+    return viewModel.getCurrentPath().getValue();
+  }
+
+  public void refreshCurrentDirectory() {
+    viewModel.loadFiles(viewModel.getCurrentPath().getValue());
+  }
+
+  public void setupClick(String path, String name) {
     int lastDot = name.lastIndexOf(".");
     String extension = (lastDot > 0) ? name.substring(lastDot).toLowerCase() : "";
     if (itemname.contains(extension)) {
@@ -1108,6 +1124,10 @@ public class FileManagerActivity extends BaseCompat
     this.unregisterReceiver(networkChangeReceiver);
     gitStatusExecutor.shutdownNow();
     ftpExecutor.shutdownNow();
+    if (fileManagerHostRegistration != null) {
+      fileManagerHostRegistration.dispose();
+      fileManagerHostRegistration = null;
+    }
   }
 
   private void setOnBackPress() {
@@ -1471,6 +1491,7 @@ public class FileManagerActivity extends BaseCompat
     menu.addItem(new PowerMenuItem(getString(R.string.translator_title)));
     menu.addItem(new PowerMenuItem(getString(R.string.terminal_title)));
     menu.addItem(new PowerMenuItem(getString(R.string.postman_title)));
+    menu.addItem(new PowerMenuItem(getString(R.string.plugin_manager_title)));
     menu.setAutoDismiss(true);
     menu.setShowBackground(false);
     menu.setAnimation(MenuAnimation.FADE);
@@ -1530,6 +1551,7 @@ public class FileManagerActivity extends BaseCompat
                 .show(getSupportFragmentManager(), StringsTranslatorSheet.TAG);
             case 11 -> startActivity(new Intent(FileManagerActivity.this, TerminalActivity.class));
             case 12 -> startActivity(new Intent(FileManagerActivity.this, PostManActivity.class));
+            case 13 -> startActivity(new Intent(FileManagerActivity.this, PluginManagerActivity.class));
           }
         });
     menu.showAsDropDown(bind.btnSettings);

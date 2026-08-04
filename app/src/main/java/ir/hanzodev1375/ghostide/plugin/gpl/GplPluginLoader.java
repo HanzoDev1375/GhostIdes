@@ -23,11 +23,29 @@ import ir.hanzodev1375.ghostide.plugin.api.PluginDescriptor;
  */
 public final class GplPluginLoader {
 
+  private static volatile GplPluginLoader instance;
+
   private final Context appContext;
   private final Map<String, LoadedGplPlugin> loaded = new HashMap<>();
 
   public GplPluginLoader(Context appContext) {
     this.appContext = appContext.getApplicationContext();
+  }
+
+  /**
+   * Shared instance for the whole process. The app-startup scan and the Plugin Manager screen
+   * must use this rather than their own instance, or each would think the other's plugins were
+   * never loaded and try to activate them a second time.
+   */
+  public static GplPluginLoader getInstance(Context context) {
+    if (instance == null) {
+      synchronized (GplPluginLoader.class) {
+        if (instance == null) {
+          instance = new GplPluginLoader(context);
+        }
+      }
+    }
+    return instance;
   }
 
   public synchronized LoadedGplPlugin load(File gplFile) throws IOException, ReflectiveOperationException {

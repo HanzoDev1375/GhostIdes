@@ -7,7 +7,6 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import ir.hanzodev1375.ghostide.R;
@@ -19,7 +18,7 @@ import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
  * Hosts one {@link PluginScreen} at a time, chosen by {@link #EXTRA_SCREEN_ID}. This is the only
  * Activity a plugin's screen ever runs inside; the plugin itself never declares one.
  */
-public class PluginScreenActivity extends AppCompatActivity {
+public class PluginScreenActivity extends BaseCompat {
 
   public static final String EXTRA_SCREEN_ID = "ir.hanzodev1375.ghostide.extra.PLUGIN_SCREEN_ID";
 

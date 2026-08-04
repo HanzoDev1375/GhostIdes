@@ -406,6 +406,14 @@
   <string name="menu_settings">تنظیمات</string>
   <string name="menu_clear_all">پاک کردن همه</string>
   <string name="postman_title">مرد پست</string>
+  <string name="plugin_manager_title">مدیریت پلاگین‌ها</string>
+  <string name="plugin_manager_empty">هنوز پلاگینی نصب نشده. برای نصب فایل .gpl روی + بزنید.</string>
+  <string name="plugin_manager_search_hint">جستجوی پلاگین</string>
+  <string name="plugin_manager_uninstall">حذف نصب</string>
+  <string name="plugin_manager_uninstalled_toast">%1$s حذف شد</string>
+  <string name="plugin_manager_install_error">نصب پلاگین انجام نشد: %1$s</string>
+  <string name="plugin_manager_installed_toast">%1$s نصب شد</string>
+  <string name="plugin_manager_not_gpl_file">لطفاً یک فایل پلاگین با پسوند .gpl انتخاب کنید</string>
   <string name="terminal_error_cannot_create_etc_dir">نمی توان دایرکتوری غیره ایجاد کرد: %1$s</string>
   <string name="terminal_error_resolve_rootfs_failed">یافتن آخرین rootf ها برای معماری %1$s انجام نشد: %2$s</string>
   <string name="terminal_error_http_status">HTTP %1$d از %2$s</string>

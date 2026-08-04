@@ -20,6 +20,7 @@ import io.github.rosemoe.sora.lsp.client.languageserver.requestmanager.RequestMa
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.model.BreadcrumbItem;
+import ir.hanzodev1375.ghostide.ide.api.LspServerProvider;
 
 public final class LspRouter {
   private static final String TAG = "LspRouter";
@@ -64,11 +65,14 @@ public final class LspRouter {
   }
 
   public static boolean isSupportedFile(String filePath) {
+    if (LspExtensionBridge.findProviderForFile(filePath) != null) return true;
     return langOf(filePath) != Lang.NONE;
   }
 
   public static boolean isInstalled(Context context, String filePath) {
     if (context == null || filePath == null) return false;
+
+    if (LspExtensionBridge.findProviderForFile(filePath) != null) return true;
 
     switch (langOf(filePath)) {
       case PYTHON:
@@ -109,6 +113,12 @@ public final class LspRouter {
     if (context == null || filePath == null || editor == null) return null;
     try {
       LspHoverHighlighter.install(context, editor);
+
+      LspServerProvider provider = LspExtensionBridge.findProvider(projectRoot, filePath);
+      if (provider != null) {
+        return LspExtensionBridge.connectFile(context, provider, projectRoot, filePath, editor);
+      }
+
       switch (langOf(filePath)) {
         case PYTHON:
           return PylspServer.connectFile(context, projectRoot, filePath, editor);

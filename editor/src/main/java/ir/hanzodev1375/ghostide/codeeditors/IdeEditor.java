@@ -79,8 +79,7 @@ public class IdeEditor extends CodeEditor
     replaceComponent(EditorTextActionWindow.class, new CustomEditorTextActionWindow(this));
     getComponent(EditorAutoCompletion.class)
         .setEnabledAnimation(setting.enableAutoCompleteWindowAnimation());
-    getComponent(EditorDiagnosticTooltipWindow.class)
-        .setLayout(new GhostDiagnosticTooltipLayout(ensureLspConnected()));
+    getComponent(EditorDiagnosticTooltipWindow.class).setLayout(new GhostDiagnosticTooltipLayout());
     updateEditorTabSize();
     updateEditorStickyScroll();
     updateEditorHardWareAcceleration();

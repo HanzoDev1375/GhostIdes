@@ -66,7 +66,11 @@ import ir.hanzodev1375.ghostide.databinding.ActivityEditorBinding;
 import ir.hanzodev1375.ghostide.fragments.EditorFragment;
 import ir.hanzodev1375.ghostide.models.TabModel;
 import ir.hanzodev1375.ghostide.models.ToolbarModel;
+import ir.hanzodev1375.ghostide.activity.pluginmanager.EditorHostAdapter;
+import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
+import ir.hanzodev1375.ghostide.plugin.api.Disposable;
+import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import android.view.ViewTreeObserver;
@@ -110,6 +114,7 @@ public class EditorActivity extends BaseCompat
   private static final long LSP_STATUS_POLL_INTERVAL_MS = 1500;
   private final Handler lspStatusHandler = new Handler(Looper.getMainLooper());
   private BreadcrumbAdapter breadcrumbAdapter;
+  private Disposable editorHostRegistration;
   private final Runnable lspStatusPollRunnable =
       new Runnable() {
         @Override
@@ -167,6 +172,9 @@ public class EditorActivity extends BaseCompat
     PluginManager.init(this);
     String configPath = Environment.getExternalStorageDirectory() + "/GhostIDE/plugins/config.json";
     PluginManager.getInstance().loadPluginsFromConfig(configPath);
+    editorHostRegistration =
+        GlobalRegistry.services()
+            .register(IdeHostServices.EDITOR_HOST, new EditorHostAdapter(this));
     ThemeManager manager = new ThemeManager(this);
     theme = new ThemeUtils(manager);
     theme.applyActivity(this);
@@ -390,6 +398,10 @@ public class EditorActivity extends BaseCompat
       symbolBarVisibilityListener = null;
     }
     gitStatusExecutor.shutdownNow();
+    if (editorHostRegistration != null) {
+      editorHostRegistration.dispose();
+      editorHostRegistration = null;
+    }
   }
 
   @Override
@@ -516,7 +528,7 @@ public class EditorActivity extends BaseCompat
     openFile(filePath, file.getName());
   }
 
-  private void openFile(String filePath) {
+  public void openFile(String filePath) {
     File file = new File(filePath);
     if (!file.exists()) return;
     openFile(filePath, file.getName());
@@ -1112,7 +1124,7 @@ public class EditorActivity extends BaseCompat
     }
   }
 
-  private String getCurrentFilePath() {
+  public String getCurrentFilePath() {
     if (activePane != null) {
       return activePane.getCurrentFilePath();
     }
@@ -1209,7 +1221,7 @@ public class EditorActivity extends BaseCompat
     }
   }
 
-  private IdeEditor getEditor() {
+  public IdeEditor getEditor() {
     if (activePane != null) {
       return activePane.getEditor();
     }

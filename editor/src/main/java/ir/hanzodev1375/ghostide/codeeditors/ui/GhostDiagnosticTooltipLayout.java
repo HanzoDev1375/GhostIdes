@@ -4,8 +4,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,8 +43,6 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
 
   private static final String TAG = "GhostDiagnosticTooltip";
 
-  private final LspEditor lspEditor;
-
   private EditorDiagnosticTooltipWindow window;
   private IdeEditor editor;
   private View root;
@@ -59,10 +57,8 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
 
   private final AtomicInteger requestGeneration = new AtomicInteger(0);
   private DiagnosticDetail currentDiagnostic;
-
-  public GhostDiagnosticTooltipLayout(LspEditor lspEditor) {
-    this.lspEditor = lspEditor;
-  }
+  private List<Either<Command, CodeAction>> currentActions = new ArrayList<>();
+  private boolean menuShowing = false;
 
   @Override
   public void attach(EditorDiagnosticTooltipWindow window) {
@@ -80,11 +76,12 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
     copyButton.setText(android.R.string.copy);
     copyButton.setOnClickListener(v -> copyMessage());
     quickFixesLabel = root.findViewById(R.id.quick_fixes_label);
-    quickFixesLabel.setText(R.string.code_action);
+    quickFixesLabel.setOnClickListener(v -> showQuickFixesMenu());
     quickFixesProgress = root.findViewById(R.id.quick_fixes_progress);
     quickFixesEmptyText = root.findViewById(R.id.quick_fixes_empty_text);
     quickFixesEmptyText.setText(R.string.lsp_code_action_not_found);
     quickFixesList = root.findViewById(R.id.quick_fixes_list);
+    quickFixesList.setVisibility(View.GONE);
     applyColorScheme(editor.getColorScheme());
     return root;
   }
@@ -133,12 +130,13 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
     setSeverityColor(region == null ? DiagnosticRegion.SEVERITY_NONE : region.severity);
 
     Object extraData = diagnostic.getExtraData();
+    LspEditor lspEditor = editor.getLspEditor();
     if (!(extraData instanceof Diagnostic) || lspEditor == null || !lspEditor.isConnected()) {
       showQuickFixesHidden();
       return;
     }
 
-    loadQuickFixes((Diagnostic) extraData, generation);
+    loadQuickFixes(lspEditor, (Diagnostic) extraData, generation);
   }
 
   @Override
@@ -153,17 +151,18 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
 
   @Override
   public boolean isPointerOverPopup() {
-    return false;
+    return menuShowing;
   }
 
   @Override
   public boolean isMenuShowing() {
-    return false;
+    return menuShowing;
   }
 
   @Override
   public void onWindowDismissed() {
     requestGeneration.incrementAndGet();
+    menuShowing = false;
   }
 
   private void setSeverityColor(short severity) {
@@ -191,18 +190,18 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
   private void showQuickFixesHidden() {
     quickFixesProgress.setVisibility(View.GONE);
     quickFixesEmptyText.setVisibility(View.GONE);
-    quickFixesList.setVisibility(View.GONE);
-    quickFixesList.removeAllViews();
+    quickFixesLabel.setVisibility(View.GONE);
+    currentActions = new ArrayList<>();
   }
 
   private void showQuickFixesLoading() {
     quickFixesProgress.setVisibility(View.VISIBLE);
     quickFixesEmptyText.setVisibility(View.GONE);
-    quickFixesList.setVisibility(View.GONE);
-    quickFixesList.removeAllViews();
+    quickFixesLabel.setVisibility(View.GONE);
+    currentActions = new ArrayList<>();
   }
 
-  private void loadQuickFixes(Diagnostic diagnostic, int generation) {
+  private void loadQuickFixes(LspEditor lspEditor, Diagnostic diagnostic, int generation) {
     showQuickFixesLoading();
     new Thread(
             () -> {
@@ -252,65 +251,70 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
           return Boolean.compare(preferredB, preferredA);
         });
 
+    currentActions = items;
     quickFixesProgress.setVisibility(View.GONE);
-    quickFixesList.removeAllViews();
 
     if (items.isEmpty()) {
+      quickFixesLabel.setVisibility(View.GONE);
       quickFixesEmptyText.setVisibility(View.VISIBLE);
-      quickFixesList.setVisibility(View.GONE);
+      if (window != null) window.getParentView().requestLayout();
       return;
     }
 
     quickFixesEmptyText.setVisibility(View.GONE);
-    quickFixesList.setVisibility(View.VISIBLE);
-    EditorColorScheme scheme = editor.getColorScheme();
-    int textColor = scheme.getColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY);
-    for (Either<Command, CodeAction> action : items) {
-      TextView row = new TextView(root.getContext());
-      String title = action.isLeft() ? action.getLeft().getTitle() : action.getRight().getTitle();
-      row.setText(title == null || title.isEmpty() ? "action" : title);
-      row.setTextColor(textColor);
-      row.setTextSize(13);
-      float density = root.getContext().getResources().getDisplayMetrics().density;
-      int hPad = (int) (density * 12);
-      int vPad = (int) (density * 8);
-      row.setPadding(hPad, vPad, hPad, vPad);
-      row.setBackground(
-          root.getContext()
-              .obtainStyledAttributes(new int[] {android.R.attr.selectableItemBackground})
-              .getDrawable(0));
-      row.setLayoutParams(
-          new LinearLayout.LayoutParams(
-              ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-      row.setOnClickListener(v -> applyAction(action));
-      quickFixesList.addView(row);
-    }
+    quickFixesLabel.setVisibility(View.VISIBLE);
+    quickFixesLabel.setText(
+        editor.getContext().getString(R.string.code_action) + " (" + items.size() + ")");
     if (window != null) {
       window.getParentView().requestLayout();
     }
   }
 
+  private void showQuickFixesMenu() {
+    if (currentActions.isEmpty()) return;
+    PopupMenu popupMenu = new PopupMenu(root.getContext(), quickFixesLabel);
+    for (int i = 0; i < currentActions.size(); i++) {
+      Either<Command, CodeAction> action = currentActions.get(i);
+      String title = action.isLeft() ? action.getLeft().getTitle() : action.getRight().getTitle();
+      popupMenu.getMenu().add(0, i, i, title == null || title.isEmpty() ? "action" : title);
+    }
+    popupMenu.setOnMenuItemClickListener(
+        item -> {
+          int index = item.getItemId();
+          if (index >= 0 && index < currentActions.size()) {
+            applyAction(currentActions.get(index));
+          }
+          return true;
+        });
+    popupMenu.setOnDismissListener(menu -> menuShowing = false);
+    menuShowing = true;
+    popupMenu.show();
+  }
+
   private void applyAction(Either<Command, CodeAction> action) {
     if (window != null) window.dismiss();
+    LspEditor lspEditor = editor.getLspEditor();
+    if (lspEditor == null) return;
     if (action.isLeft()) {
-      new Thread(() -> executeCommand(action.getLeft()), "GhostIDE-LspAction").start();
+      new Thread(() -> executeCommand(lspEditor, action.getLeft()), "GhostIDE-LspAction").start();
       return;
     }
     CodeAction codeAction = action.getRight();
     String uri = LspUriBridge.uri(lspEditor).toString();
     if (codeAction.getEdit() == null && codeAction.getCommand() == null) {
-      new Thread(() -> resolveAndApply(codeAction, uri), "GhostIDE-LspAction").start();
+      new Thread(() -> resolveAndApply(lspEditor, codeAction, uri), "GhostIDE-LspAction").start();
       return;
     }
     if (codeAction.getEdit() != null) {
       applyWorkspaceEdit(codeAction.getEdit(), uri);
     }
     if (codeAction.getCommand() != null) {
-      new Thread(() -> executeCommand(codeAction.getCommand()), "GhostIDE-LspAction").start();
+      new Thread(() -> executeCommand(lspEditor, codeAction.getCommand()), "GhostIDE-LspAction")
+          .start();
     }
   }
 
-  private void resolveAndApply(CodeAction action, String uri) {
+  private void resolveAndApply(LspEditor lspEditor, CodeAction action, String uri) {
     CodeAction resolved = null;
     for (var manager : lspEditor.getRequestManagers()) {
       if (!(manager instanceof DefaultRequestManager)) continue;
@@ -329,7 +333,7 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
       applyWorkspaceEdit(resolved.getEdit(), uri);
     }
     if (resolved.getCommand() != null) {
-      executeCommand(resolved.getCommand());
+      executeCommand(lspEditor, resolved.getCommand());
     }
   }
 
@@ -379,7 +383,8 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
           }
         });
   }
-  private void executeCommand(Command command) {
+
+  private void executeCommand(LspEditor lspEditor, Command command) {
     var requestManager = lspEditor.getRequestManager();
     if (requestManager == null || command == null) return;
     try {
@@ -398,5 +403,5 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
   private void copyMessage() {
     CharSequence text = messageText.getText();
     ClipboardUtils.copyText(text);
-  }
+  } 
 }
