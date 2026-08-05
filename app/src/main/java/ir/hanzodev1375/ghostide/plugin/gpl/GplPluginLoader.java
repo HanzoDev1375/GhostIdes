@@ -1,13 +1,25 @@
 package ir.hanzodev1375.ghostide.plugin.gpl;
 
 import android.content.Context;
+import android.os.Build;
+import android.util.Log;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import dalvik.system.DexClassLoader;
+import dalvik.system.InMemoryDexClassLoader;
 
 import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
 import ir.hanzodev1375.ghostide.plugin.api.GhostPlugin;
@@ -15,14 +27,9 @@ import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
 import ir.hanzodev1375.ghostide.plugin.api.MutableServiceRegistry;
 import ir.hanzodev1375.ghostide.plugin.api.PluginDescriptor;
 
-/**
- * Loads a {@code .gpl} package: reads {@code assets/plugin.json}, opens a {@link
- * DexClassLoader} on the package itself, instantiates the declared entry class through {@link
- * GhostPlugin}, and calls {@link GhostPlugin#activate}. One instance tracks every plugin it has
- * loaded so the same id is never activated twice and so {@link #unload} can reverse everything.
- */
 public final class GplPluginLoader {
 
+  private static final String TAG = "GplPluginLoader";
   private static volatile GplPluginLoader instance;
 
   private final Context appContext;
@@ -32,11 +39,6 @@ public final class GplPluginLoader {
     this.appContext = appContext.getApplicationContext();
   }
 
-  /**
-   * Shared instance for the whole process. The app-startup scan and the Plugin Manager screen
-   * must use this rather than their own instance, or each would think the other's plugins were
-   * never loaded and try to activate them a second time.
-   */
   public static GplPluginLoader getInstance(Context context) {
     if (instance == null) {
       synchronized (GplPluginLoader.class) {
@@ -48,23 +50,39 @@ public final class GplPluginLoader {
     return instance;
   }
 
-  public synchronized LoadedGplPlugin load(File gplFile) throws IOException, ReflectiveOperationException {
+  public synchronized LoadedGplPlugin load(File gplFile)
+      throws IOException, ReflectiveOperationException {
     GplManifest manifest = GplManifestReader.read(gplFile);
     LoadedGplPlugin existing = loaded.get(manifest.id());
     if (existing != null) {
       return existing;
     }
 
-    File optDir = new File(appContext.getCodeCacheDir(), "gpl/" + manifest.id());
-    if (!optDir.exists() && !optDir.mkdirs()) {
-      throw new IOException("Could not create dex cache dir " + optDir);
+    ClassLoader classLoader;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+      ByteBuffer[] dexBuffers = readDexBuffers(gplFile);
+      Log.d(
+          TAG,
+          "Loading " + manifest.id() + " from " + dexBuffers.length + " in-memory dex buffer(s)");
+      classLoader =
+          new InMemoryDexClassLoader(
+              dexBuffers,
+              appContext.getApplicationInfo().nativeLibraryDir,
+              appContext.getClassLoader());
+    } else {
+      File optDir = new File(appContext.getCodeCacheDir(), "gpl/" + manifest.id());
+      if (!optDir.exists() && !optDir.mkdirs()) {
+        throw new IOException("Could not create dex cache dir " + optDir);
+      }
+      String dexPath = extractDexFiles(gplFile, optDir);
+      Log.d(TAG, "Loading " + manifest.id() + " from dex files: " + dexPath);
+      classLoader =
+          new DexClassLoader(
+              dexPath,
+              optDir.getAbsolutePath(),
+              appContext.getApplicationInfo().nativeLibraryDir,
+              appContext.getClassLoader());
     }
-    DexClassLoader classLoader =
-        new DexClassLoader(
-            gplFile.getAbsolutePath(),
-            optDir.getAbsolutePath(),
-            appContext.getApplicationInfo().nativeLibraryDir,
-            appContext.getClassLoader());
 
     Context pluginAndroidContext = GplPluginContextWrapper.create(appContext, gplFile, classLoader);
 
@@ -76,7 +94,8 @@ public final class GplPluginLoader {
     }
 
     PluginDescriptor descriptor =
-        PluginDescriptor.builder(manifest.id(), manifest.name(), manifest.version(), manifest.entryClass())
+        PluginDescriptor.builder(
+                manifest.id(), manifest.name(), manifest.version(), manifest.entryClass())
             .description(manifest.description())
             .source(gplFile.getAbsolutePath())
             .build();
@@ -86,13 +105,80 @@ public final class GplPluginLoader {
 
     DefaultPluginContext pluginContext =
         new DefaultPluginContext(
-            descriptor, GlobalRegistry.extensions(), pluginServices, new AndroidPluginLogger(manifest.id()));
+            descriptor,
+            GlobalRegistry.extensions(),
+            pluginServices,
+            new AndroidPluginLogger(manifest.id()));
 
     plugin.activate(pluginContext);
 
     LoadedGplPlugin loadedPlugin = new LoadedGplPlugin(descriptor, plugin, pluginContext);
     loaded.put(manifest.id(), loadedPlugin);
     return loadedPlugin;
+  }
+
+  private static ByteBuffer[] readDexBuffers(File gplFile) throws IOException {
+    List<ByteBuffer> buffers = new ArrayList<>();
+    try (ZipFile zip = new ZipFile(gplFile)) {
+      Enumeration<? extends ZipEntry> entries = zip.entries();
+      while (entries.hasMoreElements()) {
+        ZipEntry entry = entries.nextElement();
+        String name = entry.getName();
+        if (!name.matches("classes\\d*\\.dex")) {
+          continue;
+        }
+        try (InputStream input = zip.getInputStream(entry)) {
+          byte[] data = new byte[(int) entry.getSize()];
+          int offset = 0;
+          int read;
+          while (offset < data.length
+              && (read = input.read(data, offset, data.length - offset)) != -1) {
+            offset += read;
+          }
+          buffers.add(ByteBuffer.wrap(data));
+        }
+      }
+    }
+    if (buffers.isEmpty()) {
+      throw new IOException("No classes*.dex entries found in " + gplFile);
+    }
+    return buffers.toArray(new ByteBuffer[0]);
+  }
+
+  private static String extractDexFiles(File gplFile, File optDir) throws IOException {
+    StringBuilder dexPath = new StringBuilder();
+    try (ZipFile zip = new ZipFile(gplFile)) {
+      Enumeration<? extends ZipEntry> entries = zip.entries();
+      int count = 0;
+      while (entries.hasMoreElements()) {
+        ZipEntry entry = entries.nextElement();
+        String name = entry.getName();
+        if (!name.matches("classes\\d*\\.dex")) {
+          continue;
+        }
+        File extracted = new File(optDir, name);
+        if (extracted.exists()) {
+          extracted.delete();
+        }
+        try (InputStream input = zip.getInputStream(entry);
+            OutputStream output = new FileOutputStream(extracted)) {
+          byte[] buffer = new byte[8192];
+          int read;
+          while ((read = input.read(buffer)) != -1) {
+            output.write(buffer, 0, read);
+          }
+        }
+        if (count > 0) {
+          dexPath.append(File.pathSeparator);
+        }
+        dexPath.append(extracted.getAbsolutePath());
+        count++;
+      }
+    }
+    if (dexPath.length() == 0) {
+      throw new IOException("No classes*.dex entries found in " + gplFile);
+    }
+    return dexPath.toString();
   }
 
   public synchronized void unload(String pluginId) {

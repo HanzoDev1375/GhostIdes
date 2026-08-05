@@ -20,5 +20,6 @@ android {
 
 dependencies {
     api project(':plugin-api')
+    api project(':ide-api')
     implementation libs.androidx.appcompat
 }

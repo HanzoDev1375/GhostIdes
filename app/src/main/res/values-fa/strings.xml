@@ -414,6 +414,7 @@
   <string name="plugin_manager_install_error">نصب پلاگین انجام نشد: %1$s</string>
   <string name="plugin_manager_installed_toast">%1$s نصب شد</string>
   <string name="plugin_manager_not_gpl_file">لطفاً یک فایل پلاگین با پسوند .gpl انتخاب کنید</string>
+  <string name="plugin_manager_run_setup">اجرا در ترمینال</string>
   <string name="terminal_error_cannot_create_etc_dir">نمی توان دایرکتوری غیره ایجاد کرد: %1$s</string>
   <string name="terminal_error_resolve_rootfs_failed">یافتن آخرین rootf ها برای معماری %1$s انجام نشد: %2$s</string>
   <string name="terminal_error_http_status">HTTP %1$d از %2$s</string>

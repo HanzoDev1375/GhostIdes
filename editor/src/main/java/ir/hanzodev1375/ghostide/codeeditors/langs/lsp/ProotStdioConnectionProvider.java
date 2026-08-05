@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
+import ir.hanzodev1375.ghostide.ide.api.LspServerConnection;
 
 /**
  * یک StreamConnectionProvider عمومی و قابل استفاده ی مجدد برای هر Language Server (clangd، jdtls،
@@ -29,15 +30,18 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
  *       stdout با هر بایت اضافه خراب می شه. stderr جدا و فقط برای لاگ خونده می شه.
  * </ul>
  *
- * این کلاس هیچ فرضی درباره ی زبان خاصی نداره؛ مسیر باینری و آرگومان ها از بیرون داده می شن.
+ * این کلاس هیچ فرضی درباره ی زبان خاصی نداره؛ مسیر باینری و آرگومان ها از بیرون داده می شن. هم
+ * {@link StreamConnectionProvider} سورا-ادیتور رو پیاده می کنه (برای زبان های built-in) هم {@link
+ * LspServerConnection} عمومی رو (برای هر پلاگینی که از {@code ProotProcessLauncher} استفاده کنه) —
+ * چون امضای متدهاشون کاملاً یکیه، یه کلاس هردوتا رو پوشش می ده.
  */
-public class ProotStdioConnectionProvider implements StreamConnectionProvider {
+public class ProotStdioConnectionProvider implements StreamConnectionProvider, LspServerConnection {
 
   private static final String TAG = "ProotLSP";
 
   private final Context appContext;
-  private final String workingDir; // مسیر ریشه ی پروژه روی خود دستگاه (هم bind میشه هم -w)
-  private final String guestExecutable; // مسیر باینری داخل rootfs، مثلا "/usr/bin/clangd"
+  private final String workingDir; 
+  private final String guestExecutable; 
   private final List<String> args;
 
   private Process process;

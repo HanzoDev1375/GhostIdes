@@ -12,7 +12,10 @@ import android.os.Process;
 import android.util.Log;
 import com.downloader.PRDownloader;
 import ir.hanzodev1375.ghostide.activity.ErrorManagerActivity;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.ProotProcessLauncherImpl;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
+import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplInstalledPlugins;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplPluginLoader;
 import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
@@ -42,6 +45,8 @@ public class GhostIdeAppLoader extends Application {
     ShizukuManager.registerListeners();
     ThemeEngine.applyToActivities(this);
     PRDownloader.initialize(getApplicationContext());
+    GlobalRegistry.services()
+        .register(IdeHostServices.PROOT_PROCESS_LAUNCHER, new ProotProcessLauncherImpl(this));
     GplInstalledPlugins.loadAll(this, GplPluginLoader.getInstance(this));
 
     Thread.setDefaultUncaughtExceptionHandler(

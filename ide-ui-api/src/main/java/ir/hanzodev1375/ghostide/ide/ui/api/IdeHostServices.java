@@ -26,5 +26,8 @@ public final class IdeHostServices {
   public static final ServiceKey<Context> PLUGIN_ANDROID_CONTEXT =
       new ServiceKey<>("ir.hanzodev1375.ghostide.ui.pluginAndroidContext", Context.class);
 
+  public static final ServiceKey<ProotProcessLauncher> PROOT_PROCESS_LAUNCHER =
+      new ServiceKey<>("ir.hanzodev1375.ghostide.ui.prootProcessLauncher", ProotProcessLauncher.class);
+
   private IdeHostServices() {}
 }

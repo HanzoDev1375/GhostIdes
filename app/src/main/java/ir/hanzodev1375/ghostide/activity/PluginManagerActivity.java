@@ -1,9 +1,12 @@
 package ir.hanzodev1375.ghostide.activity;
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -28,10 +31,13 @@ import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.activity.pluginmanager.InstalledPluginAdapter;
 import ir.hanzodev1375.ghostide.activity.pluginmanager.InstalledPluginInfo;
 import ir.hanzodev1375.ghostide.databinding.ActivityPluginManagerBinding;
+import ir.hanzodev1375.ghostide.plugin.api.PluginSetupAction;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplInstalledPlugins;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplManifest;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplManifestReader;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplPluginLoader;
+import ir.hanzodev1375.ghostide.plugin.gpl.LoadedGplPlugin;
+import ir.hanzodev1375.ghostide.terminal.activity.TerminalActivity;
 
 /**
  * Lets the user browse to a {@code .gpl} file, install it, search installed plugins, and
@@ -42,6 +48,7 @@ import ir.hanzodev1375.ghostide.plugin.gpl.GplPluginLoader;
 public class PluginManagerActivity extends BaseCompat {
 
   private static final String GPL_EXTENSION = ".gpl";
+  private static final String TAG = "PluginManagerActivity";
 
   private ActivityPluginManagerBinding bind;
   private GplPluginLoader loader;
@@ -127,6 +134,7 @@ public class PluginManagerActivity extends BaseCompat {
           }
           plugins.add(new InstalledPluginInfo(file, manifest, loader.isLoaded(manifest.id())));
         } catch (IOException | ReflectiveOperationException | RuntimeException e) {
+          Log.e(TAG, "Failed to load " + file, e);
           Toast.makeText(
                   this,
                   getString(R.string.plugin_manager_install_error, file.getName()),
@@ -162,6 +170,7 @@ public class PluginManagerActivity extends BaseCompat {
     }
 
     File tempFile = new File(getCacheDir(), "incoming.gpl");
+    File cleanupOnFailure = tempFile;
     try {
       copyUriToFile(uri, tempFile);
       GplManifest manifest = GplManifestReader.read(tempFile);
@@ -169,15 +178,18 @@ public class PluginManagerActivity extends BaseCompat {
       if (!tempFile.renameTo(installedFile)) {
         throw new IOException("Could not move installed plugin into place");
       }
-      loader.load(installedFile);
+      cleanupOnFailure = installedFile;
+      LoadedGplPlugin loadedPlugin = loader.load(installedFile);
       Toast.makeText(
               this,
               getString(R.string.plugin_manager_installed_toast, manifest.name()),
               Toast.LENGTH_SHORT)
           .show();
       refreshList();
+      showSetupActionsIfAny(loadedPlugin);
     } catch (IOException | ReflectiveOperationException | RuntimeException e) {
-      tempFile.delete();
+      Log.e(TAG, "Failed to install " + uri, e);
+      cleanupOnFailure.delete();
       Toast.makeText(
               this,
               getString(
@@ -186,6 +198,35 @@ public class PluginManagerActivity extends BaseCompat {
               Toast.LENGTH_LONG)
           .show();
     }
+  }
+
+  private void showSetupActionsIfAny(LoadedGplPlugin loadedPlugin) {
+    List<PluginSetupAction> actions = loadedPlugin.getPlugin().getSetupActions();
+    if (actions.isEmpty()) {
+      return;
+    }
+    StringBuilder message = new StringBuilder();
+    StringBuilder combinedCommand = new StringBuilder();
+    for (int i = 0; i < actions.size(); i++) {
+      PluginSetupAction action = actions.get(i);
+      message.append(action.label()).append(": ").append(action.command()).append('\n');
+      if (i > 0) {
+        combinedCommand.append(" && ");
+      }
+      combinedCommand.append(action.command());
+    }
+    new AlertDialog.Builder(this)
+        .setTitle(loadedPlugin.getDescriptor().getName())
+        .setMessage(message.toString().trim())
+        .setPositiveButton(
+            R.string.plugin_manager_run_setup,
+            (dialog, which) -> {
+              Intent intent = new Intent(this, TerminalActivity.class);
+              intent.putExtra(TerminalActivity.EXTRA_COMMAND, combinedCommand.toString());
+              startActivity(intent);
+            })
+        .setNegativeButton(android.R.string.cancel, null)
+        .show();
   }
 
   private String queryDisplayName(Uri uri) {
