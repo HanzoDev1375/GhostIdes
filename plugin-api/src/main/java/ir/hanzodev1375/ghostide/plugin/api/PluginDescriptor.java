@@ -25,6 +25,7 @@ public final class PluginDescriptor {
   private final List<PluginDependency> dependencies;
   private final Set<String> capabilities;
   private final boolean enabledByDefault;
+  private String icon;
 
   private PluginDescriptor(Builder builder) {
     if (!PLUGIN_ID.matcher(builder.id).matches()) {
@@ -51,6 +52,7 @@ public final class PluginDescriptor {
     this.dependencies = List.copyOf(builder.dependencies);
     this.capabilities = Set.copyOf(builder.capabilities);
     this.enabledByDefault = builder.enabledByDefault;
+    this.icon = builder.icon;
   }
 
   public String getId() {
@@ -118,8 +120,9 @@ public final class PluginDescriptor {
     return "PluginDescriptor{id=" + id + ", version=" + version + "}";
   }
 
-  public static Builder builder(String id, String name, String version, String entryClass) {
-    return new Builder(id, name, version, entryClass);
+  public static Builder builder(
+      String id, String name, String version, String entryClass, String icon) {
+    return new Builder(id, name, version, entryClass, icon);
   }
 
   /** Builder for {@link PluginDescriptor}. */
@@ -136,12 +139,14 @@ public final class PluginDescriptor {
     private List<PluginDependency> dependencies = Collections.emptyList();
     private Set<String> capabilities = Collections.emptySet();
     private boolean enabledByDefault = true;
+    private String icon;
 
-    private Builder(String id, String name, String version, String entryClass) {
+    private Builder(String id, String name, String version, String entryClass, String icon) {
       this.id = id;
       this.name = name;
       this.version = version;
       this.entryClass = entryClass;
+      this.icon = icon;
     }
 
     public Builder description(String description) {
@@ -179,8 +184,21 @@ public final class PluginDescriptor {
       return this;
     }
 
+    public Builder icon(String icon) {
+      this.icon = icon;
+      return this;
+    }
+
     public PluginDescriptor build() {
       return new PluginDescriptor(this);
     }
+  }
+
+  public String getIcon() {
+    return this.icon;
+  }
+
+  public void setIcon(String icon) {
+    this.icon = icon;
   }
 }

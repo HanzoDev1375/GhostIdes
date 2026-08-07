@@ -46,11 +46,7 @@ public class SearchBottomSheet extends BaseBlurBottomSheet {
   @Override
   protected void onContentReady(ViewGroup contentContainer) {
     binding = BottomSheetSearchBinding.inflate(getLayoutInflater(), contentContainer, false);
-    contentContainer.addView(
-        binding.getRoot(),
-        new ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
+    contentContainer.addView(binding.getRoot());
     viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
     setupRecyclerView();
     setupSearchBar();

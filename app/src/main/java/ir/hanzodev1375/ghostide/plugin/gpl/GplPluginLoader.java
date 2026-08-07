@@ -95,7 +95,7 @@ public final class GplPluginLoader {
 
     PluginDescriptor descriptor =
         PluginDescriptor.builder(
-                manifest.id(), manifest.name(), manifest.version(), manifest.entryClass())
+                manifest.id(), manifest.name(), manifest.version(), manifest.entryClass(),manifest.icon())
             .description(manifest.description())
             .source(gplFile.getAbsolutePath())
             .build();

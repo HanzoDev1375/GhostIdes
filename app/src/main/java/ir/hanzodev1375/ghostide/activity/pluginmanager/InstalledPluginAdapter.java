@@ -1,11 +1,15 @@
 package ir.hanzodev1375.ghostide.activity.pluginmanager;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -14,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ir.hanzodev1375.ghostide.R;
+import ir.hanzodev1375.ghostide.plugin.gpl.GplManifestReader;
 
 /** Shows the currently installed plugins and lets the user filter or uninstall one. */
 public final class InstalledPluginAdapter extends RecyclerView.Adapter<InstalledPluginAdapter.ViewHolder> {
@@ -78,6 +83,14 @@ public final class InstalledPluginAdapter extends RecyclerView.Adapter<Installed
     holder.version.setText(plugin.manifest().version());
     holder.description.setText(plugin.manifest().description());
     holder.uninstall.setOnClickListener(v -> uninstallListener.onUninstall(plugin));
+
+    byte[] iconBytes = GplManifestReader.readIconBytes(plugin.file(), plugin.manifest());
+    if (iconBytes != null) {
+      Bitmap bitmap = BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.length);
+      Glide.with(holder.icon.getContext()).asBitmap().load(bitmap).centerInside().into(holder.icon);
+    } else {
+      holder.icon.setImageResource(R.mipmap.ic_lego_foreground);
+    }
   }
 
   @Override
@@ -87,6 +100,7 @@ public final class InstalledPluginAdapter extends RecyclerView.Adapter<Installed
 
   static final class ViewHolder extends RecyclerView.ViewHolder {
 
+    final ImageView icon;
     final TextView name;
     final TextView version;
     final TextView description;
@@ -94,6 +108,7 @@ public final class InstalledPluginAdapter extends RecyclerView.Adapter<Installed
 
     ViewHolder(@NonNull View itemView) {
       super(itemView);
+      icon = itemView.findViewById(R.id.pluginIcon);
       name = itemView.findViewById(R.id.pluginName);
       version = itemView.findViewById(R.id.pluginVersion);
       description = itemView.findViewById(R.id.pluginDescription);

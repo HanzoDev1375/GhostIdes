@@ -34,10 +34,7 @@ public class ColorPickerBottomSheet extends BaseBlurBottomSheet {
     View v =
         LayoutInflater.from(requireContext())
             .inflate(R.layout.bottom_sheet_color_picker, contentContainer, false);
-    contentContainer.addView(
-        v,
-        new ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+    contentContainer.addView(v);
     recyclerView = contentContainer.findViewById(R.id.recyclerColors);
     searchEditText = contentContainer.findViewById(R.id.editSearch);
     emptyState = contentContainer.findViewById(R.id.emptyState);

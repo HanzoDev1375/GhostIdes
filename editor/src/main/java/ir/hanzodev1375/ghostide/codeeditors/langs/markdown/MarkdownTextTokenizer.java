@@ -82,8 +82,11 @@ public class MarkdownTextTokenizer {
 
     
     if (ch == '>') {
-      length = 1;
-      return Tokens.BLOCKQUOTE_MARKER;
+      if (isAtLineStart()) {
+        length = 1;
+        return Tokens.BLOCKQUOTE_MARKER;
+      }
+      return scanText();
     }
 
     
@@ -108,7 +111,10 @@ public class MarkdownTextTokenizer {
     if (ch == '[') return scanLinkText();
 
     
-    if (ch == '(') return scanLinkUrl();
+    if (ch == '(') {
+      if (offset > 0 && c(offset - 1) == ']') return scanLinkUrl();
+      return scanText();
+    }
 
     
     if (ch == '`') return scanBacktick();
@@ -133,7 +139,18 @@ public class MarkdownTextTokenizer {
   
   
 
+  /** True if everything before {@code offset} on this line is only spaces/tabs. */
+  private boolean isAtLineStart() {
+    for (int i = 0; i < offset; i++) {
+      char x = c(i);
+      if (x != ' ' && x != '\t') return false;
+    }
+    return true;
+  }
+
   private Tokens scanHeading() {
+    if (!isAtLineStart()) return scanText();
+
     int level = 0;
     while (offset + level < bufferLen && c(offset + level) == '#') level++;
     boolean valid =
@@ -162,6 +179,8 @@ public class MarkdownTextTokenizer {
   }
 
   private Tokens scanOrderedList() {
+    if (!isAtLineStart()) return scanText();
+
     int i = 1;
     while (offset + i < bufferLen && c(offset + i) >= '0' && c(offset + i) <= '9') i++;
     if (offset + i < bufferLen && (c(offset + i) == '.' || c(offset + i) == ')')) {
@@ -179,8 +198,10 @@ public class MarkdownTextTokenizer {
     int run = 0;
     while (offset + run < bufferLen && c(offset + run) == ch) run++;
 
+    boolean lineStart = isAtLineStart();
+
     
-    if ((ch == '-' || ch == '*' || ch == '_') && isThematicBreak(ch)) {
+    if (lineStart && (ch == '-' || ch == '*' || ch == '_') && isThematicBreak(ch)) {
       
       length = 0;
       while (offset + length < bufferLen
@@ -190,7 +211,8 @@ public class MarkdownTextTokenizer {
     }
 
     
-    if ((ch == '-' || ch == '*' || ch == '+')
+    if (lineStart
+        && (ch == '-' || ch == '*' || ch == '+')
         && run == 1
         && offset + 1 < bufferLen
         && (c(offset + 1) == ' ' || c(offset + 1) == '\t')) {

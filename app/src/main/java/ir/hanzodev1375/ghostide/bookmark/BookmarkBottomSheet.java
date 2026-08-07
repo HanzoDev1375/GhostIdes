@@ -34,10 +34,7 @@ public class BookmarkBottomSheet extends BaseBlurBottomSheet {
     setHasPeekMod(false);
     View view =
         getLayoutInflater().inflate(R.layout.bottom_sheet_bookmarks, contentContainer, false);
-    contentContainer.addView(
-        view,
-        new ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    contentContainer.addView(view);
 
     RecyclerView rvBookmarks = view.findViewById(R.id.rvBookmarks);
     View tvEmpty = view.findViewById(R.id.tvBookmarkEmpty);

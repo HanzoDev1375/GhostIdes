@@ -10,9 +10,17 @@ package ir.hanzodev1375.ghostide.plugin.gpl;
  *     no-argument constructor
  * @param description short description shown in the plugin manager
  * @param minHostVersion lowest host app version code this plugin supports, or 0 if unspecified
+ * @param icon file name of a PNG/JPG inside {@code assets/} (same folder as {@code plugin.json}
+ *     itself), or {@code null} if the plugin has no icon
  */
 public record GplManifest(
-    String id, String name, String version, String entryClass, String description, int minHostVersion) {
+    String id,
+    String name,
+    String version,
+    String entryClass,
+    String description,
+    int minHostVersion,
+    String icon) {
 
   public GplManifest {
     if (id == null || id.isBlank()) {
@@ -29,6 +37,9 @@ public record GplManifest(
     }
     if (description == null) {
       description = "";
+    }
+    if (icon != null && icon.isBlank()) {
+      icon = null;
     }
   }
 }

@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -31,13 +32,13 @@ import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
  * LspProject} expects. {@link ir.hanzodev1375.ghostide.codeeditors.langs.lsp.LspRouter} calls this
  * before falling back to its built-in, hardcoded per-language classes.
  *
- * <p>{@link #connectFile} follows the exact {@code LspProject.createEditor} /
- * {@code connectWithTimeoutBlocking} sequence {@code JavaServer} already uses successfully; it
- * does not call {@code LspEditor.setWrapperLanguage}, so a registry-provided language gets LSP
- * features (completion, diagnostics, hover) but not the language-specific formatter integration
- * a hand-written built-in like {@code JavaServer} wires up separately.
+ * <p>{@link #connectFile} follows the exact {@code LspProject.createEditor} / {@code
+ * connectWithTimeoutBlocking} sequence {@code JavaServer} already uses successfully; it does not
+ * call {@code LspEditor.setWrapperLanguage}, so a registry-provided language gets LSP features
+ * (completion, diagnostics, hover) but not the language-specific formatter integration a
+ * hand-written built-in like {@code JavaServer} wires up separately.
  */
-public final class LspExtensionBridge {
+public class LspExtensionBridge {
 
   private static final String TAG = "LspExtensionBridge";
   private static final Map<String, LspProject> PROJECTS = new ConcurrentHashMap<>();
@@ -63,9 +64,9 @@ public final class LspExtensionBridge {
   }
 
   /**
-   * Looks up a provider using the file's own parent directory as a stand-in project root, for
-   * call sites that only know a file path (support/installed checks happen before a project is
-   * open). {@link LspServerRequest#extension()} is all a well-behaved {@code supports()} needs.
+   * Looks up a provider using the file's own parent directory as a stand-in project root, for call
+   * sites that only know a file path (support/installed checks happen before a project is open).
+   * {@link LspServerRequest#extension()} is all a well-behaved {@code supports()} needs.
    */
   public static LspServerProvider findProviderForFile(String filePath) {
     if (filePath == null) {
@@ -120,7 +121,12 @@ public final class LspExtensionBridge {
             () -> {
               try {
                 LspEditor lspEditor = project.createEditor(filePath);
+                var language = EditorLanguageFactory.create(context, filePath);
+                lspEditor.setWrapperLanguage(language);
                 lspEditor.setEditor(editor);
+                lspEditor.setEnableHover(true);
+                lspEditor.setEnableInlayHint(true);
+                lspEditor.setEnableSignatureHelp(true);
                 holder[0] = lspEditor;
               } finally {
                 latch.countDown();

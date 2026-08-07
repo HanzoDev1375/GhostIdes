@@ -39,6 +39,7 @@ import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.codeeditors.ui.model.OpenFileLocationEvent;
 import ir.hanzodev1375.ghostide.customui.EditorStatusBar;
 import ir.hanzodev1375.ghostide.customui.TabCustomView;
+import ir.hanzodev1375.ghostide.fragments.MarkDownPreview;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.jgit.GitHubProfileSheet;
 import ir.hanzodev1375.ghostide.jgit.fragments.GitBottomSheetFragment;
@@ -1143,6 +1144,12 @@ public class EditorActivity extends BaseCompat
             Intent intent = new Intent(EditorActivity.this, WebViewActivity.class);
             intent.putExtra("keyweb", currentFilePath);
             startActivity(intent);
+          } else if (currentFilePath.endsWith(".md")) {
+            var bl = new Bundle();
+            bl.putString("md", currentFilePath);
+            var mdview = new MarkDownPreview();
+            mdview.setArguments(bl);
+            mdview.show(getSupportFragmentManager(), "MarkDownPreview");
           } else coderun.bindof(currentFilePath, settings.isTerminalFragment());
         });
   }

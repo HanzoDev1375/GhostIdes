@@ -11,7 +11,7 @@ import ir.hanzodev1375.ghostide.ide.ui.api.ProotProcessLauncher;
 
 public final class ProotProcessLauncherImpl implements ProotProcessLauncher {
 
-  private final Context appContext;
+  private Context appContext;
 
   public ProotProcessLauncherImpl(Context context) {
     this.appContext = context.getApplicationContext();

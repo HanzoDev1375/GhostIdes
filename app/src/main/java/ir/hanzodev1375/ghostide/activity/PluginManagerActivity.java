@@ -1,6 +1,5 @@
 package ir.hanzodev1375.ghostide.activity;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,16 +9,14 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import ir.hanzodev1375.components.utils.ParticleItemAnimator;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.graphics.Insets;
@@ -76,6 +73,7 @@ public class PluginManagerActivity extends BaseCompat {
 
     bind.searchLayout.setOnTextChangedListener(this::onSearchTextChanged);
     bind.searchLayout.show();
+    bind.rvPlugins.setItemAnimator(new ParticleItemAnimator(this));
 
     setupInsets();
     refreshList();
@@ -215,7 +213,7 @@ public class PluginManagerActivity extends BaseCompat {
       }
       combinedCommand.append(action.command());
     }
-    new AlertDialog.Builder(this)
+    new MaterialAlertDialogBuilder(this)
         .setTitle(loadedPlugin.getDescriptor().getName())
         .setMessage(message.toString().trim())
         .setPositiveButton(
@@ -244,8 +242,8 @@ public class PluginManagerActivity extends BaseCompat {
   }
 
   private void copyUriToFile(Uri uri, File destination) throws IOException {
-    try (InputStream input = getContentResolver().openInputStream(uri);
-        OutputStream output = new FileOutputStream(destination)) {
+    try (var input = getContentResolver().openInputStream(uri);
+        var output = new FileOutputStream(destination)) {
       if (input == null) {
         throw new IOException("Could not open " + uri);
       }

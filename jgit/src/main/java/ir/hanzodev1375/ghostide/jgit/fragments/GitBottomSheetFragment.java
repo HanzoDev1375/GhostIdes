@@ -63,10 +63,7 @@ public class GitBottomSheetFragment extends BaseBlurBottomSheet {
   @Override
   protected void onContentReady(ViewGroup contentContainer) {
     View view = getLayoutInflater().inflate(R.layout.bottom_sheet_git, contentContainer, false);
-    contentContainer.addView(
-        view,
-        new ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    contentContainer.addView(view);
     viewModel = new ViewModelProvider(requireActivity()).get(GitViewModel.class);
     setHasPeekMod(false);
     progressBar = view.findViewById(R.id.progressBar);

@@ -71,11 +71,11 @@ public class ViewDownloder extends RelativeLayout {
     child.progrssdownload.setWaveSpeed(19);
   }
 
-  public void setTitle(String title) {
+  public void setTitle(CharSequence title) {
     child.tvname.setText(title);
   }
 
-  public void setSizeTitle(String text) {
+  public void setSizeTitle(CharSequence text) {
     child.tvsize.setText(text);
   }
 
@@ -177,7 +177,7 @@ public class ViewDownloder extends RelativeLayout {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
         && !getContext().getPackageManager().canRequestPackageInstalls()) {
       var intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
-      intent.setData(Uri.parse("package:" + "ir.hanzodev1375.ghostide"));
+      intent.setData(Uri.parse("package:" + getContext().getPackageName()));
       getContext().startActivity(intent);
     } else {
       ApkInstallerCompat compat =

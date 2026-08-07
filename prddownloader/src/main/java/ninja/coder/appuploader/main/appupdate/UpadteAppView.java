@@ -42,10 +42,7 @@ public class UpadteAppView {
           .readTimeout(15, TimeUnit.SECONDS)
           .build();
 
-  public UpadteAppView(
-      Context context,
-      ViewDownloder downloder,
-      AppUpdateCallBack call) {
+  public UpadteAppView(Context context, ViewDownloder downloder, AppUpdateCallBack call) {
     this.context = context;
     this.downloder = downloder;
     this.call = call;
@@ -107,14 +104,14 @@ public class UpadteAppView {
     if (context == null) return;
 
     MaterialAlertDialogBuilder di = new MaterialAlertDialogBuilder(context);
-    di.setTitle(model.getTitle());
-    di.setMessage(model.getMassges());
+    di.setTitle(MarkwonHelper.toCharSequence(context, model.getTitle()));
+    di.setMessage(MarkwonHelper.toCharSequence(context, model.getMassges()));
     di.setCancelable(false);
 
     di.setNeutralButton(
         "Update",
         (p, d) -> {
-          downloder.setTitle(model.getTitle());
+          downloder.setTitle(MarkwonHelper.toCharSequence(context, model.getTitle()));
           downloder.setVisibility(View.VISIBLE);
           String link = model.getLink();
           String fileName = link.substring(link.lastIndexOf('/') + 1);
