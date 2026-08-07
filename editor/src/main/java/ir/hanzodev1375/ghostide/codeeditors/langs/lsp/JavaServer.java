@@ -31,13 +31,13 @@ public class JavaServer {
   private static final Set<String> SUPPORTED_EXTENSIONS = Collections.singleton("java");
 
   private static final String[] JAVA_CANDIDATE_PATHS = {"/usr/bin/java"};
-  private static final Map<String, LspProject> projects = new HashMap<>();
-
-  private JavaServer() {}
-
   private static final String[] JDTLS_CANDIDATE_PATHS = {
     "/root/jdtls/bin/jdtls", "/opt/jdtls/bin/jdtls", "/usr/local/bin/jdtls", "/usr/bin/jdtls"
   };
+
+  private static final Map<String, LspProject> projects = new HashMap<>();
+
+  private JavaServer() {}
 
   public static String findJdtlsExecutable(Context context) {
     File rootfs = DebianBootstrap.getRootfsDir(context);
@@ -157,26 +157,18 @@ public class JavaServer {
   }
 
   private static String extensionOf(String filePath) {
-    if (filePath == null) {
-      return "";
-    }
+    if (filePath == null) return "";
     int dot = filePath.lastIndexOf('.');
-    if (dot < 0 || dot == filePath.length() - 1) {
-      return "";
-    }
+    if (dot < 0 || dot == filePath.length() - 1) return "";
     return filePath.substring(dot + 1).toLowerCase(Locale.ROOT);
   }
 
   public static String findJavaExecutable(Context context) {
     File rootfs = DebianBootstrap.getRootfsDir(context);
-    if (rootfs == null || !rootfs.exists()) {
-      return null;
-    }
+    if (rootfs == null || !rootfs.exists()) return null;
 
     for (String candidate : JAVA_CANDIDATE_PATHS) {
-      if (new File(rootfs, candidate.substring(1)).exists()) {
-        return candidate;
-      }
+      if (new File(rootfs, candidate.substring(1)).exists()) return candidate;
     }
 
     File jvmDir = new File(rootfs, "usr/lib/jvm");
@@ -188,19 +180,15 @@ public class JavaServer {
         }
       }
     }
-
     return null;
   }
-
 
   private static String sanitize(String value) {
     return (value == null || value.isEmpty()) ? "root" : value.replaceAll("[^a-zA-Z0-9]+", "_");
   }
 
   public static void disconnectFile(LspEditor lspEditor) {
-    if (lspEditor == null) {
-      return;
-    }
+    if (lspEditor == null) return;
     try {
       lspEditor.dispose();
     } catch (Exception e) {
