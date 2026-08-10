@@ -22,7 +22,7 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
 ```bash
  curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
-curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+ curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
  apt install -y nodejs
  node -v
  apt update && apt upgrade -y

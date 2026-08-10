@@ -40,6 +40,5 @@ dependencies {
     implementation('eu.agno3.jcifs:jcifs-ng:2.1.9') {
         exclude group: 'org.bouncycastle'
     }
-
     implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
 }

@@ -24,6 +24,7 @@ import io.github.rosemoe.sora.event.SelectionChangeEvent;
 import io.github.rosemoe.sora.event.EditorFocusChangeEvent;
 import io.github.rosemoe.sora.lang.Language;
 import ir.hanzodev1375.ghostide.activity.EditorActivity;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.AndroidClasspathResolver;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.LspRouter;
 import ir.hanzodev1375.ghostide.editorlangs.LanguageManager;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
@@ -163,9 +164,7 @@ public class EditorFragment extends Fragment {
                 () -> {
                   File targetFile = new File(targetFilePath);
                   String projectRoot =
-                      targetFile.getParent() != null
-                          ? targetFile.getParent()
-                          : targetFile.getAbsolutePath();
+                      AndroidClasspathResolver.findProjectRoot(targetFile).getAbsolutePath();
                   LspEditor connected =
                       LspRouter.connectFile(appContext, projectRoot, targetFilePath, targetEditor);
                   if (!isAdded() || binding == null) {

@@ -9,8 +9,8 @@
      android:background="@drawable/bg_shape"
      android:orientation="horizontal"
      android:paddingBottom="4dp"
-     android:id="@+id/rootView"
      android:paddingStart="12dp"
+     android:id="@+id/rootView"
      android:paddingTop="4dp">
 
     <ImageView
@@ -40,12 +40,12 @@
          android:layout_height="24dp"
          android:layout_width="24dp"
          android:visibility="gone"
-         android:layout_marginLeft="3dp"
-         android:tint="?attr/colorOnSurfaceVariant"
-         android:layout_gravity="center_vertical"
          android:scaleType="centerInside"
          android:background="?attr/selectableItemBackgroundBorderless"
+         android:layout_marginLeft="3dp"
+         android:tint="?attr/colorOnSurfaceVariant"
          android:layout_marginRight="3dp"
+         android:layout_gravity="center_vertical"
          android:id="@+id/btnClear" />
 
 </LinearLayout>

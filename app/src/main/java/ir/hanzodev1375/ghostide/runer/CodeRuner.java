@@ -5,13 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.AndroidClasspathResolver;
+import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
 import ir.hanzodev1375.ghostide.terminal.activity.TerminalActivity;
 import ir.hanzodev1375.ghostide.terminal.sheet.TerminalBottomSheetFragment;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class CodeRuner {
 
@@ -211,10 +215,13 @@ public class CodeRuner {
         File dir = file.getParentFile();
         if (dir == null) dir = new File(".");
 
+        String androidHomeExport = androidHomeExport();
+
         File gradleWrapper = findGradleWrapper(dir);
         if (gradleWrapper != null) {
             File projectRoot = gradleWrapper.getParentFile();
             return "clear; "
+                    + androidHomeExport
                     + "if [ ! -x \"" + gradleWrapper.getAbsolutePath() + "\" ]; then chmod +x \"" + gradleWrapper.getAbsolutePath() + "\"; fi; "
                     + "cd \"" + projectRoot.getAbsolutePath() + "\" && sh gradlew build";
         }
@@ -223,6 +230,7 @@ public class CodeRuner {
         if (pomFile != null) {
             File projectRoot = pomFile.getParentFile();
             return "clear; "
+                    + androidHomeExport
                     + "if ! command -v mvn >/dev/null 2>&1; then apt update && apt install maven -y; fi; "
                     + "cd \"" + projectRoot.getAbsolutePath() + "\" && mvn package";
         }
@@ -231,10 +239,14 @@ public class CodeRuner {
         if (gradleFile != null) {
             File projectRoot = gradleFile.getParentFile();
             return "clear; "
+                    + androidHomeExport
                     + "if ! command -v gradle >/dev/null 2>&1; then apt update && apt install gradle -y; fi; "
                     + "cd \"" + projectRoot.getAbsolutePath() + "\" && gradle build";
         }
 
+        // بدون build file: کامپایل با classpath واقعی (android.jar + کش گریدل + libs) و اجرا
+        // (فقط اگه public static void main(String[]) داشته باشه؛ کلاس‌های اندرویدی مثل
+        // Activity/Fragment رو نمی‌شه با java خالص اجرا کرد، فقط کامپایلشون می‌کنیم).
         String className = file.getName();
         int dot = className.lastIndexOf('.');
         if (dot != -1) className = className.substring(0, dot);
@@ -245,6 +257,11 @@ public class CodeRuner {
         File sourceRoot = resolvePackageRoot(dir, packageName);
         File outDir = new File(sourceRoot, ".ghostide_build");
 
+        List<File> libJars = AndroidClasspathResolver.findLibraryJars(context, sourceRoot);
+        String libClasspath = AndroidClasspathResolver.joinClasspath(libJars);
+        String fullClasspath =
+                outDir.getAbsolutePath() + (libClasspath.isEmpty() ? "" : ":" + libClasspath);
+
         String compileTargets;
         if (sourceRoot.equals(dir)) {
             compileTargets = "\"" + dir.getAbsolutePath() + "\"/*.java";
@@ -252,9 +269,44 @@ public class CodeRuner {
             compileTargets = "\"" + path + "\"";
         }
 
+        String compile =
+                "mkdir -p \"" + outDir.getAbsolutePath() + "\" && javac -d \"" + outDir.getAbsolutePath()
+                        + "\" -cp \"" + fullClasspath + "\" -sourcepath \"" + sourceRoot.getAbsolutePath()
+                        + "\" " + compileTargets;
+
+        String setup = "if ! command -v javac >/dev/null 2>&1; then apt update && apt install default-jdk -y; fi; ";
+
+        if (hasMainMethod(file)) {
+            return "clear; "
+                    + setup
+                    + compile
+                    + " && java -cp \"" + fullClasspath + "\" " + fqcn;
+        }
+
         return "clear; "
-                + "if ! command -v javac >/dev/null 2>&1; then apt update && apt install default-jdk -y; fi; "
-                + "mkdir -p \"" + outDir.getAbsolutePath() + "\" && javac -d \"" + outDir.getAbsolutePath() + "\" -sourcepath \"" + sourceRoot.getAbsolutePath() + "\" " + compileTargets;
+                + setup
+                + compile
+                + " && echo '✅ کامپایل شد. متد main پیدا نشد (کلاس اندرویدی/کتابخونه‌ای)، پس اجرا نمی‌شه.'";
+    }
+
+    /** export ANDROID_HOME/ANDROID_SDK_ROOT اگه SDK نصب‌شده پیدا بشه، وگرنه رشته‌ی خالی. */
+    private String androidHomeExport() {
+        File rootfs = DebianBootstrap.getRootfsDir(context);
+        String sdkGuestPath = AndroidClasspathResolver.findAndroidSdkGuestPath(rootfs);
+        if (sdkGuestPath == null) return "";
+        return "export ANDROID_HOME=\"" + sdkGuestPath + "\" ANDROID_SDK_ROOT=\"" + sdkGuestPath + "\"; ";
+    }
+
+    private static final Pattern MAIN_METHOD_PATTERN =
+            Pattern.compile("(?s).*\\bvoid\\s+main\\s*\\(\\s*String");
+
+    private boolean hasMainMethod(File javaFile) {
+        try {
+            String content = new String(Files.readAllBytes(javaFile.toPath()));
+            return MAIN_METHOD_PATTERN.matcher(content).matches();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private String kotlin(String path) {

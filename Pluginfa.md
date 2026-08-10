@@ -1,36 +1,36 @@
-# توسعه‌ی پلاگین برای GhostIDE
+# توسعه ی پلاگین برای GhostIDE
 
-این راهنما توضیح می‌ده سیستم پلاگین چطور کنار هم قرار می‌گیره: کدوم قسمت تو کدوم ماژوله، فایل
-`.gpl` چطور ساخته می‌شه، و کد شما چطور با IDE در حال اجرا حرف می‌زنه. فرض شده با توسعه‌ی اندروید
+این راهنما توضیح می ده سیستم پلاگین چطور کنار هم قرار می گیره: کدوم قسمت تو کدوم ماژوله، فایل
+`.gpl` چطور ساخته می شه، و کد شما چطور با IDE در حال اجرا حرف می زنه. فرض شده با توسعه ی اندروید
 آشنایی دارید.
 
 ## سه ماژول API
 
-پلاگین شما هیچ‌وقت مستقیم به `:app` وابسته نیست. فقط به این سه تا وابسته‌ست، که هر سه به شکل jar/aar
-ساده منتشر می‌شن:
+پلاگین شما هیچ وقت مستقیم به `:app` وابسته نیست. فقط به این سه تا وابسته ست، که هر سه به شکل jar/aar
+ساده منتشر می شن:
 
 | ماژول | برای چیه | نوع اندرویدی داره؟ |
 | --- | --- | --- |
-| `plugin-api` | چرخه‌ی عمر پلاگین، رجیستری extension/service | نه — کاملاً JVM خالص |
+| `plugin-api` | چرخه ی عمر پلاگین، رجیستری extension/service | نه — کاملاً JVM خالص |
 | `ide-api` | افزودن Language Server (LSP) | نه — فقط JVM + lsp4j |
-| `ide-ui-api` | دسترسی به ادیتور/فایل‌منیجر، صفحات پلاگین | بله — نیاز به `Context`، `Fragment` داره |
+| `ide-ui-api` | دسترسی به ادیتور/فایل منیجر، صفحات پلاگین | بله — نیاز به `Context`، `Fragment` داره |
 
-این تفکیک به این خاطره که پلاگینی که فقط یه language server اضافه می‌کنه اصلاً لازم نیست به اندروید
-وابسته بشه، و کلاس‌های واقعی `EditorActivity`/`FileManagerActivity` تو `:app` هیچ‌وقت مستقیم از
-کد پلاگین دیده نمی‌شن — فقط همون اینترفیس‌های کوچیک تو `ide-ui-api` رو می‌بینید.
+این تفکیک به این خاطره که پلاگینی که فقط یه language server اضافه می کنه اصلاً لازم نیست به اندروید
+وابسته بشه، و کلاس های واقعی `EditorActivity`/`FileManagerActivity` تو `:app` هیچ وقت مستقیم از
+کد پلاگین دیده نمی شن — فقط همون اینترفیس های کوچیک تو `ide-ui-api` رو می بینید.
 
 ## دو الگوی مشارکت
 
-هر قابلیتی که اضافه می‌کنید یکی از این دو الگوئه، که تو `plugin-api` تعریف شدن:
+هر قابلیتی که اضافه می کنید یکی از این دو الگوئه، که تو `plugin-api` تعریف شدن:
 
-- **Extension point** (`ExtensionPoint<T>`) — چند تا پلاگین می‌تونن هرکدوم یک یا چند نمونه ثبت
-  کنن. برای `LspServerProvider` (ide-api) و `PluginScreen` (ide-ui-api) استفاده می‌شه. با
-  `context.getExtensions().extensions(SomePoint)` پیداشون می‌کنید.
-- **Service** (`ServiceKey<T>`) — دقیقاً یک نمونه که هاست منتشر می‌کنه، از سمت پلاگین فقط
-  خواندنیه. برای `EditorHost`، `FileManagerHost`، و `Context` مخصوص خود پلاگین استفاده می‌شه. با
-  `context.getServices().require(SomeKey)` پیداشون می‌کنید.
+- **Extension point** (`ExtensionPoint<T>`) — چند تا پلاگین می تونن هرکدوم یک یا چند نمونه ثبت
+  کنن. برای `LspServerProvider` (ide-api) و `PluginScreen` (ide-ui-api) استفاده می شه. با
+  `context.getExtensions().extensions(SomePoint)` پیداشون می کنید.
+- **Service** (`ServiceKey<T>`) — دقیقاً یک نمونه که هاست منتشر می کنه، از سمت پلاگین فقط
+  خواندنیه. برای `EditorHost`، `FileManagerHost`، و `Context` مخصوص خود پلاگین استفاده می شه. با
+  `context.getServices().require(SomeKey)` پیداشون می کنید.
 
-## نقطه‌ی ورود
+## نقطه ی ورود
 
 ```java
 public final class MyPlugin implements GhostPlugin {
@@ -43,26 +43,26 @@ public final class MyPlugin implements GhostPlugin {
 }
 ```
 
-هر `Disposable` که از `register(...)` می‌گیرید باید به `context.registerDisposable(...)` داده بشه.
-هاست موقع unload همینو صدا می‌زنه تا ثبت‌های شما از عمر پلاگین بیشتر عمر نکنن.
+هر `Disposable` که از `register(...)` می گیرید باید به `context.registerDisposable(...)` داده بشه.
+هاست موقع unload همینو صدا می زنه تا ثبت های شما از عمر پلاگین بیشتر عمر نکنن.
 
 ## اضافه کردن Language Server
 
-`LspServerProvider` رو (تو `ide-api`) پیاده کنید: `supports(LspServerRequest)` تعیین می‌کنه یه
-فایل خاص رو شما پوشش می‌دید یا نه، `createDefinition(...)` یه `LspServerDefinition` با `Builder`ش
-برمی‌گردونه، که `connectionFactory`ش به‌صورت lazy پروسس سرور شما رو استارت می‌کنه و یک
-`LspServerConnection` برمی‌گردونه (`start()`, `getInputStream()`, `getOutputStream()`,
-`isClosed()`, `close()`). هیچ‌وقت لاگ‌های خود سرور رو روی output stream ننویسید — فقط فریم‌های
+`LspServerProvider` رو (تو `ide-api`) پیاده کنید: `supports(LspServerRequest)` تعیین می کنه یه
+فایل خاص رو شما پوشش می دید یا نه، `createDefinition(...)` یه `LspServerDefinition` با `Builder`ش
+برمی گردونه، که `connectionFactory`ش به صورت lazy پروسس سرور شما رو استارت می کنه و یک
+`LspServerConnection` برمی گردونه (`start()`, `getInputStream()`, `getOutputStream()`,
+`isClosed()`, `close()`). هیچ وقت لاگ های خود سرور رو روی output stream ننویسید — فقط فریم های
 پروتکل LSP باید اونجا باشن.
 
 ## اضافه کردن یه صفحه ("Activity" پلاگین)
 
-اندروید اجازه نمی‌ده یه کلاس داینامیک‌لود‌شده `<activity>` جدید تو مانیفست هاست تعریف کنه. به‌جاش
+اندروید اجازه نمی ده یه کلاس داینامیک لود شده `<activity>` جدید تو مانیفست هاست تعریف کنه. به جاش
 `PluginScreen` رو (تو `ide-ui-api`) پیاده کنید و یک `Fragment` برگردونید؛ اونو تو
-`PluginUiExtensionPoints.PLUGIN_SCREEN` ثبت کنید. `PluginScreenActivity` خودِ هاست میزبانش می‌شه.
+`PluginUiExtensionPoints.PLUGIN_SCREEN` ثبت کنید. `PluginScreenActivity` خودِ هاست میزبانش می شه.
 
-برای inflate کردن layout باید از context مخصوص خودتون استفاده کنید، نه context پیش‌فرض
-fragment، وگرنه مقادیر `R` شما resolve نمی‌شن:
+برای inflate کردن layout باید از context مخصوص خودتون استفاده کنید، نه context پیش فرض
+fragment، وگرنه مقادیر `R` شما resolve نمی شن:
 
 ```java
 Context pluginContext = context.getServices().require(IdeHostServices.PLUGIN_ANDROID_CONTEXT);
@@ -79,13 +79,13 @@ String text = editor.getEditorText();
 editor.setEditorText(text + "\n// edited by plugin");
 ```
 
-`FileManagerHost` هم دقیقاً همین شکل رو برای صفحه‌ی درخت فایل داره.
+`FileManagerHost` هم دقیقاً همین شکل رو برای صفحه ی درخت فایل داره.
 
 ## ساخت پکیج `.gpl`
 
-`.gpl` یه ماژول عادی **android-application**ه — دقیقاً مثل هر اپ دیگه‌ای تو Android Studio
-می‌سازیدش، فقط هیچ‌وقت APK خروجی رو به‌صورت عادی نصب نمی‌کنید. `assembleRelease` فایل APK رو
-می‌سازه؛ تغییر پسوندش به `.gpl` کل مرحله‌ی پکیجینگه.
+`.gpl` یه ماژول عادی **android-application**ه — دقیقاً مثل هر اپ دیگه ای تو Android Studio
+می سازیدش، فقط هیچ وقت APK خروجی رو به صورت عادی نصب نمی کنید. `assembleRelease` فایل APK رو
+می سازه؛ تغییر پسوندش به `.gpl` کل مرحله ی پکیجینگه.
 
 `build.gradle`:
 
@@ -109,8 +109,8 @@ dependencies {
 }
 ```
 
-`compileOnly` مهمه: این کلاس‌ها همین الان داخل اپ هاست در حال اجرا وجود دارن، پلاگین شما نباید
-نسخه‌ی خودشو ازشون بسازه.
+`compileOnly` مهمه: این کلاس ها همین الان داخل اپ هاست در حال اجرا وجود دارن، پلاگین شما نباید
+نسخه ی خودشو ازشون بسازه.
 
 `src/main/assets/plugin.json`:
 
@@ -120,22 +120,22 @@ dependencies {
   "name": "My Plugin",
   "version": "1.0.0",
   "entryClass": "com.example.myplugin.MyPlugin",
-  "description": "یک توضیح کوتاه که تو مدیریت پلاگین‌ها نشون داده می‌شه."
+  "description": "یک توضیح کوتاه که تو مدیریت پلاگین ها نشون داده می شه."
 }
 ```
 
 `entryClass` باید یه constructor عمومی بدون آرگومان داشته باشه و `GhostPlugin` رو implement کنه.
 
-## هاست موقع لود `.gpl` شما چیکار می‌کنه
+## هاست موقع لود `.gpl` شما چیکار می کنه
 
-۱. `assets/plugin.json` رو مستقیم از داخل zip می‌خونه، قبل از این‌که اصلاً به کدتون دست بزنه.
-۲. یه `DexClassLoader` روی خودِ فایل `.gpl` باز می‌کنه و `entryClass` رو نمونه‌سازی می‌کنه.
-۳. `Context` هاست رو می‌پیچه (wrap) تا `getResources()`/`getAssets()` شما به پکیج خودتون resolve
-   بشه (با همون تکنیک `AssetManager.addAssetPath` که فریمورک‌های پلاگین اندرویدی سال‌هاست ازش
-   استفاده می‌کنن — API عمومی نیست، پس اگه یه نسخه‌ی آینده‌ی اندروید مسدودش کنه، پلاگین شما بازم
-   لود می‌شه، فقط بدون layout/drawable سفارشی خودتون).
-۴. `activate(context)` رو صدا می‌زنه.
+۱. `assets/plugin.json` رو مستقیم از داخل zip می خونه، قبل از این که اصلاً به کدتون دست بزنه.
+۲. یه `DexClassLoader` روی خودِ فایل `.gpl` باز می کنه و `entryClass` رو نمونه سازی می کنه.
+۳. `Context` هاست رو می پیچه (wrap) تا `getResources()`/`getAssets()` شما به پکیج خودتون resolve
+   بشه (با همون تکنیک `AssetManager.addAssetPath` که فریمورک های پلاگین اندرویدی سال هاست ازش
+   استفاده می کنن — API عمومی نیست، پس اگه یه نسخه ی آینده ی اندروید مسدودش کنه، پلاگین شما بازم
+   لود می شه، فقط بدون layout/drawable سفارشی خودتون).
+۴. `activate(context)` رو صدا می زنه.
 
-موقع unload، هاست `deactivate()` شما رو صدا می‌زنه، هر چیزی که ثبت کردید رو dispose می‌کنه، و
-ثبت‌های extension شما رو با شناسه‌ی پلاگین حذف می‌کنه — لازم نیست خودتون ردش رو بگیرید، فقط کافیه
+موقع unload، هاست `deactivate()` شما رو صدا می زنه، هر چیزی که ثبت کردید رو dispose می کنه، و
+ثبت های extension شما رو با شناسه ی پلاگین حذف می کنه — لازم نیست خودتون ردش رو بگیرید، فقط کافیه
 هر `Disposable` رو ثبت کرده باشید.

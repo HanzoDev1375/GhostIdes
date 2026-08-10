@@ -1,7 +1,5 @@
 package ir.hanzodev1375.components;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.text.Editable;
@@ -17,7 +15,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,13 +43,9 @@ public class SearchLayout extends FrameLayout {
     init(context, attrs, 0);
   }
 
-  public SearchLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-    super(context, attrs, defStyleAttr);
-    init(context, attrs, defStyleAttr);
-  }
-
   private void init(Context context, AttributeSet attrs, int defStyleAttr) {
     setting = new PreferencesUtils(getContext());
+    
     LayoutInflater.from(context).inflate(R.layout.search_layout, this, true);
 
     editText = findViewById(R.id.etSearch);
@@ -62,21 +55,23 @@ public class SearchLayout extends FrameLayout {
     clearButton.setAlpha(0f);
     setVisibility(GONE);
     setupListeners();
+    
     View v = findViewById(R.id.rootView);
     //  if(setting.isShowBackground())
-
+    
     GradientDrawable gd = (GradientDrawable) v.getBackground().mutate();
     gd.setColor(
         setting.isShowBackground()
             ? ColorUtils.setAlphaComponent(
-                MaterialColors.getColor(v, R.attr.colorSurfaceContainerHigh), 128)
+                MaterialColors.getColor(v, R.attr.colorSurfaceContainerHigh), 90)
             : MaterialColors.getColor(v, R.attr.colorSurfaceContainerHigh));
     gd.setStroke(
         2,
         setting.isShowBackground()
             ? ColorUtils.setAlphaComponent(
-                MaterialColors.getColor(v, R.attr.colorOutlineVariant), 128)
+                MaterialColors.getColor(v, R.attr.colorOutlineVariant), 90)
             : MaterialColors.getColor(v, R.attr.colorOutlineVariant));
+            
   }
 
   private void setupListeners() {
@@ -121,7 +116,7 @@ public class SearchLayout extends FrameLayout {
   }
 
   /**
-   * نمایش (فید این) یا نامرئی‌سازی (فید اوت) دکمه Clear
+   * نمایش (فید این) یا نامرئی سازی (فید اوت) دکمه Clear
    *
    * @param show true = VISIBLE + fade in, false = INVISIBLE + fade out
    */

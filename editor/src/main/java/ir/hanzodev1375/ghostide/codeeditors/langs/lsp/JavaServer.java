@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,8 +54,57 @@ public class JavaServer {
     return findJdtlsExecutable(context) != null;
   }
 
+  // ---------------------------------------------------------------------
+  // تنظیمات jdtls به‌عنوان invisible project — هیچ فایلی رو دیسک پروژه نمی‌سازه.
+  // sourcePaths/referencedLibraries از initializationOptions.settings.java میره.
+  // ---------------------------------------------------------------------
+
+  private static Map<String, Object> buildInvisibleProjectInitOptions(
+      File rootfs, File projectRoot, List<File> sourceRoots, List<File> libJars) {
+
+    List<String> relativeSourcePaths = new ArrayList<>();
+    for (File src : sourceRoots) {
+      relativeSourcePaths.add(AndroidClasspathResolver.relativize(projectRoot, src));
+    }
+
+    List<String> libraryPaths = new ArrayList<>();
+    for (File jar : libJars) {
+      libraryPaths.add(AndroidClasspathResolver.toGuestLibraryPath(rootfs, jar));
+    }
+
+    Map<String, Object> project = new HashMap<>();
+    project.put("sourcePaths", relativeSourcePaths);
+    project.put("referencedLibraries", libraryPaths);
+
+    Map<String, Object> gradleEnabled = new HashMap<>();
+    gradleEnabled.put("enabled", false);
+    Map<String, Object> mavenEnabled = new HashMap<>();
+    mavenEnabled.put("enabled", false);
+    Map<String, Object> importSettings = new HashMap<>();
+    importSettings.put("gradle", gradleEnabled);
+    importSettings.put("maven", mavenEnabled);
+
+    Map<String, Object> java = new HashMap<>();
+    java.put("project", project);
+    java.put("import", importSettings);
+
+    Map<String, Object> settings = new HashMap<>();
+    settings.put("java", java);
+
+    Map<String, Object> initializationOptions = new HashMap<>();
+    initializationOptions.put("settings", settings);
+    return initializationOptions;
+  }
+
+  // ---------------------------------------------------------------------
+
   private static LanguageServerDefinition createDefinition(
-      Context context, String javaExecutable, String jdtlsExecutable, String projectRoot) {
+      Context context,
+      String javaExecutable,
+      String jdtlsExecutable,
+      String projectRoot,
+      List<File> sourceRoots,
+      List<File> libJars) {
 
     String workspaceId = sanitize(projectRoot);
     File dataDir = new File(context.getCacheDir(), "jdtls-workspace/" + workspaceId);
@@ -81,21 +131,37 @@ public class JavaServer {
     args.add("-data");
     args.add(dataDir.getAbsolutePath());
 
+    Map<String, Object> initOptions =
+        buildInvisibleProjectInitOptions(
+            DebianBootstrap.getRootfsDir(context), new File(projectRoot), sourceRoots, libJars);
+
     return new CustomLanguageServerDefinition(
         "java",
         workingDir -> new ProotStdioConnectionProvider(context, workingDir, jdtlsExecutable, args),
         SERVER_NAME,
         null,
-        null);
+        null) {
+      @Override
+      public Object getInitializationOptions(URI uri) {
+        return initOptions;
+      }
+    };
   }
 
   private static synchronized LspProject getOrCreateProject(
       Context context, String projectRoot, String javaExecutable, String jdtlsExecutable) {
     LspProject project = projects.get(projectRoot);
     if (project == null) {
+      File projectRootFile = new File(projectRoot);
+      List<File> sourceRoots = AndroidClasspathResolver.findJavaSourceRoots(projectRootFile);
+      List<File> libJars = AndroidClasspathResolver.findLibraryJars(context, projectRootFile);
+      Log.i(
+          TAG,
+          "jdtls invisible-project: " + sourceRoots.size() + " سورس‌روت، " + libJars.size() + " jar");
+
       project = new LspProject(projectRoot);
       project.addServerDefinition(
-          createDefinition(context, javaExecutable, jdtlsExecutable, projectRoot));
+          createDefinition(context, javaExecutable, jdtlsExecutable, projectRoot, sourceRoots, libJars));
       projects.put(projectRoot, project);
     }
     return project;
