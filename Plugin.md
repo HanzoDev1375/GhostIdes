@@ -70,6 +70,47 @@ LayoutInflater inflater = LayoutInflater.from(pluginContext).cloneInContext(plug
 View root = inflater.inflate(R.layout.my_screen, container, false);
 ```
 
+## Adding a panel inside a screen (VS Code style)
+
+`PluginScreen` takes over the whole screen. To put UI *next to* a running screen instead — a chat
+sidebar, an inspector, a live preview — implement `EditorPanel` (`ide-ui-api`) and register it at
+`PluginUiExtensionPoints.EDITOR_PANEL`. The host shows it as a side sheet inside the editor screen,
+one toolbar button per registered panel. The previous `PluginScreen` API is untouched.
+
+```java
+public final class ChatPanel implements EditorPanel {
+  private final Context pluginContext;
+
+  ChatPanel(PluginContext context) {
+    pluginContext = context.getServices().require(IdeHostServices.PLUGIN_ANDROID_CONTEXT);
+  }
+
+  @Override
+  public String getId() {
+    return "com.example.myplugin.chat";
+  }
+
+  @Override
+  public String getTitle() {
+    return "Chat";
+  }
+
+  @Override
+  public View createView() {
+    // Same scoped-context inflation rule as PluginScreen, so R.layout.chat resolves.
+    return LayoutInflater.from(pluginContext).cloneInContext(pluginContext)
+        .inflate(R.layout.chat_panel, null, false);
+  }
+}
+
+// in activate():
+context.registerDisposable(
+    context.getExtensions().register(PluginUiExtensionPoints.EDITOR_PANEL, new ChatPanel(context)));
+```
+
+The host calls `createView()` once and reuses the returned `View`, so build it lazily and keep the
+panel's state inside it. It is invoked on the UI thread.
+
 ## Reading and writing the open editor
 
 ```java

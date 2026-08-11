@@ -107,6 +107,11 @@ public class PreferencesUtils {
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_AUTO_COMPLETE, false);
   }
 
+  public boolean enableGhostTextCompletion() {
+    return getDefaultPreferences()
+        .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_GHOST_TEXT, true);
+  }
+
   public boolean enableAutoCompleteWindowAnimation() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_ANIMATE_AUTO_COMP_WINDOW, false);

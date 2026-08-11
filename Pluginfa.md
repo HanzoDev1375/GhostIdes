@@ -70,6 +70,48 @@ LayoutInflater inflater = LayoutInflater.from(pluginContext).cloneInContext(plug
 View root = inflater.inflate(R.layout.my_screen, container, false);
 ```
 
+## اضافه کردن پنل داخل صفحه (به سبک VS Code)
+
+`PluginScreen` کل صفحه رو می گیره. برای این که UI رو *کنار* یه صفحه ی در حال اجرا بذارید — یه
+سایدبار چت، یه inspector، یه پیش نمایش زنده — اینترفیس `EditorPanel` رو (تو `ide-ui-api`) پیاده
+کنید و تو `PluginUiExtensionPoints.EDITOR_PANEL` ثبت کنید. هاست اونو به صورت side sheet داخل
+صفحه ی ادیتور نشون می ده، و به ازای هر پنل ثبت شده یه دکمه تو نوار ابزار اضافه می کنه. API قبلی
+`PluginScreen` بدون تغییر کار می کنه.
+
+```java
+public final class ChatPanel implements EditorPanel {
+  private final Context pluginContext;
+
+  ChatPanel(PluginContext context) {
+    pluginContext = context.getServices().require(IdeHostServices.PLUGIN_ANDROID_CONTEXT);
+  }
+
+  @Override
+  public String getId() {
+    return "com.example.myplugin.chat";
+  }
+
+  @Override
+  public String getTitle() {
+    return "Chat";
+  }
+
+  @Override
+  public View createView() {
+    // همون قانون inflate با context مخصوص خودتون، تا R.layout.chat resolve بشه.
+    return LayoutInflater.from(pluginContext).cloneInContext(pluginContext)
+        .inflate(R.layout.chat_panel, null, false);
+  }
+}
+
+// داخل activate():
+context.registerDisposable(
+    context.getExtensions().register(PluginUiExtensionPoints.EDITOR_PANEL, new ChatPanel(context)));
+```
+
+هاست یک بار `createView()` رو صدا می زنه و بعد همون `View` برگشتی رو دوباره استفاده می کنه؛ پس
+view رو lazy بسازید و state پنل رو داخل خودش نگه دارید. این متد روی ترد UI صدا زده می شه.
+
 ## خواندن و نوشتن ادیتور باز
 
 ```java

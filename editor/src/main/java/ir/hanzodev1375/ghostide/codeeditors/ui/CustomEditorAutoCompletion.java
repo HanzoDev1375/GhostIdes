@@ -32,6 +32,7 @@ import android.widget.ListAdapter;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import io.github.rosemoe.sora.lang.completion.Comparators;
+import io.github.rosemoe.sora.lsp.editor.completion.LspCompletionItem;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -41,6 +42,7 @@ import io.github.rosemoe.sora.lang.Language;
 import io.github.rosemoe.sora.lang.completion.CompletionCancelledException;
 import io.github.rosemoe.sora.lang.completion.CompletionItem;
 import io.github.rosemoe.sora.lang.completion.CompletionPublisher;
+import io.github.rosemoe.sora.lang.completion.SimpleCompletionItem;
 import io.github.rosemoe.sora.lang.styling.Styles;
 import io.github.rosemoe.sora.lang.styling.StylesUtils;
 import io.github.rosemoe.sora.text.CharPosition;
@@ -75,6 +77,7 @@ public class CustomEditorAutoCompletion extends EditorAutoCompletion {
   private long requestShow = 0;
   private long requestHide = -1;
   private boolean enabled = true;
+  private boolean mGhostShouldShow = false;
 
   /**
    * Create a panel instance for the given editor
@@ -226,6 +229,8 @@ public class CustomEditorAutoCompletion extends EditorAutoCompletion {
 
   @Override
   public void hide() {
+    mGhostShouldShow = false;
+    clearGhostText();
     super.dismiss();
     cancelCompletion();
     requestHide = System.currentTimeMillis();
@@ -267,6 +272,7 @@ public class CustomEditorAutoCompletion extends EditorAutoCompletion {
     }
     mCurrentSelection++;
     ((EditorCompletionAdapter) adpView.getAdapter()).notifyDataSetChanged();
+    updateGhostText();
     doEnsurePosition();
   }
 
@@ -279,6 +285,7 @@ public class CustomEditorAutoCompletion extends EditorAutoCompletion {
     }
     mCurrentSelection--;
     ((EditorCompletionAdapter) adpView.getAdapter()).notifyDataSetChanged();
+    updateGhostText();
     doEnsurePosition();
   }
 
@@ -310,6 +317,8 @@ public class CustomEditorAutoCompletion extends EditorAutoCompletion {
     if (pos == -1) {
       return false;
     }
+    mGhostShouldShow = false;
+    clearGhostText();
     AdapterView<ListAdapter> adpView = layout.getCompletionList();
     CompletionItem item = ((CustomEditorCompletionAdapter) adpView.getAdapter()).getItem(pos);
     Cursor cursor = editor.getCursor();
@@ -368,6 +377,8 @@ public class CustomEditorAutoCompletion extends EditorAutoCompletion {
       return;
     }
     cancelCompletion();
+    mGhostShouldShow = false;
+    clearGhostText();
     mRequestTime = System.nanoTime();
     mCurrentSelection = -1;
     mPublisher =
@@ -390,6 +401,8 @@ public class CustomEditorAutoCompletion extends EditorAutoCompletion {
               if (!isShowing()) {
                 show();
               }
+              mGhostShouldShow = true;
+              updateGhostText();
               Comparators.highlightMatchLabel(items, editor.getColorScheme());
               updateCompletionWindowPosition();
               resetScrollPosition();
@@ -403,5 +416,74 @@ public class CustomEditorAutoCompletion extends EditorAutoCompletion {
   @Override
   public void setMaxHeight(int height) {
     mMaxHeight = height;
+  }
+
+  /**
+   * Re-render the VS Code style ghost text preview for the currently highlighted item. When no item
+   * is selected yet, the first item is previewed (without actually changing the selection).
+   */
+  private void updateGhostText() {
+    GhostTextCompletionManager manager = editor.getGhostCompletionManager();
+    if (manager == null || !mGhostShouldShow) {
+      return;
+    }
+    AdapterView<ListAdapter> adpView = layout.getCompletionList();
+    if (adpView == null || adpView.getAdapter() == null || adpView.getAdapter().getCount() == 0) {
+      manager.clearGhostText();
+      return;
+    }
+    int pos = mCurrentSelection >= 0 ? mCurrentSelection : 0;
+    CompletionItem item = ((CustomEditorCompletionAdapter) adpView.getAdapter()).getItem(pos);
+    if (item == null) {
+      manager.clearGhostText();
+      return;
+    }
+    manager.showGhostText(computeGhostText(item));
+  }
+
+  /**
+   * Compute the text that would still be inserted if the given item were accepted now: the commit
+   * text (or label) with the already-typed prefix and any snippet placeholders removed.
+   */
+  @Nullable
+  private String computeGhostText(CompletionItem item) {
+    String commit = null;
+    if (item instanceof SimpleCompletionItem data) {
+      commit = data.commitText;
+    } else if (item instanceof LspCompletionItem lsp) {
+      commit = lsp.label.toString();
+    }
+    if (commit == null && item.label != null) {
+      commit = item.label.toString();
+    }
+    if (commit == null || commit.isEmpty()) {
+      return null;
+    }
+    commit = sanitizeSnippetText(commit);
+
+    Cursor cursor = editor.getCursor();
+    int line = cursor.getLeftLine();
+    int column = cursor.getLeftColumn();
+    String lineText = editor.getText().getLineString(line);
+    int prefixLength = Math.min(Math.max(item.prefixLength, 0), column);
+    String typedPrefix = lineText.substring(column - prefixLength, column);
+    if (commit.startsWith(typedPrefix)) {
+      return commit.substring(typedPrefix.length());
+    }
+    return commit;
+  }
+
+  private static String sanitizeSnippetText(String text) {
+    if (text.indexOf('$') < 0) {
+      return text;
+    }
+    return text.replaceAll("\\$\\{[^}]*}", "").replaceAll("\\$\\d+", "");
+  }
+
+  private void clearGhostText() {
+    GhostTextCompletionManager manager = editor.getGhostCompletionManager();
+    if (manager != null) {
+      manager.clearGhostText();
+    }
   }
 }

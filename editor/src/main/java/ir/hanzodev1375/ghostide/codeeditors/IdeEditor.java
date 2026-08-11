@@ -11,6 +11,8 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.LspInitParamsHook;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorTextActionWindow;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.event.ScrollEvent;
+import io.github.rosemoe.sora.graphics.inlayHint.GhostTextInlayHintRenderer;
+import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintsContainer;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import io.github.rosemoe.sora.lsp.editor.LspEditorStatus;
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion;
@@ -29,6 +31,7 @@ import ir.hanzodev1375.ghostide.codeeditors.stringres.StringResourceExtractorIde
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorAutoCompletion;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorCompletionAdapter;
 import ir.hanzodev1375.ghostide.codeeditors.ui.GhostDiagnosticTooltipLayout;
+import ir.hanzodev1375.ghostide.codeeditors.ui.GhostTextCompletionManager;
 import ir.hanzodev1375.ghostide.codeeditors.ui.power.PowerModeEffectManager;
 import ir.hanzodev1375.ghostide.codeeditors.ui.power.custom.CustomEffect;
 import java.io.File;
@@ -49,6 +52,7 @@ public class IdeEditor extends CodeEditor
   private XmlAttrPreviewIde xmlAttrPreviewIde;
   private String currentFilePath;
   private volatile LspEditor lspEditor;
+  private GhostTextCompletionManager ghostCompletionManager;
 
   public IdeEditor(Context context) {
     super(context);
@@ -62,6 +66,9 @@ public class IdeEditor extends CodeEditor
 
   private void init() {
     setting = new PreferencesUtils(getContext());
+    ghostCompletionManager = new GhostTextCompletionManager(this);
+    ghostCompletionManager.setEnabled(setting.enableGhostTextCompletion());
+    registerInlayHintRenderer(GhostTextInlayHintRenderer.DefaultInstance);
     setWebIdeColor(true);
     imagePreviewIde = new ImagePreviewIde(this);
     imagePreviewIde.attach();
@@ -218,6 +225,32 @@ public class IdeEditor extends CodeEditor
   @Nullable
   public LspEditorStatus getLspStatus() {
     return lspEditor == null ? null : lspEditor.getStatus();
+  }
+
+  public GhostTextCompletionManager getGhostCompletionManager() {
+    return ghostCompletionManager;
+  }
+
+  /**
+   * Keep the ghost text completion preview alive no matter who replaces the inlay hints (color
+   * previews, LSP, ...): the latest base container is remembered and the ghost hint is merged back
+   * on top before it reaches the editor.
+   */
+  @Override
+  public void setInlayHints(@Nullable InlayHintsContainer inlayHints) {
+    if (ghostCompletionManager != null && ghostCompletionManager.isActive()) {
+      ghostCompletionManager.setBaseHints(inlayHints);
+      super.setInlayHints(ghostCompletionManager.mergeGhost(inlayHints));
+    } else {
+      super.setInlayHints(inlayHints);
+    }
+  }
+
+  /**
+   * Direct setter that bypasses the ghost text merge (used by {@link GhostTextCompletionManager}).
+   */
+  public void setInlayHintsRaw(@Nullable InlayHintsContainer inlayHints) {
+    super.setInlayHints(inlayHints);
   }
 
   private void updateEditorPowerMode() {
@@ -434,6 +467,11 @@ public class IdeEditor extends CodeEditor
         break;
       case Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_POWER_MODE_EFFECT:
         updateEditorPowerModeEffectType();
+        break;
+      case Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_GHOST_TEXT:
+        if (ghostCompletionManager != null) {
+          ghostCompletionManager.setEnabled(setting.enableGhostTextCompletion());
+        }
         break;
       default:
     }

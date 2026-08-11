@@ -306,12 +306,8 @@ public class PowerModeEffectManager {
     int line = cursor.getLeftLine();
     int column = cursor.getLeftColumn();
 
-    // NOTE: getCharLayoutOffset(line, column) returns [rowOffsetY, columnOffsetX],
-    // not [x, y] — using pos[0] as x and pos[1] as y (as before) swaps the axes.
-    // getCharOffsetX/Y are CodeEditor's own helpers and apply this correctly,
-    // including the line-number gutter width via measureTextRegionOffset().
     float x = editor.getCharOffsetX(line, column);
-    float y = editor.getCharOffsetY(line, column) + editor.getRowHeight() * 0.5f;
+    float y = editor.getCharOffsetY(line, column) - editor.getRowHeight() * 0.5f;
 
     switch (currentEffect) {
       case PARTICLE:
@@ -395,7 +391,7 @@ public class PowerModeEffectManager {
       }
     }
 
-    if (!particles.isEmpty()) {
+    if (!particles.isEmpty() || customEffectManager.hasActiveEffects()) {
       editor.postInvalidate();
     }
   }

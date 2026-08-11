@@ -68,8 +68,10 @@ import ir.hanzodev1375.ghostide.fragments.EditorFragment;
 import ir.hanzodev1375.ghostide.models.TabModel;
 import ir.hanzodev1375.ghostide.models.ToolbarModel;
 import ir.hanzodev1375.ghostide.activity.pluginmanager.EditorHostAdapter;
+import ir.hanzodev1375.ghostide.ide.ui.api.EditorPanel;
 import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
+import ir.hanzodev1375.ghostide.plugin.PluginPanelHost;
 import ir.hanzodev1375.ghostide.plugin.api.Disposable;
 import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
 import ir.theme.ThemeManager;
@@ -116,6 +118,7 @@ public class EditorActivity extends BaseCompat
   private final Handler lspStatusHandler = new Handler(Looper.getMainLooper());
   private BreadcrumbAdapter breadcrumbAdapter;
   private Disposable editorHostRegistration;
+  private PluginPanelHost pluginPanelHost;
   private final Runnable lspStatusPollRunnable =
       new Runnable() {
         @Override
@@ -192,6 +195,7 @@ public class EditorActivity extends BaseCompat
     if (path != null && name != null) {
       openFile(path, name);
     }
+    pluginPanelHost = new PluginPanelHost(this);
     stepToolbar();
     setupKeyboardListener();
     setupSymbolBarVisibilityWatcher();
@@ -623,6 +627,11 @@ public class EditorActivity extends BaseCompat
     toolbarModel.add(new ToolbarModel(R.drawable.outline_undo, "undo"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_redo, "redo"));
     toolbarModel.add(new ToolbarModel(R.drawable.more_vert, "more"));
+    if (pluginPanelHost != null) {
+      for (EditorPanel panel : pluginPanelHost.getPanels()) {
+        toolbarModel.add(new ToolbarModel(R.drawable.ic_panel, panel.getTitle()));
+      }
+    }
     listAdapter =
         new ToolbarListAdapter(
             toolbarModel,
@@ -639,12 +648,24 @@ public class EditorActivity extends BaseCompat
                   if (getEditor().canRedo()) getEditor().redo();
                 }
                 case 6 -> setupMenuCalltoAction(view);
+                default -> openPluginPanelAt(pos);
               }
             },
             EditorActivity.this);
     binding.rvtoolbar.setLayoutManager(
         new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
     binding.rvtoolbar.setAdapter(listAdapter);
+  }
+
+  private void openPluginPanelAt(int pos) {
+    if (pluginPanelHost == null) {
+      return;
+    }
+    int panelIndex = pos - 7;
+    List<EditorPanel> panels = pluginPanelHost.getPanels();
+    if (panelIndex >= 0 && panelIndex < panels.size()) {
+      pluginPanelHost.showPanel(panels.get(panelIndex));
+    }
   }
 
   void stepSearch() {

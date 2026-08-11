@@ -494,6 +494,18 @@ public class ThemeUtils {
     }
   }
 
+  /** Themes a generic side sheet (plugin panels, etc.) with the current editor background. */
+  public void applySideSheet(SideSheetDialog dialog) {
+    var editor = getTheme().getEditor();
+    if (editor != null) {
+      dialog
+          .getWindow()
+          .getDecorView()
+          .setBackgroundTintList(
+              ColorStateList.valueOf(parseColor(editor.getCompletionWndBackground())));
+    }
+  }
+
   private int parseColor(String color) {
     try {
       return Color.parseColor(color);

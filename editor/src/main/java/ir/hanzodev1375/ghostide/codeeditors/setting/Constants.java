@@ -29,6 +29,8 @@ public class Constants {
     public static final String KEY_CODE_EDITOR_HIGHLIGHT_BRACKET =
         "pref_code_editor_highlight_brckt";
     public static final String KEY_CODE_EDITOR_AUTO_COMPLETE = "pref_code_editor_auto_complete";
+    public static final String KEY_CODE_EDITOR_GHOST_TEXT =
+        "pref_code_editor_ghost_text_completion";
     public static final String KEY_CODE_EDITOR_CURSOR_BLINK_PERIOD =
         "pref_code_editor_cursor_blnk_period";
     public static final String KEY_CODE_EDITOR_TAB_SIZE = "pref_code_editor_tab_size";
