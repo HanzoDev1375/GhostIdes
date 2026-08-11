@@ -7,6 +7,7 @@ import android.os.Looper;
 
 import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -130,7 +131,6 @@ public class HtmlServer {
                 var html = new HtmlLanguage(context, filePath);
                 e.setWrapperLanguage(html);
                 e.setEditor(editor);
-                e.setEnableInlayHint(true);
                 holder[0] = e;
               } finally {
                 latch.countDown();

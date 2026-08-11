@@ -726,4 +726,37 @@ public class PreferencesUtils {
         .putString(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_POWER_MODE_EFFECT, effectType)
         .apply();
   }
+
+  // all lsp setting
+  public boolean isInlayHint() {
+    return getDefaultPreferences().getBoolean("editor_lsp_inlay", true);
+  }
+
+  public void setInlayHint(boolean show) {
+    getDefaultPreferences().edit().putBoolean("editor_lsp_inlay", show).apply();
+  }
+
+  public boolean isHover() {
+    return getDefaultPreferences().getBoolean("editor_lsp_hover", true);
+  }
+
+  public void setHover(boolean show) {
+    getDefaultPreferences().edit().putBoolean("editor_lsp_hover", show).apply();
+  }
+
+  public boolean isSignatureHelp() {
+    return getDefaultPreferences().getBoolean("editor_lsp_signaturehelp", true);
+  }
+
+  public void setSignatureHelp(boolean show) {
+    getDefaultPreferences().edit().putBoolean("editor_lsp_signaturehelp", show).apply();
+  }
+
+  public boolean isDiagnostics() {
+    return getDefaultPreferences().getBoolean("editor_lsp_diagnostics", true);
+  }
+
+  public void setDiagnostics(boolean show) {
+    getDefaultPreferences().edit().putBoolean("editor_lsp_diagnostics", show).apply();
+  }
 }

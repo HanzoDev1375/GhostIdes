@@ -43,6 +43,7 @@ import java.io.IOException;
 import ir.hanzodev1375.ghostide.R;
 import java.io.Reader;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -188,9 +189,14 @@ public class EditorFragment extends Fragment {
                         if (lspEditor == null) {
                           return;
                         }
-                        lspEditor.setEnableInlayHint(true);
-                        lspEditor.setEnableHover(true);
-                        lspEditor.setEnableSignatureHelp(true);
+                        lspEditor.setEnableInlayHint(setting.isInlayHint());
+                        lspEditor.setEnableHover(setting.isHover());
+                        lspEditor.setEnableSignatureHelp(setting.isSignatureHelp());
+                        if (setting.isDiagnostics()) {
+                          lspEditor.setDiagnostics(new ArrayList<>());
+                        } else {
+                          lspEditor.setDiagnostics(lspEditor.getDiagnostics());
+                        }
                         updateDiagnosticsIcon(lspEditor);
                         scheduleBreadcrumbRefresh();
                       });

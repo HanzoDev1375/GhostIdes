@@ -59,9 +59,9 @@ import ir.hanzodev1375.ghostide.codeeditors.ui.power.PowerModeEffectManager;
 public class SettingActivity extends BaseCompat {
 
   private PreferencesUtils prefs;
-  protected ExpandableLayout expandEditor, expandApp;
-  private RecyclerView rvEditor, rvApp;
-  private SettingsAdapter editorAdapter, appAdapter;
+  protected ExpandableLayout expandEditor, expandApp, LspView;
+  private RecyclerView rvEditor, rvApp, rvLsp;
+  private SettingsAdapter editorAdapter, appAdapter, lspAdapter;
   private ThemeEngine themeEngine;
   private AiPreferencesUtils aiPrefs;
   private SearchLayout ser;
@@ -87,13 +87,18 @@ public class SettingActivity extends BaseCompat {
 
     expandEditor.setTitle(getString(R.string.section_editor));
     expandApp.setTitle(getString(R.string.section_app));
+    LspView = findViewById(R.id.lspsetting);
+    LspView.setTitle(getString(R.string.lsptitles));
 
     rvEditor = expandEditor.getRecyclerView();
     rvApp = expandApp.getRecyclerView();
+    rvLsp = LspView.getRecyclerView();
     rvEditor.setLayoutManager(new LinearLayoutManager(this));
     rvApp.setLayoutManager(new LinearLayoutManager(this));
+    rvLsp.setLayoutManager(new LinearLayoutManager(this));
     editorAdapter = new SettingsAdapter(getEditorItems());
     appAdapter = new SettingsAdapter(getAppItems());
+    lspAdapter = new SettingsAdapter(getLspSetting());
     ser.show();
     View root = findViewById(R.id.settingRoot);
     ViewCompat.setOnApplyWindowInsetsListener(
@@ -110,6 +115,8 @@ public class SettingActivity extends BaseCompat {
         });
     rvEditor.setAdapter(editorAdapter);
     rvApp.setAdapter(appAdapter);
+    rvLsp.setAdapter(lspAdapter);
+
     ExpandableLayout expandAi = findViewById(R.id.expandAi);
     expandAi.setTitle(getString(R.string.ai_section_title));
     RecyclerView rvAi = expandAi.getRecyclerView();
@@ -123,17 +130,21 @@ public class SettingActivity extends BaseCompat {
           if (item.length() > 0) {
             editorAdapter.filter(item);
             appAdapter.filter(item);
+            lspAdapter.filter(item);
             aiAdapter.filter(item);
             if (!expandAi.isExpanded()) expandAi.expand();
             if (!expandApp.isExpanded()) expandApp.expand();
             if (!expandEditor.isExpanded()) expandEditor.expand();
+            if (!LspView.isExpanded()) LspView.expand();
           } else {
             editorAdapter.filter("");
             appAdapter.filter("");
             aiAdapter.filter("");
+            lspAdapter.filter("");
             expandAi.collapse();
             expandApp.collapse();
             expandEditor.collapse();
+            LspView.collapse();
           }
         });
     editorAdapter.setOnItemClickListener(
@@ -585,6 +596,39 @@ public class SettingActivity extends BaseCompat {
             0,
             prefs::setBlurMod));
 
+    return items;
+  }
+
+  private List<SettingItem> getLspSetting() {
+    List<SettingItem> items = new ArrayList<>();
+    items.add(
+        new SettingItem(
+            getString(R.string.lsp_inlaytitle),
+            getString(R.string.lsp_inlaysubtitle),
+            prefs.isInlayHint(),
+            0,
+            prefs::setInlayHint));
+    items.add(
+        new SettingItem(
+            getString(R.string.lsp_hovertitle),
+            getString(R.string.lsp_hoversubtitle),
+            prefs.isHover(),
+            0,
+            prefs::setHover));
+    items.add(
+        new SettingItem(
+            getString(R.string.lsp_signaturehelptitle),
+            getString(R.string.lsp_signaturehelpsubtitle),
+            prefs.isSignatureHelp(),
+            0,
+            prefs::setSignatureHelp));
+    items.add(
+        new SettingItem(
+            getString(R.string.lsp_diagnosticstitle),
+            getString(R.string.lsp_diagnosticssubtitle),
+            prefs.isDiagnostics(),
+            0,
+            prefs::setDiagnostics));
     return items;
   }
 

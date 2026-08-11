@@ -1,74 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
-     xmlns:android="http://schemas.android.com/apk/res/android"
-     xmlns:app="http://schemas.android.com/apk/res-auto"
-     android:layout_height="match_parent"
-     android:layout_width="match_parent"
-     android:id="@+id/settingRoot"
-     android:fitsSystemWindows="true">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:id="@+id/settingRoot"
+    android:fitsSystemWindows="true">
 
     <ImageView
-         android:layout_height="match_parent"
-         android:layout_width="match_parent"
-         android:scaleType="centerCrop"
-         android:visibility="visible"
-         android:id="@+id/backgroundIconSetting" />
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:scaleType="centerCrop"
+        android:visibility="visible"
+        android:id="@+id/backgroundIconSetting" />
 
     <com.google.android.material.appbar.AppBarLayout
-         android:layout_height="wrap_content"
-         android:layout_width="match_parent"
-         android:id="@+id/appbar">
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/appbar">
 
         <com.google.android.material.appbar.MaterialToolbar
-             android:layout_height="?attr/actionBarSize"
-             android:layout_width="match_parent"
-             app:title="@string/settings_title"
-             android:id="@+id/toolbar">
+            android:layout_height="?attr/actionBarSize"
+            android:layout_width="match_parent"
+            app:title="@string/settings_title"
+            android:id="@+id/toolbar">
 
         </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
-         android:layout_height="match_parent"
-         android:layout_width="match_parent"
-         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <LinearLayout
-             android:layout_height="wrap_content"
-             android:layout_width="match_parent"
-             android:orientation="vertical"
-             android:paddingBottom="20dp"
-             android:id="@+id/settings_container"
-             android:paddingTop="8dp">
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:paddingBottom="20dp"
+            android:id="@+id/settings_container"
+            android:paddingTop="8dp">
 
             <ir.hanzodev1375.ghostide.customui.ExpandableLayout
-                 android:layout_height="wrap_content"
-                 android:layout_width="match_parent"
-                 android:id="@+id/expandEditor" />
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:id="@+id/expandEditor" />
 
             <ir.hanzodev1375.ghostide.customui.ExpandableLayout
-                 android:layout_height="wrap_content"
-                 android:layout_width="match_parent"
-                 android:id="@+id/expandApp" />
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:id="@+id/expandApp" />
 
             <ir.hanzodev1375.ghostide.customui.ExpandableLayout
-                 android:layout_height="wrap_content"
-                 android:layout_width="match_parent"
-                 android:id="@+id/expandAi" />
-
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:id="@+id/expandAi" />
+            <ir.hanzodev1375.ghostide.customui.ExpandableLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:id="@+id/lspsetting" />
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
 
     <ir.hanzodev1375.components.SearchLayout
-         android:layout_height="wrap_content"
-         android:layout_width="match_parent"
-         android:layout_marginBottom="4dp"
-         android:layout_marginEnd="8dp"
-         android:layout_marginStart="8dp"
-         android:id="@+id/searchitem"
-         android:visibility="visible"
-         android:layout_gravity="bottom|center_horizontal" />
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:id="@+id/searchitem"
+        android:visibility="visible"
+        android:layout_gravity="bottom|center_horizontal" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
