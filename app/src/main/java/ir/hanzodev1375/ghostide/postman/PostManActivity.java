@@ -219,7 +219,7 @@ public class PostManActivity extends BaseCompat {
     int overlay =
         androidx.core.graphics.ColorUtils.setAlphaComponent(
             ColorUtils.resolveAttrColor(this, R.attr.colorSurface), 160);
-    BlurUtils.applyBlur(this, binding.responseSheetBlurView, binding.getRoot(), 18f);
+    BlurUtils.applyBlur(this, binding.responseSheetBlurView, binding.responseSheetBlurTarget, 18f);
     BottomSheetBehavior<LinearLayout> behavior = BottomSheetBehavior.from(binding.responseSheet);
     behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 

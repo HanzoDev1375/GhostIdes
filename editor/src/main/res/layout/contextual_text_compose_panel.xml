@@ -18,6 +18,19 @@
         <ImageButton
              android:layout_height="48dp"
              android:layout_width="48dp"
+             android:visibility="gone"
+             android:contentDescription="@string/editor_format"
+             android:scaleType="centerInside"
+             android:src="@drawable/ic_format_selection"
+             android:background="@android:color/transparent"
+             android:clickable="true"
+             android:focusable="true"
+             android:id="@+id/panel_btn_format"
+             android:foreground="?attr/selectableItemBackgroundBorderless" />
+
+        <ImageButton
+             android:layout_height="48dp"
+             android:layout_width="48dp"
              android:contentDescription="@string/editor_expand_selection"
              android:scaleType="centerInside"
              android:src="@drawable/ic_expand_selection"
@@ -91,20 +104,6 @@
              android:layout_height="48dp"
              android:layout_width="48dp"
              android:visibility="gone"
-             android:contentDescription="@string/editor_format"
-             android:scaleType="centerInside"
-             android:src="@drawable/ic_format_selection"
-             android:background="@android:color/transparent"
-             android:clickable="true"
-             android:focusable="true"
-             android:id="@+id/panel_btn_format"
-             android:foreground="?attr/selectableItemBackgroundBorderless" />
-
-        <!-- دکمه های LSP: فقط وقتی که سرور LSP نصب باشه نشون داده می شن -->
-        <ImageButton
-             android:layout_height="48dp"
-             android:layout_width="48dp"
-             android:visibility="gone"
              android:contentDescription="@string/editor_lsp_definition"
              android:scaleType="centerInside"
              android:src="@drawable/ic_lsp_definition"
@@ -153,7 +152,6 @@
              android:id="@+id/panel_btn_lsp_code_action"
              android:foreground="?attr/selectableItemBackgroundBorderless" />
 
-      
         <ImageButton
              android:layout_height="48dp"
              android:layout_width="48dp"

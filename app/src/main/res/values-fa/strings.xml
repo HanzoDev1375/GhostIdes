@@ -444,4 +444,19 @@
   <string name="terminal_status_downloading">در حال بارگیری: %1$d%%</string>
   <string name="terminal_status_extracting">در حال استخراج... (%1$d فایل)</string>
   <string name="terminal_debian_installed_success">دبیان نصب شد ✓</string>
+  <string name="all_blur">حالت تاری</string>
+  <string name="all_blur_subtitle">همه اجزا را تار کنید.</string>
+  <string name="webcolor">نمایش Color PickerWeb</string>
+  <string name="lsp_inlaytitle">نمایش Inlay</string>
+  <string name="lsp_inlaysubtitle">نمایش ویرایشگر آیتم Inlay نه همه زبانها</string>
+  <string name="lsp_hovertitle">نمایش Hover</string>
+  <string name="lsp_hoversubtitle">نمایش Hover در Charcter</string>
+  <string name="lsp_signaturehelptitle">نمایش SignatureHelp</string>
+  <string name="lsp_signaturehelpsubtitle">نمایش SignatureHelp Windows</string>
+  <string name="lsp_diagnosticstitle">نمایش تشخیص</string>
+  <string name="lsp_diagnosticssubtitle">نمایش خطای عیب یابی پایان جنگ و...</string>
+  <string name="lsptitles">سرور Ghost ide Lsp</string>
+  <string name="icon_atomicghost">اتم گوست</string>
+  <string name="icon_neonpurple">نماد نئون</string>
+  <string name="icon_devilishpurple">بنفش شیطانی</string>
 </resources>

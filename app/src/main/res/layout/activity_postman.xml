@@ -339,6 +339,13 @@
 
     </LinearLayout>
   </androidx.core.widget.NestedScrollView>
+  <!-- Empty sibling target: BlurView 3.x forbids a BlurTarget containing the BlurView
+       that targets it, so this stand-in target replaces the old self-referencing setup. -->
+  <eightbitlab.com.blurview.BlurTarget
+    android:id="@+id/responseSheetBlurTarget"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+
   <!-- ============== Persistent response bottom sheet ============== -->
   <LinearLayout
     android:id="@+id/responseSheet"

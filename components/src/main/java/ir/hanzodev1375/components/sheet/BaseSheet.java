@@ -3,40 +3,35 @@ package ir.hanzodev1375.components.sheet;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Outline;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.Window;
+import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
-import com.blankj.utilcode.util.SizeUtils;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import eightbitlab.com.blurview.RenderScriptBlur;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.databinding.BaseBlurBottomSheetBinding;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
-import jp.wasabeef.blurry.Blurry;
 
 public class BaseSheet extends BottomSheetDialog {
 
   private BaseBlurBottomSheetBinding binding;
   private boolean hasPeekMod = false;
-  private PreferencesUtils app;
+  private final PreferencesUtils app;
   private boolean contentAdded = false;
 
   public BaseSheet(@NonNull Context context) {
     super(context);
+    app = new PreferencesUtils(context);
   }
 
   public BaseSheet(@NonNull Context context, int style) {
     super(context, style);
-  }
-
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    app = new PreferencesUtils(getContext());
+    app = new PreferencesUtils(context);
   }
 
   @Override
@@ -52,17 +47,7 @@ public class BaseSheet extends BottomSheetDialog {
       }
 
       View root = binding.getRoot();
-      float cornerRadius =
-          getContext().getResources().getDimension(R.dimen.bottom_sheet_corner_radius);
-      root.setClipToOutline(true);
-      root.setOutlineProvider(
-          new ViewOutlineProvider() {
-            @Override
-            public void getOutline(View v, Outline outline) {
-              outline.setRoundRect(
-                  0, 0, v.getWidth(), v.getHeight() + (int) cornerRadius, cornerRadius);
-            }
-          });
+      
       root.addOnLayoutChangeListener(
           (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
               v.invalidateOutline());
@@ -71,10 +56,13 @@ public class BaseSheet extends BottomSheetDialog {
     }
 
     if (view != null && !contentAdded) {
-      binding.contentContainer.addView(
-          view,
-          new ViewGroup.LayoutParams(
-              ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+      ViewGroup.LayoutParams params = view.getLayoutParams();
+      if (params == null) {
+        params =
+            new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+      }
+      binding.contentContainer.addView(view, params);
       contentAdded = true;
     }
   }
@@ -85,28 +73,40 @@ public class BaseSheet extends BottomSheetDialog {
     setContentView(view);
   }
 
- private void expandSheet() {
-    View bottomSheet = findViewById(R.id.design_bottom_sheet);
+  private void expandSheet() {
+    FrameLayout bottomSheet = findViewById(R.id.design_bottom_sheet);
     if (bottomSheet != null) {
-        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
-        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        behavior.setSkipCollapsed(true);
+      BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
+      behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+      behavior.setSkipCollapsed(true);
 
-        bottomSheet.post(() -> {
-            
-            if (app.isBlurMod()) {
-                bottomSheet.setBackgroundColor(Color.TRANSPARENT);
-                View decorView = getWindow().getDecorView().findViewById(android.R.id.content);
-                Blurry.with(getContext())
-                        .radius(24)
-                        .sampling(4)
-                        .async()
-                        .capture(decorView)
-                        .into(binding.blurBackground);
-            }
-        });
+      if (app.isBlurMod()) {
+        bottomSheet.post(
+            () -> {
+              bottomSheet.setBackgroundColor(Color.TRANSPARENT);
+              float cornerRadius =
+                  getContext().getResources().getDimension(R.dimen.bottom_sheet_corner_radius);
+              binding
+                  .layoutblur.setClipToOutline(true);
+              binding
+                  .layoutblur.setOutlineProvider(
+                  new ViewOutlineProvider() {
+                    @Override
+                    public void getOutline(View v, Outline outline) {
+                      outline.setRoundRect(
+                          0, 0, v.getWidth(), v.getHeight() + (int) cornerRadius, cornerRadius);
+                    }
+                  });
+              binding
+                  .layoutblur
+                  .setupWith(binding.blurTarget)
+                  .setFrameClearDrawable(getWindow().getDecorView().getBackground())
+                  .setBlurRadius(18f);
+            });
+      }
     }
-}
+  }
+
   @Override
   public void dismiss() {
     binding = null;

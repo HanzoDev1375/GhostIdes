@@ -406,6 +406,15 @@
   <string name="menu_settings">设置</string>
   <string name="menu_clear_all">全部清除</string>
   <string name="postman_title">邮递员</string>
+  <string name="plugin_manager_title">插件管理器</string>
+  <string name="plugin_manager_empty">尚未安装任何插件。点击 + 安装 .gpl 文件。</string>
+  <string name="plugin_manager_search_hint">搜索插件</string>
+  <string name="plugin_manager_uninstall">卸载</string>
+  <string name="plugin_manager_uninstalled_toast">已卸载%1$s</string>
+  <string name="plugin_manager_install_error">无法安装插件：%1$s</string>
+  <string name="plugin_manager_installed_toast">已安装 %1$s</string>
+  <string name="plugin_manager_not_gpl_file">请选择 .gpl 插件文件</string>
+  <string name="plugin_manager_run_setup">在终端中运行</string>
   <string name="terminal_error_cannot_create_etc_dir">无法创建 etc 目录：%1$s</string>
   <string name="terminal_error_resolve_rootfs_failed">无法找到 %1$s 架构的最新 rootfs：%2$s</string>
   <string name="terminal_error_http_status">来自 %2$s 的 HTTP %1$d</string>
@@ -435,4 +444,19 @@
   <string name="terminal_status_downloading">正在下载：%1$d%%</string>
   <string name="terminal_status_extracting">正在提取...（%1$d 个文件）</string>
   <string name="terminal_debian_installed_success">已安装 Debian ✓</string>
+  <string name="all_blur">模糊模式</string>
+  <string name="all_blur_subtitle">模糊所有组件。</string>
+  <string name="webcolor">显示颜色选择器Web</string>
+  <string name="lsp_inlaytitle">显示镶嵌</string>
+  <string name="lsp_inlaysubtitle">显示镶嵌项目编辑器并非所有语言都有效</string>
+  <string name="lsp_hovertitle">显示悬停</string>
+  <string name="lsp_hoversubtitle">在角色中显示悬停</string>
+  <string name="lsp_signaturehelptitle">显示签名帮助</string>
+  <string name="lsp_signaturehelpsubtitle">显示签名帮助窗口</string>
+  <string name="lsp_diagnosticstitle">显示诊断</string>
+  <string name="lsp_diagnosticssubtitle">显示诊断错误战争结束等...</string>
+  <string name="lsptitles">Ghost ide Lsp服务器</string>
+  <string name="icon_atomicghost">原子幽灵</string>
+  <string name="icon_neonpurple">图标霓虹灯</string>
+  <string name="icon_devilishpurple">恶魔紫</string>
 </resources>

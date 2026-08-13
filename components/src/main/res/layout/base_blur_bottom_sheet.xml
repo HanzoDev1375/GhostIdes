@@ -1,21 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
-     xmlns:android="http://schemas.android.com/apk/res/android"
-     android:layout_height="wrap_content"
-     android:layout_width="match_parent">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
 
-    <ImageView
-         android:layout_height="match_parent"
-         android:layout_width="match_parent"
-         android:scaleType="centerCrop"
-         android:id="@+id/blurBackground" />
+    <!-- Empty sibling target: BlurView can no longer target an ancestor that contains it
+         (BlurView 3.x forbids a BlurTarget containing the BlurView that targets it), so this
+         stand-in target replaces the old self-referencing setup. -->
+    <eightbitlab.com.blurview.BlurTarget
+        android:id="@+id/blurTarget"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent" />
 
-    <LinearLayout
-         android:layout_height="wrap_content"
-         android:layout_width="match_parent"
-         android:orientation="vertical"
-         android:id="@+id/contentContainer">
+    <eightbitlab.com.blurview.BlurView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/layoutblur">
 
-    </LinearLayout>
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/contentContainer">
+
+        </LinearLayout>
+    </eightbitlab.com.blurview.BlurView>
 
 </FrameLayout>

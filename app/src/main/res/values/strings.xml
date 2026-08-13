@@ -473,4 +473,7 @@
     <string name="lsp_diagnosticstitle"> Show Diagnostics</string>
     <string name="lsp_diagnosticssubtitle"> Show Diagnostics Error War end ect...</string>
     <string name="lsptitles"> Ghost ide Lsp Server</string>
+    <string name="icon_atomicghost"> Atom Ghost</string>
+    <string name="icon_neonpurple"> Icon Neon </string>
+    <string name="icon_devilishpurple">Devilish Purple</string>
 </resources>

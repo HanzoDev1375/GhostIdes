@@ -406,6 +406,15 @@
   <string name="menu_settings">Настройки</string>
   <string name="menu_clear_all">Очистить все</string>
   <string name="postman_title">Почтальон</string>
+  <string name="plugin_manager_title">Менеджер плагинов</string>
+  <string name="plugin_manager_empty">Плагины пока не установлены. Нажмите +, чтобы установить файл .gpl.</string>
+  <string name="plugin_manager_search_hint">Поиск плагинов</string>
+  <string name="plugin_manager_uninstall">Удалить</string>
+  <string name="plugin_manager_uninstalled_toast">Удален %1$s</string>
+  <string name="plugin_manager_install_error">Не удалось установить плагин: %1$s</string>
+  <string name="plugin_manager_installed_toast">Установлен %1$s</string>
+  <string name="plugin_manager_not_gpl_file">Пожалуйста, выберите файл плагина .gpl</string>
+  <string name="plugin_manager_run_setup">Запустить в терминале</string>
   <string name="terminal_error_cannot_create_etc_dir">Невозможно создать каталог и т. д.: %1$s</string>
   <string name="terminal_error_resolve_rootfs_failed">Не удалось найти последнюю rootfs для архитектуры %1$s: %2$s.</string>
   <string name="terminal_error_http_status">HTTP %1$d от %2$s</string>
@@ -435,4 +444,19 @@
   <string name="terminal_status_downloading">Загрузка: %1$d%%</string>
   <string name="terminal_status_extracting">Извлечение... (%1$d файлов)</string>
   <string name="terminal_debian_installed_success">Debian установлен ✓</string>
+  <string name="all_blur">Мод размытия</string>
+  <string name="all_blur_subtitle">Размытие всех компонентов.</string>
+  <string name="webcolor">Показать палитру цветовWeb</string>
+  <string name="lsp_inlaytitle">Показать инкрустацию</string>
+  <string name="lsp_inlaysubtitle">Показывать редактор элементов-вкладышей, не все языки работают</string>
+  <string name="lsp_hovertitle">Показать наведение</string>
+  <string name="lsp_hoversubtitle">Показать Hover в персонаже</string>
+  <string name="lsp_signaturehelptitle">Показать подписьСправка</string>
+  <string name="lsp_signaturehelpsubtitle">Показать справку по подписи в Windows</string>
+  <string name="lsp_diagnosticstitle">Показать диагностику</string>
+  <string name="lsp_diagnosticssubtitle">Показать ошибку диагностики. Конец войны и т. д.</string>
+  <string name="lsptitles">Сервер Ghost ide Lsp</string>
+  <string name="icon_atomicghost">Атомный призрак</string>
+  <string name="icon_neonpurple">Значок Неон</string>
+  <string name="icon_devilishpurple">Дьявольский фиолетовый</string>
 </resources>

@@ -406,6 +406,15 @@
   <string name="menu_settings">Configurações</string>
   <string name="menu_clear_all">Limpar tudo</string>
   <string name="postman_title">Posteiro</string>
+  <string name="plugin_manager_title">Gerenciador de plug-ins</string>
+  <string name="plugin_manager_empty">Nenhum plug-in instalado ainda. Toque em + para instalar um arquivo .gpl.</string>
+  <string name="plugin_manager_search_hint">Plug-ins de pesquisa</string>
+  <string name="plugin_manager_uninstall">Desinstalar</string>
+  <string name="plugin_manager_uninstalled_toast">%1$s desinstalado</string>
+  <string name="plugin_manager_install_error">Não foi possível instalar o plugin: %1$s</string>
+  <string name="plugin_manager_installed_toast">%1$s instalado</string>
+  <string name="plugin_manager_not_gpl_file">Escolha um arquivo de plug-in .gpl</string>
+  <string name="plugin_manager_run_setup">Execute no terminal</string>
   <string name="terminal_error_cannot_create_etc_dir">Não é possível criar o diretório etc: %1$s</string>
   <string name="terminal_error_resolve_rootfs_failed">Falha ao encontrar os rootfs mais recentes para a arquitetura %1$s: %2$s</string>
   <string name="terminal_error_http_status">HTTP %1$d de %2$s</string>
@@ -435,4 +444,19 @@
   <string name="terminal_status_downloading">Baixando: %1$d%%</string>
   <string name="terminal_status_extracting">Extraindo... (%1$d arquivos)</string>
   <string name="terminal_debian_installed_success">Debian instalado ✓</string>
+  <string name="all_blur">Mod de desfoque</string>
+  <string name="all_blur_subtitle">Desfoque todos os componentes.</string>
+  <string name="webcolor">Mostrar seletor de coresWeb</string>
+  <string name="lsp_inlaytitle">Mostrar incrustação</string>
+  <string name="lsp_inlaysubtitle">Mostrar editor de itens embutidos nem todos os idiomas funcionam</string>
+  <string name="lsp_hovertitle">Mostrar foco</string>
+  <string name="lsp_hoversubtitle">Mostrar foco no personagem</string>
+  <string name="lsp_signaturehelptitle">Mostrar assinaturaAjuda</string>
+  <string name="lsp_signaturehelpsubtitle">Mostrar janelas de ajuda de assinatura</string>
+  <string name="lsp_diagnosticstitle">Mostrar diagnóstico</string>
+  <string name="lsp_diagnosticssubtitle">Mostrar erro de diagnóstico Fim da guerra etc...</string>
+  <string name="lsptitles">Servidor Ghost ide Lsp</string>
+  <string name="icon_atomicghost">Fantasma do átomo</string>
+  <string name="icon_neonpurple">Ícone néon</string>
+  <string name="icon_devilishpurple">Roxo Diabólico</string>
 </resources>

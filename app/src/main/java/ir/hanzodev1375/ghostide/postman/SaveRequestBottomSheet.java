@@ -66,8 +66,7 @@ public class SaveRequestBottomSheet extends BottomSheetDialogFragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    ViewGroup blurRoot = requireActivity().findViewById(android.R.id.content);
-    BlurUtils.applyBlur(requireActivity(), binding.saveSheetBlurView, blurRoot, 18f);
+    BlurUtils.applyBlur(requireActivity(), binding.saveSheetBlurView, binding.saveSheetBlurTarget, 18f);
 
     Bundle args = requireArguments();
     String method = args.getString(ARG_METHOD, "GET");

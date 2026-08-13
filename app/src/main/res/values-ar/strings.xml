@@ -406,6 +406,15 @@
   <string name="menu_settings">إعدادات</string>
   <string name="menu_clear_all">مسح الكل</string>
   <string name="postman_title">رجل البريد</string>
+  <string name="plugin_manager_title">مدير البرنامج المساعد</string>
+  <string name="plugin_manager_empty">لم يتم تثبيت أي مكونات إضافية حتى الآن. انقر على + لتثبيت ملف ‎.gpl.</string>
+  <string name="plugin_manager_search_hint">البحث في الإضافات</string>
+  <string name="plugin_manager_uninstall">إلغاء التثبيت</string>
+  <string name="plugin_manager_uninstalled_toast">تم إلغاء تثبيت %1$s</string>
+  <string name="plugin_manager_install_error">تعذر تثبيت المكون الإضافي: %1$s</string>
+  <string name="plugin_manager_installed_toast">تم تثبيت %1$s</string>
+  <string name="plugin_manager_not_gpl_file">الرجاء اختيار ملف البرنامج المساعد .gpl</string>
+  <string name="plugin_manager_run_setup">تشغيل في المحطة</string>
   <string name="terminal_error_cannot_create_etc_dir">لا يمكن إنشاء دليل آخر: %1$s</string>
   <string name="terminal_error_resolve_rootfs_failed">فشل العثور على أحدث الجذور لبنية %1$s: %2$s</string>
   <string name="terminal_error_http_status">HTTP %1$d من %2$s</string>
@@ -435,4 +444,19 @@
   <string name="terminal_status_downloading">التنزيل: %1$d%%</string>
   <string name="terminal_status_extracting">جارٍ الاستخراج... (%1$d ملف)</string>
   <string name="terminal_debian_installed_success">تم تثبيت دبيان ✓</string>
+  <string name="all_blur">طمس الوضع</string>
+  <string name="all_blur_subtitle">طمس جميع المكونات.</string>
+  <string name="webcolor">إظهار Color PickerWeb</string>
+  <string name="lsp_inlaytitle">عرض البطانة</string>
+  <string name="lsp_inlaysubtitle">إظهار محرر عنصر البطانة ليس كل اللغة تعمل</string>
+  <string name="lsp_hovertitle">إظهار التحويم</string>
+  <string name="lsp_hoversubtitle">إظهار التحويم في الحرف</string>
+  <string name="lsp_signaturehelptitle">إظهار مساعدة التوقيع</string>
+  <string name="lsp_signaturehelpsubtitle">إظهار التوقيع مساعدة Windows</string>
+  <string name="lsp_diagnosticstitle">إظهار التشخيص</string>
+  <string name="lsp_diagnosticssubtitle">عرض نهاية حرب خطأ التشخيص وما إلى ذلك ...</string>
+  <string name="lsptitles">شبح بيئة تطوير متكاملة خادم Lsp</string>
+  <string name="icon_atomicghost">شبح الذرة</string>
+  <string name="icon_neonpurple">أيقونة النيون</string>
+  <string name="icon_devilishpurple">الأرجواني الشيطاني</string>
 </resources>

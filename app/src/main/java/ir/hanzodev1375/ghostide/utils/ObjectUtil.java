@@ -1,12 +1,16 @@
 package ir.hanzodev1375.ghostide.utils;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
 import com.google.android.material.R;
 import com.google.android.material.color.MaterialColors;
 import com.skydoves.powermenu.MenuAnimation;
 import com.skydoves.powermenu.PowerMenu;
+import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
+import ir.theme.ThemeManager;
+import ir.theme.ThemeUtils;
 
 public class ObjectUtil {
   public static void showFixPos(PowerMenu menu, View view) {
@@ -26,16 +30,29 @@ public class ObjectUtil {
   }
 
   public static PowerMenu stepMenu(Context context, View view) {
-    var menu = new PowerMenu.Builder(context).build();
+    var menu = new PowerMenu.Builder(context).setIsMaterial(true).build();
+    var setting = GhostIdeAppLoader.getInstance().getSetting();
+    var themeManager = new ThemeManager(context);
+    var themeUtil = new ThemeUtils(themeManager);
+    var widgetImpl = themeUtil.getTheme().getWidget();
     menu.setAutoDismiss(true);
-    menu.setMenuColor(MaterialColors.getColor(context, R.attr.colorSurface, 0));
-    menu.setTextColor(MaterialColors.getColor(context, R.attr.colorOnSurface, 0));
+    menu.setMenuColor(
+        setting.isShowBackground()
+            ? Color.parseColor(widgetImpl.getMenubackground())
+            : MaterialColors.getColor(context, R.attr.colorSurface, 0));
+    menu.setTextColor(
+        setting.isShowBackground()
+            ? Color.parseColor(widgetImpl.getMenutextcolor())
+            : MaterialColors.getColor(context, R.attr.colorOnSurface, 0));
     menu.setShowBackground(false);
     menu.setMenuRadius(25f);
     menu.setMenuShadow(3f);
     menu.setAnimation(MenuAnimation.FADE);
-    menu.setIconColor(MaterialColors.getColor(context, R.attr.colorOnSurface, 0));
-    showFixPos(menu, view);
+    menu.setIconColor(
+        setting.isShowBackground()
+            ? Color.parseColor(widgetImpl.getMenutextcolor())
+            : MaterialColors.getColor(context, R.attr.colorOnSurface, 0));
+    //showFixPos(menu, view);
     return menu;
   }
 }

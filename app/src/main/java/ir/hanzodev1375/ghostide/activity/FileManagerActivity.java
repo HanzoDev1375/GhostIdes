@@ -1172,7 +1172,7 @@ public class FileManagerActivity extends BaseCompat
         (filemodel, view, pos) -> {
           boolean showRenamePackage = isRenameablePackageDirectory(filemodel);
           boolean showRenameClass = isRenameableClassFile(filemodel);
-          PowerMenu menu = new PowerMenu.Builder(view.getContext()).setIsMaterial(true).build();
+          var menu = ObjectUtil.stepMenu(this,view);
           menu.addItem(new PowerMenuItem(getString(R.string.removed)));
           menu.addItem(new PowerMenuItem(getString(R.string.rename)));
           menu.addItem(new PowerMenuItem(getString(R.string.props_title_single)));
@@ -1228,7 +1228,7 @@ public class FileManagerActivity extends BaseCompat
                   }
                 }
               });
-          ObjectUtil.showFixPos(menu, view);
+           ObjectUtil.showFixPos(menu,view);
         });
   }
 

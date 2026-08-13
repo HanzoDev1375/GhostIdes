@@ -19,7 +19,19 @@ public enum AppIcon {
   HELLISH(
       "ir.hanzodev1375.ghostide.IconAliasHellish",
       R.drawable.iconhellish,
-      R.string.icon_name_hellish);
+      R.string.icon_name_hellish),
+  ATOMGHOST(
+      "ir.hanzodev1375.ghostide.IconAliasatomicghost",
+      R.drawable.atomicghost,
+      R.string.icon_atomicghost),
+  EVILICON(
+      "ir.hanzodev1375.ghostide.IconAliasdevilishpurple",
+      R.drawable.devilishpurple,
+      R.string.icon_devilishpurple),
+  NEON(
+      "ir.hanzodev1375.ghostide.IconAliasneonpurple",
+      R.drawable.neonpurple,
+      R.string.icon_neonpurple);
   public final String componentName;
   public final int previewRes;
   @StringRes public final int labelRes;

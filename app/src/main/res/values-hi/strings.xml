@@ -406,6 +406,15 @@
   <string name="menu_settings">सेटिंग्स</string>
   <string name="menu_clear_all">सभी साफ करें</string>
   <string name="postman_title">पोस्ट यार</string>
+  <string name="plugin_manager_title">प्लगइन मैनेजर</string>
+  <string name="plugin_manager_empty">अभी तक कोई प्लगइन्स इंस्टॉल नहीं है. .gpl फ़ाइल स्थापित करने के लिए + टैप करें।</string>
+  <string name="plugin_manager_search_hint">प्लगइन्स खोजें</string>
+  <string name="plugin_manager_uninstall">अनइंस्टॉल करें</string>
+  <string name="plugin_manager_uninstalled_toast">%1$s को अनइंस्टॉल किया गया</string>
+  <string name="plugin_manager_install_error">प्लगइन इंस्टॉल नहीं किया जा सका: %1$s</string>
+  <string name="plugin_manager_installed_toast">%1$s इंस्टॉल किया गया</string>
+  <string name="plugin_manager_not_gpl_file">कृपया एक .gpl प्लगइन फ़ाइल चुनें</string>
+  <string name="plugin_manager_run_setup">टर्मिनल में चलाएँ</string>
   <string name="terminal_error_cannot_create_etc_dir">आदि निर्देशिका नहीं बना सकते: %1$s</string>
   <string name="terminal_error_resolve_rootfs_failed">%1$s आर्किटेक्चर के लिए नवीनतम रूटफ़्स ढूंढने में विफल: %2$s</string>
   <string name="terminal_error_http_status">HTTP %1$d %2$s से</string>
@@ -435,4 +444,19 @@
   <string name="terminal_status_downloading">डाउनलोड हो रहा है: %1$d%%</string>
   <string name="terminal_status_extracting">निकाला जा रहा है... (%1$d फ़ाइलें)</string>
   <string name="terminal_debian_installed_success">डेबियन स्थापित ✓</string>
+  <string name="all_blur">धुंधला मॉड</string>
+  <string name="all_blur_subtitle">सभी घटकों को धुंधला करें.</string>
+  <string name="webcolor">कलर पिकरवेब दिखाएँ</string>
+  <string name="lsp_inlaytitle">जड़ना दिखाएँ</string>
+  <string name="lsp_inlaysubtitle">इनले आइटम एडिटर दिखाएँ सभी लैंग काम नहीं करते</string>
+  <string name="lsp_hovertitle">होवर दिखाएँ</string>
+  <string name="lsp_hoversubtitle">कैरेक्टर में होवर दिखाएँ</string>
+  <string name="lsp_signaturehelptitle">सिग्नेचरहेल्प दिखाएँ</string>
+  <string name="lsp_signaturehelpsubtitle">सिग्नेचरहेल्प विंडोज़ दिखाएँ</string>
+  <string name="lsp_diagnosticstitle">डायग्नोस्टिक्स दिखाएँ</string>
+  <string name="lsp_diagnosticssubtitle">डायग्नोस्टिक्स त्रुटि युद्ध समाप्ति आदि दिखाएं...</string>
+  <string name="lsptitles">भूत विचार एलएसपी सर्वर</string>
+  <string name="icon_atomicghost">परमाणु भूत</string>
+  <string name="icon_neonpurple">चिह्न नियॉन</string>
+  <string name="icon_devilishpurple">शैतानी बैंगनी</string>
 </resources>

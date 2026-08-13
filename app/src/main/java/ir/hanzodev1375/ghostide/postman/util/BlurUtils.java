@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.view.ViewGroup;
 
+import eightbitlab.com.blurview.BlurTarget;
 import eightbitlab.com.blurview.BlurView;
 import eightbitlab.com.blurview.RenderScriptBlur;
 
@@ -14,12 +15,9 @@ import eightbitlab.com.blurview.RenderScriptBlur;
 public class BlurUtils {
 
   public static void applyBlur(
-      Activity activity, BlurView blurView, ViewGroup blurRoot, float radiusPx) {
+      Activity activity, BlurView blurView, BlurTarget blurRoot, float radiusPx) {
     Drawable windowBackground = activity.getWindow().getDecorView().getBackground();
-    blurView
-        .setupWith(blurRoot, new RenderScriptBlur(activity))
-        .setFrameClearDrawable(windowBackground)
-        .setBlurRadius(radiusPx);
+    blurView.setupWith(blurRoot).setFrameClearDrawable(windowBackground).setBlurRadius(radiusPx);
     blurView.setClipToOutline(true);
   }
 }
