@@ -10,6 +10,7 @@ import android.view.ViewOutlineProvider;
 import android.view.Window;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
+import androidx.core.graphics.ColorUtils;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.color.MaterialColors;
@@ -83,7 +84,7 @@ public class BaseSheet extends BottomSheetDialog {
       if (app.isBlurMod()) {
         bottomSheet.post(
             () -> {
-              bottomSheet.setBackgroundColor(Color.TRANSPARENT);
+              bottomSheet.setBackgroundColor(0);
               float cornerRadius =
                   getContext().getResources().getDimension(R.dimen.bottom_sheet_corner_radius);
               binding.layoutblur.setClipToOutline(true);
@@ -100,7 +101,8 @@ public class BaseSheet extends BottomSheetDialog {
                   .setupWith(binding.blurTarget)
                   .setFrameClearDrawable(getWindow().getDecorView().getBackground())
                   .setBlurEnabled(true)
-                  .setOverlayColor(MaterialColors.getColor(binding.layoutblur, R.attr.colorSurface))
+                  //     .setOverlayColor(MaterialColors.getColor(binding.layoutblur,
+                  // R.attr.colorSurface))
                   .setBlurRadius(18f);
             });
       }

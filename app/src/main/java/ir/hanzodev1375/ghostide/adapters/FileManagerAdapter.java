@@ -33,6 +33,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
 import com.google.android.material.listitem.ListItemViewHolder;
+import ir.hanzodev1375.filetreelib.filetreelibglide.glide.xml.VectorModel;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
@@ -390,9 +391,9 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
   }
 
   /**
-   * فایل انیمیشن (مثلاً res/anim/list_item.xml) رو با یه delay پلکانی روی هر ردیف پخش میکنه؛
-   * فقط وقتی isAnimating روشنه (یعنی همین الان یه لیست جدید لود شده). به محض دراگ یا گذشتن
-   * ۵۰۰ms بی‌فعالیت، isAnimating خاموش میشه و از این به بعد هیچ انیمیشنی پخش نمیشه.
+   * فایل انیمیشن (مثلاً res/anim/list_item.xml) رو با یه delay پلکانی روی هر ردیف پخش میکنه؛ فقط
+   * وقتی isAnimating روشنه (یعنی همین الان یه لیست جدید لود شده). به محض دراگ یا گذشتن ۵۰۰ms
+   * بی‌فعالیت، isAnimating خاموش میشه و از این به بعد هیچ انیمیشنی پخش نمیشه.
    */
   private void bindViewHolderAnimation(@NonNull ViewHolder holder) {
     holder.itemView.clearAnimation();
@@ -416,7 +417,10 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
     stopAnimationHandler.postDelayed(stopAnimationRunnable, ANIM_IDLE_TIMEOUT_MS);
   }
 
-  /** به محض شروع درگ کاربر صدا زده میشه: انیمیشن آینده رو خاموش میکنه و بقیه‌ی در حال اجرا رو قطع میکنه. */
+  /**
+   * به محض شروع درگ کاربر صدا زده میشه: انیمیشن آینده رو خاموش میکنه و بقیه‌ی در حال اجرا رو قطع
+   * میکنه.
+   */
   private void clearAnimation() {
     stopAnimation();
     if (recyclerView != null) {
@@ -503,7 +507,15 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
       var iconHelper = new FileIconHelper(item.getPath());
       iconHelper.setDynamicFolderEnabled(true);
       iconHelper.setEnvironmentEnabled(true);
-      iconHelper.bindIcon(ivIcon);
+      if (item.getPath().endsWith(".xml")) {
+        Glide.with(ivIcon)
+            .load(new VectorModel(new File(item.getPath()), ivIcon.getContext()))
+            .error(R.drawable.ic_material_xml)
+            .into(ivIcon);
+      } else {
+        iconHelper.bindIcon(ivIcon);
+      }
+
       var icon = new Icon();
       icon.bind(item.getPath(), ivIcon);
       if (searchQuery.isEmpty()) {
