@@ -76,6 +76,8 @@ dependencies {
     implementation project(":components")
     implementation project(":jgit")
     implementation project(":aimodel")
+    implementation project(":terminal-emulator")
+    implementation project(":terminal-view")
     implementation project(":prddownloader")
     
     implementation(project(":materialfileicon")) {

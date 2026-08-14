@@ -163,6 +163,8 @@ npm install -g typescript @vue/language-server
 
 ## Java Lsp 
 
+- توجه: ابتدا پایتون را نصب کنید
+
 ```bash
 
 apt install -y gnupg

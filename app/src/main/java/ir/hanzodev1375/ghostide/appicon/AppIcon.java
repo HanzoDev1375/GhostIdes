@@ -31,7 +31,15 @@ public enum AppIcon {
   NEON(
       "ir.hanzodev1375.ghostide.IconAliasneonpurple",
       R.drawable.neonpurple,
-      R.string.icon_neonpurple);
+      R.string.icon_neonpurple),
+  BLACKMAGIC(
+      "ir.hanzodev1375.ghostide.IconAliasblackmagic",
+      R.drawable.blackmagic,
+      R.string.icon_blackmagic),
+  PURPLEWITCH(
+      "ir.hanzodev1375.ghostide.IconAliaspurplewitch",
+      R.drawable.purplewitch,
+      R.string.icon_purplewitch);
   public final String componentName;
   public final int previewRes;
   @StringRes public final int labelRes;

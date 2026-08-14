@@ -12,7 +12,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import eightbitlab.com.blurview.RenderScriptBlur;
+import com.google.android.material.color.MaterialColors;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.databinding.BaseBlurBottomSheetBinding;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
@@ -47,7 +47,7 @@ public class BaseSheet extends BottomSheetDialog {
       }
 
       View root = binding.getRoot();
-      
+
       root.addOnLayoutChangeListener(
           (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
               v.invalidateOutline());
@@ -86,10 +86,8 @@ public class BaseSheet extends BottomSheetDialog {
               bottomSheet.setBackgroundColor(Color.TRANSPARENT);
               float cornerRadius =
                   getContext().getResources().getDimension(R.dimen.bottom_sheet_corner_radius);
-              binding
-                  .layoutblur.setClipToOutline(true);
-              binding
-                  .layoutblur.setOutlineProvider(
+              binding.layoutblur.setClipToOutline(true);
+              binding.layoutblur.setOutlineProvider(
                   new ViewOutlineProvider() {
                     @Override
                     public void getOutline(View v, Outline outline) {
@@ -101,6 +99,8 @@ public class BaseSheet extends BottomSheetDialog {
                   .layoutblur
                   .setupWith(binding.blurTarget)
                   .setFrameClearDrawable(getWindow().getDecorView().getBackground())
+                  .setBlurEnabled(true)
+                  .setOverlayColor(MaterialColors.getColor(binding.layoutblur, R.attr.colorSurface))
                   .setBlurRadius(18f);
             });
       }

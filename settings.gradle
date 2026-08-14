@@ -19,7 +19,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "Ghostide"
 
-include(":app", ":logcat")
+include(":app", ":logcat",":terminal-emulator", ":terminal-view")
 include(':editor')
 include(':components')
 include(':materialfileicon')

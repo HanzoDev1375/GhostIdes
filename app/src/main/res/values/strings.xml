@@ -299,8 +299,6 @@
     <string name="terminal_title">Terminal</string>
     <string name="terminal_new_session">New session</string>
     <string name="terminal_close_session">Close session</string>
-
-
     <string name="rename_package_menu_item">Rename Package</string>
     <string name="rename_package_title">Rename Package</string>
     <string name="rename_package_description">Renaming a package updates every package declaration, import and reference across this module, then moves the source files into the new folder structure.</string>
@@ -345,26 +343,19 @@
     <string name="hint_content_type">Content type</string>
     <string name="hint_collection_name">Collection name</string>
     <string name="hint_request_name">Request name</string>
-
     <string name="tab_params">Params</string>
     <string name="tab_headers">Headers</string>
     <string name="tab_body">Body</string>
     <string name="tab_response_body">Body</string>
     <string name="tab_response_headers">Headers</string>
-
     <string name="body_none">None</string>
     <string name="body_raw">Raw</string>
     <string name="body_form">Form URL-Encoded</string>
-
     <string name="label_response">Response</string>
-
     <string name="label_time">Time</string>
-
     <string name="label_no_response_yet">Send a request to see the response here.</string>
     <string name="label_no_body">This request has no body.</string>
     <string name="label_no_collection">No collection (just save the name)</string>
-
-    <!-- Actions -->
     <string name="action_send">Send</string>
     <string name="action_save">Save</string>
     <string name="action_add">Add</string>
@@ -376,8 +367,6 @@
     <string name="action_copy">Copy</string>
     <string name="action_new_collection">New collection</string>
     <string name="action_create">Create</string>
-
-    <!-- Settings -->
     <string name="label_theme">App theme</string>
     <string name="theme_system">System default</string>
     <string name="theme_light">Light</string>
@@ -429,25 +418,21 @@
     <string name="plugin_manager_not_gpl_file">Please choose a .gpl plugin file</string>
     <string name="plugin_manager_run_setup">Run in terminal</string>
     <string name="terminal_error_cannot_create_etc_dir">Cannot create etc directory: %1$s</string>
-
     <string name="terminal_error_resolve_rootfs_failed">Failed to find latest rootfs for %1$s architecture: %2$s</string>
     <string name="terminal_error_http_status">HTTP %1$d from %2$s</string>
     <string name="terminal_error_no_snapshot_found">No snapshot found in %1$s</string>
     <string name="terminal_error_extract_failed_prefix">Extraction failed: %1$s</string>
     <string name="terminal_error_download_failed_prefix">Download failed: %1$s</string>
     <string name="terminal_unknown_error">Unknown</string>
-
     <string name="terminal_error_libproot_not_found">libproot.so not found: %1$s</string>
     <string name="terminal_error_libloader_not_found">libloader.so not found: %1$s</string>
     <string name="terminal_error_libloader_not_found_detail">libloader.so not found: %1$s — proot won t work on this device without this file.</string>
     <string name="terminal_error_unexpected">Unexpected error: %1$s</string>
     <string name="terminal_error_rootfs_not_found">rootfs not found: %1$s</string>
-
     <string name="terminal_error_cannot_create_dest_dir">Cannot create destination directory: %1$s</string>
     <string name="terminal_error_no_system_tar">/system/bin/tar not found on this device; cannot extract rootfs with correct permissions without a real tar. Workaround: bundle a static busybox/tar with the app and replace the path here.</string>
     <string name="terminal_error_extract_interrupted">Extraction under proot was interrupted</string>
     <string name="terminal_error_extract_failed_exit">Extraction under proot failed (exit=%1$d).\nLast output:\n%2$s</string>
-
     <string name="terminal_debian_not_installed">Debian not installed</string>
     <string name="terminal_debian_rootfs_not_found_fallback">Debian rootfs not found at: %1$s — falling back to a regular shell</string>
     <string name="terminal_remove_debian">Remove Debian</string>
@@ -476,4 +461,6 @@
     <string name="icon_atomicghost"> Atom Ghost</string>
     <string name="icon_neonpurple"> Icon Neon </string>
     <string name="icon_devilishpurple">Devilish Purple</string>
+    <string name="icon_blackmagic"> Black Magic </string>
+    <string name="icon_purplewitch">Purple Witch </string>
 </resources>

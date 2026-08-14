@@ -260,6 +260,32 @@
             </intent-filter>
         </activity-alias>
 
+        <activity-alias
+            android:name=".IconAliasblackmagic"
+            android:targetActivity=".MainActivity"
+            android:icon="@drawable/blackmagic"
+            android:label="@string/app_name"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".IconAliaspurplewitch"
+            android:targetActivity=".MainActivity"
+            android:icon="@drawable/purplewitch"
+            android:label="@string/app_name"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
         <service
             android:name=".terminal.TerminalSessionService"
             android:exported="false"

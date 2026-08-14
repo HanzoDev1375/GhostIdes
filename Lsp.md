@@ -162,6 +162,8 @@ npm install -g typescript @vue/language-server
 
 ## Java Lsp 
 
+- Note : Frist install python 
+
 ```bash
 
 apt install -y gnupg
