@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
+import ir.hanzodev1375.ghostide.plugin.api.MutableServiceRegistry;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

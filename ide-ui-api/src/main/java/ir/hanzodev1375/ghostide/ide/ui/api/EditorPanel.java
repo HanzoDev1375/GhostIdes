@@ -27,4 +27,23 @@ public interface EditorPanel {
   String getTitle();
 
   View createView();
+
+  default String getLastPath() {
+    return null;
+  }
+
+  /**
+   * How the host should display this panel. Defaults to {@link PluginStateMod#SIDESHEET}.
+   *
+   * <p>Plugins can either call {@link #setState(PluginStateMod)} anywhere in the panel (constructor,
+   * {@link #createView()}, ...) or simply override this method to return a fixed mode.
+   */
+  default PluginStateMod getState() {
+    return EditorPanelStateStore.get(getId());
+  }
+
+  /** Overrides the display mode used by the host. {@code null} resets back to the default. */
+  default void setState(PluginStateMod state) {
+    EditorPanelStateStore.set(getId(), state);
+  }
 }
