@@ -58,6 +58,8 @@ public final class PluginPanelHost {
     if (content == null) {
       content = createPanelView(panel);
       views.put(panel.getId(), content);
+    } else if (content.getParent() instanceof ViewGroup) {
+      ((ViewGroup) content.getParent()).removeView(content);
     }
 
     LinearLayout wrapper = new LinearLayout(activity);
