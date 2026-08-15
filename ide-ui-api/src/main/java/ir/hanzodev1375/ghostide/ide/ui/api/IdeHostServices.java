@@ -13,6 +13,10 @@ public final class IdeHostServices {
   public static final ServiceKey<FileManagerHost> FILE_MANAGER_HOST =
       new ServiceKey<>("ir.hanzodev1375.ghostide.ui.fileManagerHost", FileManagerHost.class);
 
+  /** Runs shell commands / source files in the IDE terminal, like the editor's run (FAB) button. */
+  public static final ServiceKey<CodeRunnerHost> CODE_RUNNER_HOST =
+      new ServiceKey<>("ir.hanzodev1375.ghostide.ui.codeRunnerHost", CodeRunnerHost.class);
+
   /**
    * A {@link Context} scoped to the requesting plugin's own resources. Layout inflation for a
    * {@link PluginScreen} must go through this context, not the host Activity's default inflater,

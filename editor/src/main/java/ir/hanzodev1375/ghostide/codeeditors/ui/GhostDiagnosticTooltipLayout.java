@@ -385,6 +385,10 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
   }
 
   private void executeCommand(LspEditor lspEditor, Command command) {
+    if (command == null || command.getCommand() == null) return;
+    if (CodeRunnerActions.execute(editor, command.getCommand(), command.getArguments())) {
+      return;
+    }
     var requestManager = lspEditor.getRequestManager();
     if (requestManager == null || command == null) return;
     try {

@@ -122,6 +122,78 @@ editor.setEditorText(text + "\n// edited by plugin");
 
 `FileManagerHost` follows the same shape for the file tree screen.
 
+You can also get the raw editor widget behind the current tab. `IdeEditor` is not part of this
+API, so it is returned as `Object` and is meant as an optional access point — add the host editor
+module as `compileOnly` in your `.gpl` if you want to cast:
+
+```java
+Object raw = editorHost.getEditor();
+if (raw instanceof IdeEditor ide) {   // compileOnly ':editor' to cast
+  ide.getCurrentFilePath();
+  ide.getLspEditor();
+}
+```
+
+## Running code from a plugin (Code Runner)
+
+The host publishes a `CodeRunnerHost` service under `IdeHostServices.CODE_RUNNER_HOST`. It runs
+shell commands and source files exactly like the editor's run (FAB) button — output goes to the
+IDE terminal, either as a bottom sheet or a full screen:
+
+```java
+CodeRunnerHost runner = context.getServices().require(IdeHostServices.CODE_RUNNER_HOST);
+
+runner.runShell("python3 main.py", true);        // arbitrary shell command, bottom sheet
+runner.runCurrentFile(false);                     // the file open in the editor, full screen
+runner.runFile("/sdcard/Project/main.py", true);  // any file by path
+boolean ok = runner.isSupported("/sdcard/a.py");  // does the runner know this language?
+```
+
+`runCurrentFile()` does not read the path itself — it asks the registered editor panels for
+`EditorPanel#getLastPath()` (first non-blank wins) and only falls back to the editor's current
+file when no panel answers. Overriding `getLastPath()` in your panel lets your plugin decide
+which file gets run; the host supplies the current open file as the default.
+
+An LSP plugin can use the same runner without writing any client code: have your language server
+return a code action whose `command` is one of these built-ins, and the editor runs it locally:
+
+| command | arguments |
+| --- | --- |
+| `ghostide.runShell` | `["echo hi", true]` — shell text, optional `asBottomSheet` |
+| `ghostide.runFile` | `["/path/file.py", true]` — file path, optional `asBottomSheet` |
+| `ghostide.runCurrentFile` | `[true]` — optional `asBottomSheet` |
+
+## Handling your own LSP actions (optional editor access)
+
+Commands that are not `ghostide.*` are still forwarded to your server via
+`workspace/executeCommand`. To handle a command on the client instead — with the raw editor
+available — implement `EditorActionHandler` (`ide-ui-api`) and register it at
+`PluginUiExtensionPoints.EDITOR_ACTION_HANDLER`. The `editor` argument is an optional output: the
+host's `IdeEditor` behind the action, or `null` when no editor is attached. `IdeEditor` is not
+part of the API modules, so add the host editor module as `compileOnly` to cast:
+
+```java
+public final class RunMyPluginAction implements EditorActionHandler {
+  @Override public String getCommandId() { return "com.example.myplugin.run"; }
+
+  @Override public boolean execute(Object editor, String command, List<Object> arguments) {
+    if (editor instanceof IdeEditor ide) {       // compileOnly ':editor' to cast
+      String file = ide.getCurrentFilePath();
+      // ...
+    }
+    return true; // handled — do not forward to the language server
+  }
+}
+
+// in activate():
+context.registerDisposable(
+    context.getExtensions().register(PluginUiExtensionPoints.EDITOR_ACTION_HANDLER,
+        new RunMyPluginAction()));
+```
+
+The handler may be called on a background thread, so hop to the UI thread before touching the
+editor.
+
 ## Building the `.gpl` package
 
 A `.gpl` is a normal Android **application** module — build it in Android Studio like any app,

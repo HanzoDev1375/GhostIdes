@@ -780,6 +780,11 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
   }
 
   private void executeLspCommand(Command command) {
+    if (command != null
+        && command.getCommand() != null
+        && CodeRunnerActions.execute(editor, command.getCommand(), command.getArguments())) {
+      return;
+    }
     LspEditor lsp = editor.ensureLspConnected();
     var requestManager = lsp == null ? null : lsp.getRequestManager();
     if (requestManager == null) {

@@ -57,4 +57,9 @@ public final class EditorHostAdapter implements EditorHost {
   public Context getContext() {
     return activity;
   }
+
+  @Override
+  public Object getEditor() {
+    return activity.getEditor();
+  }
 }

@@ -24,9 +24,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.sidesheet.SideSheetDialog;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import ir.hanzodev1375.ghostide.ide.ui.api.EditorPanel;
 import ir.hanzodev1375.ghostide.ide.ui.api.PluginStateMod;
@@ -48,13 +50,87 @@ public final class PluginPanelHost {
 
   private final Activity activity;
   private final ThemeUtils theme;
-  private final List<EditorPanel> panels =
-      GlobalRegistry.extensions().extensions(PluginUiExtensionPoints.EDITOR_PANEL);
+  private final Supplier<String> lastPathResolver;
+  private final List<EditorPanel> panels;
   private final Map<String, View> views = new HashMap<>();
 
   public PluginPanelHost(Activity activity) {
+    this(activity, null);
+  }
+
+  public PluginPanelHost(Activity activity, Supplier<String> lastPathResolver) {
     this.activity = activity;
+    this.lastPathResolver = lastPathResolver;
     this.theme = new ThemeUtils(new ThemeManager(activity));
+    this.panels =
+        wrapLastPath(GlobalRegistry.extensions().extensions(PluginUiExtensionPoints.EDITOR_PANEL));
+  }
+
+  /**
+   * First non-blank {@link EditorPanel#getLastPath()} among the registered panels, falling back
+   * to {@code fallback} (e.g. the editor's current open file). Panels get the final say on the
+   * path a {@code CodeRunnerHost.runCurrentFile()} should run.
+   */
+  public static String resolveLastPath(Supplier<String> fallback) {
+    for (EditorPanel panel :
+        GlobalRegistry.extensions().extensions(PluginUiExtensionPoints.EDITOR_PANEL)) {
+      String path = panel.getLastPath();
+      if (path != null && !path.isEmpty()) {
+        return path;
+      }
+    }
+    return fallback == null ? null : fallback.get();
+  }
+
+  /** Wraps panels so an unimplemented {@code getLastPath()} falls back to this host's path. */
+  private List<EditorPanel> wrapLastPath(List<EditorPanel> originals) {
+    List<EditorPanel> wrapped = new ArrayList<>(originals.size());
+    for (EditorPanel panel : originals) {
+      wrapped.add(new LastPathEditorPanel(panel));
+    }
+    return wrapped;
+  }
+
+  private final class LastPathEditorPanel implements EditorPanel {
+    private final EditorPanel delegate;
+
+    LastPathEditorPanel(EditorPanel delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public String getId() {
+      return delegate.getId();
+    }
+
+    @Override
+    public String getTitle() {
+      return delegate.getTitle();
+    }
+
+    @Override
+    public View createView() {
+      return delegate.createView();
+    }
+
+    @Override
+    public String getLastPath() {
+      String path = delegate.getLastPath();
+      if ((path == null || path.isEmpty()) && lastPathResolver != null) {
+        return lastPathResolver.get();
+      }
+      return path;
+    }
+
+    @Override
+    public PluginStateMod getState() {
+      return delegate.getState();
+    }
+
+    @Override
+    public void setState(PluginStateMod state) {
+      delegate.setState(state);
+    }
   }
 
   public List<EditorPanel> getPanels() {

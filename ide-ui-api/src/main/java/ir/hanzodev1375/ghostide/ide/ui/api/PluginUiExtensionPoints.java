@@ -15,5 +15,13 @@ public final class PluginUiExtensionPoints {
   public static final ExtensionPoint<EditorPanel> EDITOR_PANEL =
       new ExtensionPoint<>("ir.hanzodev1375.ghostide.ui.editorPanel", EditorPanel.class);
 
+  /**
+   * Handlers that intercept LSP command actions locally (e.g. code actions sent by a plugin
+   * language server) and run them inside the editor, with the raw {@code IdeEditor} available.
+   */
+  public static final ExtensionPoint<EditorActionHandler> EDITOR_ACTION_HANDLER =
+      new ExtensionPoint<>(
+          "ir.hanzodev1375.ghostide.ui.editorActionHandler", EditorActionHandler.class);
+
   private PluginUiExtensionPoints() {}
 }

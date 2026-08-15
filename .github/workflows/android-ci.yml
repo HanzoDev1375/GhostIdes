@@ -72,7 +72,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build plugin SDK
-        run: ./gradlew :plugin-api:jar :plugin-api:sourcesJar :ide-api:jar :ide-api:sourcesJar :ide-ui-api:assembleRelease
+        run: ./gradlew :plugin-api:jar :plugin-api:sourcesJar :ide-api:jar :ide-api:sourcesJar :ide-ui-api:assembleRelease :editor:assembleRelease
 
       - name: Collect plugin SDK artifacts
         run: |
@@ -80,6 +80,7 @@ jobs:
           cp plugin-api/build/libs/*.jar plugin-sdk-dist/
           cp ide-api/build/libs/*.jar plugin-sdk-dist/
           cp ide-ui-api/build/outputs/aar/*.aar plugin-sdk-dist/
+          cp editor/build/outputs/aar/*.aar plugin-sdk-dist/
 
       - name: Upload plugin SDK artifact
         uses: actions/upload-artifact@v4

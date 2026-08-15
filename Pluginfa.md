@@ -123,6 +123,77 @@ editor.setEditorText(text + "\n// edited by plugin");
 
 `FileManagerHost` هم دقیقاً همین شکل رو برای صفحه ی درخت فایل داره.
 
+همچنین می‌تونید به ویجت خام ادیتور پشت تب فعلی هم دسترسی بگیرید. `IdeEditor` جزئی از این API
+نیست، پس به شکل `Object` برگردونده می‌شه و فقط یک نقطه ی دسترسی اختیاریه — اگه خواستید cast کنید
+ماژول ادیتور هاست رو به‌صورت `compileOnly` به `.gpl` خودتون اضافه کنید:
+
+```java
+Object raw = editorHost.getEditor();
+if (raw instanceof IdeEditor ide) {   // compileOnly ':editor' برای cast
+  ide.getCurrentFilePath();
+  ide.getLspEditor();
+}
+```
+
+## اجرای کد از داخل پلاگین (Code Runner)
+
+هاست یک سرویس `CodeRunnerHost` رو زیر `IdeHostServices.CODE_RUNNER_HOST` منتشر می‌کنه. این سرویس
+دقیقاً مثل دکمه ی اجرا (FAB) ادیتور، دستورهای شل و فایل‌ها رو اجرا می‌کنه — خروجی توی ترمینال IDE
+نشون داده می‌شه، یا به‌صورت bottom sheet یا تمام‌صفحه:
+
+```java
+CodeRunnerHost runner = context.getServices().require(IdeHostServices.CODE_RUNNER_HOST);
+
+runner.runShell("python3 main.py", true);        // هر دستور شل دلخواه، bottom sheet
+runner.runCurrentFile(false);                     // فایل باز در ادیتور، تمام‌صفحه
+runner.runFile("/sdcard/Project/main.py", true);  // هر فایلی با مسیر
+boolean ok = runner.isSupported("/sdcard/a.py");  // آیا زبان این فایل شناخته‌شده‌ست؟
+```
+
+`runCurrentFile()` خودش مسیر رو نمی‌خونه — از پنل‌های ادیتور ثبت‌شده `EditorPanel#getLastPath()`
+می‌پرسه (اولین مقدار غیرخالی برنده‌ست) و فقط وقتی هیچ پنلی جواب نده به فایل بازِ فعلی ادیتور
+برمی‌گرده. با override کردن `getLastPath()` توی پنل‌تون می‌تونید تعیین کنید کدوم فایل اجرا بشه؛
+هاست به‌صورت پیش‌فرض فایل بازِ فعلی رو برمی‌گردونه.
+
+یک پلاگین LSP هم بدون نوشتن کد کلاینت از همین runner استفاده می‌کنه: کافیه زبان‌سرور شما توی یک
+code action یک `command` از این دستورهای داخلی برگردونه تا ادیتور خودش اونو اجرا کنه:
+
+| command | arguments |
+| --- | --- |
+| `ghostide.runShell` | `["echo hi", true]` — متن شل، `asBottomSheet` اختیاری |
+| `ghostide.runFile` | `["/path/file.py", true]` — مسیر فایل، `asBottomSheet` اختیاری |
+| `ghostide.runCurrentFile` | `[true]` — `asBottomSheet` اختیاری |
+
+## هندل کردن اکشن‌های LSP خودتون (دسترسی اختیاری به ادیتور)
+
+دستورهایی که `ghostide.*` نیستن همچنان از طریق `workspace/executeCommand` به سرور شما فرستاده
+می‌شن. برای این که یک command رو خودِ کلاینت هندل کنه — و ادیتور خام هم در دسترستون باشه —
+اینترفیس `EditorActionHandler` (`ide-ui-api`) رو پیاده کنید و زیر
+`PluginUiExtensionPoints.EDITOR_ACTION_HANDLER` ثبتش کنید. آرگومان `editor` یک خروجی اختیاریه:
+همون `IdeEditor` هاست پشت اکشن، یا `null`. `IdeEditor` جزئی از ماژول‌های API نیست؛ پس برای cast
+ماژول ادیتور هاست رو به‌صورت `compileOnly` اضافه کنید:
+
+```java
+public final class RunMyPluginAction implements EditorActionHandler {
+  @Override public String getCommandId() { return "com.example.myplugin.run"; }
+
+  @Override public boolean execute(Object editor, String command, List<Object> arguments) {
+    if (editor instanceof IdeEditor ide) {       // compileOnly ':editor' برای cast
+      String file = ide.getCurrentFilePath();
+      // ...
+    }
+    return true; // هندل شد — به سرور زبان forward نمی‌شه
+  }
+}
+
+// داخل activate():
+context.registerDisposable(
+    context.getExtensions().register(PluginUiExtensionPoints.EDITOR_ACTION_HANDLER,
+        new RunMyPluginAction()));
+```
+
+حواستون باشه هندلر ممکنه روی ترد پس‌زمینه صدا زده بشه؛ قبل از دست زدن به ادیتور به ترد UI برید.
+
 ## ساخت پکیج `.gpl`
 
 `.gpl` یه ماژول عادی **android-application**ه — دقیقاً مثل هر اپ دیگه ای تو Android Studio

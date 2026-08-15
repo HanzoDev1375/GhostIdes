@@ -29,7 +29,7 @@ Ghost IDE is an advanced mobile development environment built for Android develo
 - [x] Syntax highlighting
 - [x] Auto-save functionality
 - [x] Multi-tab support
-- [x] Code formatting(40%) -> Json,python,php,cpp
+- [x] Code formatting(Auto format code by lsp service)
 - [x] Snippets support
 - [ ] Physical keyboard shortcuts
 - [x] Large file handling(Page)
@@ -141,7 +141,6 @@ The editor supports deep UI customization, including:
 
 - Installing packages may take a while, it varies on different mobiles. The system we use is Debian.
 - To make it easier to work, it is better to learn to work with the Debian operating system so that you do not encounter problems because the best option for Android is Debian.
-
 
 - [x] c
 - [x] cpp

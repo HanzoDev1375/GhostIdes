@@ -3,6 +3,8 @@ package ir.hanzodev1375.ghostide.codeeditors.langs.lsp;
 import android.content.Context;
 
 import io.github.rosemoe.sora.widget.CodeEditor;
+import ir.hanzodev1375.ghostide.codeeditors.langs.dart.DartLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.kotlin.KotlinLanguage;
 import java.util.Locale;
 
 import io.github.rosemoe.sora.lang.Language;
@@ -90,6 +92,14 @@ public final class LspHoverHighlighter {
                 case "md":
                   language = new MarkdownLanguage();
                   break;
+                case "kt":
+                case "kts":
+                  language = new KotlinLanguage(appContext);
+                  break;
+                case "dart":
+                  language = new DartLanguage();
+                  break;
+
                 default:
                   return null;
               }

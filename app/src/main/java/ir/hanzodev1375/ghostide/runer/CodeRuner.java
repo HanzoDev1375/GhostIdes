@@ -36,6 +36,22 @@ public class CodeRuner {
         }
     }
 
+    /** Runs a raw shell command, without building one from a file. */
+    public void runShell(String command, boolean asBottomSheet) {
+        if (command == null || command.isBlank()) return;
+        if (asBottomSheet) {
+            runInBottomSheet(command);
+        } else {
+            runInActivity(command);
+        }
+    }
+
+    /** Whether a file is runnable (its extension maps to a registered language/toolchain). */
+    public boolean isSupported(String path) {
+        if (path == null) return false;
+        return buildCommand(path) != null;
+    }
+
     public void runInActivity(String command) {
         Intent i = new Intent(context, TerminalActivity.class);
         i.putExtra(TerminalActivity.EXTRA_COMMAND, command);
@@ -45,7 +61,7 @@ public class CodeRuner {
         context.startActivity(i);
     }
 
-    void runInBottomSheet(String command) {
+    public void runInBottomSheet(String command) {
         FragmentManager fm = resolveFragmentManager();
         if (fm == null) {
             runInActivity(command);

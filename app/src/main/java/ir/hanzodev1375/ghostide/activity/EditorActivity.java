@@ -68,6 +68,7 @@ import ir.hanzodev1375.ghostide.fragments.EditorFragment;
 import ir.hanzodev1375.ghostide.models.TabModel;
 import ir.hanzodev1375.ghostide.models.ToolbarModel;
 import ir.hanzodev1375.ghostide.activity.pluginmanager.EditorHostAdapter;
+import ir.hanzodev1375.ghostide.activity.pluginmanager.CodeRunnerHostAdapter;
 import ir.hanzodev1375.ghostide.ide.ui.api.EditorPanel;
 import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
@@ -118,6 +119,7 @@ public class EditorActivity extends BaseCompat
   private final Handler lspStatusHandler = new Handler(Looper.getMainLooper());
   private BreadcrumbAdapter breadcrumbAdapter;
   private Disposable editorHostRegistration;
+  private Disposable codeRunnerHostRegistration;
   private PluginPanelHost pluginPanelHost;
   private final Runnable lspStatusPollRunnable =
       new Runnable() {
@@ -179,6 +181,9 @@ public class EditorActivity extends BaseCompat
     editorHostRegistration =
         GlobalRegistry.services()
             .register(IdeHostServices.EDITOR_HOST, new EditorHostAdapter(this));
+    codeRunnerHostRegistration =
+        GlobalRegistry.services()
+            .register(IdeHostServices.CODE_RUNNER_HOST, new CodeRunnerHostAdapter(this));
     ThemeManager manager = new ThemeManager(this);
     theme = new ThemeUtils(manager);
     theme.applyActivity(this);
@@ -195,7 +200,7 @@ public class EditorActivity extends BaseCompat
     if (path != null && name != null) {
       openFile(path, name);
     }
-    pluginPanelHost = new PluginPanelHost(this);
+    pluginPanelHost = new PluginPanelHost(this, this::getCurrentFilePath);
     stepToolbar();
     setupKeyboardListener();
     setupSymbolBarVisibilityWatcher();
@@ -406,6 +411,10 @@ public class EditorActivity extends BaseCompat
     if (editorHostRegistration != null) {
       editorHostRegistration.dispose();
       editorHostRegistration = null;
+    }
+    if (codeRunnerHostRegistration != null) {
+      codeRunnerHostRegistration.dispose();
+      codeRunnerHostRegistration = null;
     }
   }
 
