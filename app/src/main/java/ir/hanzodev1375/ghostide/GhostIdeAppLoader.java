@@ -20,6 +20,8 @@ import ir.hanzodev1375.ghostide.plugin.gpl.GplInstalledPlugins;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplPluginLoader;
 import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
 import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
+import ir.theme.ThemeManager;
+import ir.theme.ThemeUtils;
 import java.util.Calendar;
 
 public class GhostIdeAppLoader extends Application {
@@ -28,6 +30,8 @@ public class GhostIdeAppLoader extends Application {
   private static GhostIdeAppLoader loader;
   private final StringBuilder softwareInfo = new StringBuilder();
   private PreferencesUtils setting;
+  private ThemeUtils theme;
+
   public static Context getContext() {
     return mApplicationContext;
   }
@@ -44,6 +48,8 @@ public class GhostIdeAppLoader extends Application {
     mApplicationContext = getApplicationContext();
     ShizukuManager.registerListeners();
     ThemeEngine.applyToActivities(this);
+    var themeManager = new ThemeManager(this);
+    theme = new ThemeUtils(themeManager);
     PRDownloader.initialize(getApplicationContext());
     GlobalRegistry.services()
         .register(IdeHostServices.PROOT_PROCESS_LAUNCHER, new ProotProcessLauncherImpl(this));
@@ -88,7 +94,12 @@ public class GhostIdeAppLoader extends Application {
       return null;
     }
   }
-  public PreferencesUtils getSetting(){
+
+  public PreferencesUtils getSetting() {
     return setting;
+  }
+
+  public ThemeUtils getThemeUtils() {
+    return theme;
   }
 }

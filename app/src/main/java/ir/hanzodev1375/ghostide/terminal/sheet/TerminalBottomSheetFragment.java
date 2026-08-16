@@ -25,6 +25,7 @@ import com.termux.terminal.TerminalSession;
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.ghostide.terminal.TerminalColorsUtil;
 import ir.theme.ThemeUtils;
 import ir.theme.ThemeManager;
 import ir.hanzodev1375.ghostide.databinding.ActivityTerminalBinding;
@@ -180,6 +181,8 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
   private void setupTerminalView() {
     terminalBinding.terminalView.setTerminalViewClient(
         new GhostTerminalViewClient(terminalBinding.terminalView, this));
+    TerminalColorsUtil.apply(getActivity(), requireContext());
+    terminalBinding.terminalView.setBackgroundColor(Color.TRANSPARENT);
   }
 
   private void setupExtraKeys() {
@@ -264,8 +267,24 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
 
     String command = getArguments().getString(EXTRA_COMMAND);
     if (command != null && !command.isEmpty()) {
-      session.write(command + "\n");
+      writeCommandWhenReady(session, command);
     }
+  }
+
+  /** وقتی ویو هنوز layout نشده، emulator تا اولین onSizeChanged ساخته نمی‌شه و write() از دست می‌ره؛ پس صبر می‌کنیم. */
+  private void writeCommandWhenReady(TerminalSession session, String command) {
+    if (session == null || command == null || command.isEmpty()) return;
+    terminalBinding.terminalView.post(
+        new Runnable() {
+          @Override
+          public void run() {
+            if (session.getEmulator() != null) {
+              session.write(command + "\n");
+            } else {
+              terminalBinding.terminalView.postDelayed(this, 100);
+            }
+          }
+        });
   }
 
   private void removeSession(TerminalSession session) {
@@ -287,7 +306,10 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
   private void switchToTab(int position) {
     if (position < 0 || position >= sessions.size()) return;
     currentTabIndex = position;
-    terminalBinding.terminalView.attachSession(sessions.get(position).session);
+    TerminalSession session = sessions.get(position).session;
+    TerminalColorsUtil.refreshSession(session);
+    terminalBinding.terminalView.attachSession(session);
+    terminalBinding.terminalView.invalidate();
     if (tabAdapter != null) {
       tabAdapter.setSelectedPosition(position);
       terminalBinding.sessionTabs.scrollToPosition(position);

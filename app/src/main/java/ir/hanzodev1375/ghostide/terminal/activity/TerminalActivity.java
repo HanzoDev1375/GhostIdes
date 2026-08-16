@@ -40,6 +40,7 @@ import ir.hanzodev1375.ghostide.databinding.ActivityTerminalBinding;
 import ir.hanzodev1375.ghostide.terminal.DebianBootstrap;
 import ir.hanzodev1375.ghostide.terminal.DebianInstaller;
 import ir.hanzodev1375.ghostide.terminal.GhostTerminalViewClient;
+import ir.hanzodev1375.ghostide.terminal.TerminalColorsUtil;
 import ir.hanzodev1375.ghostide.terminal.TerminalSessionService;
 import ir.hanzodev1375.ghostide.terminal.TerminalTab;
 import ir.hanzodev1375.ghostide.terminal.adapters.TerminalTabAdapter;
@@ -105,7 +106,7 @@ public class TerminalActivity extends BaseCompat
     maybeRequestNotificationPermission();
     getWindow()
         .getDecorView()
-        .setBackgroundColor(MaterialColors.getColor(this, R.attr.colorSurfaceContainerHigh, 0));
+        .setBackgroundColor(MaterialColors.getColor(this, R.attr.colorSurface, 0));
   }
 
   @Override
@@ -229,6 +230,8 @@ public class TerminalActivity extends BaseCompat
 
   private void setupTerminalView() {
     b.terminalView.setTerminalViewClient(new GhostTerminalViewClient(b.terminalView, this));
+    TerminalColorsUtil.apply(this, this);
+    b.terminalView.setBackgroundColor(Color.TRANSPARENT);
   }
 
   private void setupSessionTabs() {
@@ -364,8 +367,24 @@ public class TerminalActivity extends BaseCompat
     String command = getIntent().getStringExtra(EXTRA_COMMAND);
     if (command != null && !command.isEmpty()) {
       TerminalSession session = currentSession();
-      session.write(command + "\n");
+      writeCommandWhenReady(session, command);
     }
+  }
+
+  /** وقتی ویو هنوز layout نشده، emulator تا اولین onSizeChanged ساخته نمی‌شه و write() از دست می‌ره؛ پس صبر می‌کنیم. */
+  private void writeCommandWhenReady(TerminalSession session, String command) {
+    if (session == null || command == null || command.isEmpty()) return;
+    b.terminalView.post(
+        new Runnable() {
+          @Override
+          public void run() {
+            if (session.getEmulator() != null) {
+              session.write(command + "\n");
+            } else {
+              b.terminalView.postDelayed(this, 100);
+            }
+          }
+        });
   }
 
   private void switchToTab(int position) {
@@ -373,7 +392,10 @@ public class TerminalActivity extends BaseCompat
     List<TerminalTab> sessions = service.getSessions();
     if (position < 0 || position >= sessions.size()) return;
     currentTabIndex = position;
-    b.terminalView.attachSession(sessions.get(position).session);
+    TerminalSession session = sessions.get(position).session;
+    TerminalColorsUtil.refreshSession(session);
+    b.terminalView.attachSession(session);
+    b.terminalView.invalidate();
     tabAdapter.setSelectedPosition(position);
     b.sessionTabs.scrollToPosition(position);
   }
