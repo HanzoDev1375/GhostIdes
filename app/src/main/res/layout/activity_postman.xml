@@ -5,6 +5,23 @@
   android:id="@+id/rootCoordinator"
   android:layout_width="match_parent"
   android:layout_height="match_parent">
+
+  <!-- First child: sits behind all the live content, so it is never visible directly. The
+       sheet's BlurView blurs the snapshot rendered inside this BlurTarget. -->
+  <eightbitlab.com.blurview.BlurTarget
+    android:id="@+id/responseSheetBlurTarget"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+      android:id="@+id/responseSheetBlurBackdrop"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:contentDescription="@null"
+      android:scaleType="centerCrop" />
+
+  </eightbitlab.com.blurview.BlurTarget>
+
   <ImageView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -339,12 +356,6 @@
 
     </LinearLayout>
   </androidx.core.widget.NestedScrollView>
-  <!-- Empty sibling target: BlurView 3.x forbids a BlurTarget containing the BlurView
-       that targets it, so this stand-in target replaces the old self-referencing setup. -->
-  <eightbitlab.com.blurview.BlurTarget
-    android:id="@+id/responseSheetBlurTarget"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" />
 
   <!-- ============== Persistent response bottom sheet ============== -->
   <LinearLayout

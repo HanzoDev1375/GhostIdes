@@ -41,6 +41,7 @@ import ir.hanzodev1375.ghostide.terminal.DebianBootstrap;
 import ir.hanzodev1375.ghostide.terminal.DebianInstaller;
 import ir.hanzodev1375.ghostide.terminal.GhostTerminalViewClient;
 import ir.hanzodev1375.ghostide.terminal.TerminalColorsUtil;
+import ir.hanzodev1375.ghostide.terminal.TerminalInputDock;
 import ir.hanzodev1375.ghostide.terminal.TerminalSessionService;
 import ir.hanzodev1375.ghostide.terminal.TerminalTab;
 import ir.hanzodev1375.ghostide.terminal.adapters.TerminalTabAdapter;
@@ -68,6 +69,7 @@ public class TerminalActivity extends BaseCompat
   private int defaultKeyTextColor;
   private PreferencesUtils appsetting;
   private ThemeUtils themeutil;
+  private TerminalInputDock inputDock;
 
   private final ServiceConnection connection =
       new ServiceConnection() {
@@ -101,6 +103,7 @@ public class TerminalActivity extends BaseCompat
     setupEdgeToEdgeInsets();
     setupTerminalView();
     setupExtraKeys();
+    setupInputDock();
     setupBackHandler();
     setupBackgroundBlur();
     maybeRequestNotificationPermission();
@@ -178,6 +181,12 @@ public class TerminalActivity extends BaseCompat
     }
   }
 
+  private void setupInputDock() {
+    inputDock = new TerminalInputDock(b, this::currentSession);
+    inputDock.attach();
+    inputDock.attachKeyboardWatcher(getWindow().getDecorView());
+  }
+
   private void setupEdgeToEdgeInsets() {
     ViewCompat.setOnApplyWindowInsetsListener(
         b.coordinator,
@@ -189,10 +198,10 @@ public class TerminalActivity extends BaseCompat
               systemBars.top,
               b.toolbar.getPaddingRight(),
               b.toolbar.getPaddingBottom());
-          b.extraKeysScroll.setPadding(
-              b.extraKeysScroll.getPaddingLeft(),
-              b.extraKeysScroll.getPaddingTop(),
-              b.extraKeysScroll.getPaddingRight(),
+          b.inputDock.setPadding(
+              b.inputDock.getPaddingLeft(),
+              b.inputDock.getPaddingTop(),
+              b.inputDock.getPaddingRight(),
               Math.max(systemBars.bottom, ime.bottom));
           return insets;
         });
@@ -213,7 +222,8 @@ public class TerminalActivity extends BaseCompat
 
     b.toolbar.setBackgroundColor(Color.TRANSPARENT);
     b.sessionTabsRow.setBackgroundColor(Color.TRANSPARENT);
-    b.extraKeysScroll.setBackgroundColor(Color.TRANSPARENT);
+    b.inputDock.setBackgroundColor(Color.TRANSPARENT);
+    b.inputDock.setElevation(0f);
     b.terminalView.setBackgroundColor(Color.TRANSPARENT);
     b.backgroundIconTerminal.setVisibility(View.VISIBLE);
     Glide.with(this)
@@ -286,8 +296,7 @@ public class TerminalActivity extends BaseCompat
     defaultKeyBackgroundColor =
         b.keyCtrl.getBackgroundTintList() != null
             ? b.keyCtrl.getBackgroundTintList().getDefaultColor()
-            : MaterialColors.getColor(
-                b.keyCtrl, R.attr.colorSecondaryContainer);
+            : MaterialColors.getColor(b.keyCtrl, R.attr.colorSecondaryContainer);
     defaultKeyTextColor = b.keyCtrl.getCurrentTextColor();
 
     b.keyEsc.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_ESCAPE));
@@ -371,7 +380,7 @@ public class TerminalActivity extends BaseCompat
     }
   }
 
-  /** وقتی ویو هنوز layout نشده، emulator تا اولین onSizeChanged ساخته نمی‌شه و write() از دست می‌ره؛ پس صبر می‌کنیم. */
+  
   private void writeCommandWhenReady(TerminalSession session, String command) {
     if (session == null || command == null || command.isEmpty()) return;
     b.terminalView.post(

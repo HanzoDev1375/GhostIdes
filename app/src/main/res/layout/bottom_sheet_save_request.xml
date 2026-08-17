@@ -5,12 +5,21 @@
      android:layout_height="wrap_content"
      android:layout_width="match_parent">
 
-    <!-- Empty sibling target: BlurView 3.x forbids a BlurTarget containing the BlurView
-         that targets it, so this stand-in target replaces the old self-referencing setup. -->
+    <!-- The BlurView blurs whatever is rendered inside this BlurTarget. The ImageView is filled
+         with a snapshot of the activity behind the dialog. -->
     <eightbitlab.com.blurview.BlurTarget
          android:id="@+id/saveSheetBlurTarget"
          android:layout_height="match_parent"
-         android:layout_width="match_parent" />
+         android:layout_width="match_parent">
+
+        <ImageView
+             android:id="@+id/saveSheetBlurBackdrop"
+             android:layout_height="match_parent"
+             android:layout_width="match_parent"
+             android:contentDescription="@null"
+             android:scaleType="centerCrop" />
+
+    </eightbitlab.com.blurview.BlurTarget>
 
     <eightbitlab.com.blurview.BlurView
          android:layout_height="wrap_content"

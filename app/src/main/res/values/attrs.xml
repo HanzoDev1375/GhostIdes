@@ -19,12 +19,14 @@
         <attr name="esb_languageText" format="string" />
         <attr name="esb_encodingText" format="string" />
         <attr name="esb_indentationText" format="string" />
+        <attr name="esb_linesText" format="string" />
         <attr name="esb_statusText" format="string" />
 
         <!-- Icons -->
         <attr name="esb_languageIcon" format="reference" />
         <attr name="esb_encodingIcon" format="reference" />
         <attr name="esb_indentationIcon" format="reference" />
+        <attr name="esb_linesIcon" format="reference" />
         <attr name="esb_statusIcon" format="reference" />
 
         <!-- Colors -->
@@ -32,6 +34,7 @@
         <attr name="esb_iconTint" format="color" />
         <attr name="esb_dividerColor" format="color" />
         <attr name="esb_rippleColor" format="color" />
+        <attr name="esb_dirtyColor" format="color" />
 
         <!-- Typography -->
         <attr name="esb_textSize" format="dimension" />
@@ -46,6 +49,7 @@
         <attr name="esb_languageVisible" format="boolean" />
         <attr name="esb_encodingVisible" format="boolean" />
         <attr name="esb_indentationVisible" format="boolean" />
+        <attr name="esb_linesVisible" format="boolean" />
         <attr name="esb_statusVisible" format="boolean" />
 
     </declare-styleable>

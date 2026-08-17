@@ -1,5 +1,6 @@
 package ir.hanzodev1375.components.sheet;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Outline;
 import android.os.Bundle;
@@ -14,6 +15,8 @@ import androidx.core.graphics.ColorUtils;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import eightbitlab.com.blurview.BlurController;
+import eightbitlab.com.blurview.RenderScriptBlur;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.databinding.BaseBlurBottomSheetBinding;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
@@ -61,6 +64,9 @@ public abstract class BaseBlurBottomSheet extends BottomSheetDialogFragment {
       if (app.isBlurMod()) {
         bottomSheet.post(
             () -> {
+              if (binding == null) return;
+              Activity activity = getActivity();
+              if (activity == null) return;
               bottomSheet.setBackgroundColor(0);
               float cornerRadius = getResources().getDimension(R.dimen.bottom_sheet_corner_radius);
               binding.layoutblur.setClipToOutline(true);
@@ -74,11 +80,9 @@ public abstract class BaseBlurBottomSheet extends BottomSheetDialogFragment {
                   });
               binding
                   .layoutblur
-                  .setupWith(binding.blurTarget)
-                  .setFrameClearDrawable(requireDialog().getWindow().getDecorView().getBackground())
+                  .setupWith(binding.blurTarget,new RenderScriptBlur(getContext()),BlurController.DEFAULT_SCALE_FACTOR,true)
+                  .setFrameClearDrawable(activity.getWindow().getDecorView().getBackground())
                   .setBlurEnabled(true)
-                  //    .setOverlayColor(MaterialColors.getColor(binding.layoutblur,
-                  // R.attr.colorSurface))
                   .setBlurRadius(18f);
             });
       }

@@ -15,6 +15,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.R;
+import ir.hanzodev1375.components.sheet.BlurBackdrop;
 import ir.hanzodev1375.ghostide.postman.data.AppRepository;
 import ir.hanzodev1375.ghostide.databinding.BottomSheetSaveRequestBinding;
 import ir.hanzodev1375.ghostide.postman.model.RequestCollection;
@@ -66,6 +67,7 @@ public class SaveRequestBottomSheet extends BottomSheetDialogFragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
+    BlurBackdrop.captureInto(requireActivity(), binding.saveSheetBlurBackdrop);
     BlurUtils.applyBlur(requireActivity(), binding.saveSheetBlurView, binding.saveSheetBlurTarget, 18f);
 
     Bundle args = requireArguments();

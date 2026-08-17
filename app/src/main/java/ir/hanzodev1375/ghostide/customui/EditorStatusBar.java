@@ -67,6 +67,8 @@ public class EditorStatusBar extends FrameLayout {
   @ColorInt private static final int STATUS_COLOR_ERROR = Color.parseColor("#F44336");
   @ColorInt private static final int STATUS_COLOR_IDLE = Color.parseColor("#9E9E9E");
   private static final int STATUS_DOT_SIZE_DP = 8;
+  private static final int DIRTY_DOT_SIZE_DP = 8;
+  @ColorInt private static final int DEFAULT_DIRTY_COLOR = Color.parseColor("#FFA000");
 
   public enum StatusIndicator {
     IDLE,
@@ -99,9 +101,13 @@ public class EditorStatusBar extends FrameLayout {
   private RippleDrawable rippleLanguage;
   private RippleDrawable rippleEncoding;
   private RippleDrawable rippleIndentation;
+  private RippleDrawable rippleLines;
   private RippleDrawable rippleStatus;
   private GradientDrawable statusDotDrawable;
+  private GradientDrawable dirtyDotDrawable;
   private StatusIndicator currentStatusIndicator = StatusIndicator.IDLE;
+  @ColorInt private int dirtyColor;
+  private boolean dirtyShowing;
 
   public EditorStatusBar(@NonNull Context context) {
     this(context, null);
@@ -127,6 +133,7 @@ public class EditorStatusBar extends FrameLayout {
     iconTint = DEFAULT_ICON_TINT;
     dividerColor = DEFAULT_DIVIDER_COLOR;
     rippleColor = DEFAULT_RIPPLE_COLOR;
+    dirtyColor = DEFAULT_DIRTY_COLOR;
     textSize = spToPx(DEFAULT_TEXT_SIZE_SP);
     typeface = Typeface.DEFAULT;
 
@@ -148,6 +155,7 @@ public class EditorStatusBar extends FrameLayout {
         iconTint = a.getColor(R.styleable.EditorStatusBar_esb_iconTint, iconTint);
         dividerColor = a.getColor(R.styleable.EditorStatusBar_esb_dividerColor, dividerColor);
         rippleColor = a.getColor(R.styleable.EditorStatusBar_esb_rippleColor, rippleColor);
+        dirtyColor = a.getColor(R.styleable.EditorStatusBar_esb_dirtyColor, dirtyColor);
 
         textSize = a.getDimension(R.styleable.EditorStatusBar_esb_textSize, textSize);
         sectionPadding =
@@ -182,16 +190,19 @@ public class EditorStatusBar extends FrameLayout {
     applyDividerColor();
     updateDividerVisibility();
     ensureStatusDotDrawable();
+    ensureDirtyDotDrawable();
   }
 
   private void applyInitialText(TypedArray a) {
     String languageText = a.getString(R.styleable.EditorStatusBar_esb_languageText);
     String encodingText = a.getString(R.styleable.EditorStatusBar_esb_encodingText);
     String indentationText = a.getString(R.styleable.EditorStatusBar_esb_indentationText);
+    String linesText = a.getString(R.styleable.EditorStatusBar_esb_linesText);
     String statusText = a.getString(R.styleable.EditorStatusBar_esb_statusText);
     if (languageText != null) binding.textLanguage.setText(languageText);
     if (encodingText != null) binding.textEncoding.setText(encodingText);
     if (indentationText != null) binding.textIndentation.setText(indentationText);
+    if (linesText != null) binding.textLines.setText(linesText);
     if (statusText != null) binding.textStatus.setText(statusText);
   }
 
@@ -199,10 +210,12 @@ public class EditorStatusBar extends FrameLayout {
     Drawable languageIcon = a.getDrawable(R.styleable.EditorStatusBar_esb_languageIcon);
     Drawable encodingIcon = a.getDrawable(R.styleable.EditorStatusBar_esb_encodingIcon);
     Drawable indentationIcon = a.getDrawable(R.styleable.EditorStatusBar_esb_indentationIcon);
+    Drawable linesIcon = a.getDrawable(R.styleable.EditorStatusBar_esb_linesIcon);
     Drawable statusIcon = a.getDrawable(R.styleable.EditorStatusBar_esb_statusIcon);
     if (languageIcon != null) binding.iconLanguage.setImageDrawable(languageIcon);
     if (encodingIcon != null) binding.iconEncoding.setImageDrawable(encodingIcon);
     if (indentationIcon != null) binding.iconIndentation.setImageDrawable(indentationIcon);
+    if (linesIcon != null) binding.iconLines.setImageDrawable(linesIcon);
     if (statusIcon != null) binding.iconStatus.setImageDrawable(statusIcon);
   }
 
@@ -215,6 +228,9 @@ public class EditorStatusBar extends FrameLayout {
     }
     if (!a.getBoolean(R.styleable.EditorStatusBar_esb_indentationVisible, true)) {
       binding.sectionIndentation.setVisibility(GONE);
+    }
+    if (!a.getBoolean(R.styleable.EditorStatusBar_esb_linesVisible, true)) {
+      binding.sectionLines.setVisibility(GONE);
     }
     if (!a.getBoolean(R.styleable.EditorStatusBar_esb_statusVisible, true)) {
       binding.sectionStatus.setVisibility(GONE);
@@ -241,11 +257,13 @@ public class EditorStatusBar extends FrameLayout {
     rippleLanguage = createRipple();
     rippleEncoding = createRipple();
     rippleIndentation = createRipple();
+    rippleLines = createRipple();
     rippleStatus = createRipple();
 
     binding.sectionLanguage.setBackground(rippleLanguage);
     binding.sectionEncoding.setBackground(rippleEncoding);
     binding.sectionIndentation.setBackground(rippleIndentation);
+    binding.sectionLines.setBackground(rippleLines);
     binding.sectionStatus.setBackground(rippleStatus);
   }
 
@@ -260,6 +278,7 @@ public class EditorStatusBar extends FrameLayout {
     rippleLanguage.setColor(colorStateList);
     rippleEncoding.setColor(colorStateList);
     rippleIndentation.setColor(colorStateList);
+    rippleLines.setColor(colorStateList);
     rippleStatus.setColor(colorStateList);
   }
 
@@ -267,6 +286,7 @@ public class EditorStatusBar extends FrameLayout {
     binding.textLanguage.setTextColor(textColor);
     binding.textEncoding.setTextColor(textColor);
     binding.textIndentation.setTextColor(textColor);
+    binding.textLines.setTextColor(textColor);
     binding.textStatus.setTextColor(textColor);
   }
 
@@ -274,6 +294,7 @@ public class EditorStatusBar extends FrameLayout {
     applyIconTint(binding.iconLanguage);
     applyIconTint(binding.iconEncoding);
     applyIconTint(binding.iconIndentation);
+    applyIconTint(binding.iconLines);
   }
 
   private void applyIconTint(ImageView imageView) {
@@ -281,12 +302,15 @@ public class EditorStatusBar extends FrameLayout {
     if (imageView.getDrawable() != null) {
       imageView.setColorFilter(iconTint, PorterDuff.Mode.SRC_IN);
     }
+    // اگه آیکونی تنظیم نشده، جای خالی ۱۶dp+۶dp رو نگیره تا روی گوشی سکشن‌ها جا بشن.
+    imageView.setVisibility(imageView.getDrawable() != null ? View.VISIBLE : View.GONE);
   }
 
   private void applyTextSizeToAll() {
     binding.textLanguage.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
     binding.textEncoding.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
     binding.textIndentation.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+    binding.textLines.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
     binding.textStatus.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
   }
 
@@ -294,6 +318,7 @@ public class EditorStatusBar extends FrameLayout {
     binding.textLanguage.setTypeface(typeface);
     binding.textEncoding.setTypeface(typeface);
     binding.textIndentation.setTypeface(typeface);
+    binding.textLines.setTypeface(typeface);
     binding.textStatus.setTypeface(typeface);
   }
 
@@ -301,6 +326,7 @@ public class EditorStatusBar extends FrameLayout {
     applySectionPadding(binding.sectionLanguage);
     applySectionPadding(binding.sectionEncoding);
     applySectionPadding(binding.sectionIndentation);
+    applySectionPadding(binding.sectionLines);
     applySectionPadding(binding.sectionStatus);
   }
 
@@ -313,6 +339,7 @@ public class EditorStatusBar extends FrameLayout {
     applyIconSize(binding.iconLanguage);
     applyIconSize(binding.iconEncoding);
     applyIconSize(binding.iconIndentation);
+    applyIconSize(binding.iconLines);
     applyIconSize(binding.iconStatus);
   }
 
@@ -327,6 +354,7 @@ public class EditorStatusBar extends FrameLayout {
     applyIconTextSpacing(binding.iconLanguage);
     applyIconTextSpacing(binding.iconEncoding);
     applyIconTextSpacing(binding.iconIndentation);
+    applyIconTextSpacing(binding.iconLines);
     applyIconTextSpacing(binding.iconStatus);
   }
 
@@ -341,7 +369,8 @@ public class EditorStatusBar extends FrameLayout {
   private void applyDividerColor() {
     binding.dividerLanguageEncoding.setBackgroundColor(dividerColor);
     binding.dividerEncodingIndentation.setBackgroundColor(dividerColor);
-    binding.dividerIndentationStatus.setBackgroundColor(dividerColor);
+    binding.dividerIndentationLines.setBackgroundColor(dividerColor);
+    binding.dividerLinesStatus.setBackgroundColor(dividerColor);
   }
 
   /**
@@ -352,11 +381,13 @@ public class EditorStatusBar extends FrameLayout {
     boolean lang = isLanguageVisible();
     boolean enc = isEncodingVisible();
     boolean ind = isIndentationVisible();
+    boolean lines = isLinesVisible();
     boolean stat = isStatusVisible();
 
     binding.dividerLanguageEncoding.setVisibility(lang && enc ? VISIBLE : GONE);
     binding.dividerEncodingIndentation.setVisibility(enc && ind ? VISIBLE : GONE);
-    binding.dividerIndentationStatus.setVisibility(ind && stat ? VISIBLE : GONE);
+    binding.dividerIndentationLines.setVisibility(ind && lines ? VISIBLE : GONE);
+    binding.dividerLinesStatus.setVisibility(lines && stat ? VISIBLE : GONE);
   }
 
   /**
@@ -485,6 +516,24 @@ public class EditorStatusBar extends FrameLayout {
     return binding.iconStatus.getDrawable();
   }
 
+  public void setLinesText(String text) {
+    binding.textLines.setText(text);
+  }
+
+  public String getLinesText() {
+    return binding.textLines.getText().toString();
+  }
+
+  public void setLinesIcon(@Nullable Drawable drawable) {
+    binding.iconLines.setImageDrawable(drawable);
+    applyIconTint(binding.iconLines);
+  }
+
+  @Nullable
+  public Drawable getLinesIcon() {
+    return binding.iconLines.getDrawable();
+  }
+
   
   public void setStatusIndicator(@NonNull StatusIndicator state, @Nullable String label) {
     ensureStatusDotDrawable();
@@ -537,6 +586,52 @@ public class EditorStatusBar extends FrameLayout {
     statusDotDrawable.setSize(dotSizePx, dotSizePx);
     statusDotDrawable.setColor(STATUS_COLOR_IDLE);
     binding.iconStatus.setImageDrawable(statusDotDrawable);
+    binding.iconStatus.setVisibility(View.VISIBLE);
+  }
+
+  private void ensureDirtyDotDrawable() {
+    if (dirtyDotDrawable != null) {
+      return;
+    }
+    dirtyDotDrawable = new GradientDrawable();
+    dirtyDotDrawable.setShape(GradientDrawable.OVAL);
+    int dotSizePx = (int) dpToPx(DIRTY_DOT_SIZE_DP);
+    dirtyDotDrawable.setSize(dotSizePx, dotSizePx);
+    dirtyDotDrawable.setColor(dirtyColor);
+    binding.dirtyDot.setBackground(dirtyDotDrawable);
+    binding.dirtyDot.setAlpha(0f);
+  }
+
+  /** فایل فعلی تغییر کرده و ذخیره نشده. نقطه‌ی نارنجی انتهای نوار با fade ظاهر/محو می‌شه. */
+  public void setDirty(boolean dirty) {
+    if (dirtyShowing == dirty) return;
+    dirtyShowing = dirty;
+    binding.dirtyDot.setVisibility(View.VISIBLE);
+    binding
+        .dirtyDot
+        .animate()
+        .alpha(dirty ? 1f : 0f)
+        .setDuration(200)
+        .withEndAction(
+            () -> {
+              if (!dirtyShowing) binding.dirtyDot.setVisibility(View.GONE);
+            });
+  }
+
+  public boolean isDirty() {
+    return dirtyShowing;
+  }
+
+  public void setDirtyColor(@ColorInt int color) {
+    this.dirtyColor = color;
+    if (dirtyDotDrawable != null) {
+      dirtyDotDrawable.setColor(color);
+    }
+  }
+
+  @ColorInt
+  public int getDirtyColor() {
+    return dirtyColor;
   }
 
   public void setTextColor(@ColorInt int color) {
@@ -667,6 +762,15 @@ public class EditorStatusBar extends FrameLayout {
     return binding.sectionIndentation.getVisibility() == VISIBLE;
   }
 
+  public void setLinesVisible(boolean visible) {
+    binding.sectionLines.setVisibility(visible ? VISIBLE : GONE);
+    updateDividerVisibility();
+  }
+
+  public boolean isLinesVisible() {
+    return binding.sectionLines.getVisibility() == VISIBLE;
+  }
+
   public void setStatusVisible(boolean visible) {
     binding.sectionStatus.setVisibility(visible ? VISIBLE : GONE);
     updateDividerVisibility();
@@ -686,6 +790,10 @@ public class EditorStatusBar extends FrameLayout {
 
   public void setOnIndentationClickListener(@Nullable OnClickListener listener) {
     binding.sectionIndentation.setOnClickListener(listener);
+  }
+
+  public void setOnLinesClickListener(@Nullable OnClickListener listener) {
+    binding.sectionLines.setOnClickListener(listener);
   }
 
   public void setOnStatusClickListener(@Nullable OnClickListener listener) {

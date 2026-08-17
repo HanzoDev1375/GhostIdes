@@ -8,36 +8,19 @@ import io.github.rosemoe.sora.lang.EmptyLanguage;
 import io.github.rosemoe.sora.lang.Language;
 import io.github.rosemoe.sora.lang.QuickQuoteHandler;
 import io.github.rosemoe.sora.lang.analysis.AnalyzeManager;
-import io.github.rosemoe.sora.lang.completion.CompletionHelper;
-import io.github.rosemoe.sora.lang.completion.CompletionItemKind;
 import io.github.rosemoe.sora.lang.completion.CompletionPublisher;
 import io.github.rosemoe.sora.lang.completion.IdentifierAutoComplete;
 import io.github.rosemoe.sora.lang.completion.snippet.CodeSnippet;
 import io.github.rosemoe.sora.lang.completion.snippet.parser.CodeSnippetParser;
-import io.github.rosemoe.sora.lang.completion.SnippetDescription;
-import io.github.rosemoe.sora.lang.format.AsyncFormatter;
 import io.github.rosemoe.sora.lang.format.Formatter;
 import io.github.rosemoe.sora.lang.smartEnter.NewlineHandler;
 import io.github.rosemoe.sora.text.CharPosition;
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentReference;
-import io.github.rosemoe.sora.text.TextRange;
 import io.github.rosemoe.sora.text.TextUtils;
 import io.github.rosemoe.sora.widget.SymbolPairMatch;
-import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.CharParser;
-import ir.hanzodev1375.ghostide.codeeditors.langs.antlr4base.SnippetCompletionItem;
-import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.PrettierFormatter;
-import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.Css3Server;
-import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.EmmetParser;
-import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.PathCompleter;
 import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.VFSManager;
-import ir.hanzodev1375.ghostide.codeeditors.util.CustomFormatter;
-import ir.hanzodev1375.ghostide.codeeditors.util.formatter.HtmlFormatter;
 import java.io.File;
-import java.io.StringReader;
-import java.io.IOException;
-import java.util.List;
-import ir.hanzodev1375.ghostide.codeeditors.lspcustomhot.CustomCompletionItem;
 import io.github.rosemoe.sora.lang.smartEnter.NewlineHandleResult;
 import io.github.rosemoe.sora.lang.styling.Styles;
 
@@ -82,36 +65,6 @@ public class HtmlLanguage implements Language {
     }
   }
 
-  private final Formatter format =
-      new AsyncFormatter() {
-        @Nullable
-        @Override
-        public TextRange formatAsync(@NonNull Content text, @NonNull TextRange cursorRange) {
-          PrettierFormatter formatted = new PrettierFormatter();
-          String formatResult = formatted.format(context, text.toString(), "html");
-
-          if (!text.toString().equals(formatResult)) {
-            int oldCursor = cursorRange.getStartIndex();
-            text.delete(0, text.length());
-            text.insert(0, 0, formatResult);
-            int newCursor = Math.min(oldCursor, formatResult.length());
-            CharPosition pos = text.getIndexer().getCharPosition(newCursor);
-            return new TextRange(pos, pos);
-          }
-
-          return cursorRange;
-        }
-
-        @Nullable
-        @Override
-        public TextRange formatRegionAsync(
-            @NonNull Content text,
-            @NonNull TextRange rangeToFormat,
-            @NonNull TextRange cursorRange) {
-          return null;
-        }
-      };
-
   @NonNull
   @Override
   public AnalyzeManager getAnalyzeManager() {
@@ -137,115 +90,7 @@ public class HtmlLanguage implements Language {
       @NonNull ContentReference content,
       @NonNull CharPosition position,
       @NonNull CompletionPublisher publisher,
-      @NonNull Bundle es) {
-    String prefix = CompletionHelper.computePrefix(content, position, CharParser::parserHtml);
-    /*
-    if (isInsideStyleTag(content, position)) {
-      for (CssCompletionItem item : CssHelper.getPropertyItemsByPrefix(prefix)) {
-        publisher.addItem(item);
-      }
-      Css3Server cssServer = new Css3Server(context);
-      List<CustomCompletionItem> cssItems = cssServer.getCompletions(prefix);
-      for (CustomCompletionItem item : cssItems) {
-        publisher.addItem(item);
-      }
-      for (CustomCompletionItem item : HtmlHelper.getNormalTag(prefix)) {
-        publisher.addItem(item);
-      }
-      return;
-    }
-    if (isInsidescriptTag(content, position)) {
-      for (var item : HtmlHelper.getJsKeywordItems(prefix)) {
-        publisher.addItem(item);
-      }
-    }
-
-    autoComplete.requireAutoComplete(
-        content, position, prefix, publisher, analyzer.identifiers);
-
-    if (!prefix.isEmpty() && !isInsideTag(content, position)) {
-      String htmlExpanded = EmmetParser.expandHtml(prefix);
-      if (htmlExpanded != null) {
-        publisher.addItem(
-            new CustomCompletionItem(prefix, "Emmet HTML", htmlExpanded, -1, prefix)
-                .kind(CompletionItemKind.Enum));
-      }
-    }
-
-    if ("html5".startsWith(prefix) && prefix.length() > 0) {
-      publisher.addItem(
-          new SnippetCompletionItem(
-              "html5",
-              "Snippet - HTML5 Boilerplate",
-              new SnippetDescription(prefix.length(), HTML5_SNIPPET, true)));
-    }
-    if ("divc".startsWith(prefix) && prefix.length() > 0) {
-      publisher.addItem(
-          new SnippetCompletionItem(
-              "divc",
-              "Snippet - Div with class",
-              new SnippetDescription(prefix.length(), DIV_CLASS_SNIPPET, true)));
-    }
-    if ("linkcss".startsWith(prefix) && prefix.length() > 0) {
-      publisher.addItem(
-          new SnippetCompletionItem(
-              "linkcss",
-              "Snippet - Link CSS",
-              new SnippetDescription(prefix.length(), LINK_CSS_SNIPPET, true)));
-    }
-    if ("scriptsrc".startsWith(prefix) && prefix.length() > 0) {
-      publisher.addItem(
-          new SnippetCompletionItem(
-              "scriptsrc",
-              "Snippet - Script src",
-              new SnippetDescription(prefix.length(), SCRIPT_SRC_SNIPPET, true)));
-    }
-    if ("btn".startsWith(prefix) && prefix.length() > 0) {
-      publisher.addItem(
-          new SnippetCompletionItem(
-              "btn",
-              "Snippet - Button",
-              new SnippetDescription(prefix.length(), BUTTON_SNIPPET, true)));
-    }
-    if ("inp".startsWith(prefix) && prefix.length() > 0) {
-      publisher.addItem(
-          new SnippetCompletionItem(
-              "inp",
-              "Snippet - Input field",
-              new SnippetDescription(prefix.length(), INPUT_SNIPPET, true)));
-    }
-    if (prefix.length() > 0) {
-      boolean insideTag = isInsideTag(content, position);
-      if (insideTag) {
-        for (HtmlAttributeCompletionItem item : HtmlHelper.getAttributeItemsByPrefix(prefix)) {
-          publisher.addItem(item);
-        }
-      } else {
-        for (HtmlTagCompletionItem item : HtmlHelper.getTagItemsByPrefix(prefix)) {
-          publisher.addItem(item);
-        }
-      }
-    } else {
-      if (isInsideTag(content, position)) {
-        for (HtmlAttributeCompletionItem item : HtmlHelper.getAllAttributeItems()) {
-          publisher.addItem(item);
-        }
-      } else {
-        for (HtmlTagCompletionItem item : HtmlHelper.getAllTagItems()) {
-          publisher.addItem(item);
-        }
-      }
-    }
-    String pathPrefix = prefix;
-    if (pathPrefix != null) {
-      List<CustomCompletionItem> pathItems = PathCompleter.getPathCompletions(path, pathPrefix);
-      for (CustomCompletionItem item : pathItems) {
-        publisher.addItem(item);
-      }
-      return;
-    }
-    */
-  }
+      @NonNull Bundle es) {}
 
   private boolean isInsideStyleTag(ContentReference content, CharPosition pos) {
     try {
@@ -392,13 +237,13 @@ public class HtmlLanguage implements Language {
 
   @Override
   public boolean useTab() {
-    return false;
+    return true;
   }
 
   @NonNull
   @Override
   public Formatter getFormatter() {
-    return format;
+    return EmptyLanguage.EmptyFormatter.INSTANCE;
   }
 
   @Override

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -138,8 +137,6 @@ public class CssServer {
                 var css = new CssLanguage(context,filePath);
                 e.setWrapperLanguage(css);
                 e.setEditor(editor);
-                var lang = (LspLanguage) editor.getEditorLanguage();
-                lang.setFormatter(css.getFormatter());
                 holder[0] = e;
               } finally {
                 latch.countDown();

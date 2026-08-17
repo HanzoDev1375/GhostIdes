@@ -115,7 +115,44 @@
     </LinearLayout>
 
     <View
-        android:id="@+id/dividerIndentationStatus"
+        android:id="@+id/dividerIndentationLines"
+        android:layout_width="1dp"
+        android:layout_height="16dp"
+        android:layout_gravity="center_vertical" />
+
+    <!-- ============ LINES ============ -->
+    <LinearLayout
+        android:id="@+id/sectionLines"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
+
+        <ImageView
+            android:id="@+id/iconLines"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginEnd="6dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            tools:src="@android:drawable/ic_menu_edit" />
+
+        <TextView
+            android:id="@+id/textLines"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="12sp"
+            tools:text="128 lines" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/dividerLinesStatus"
         android:layout_width="1dp"
         android:layout_height="16dp"
         android:layout_gravity="center_vertical" />
@@ -150,5 +187,16 @@
             android:textSize="12sp"
             tools:text="No issues" />
     </LinearLayout>
+
+    <View
+        android:id="@+id/dirtyDot"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="10dp"
+        android:importantForAccessibility="no"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
 </LinearLayout>

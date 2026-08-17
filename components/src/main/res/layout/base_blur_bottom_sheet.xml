@@ -1,29 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <!-- Empty sibling target: BlurView can no longer target an ancestor that contains it
-         (BlurView 3.x forbids a BlurTarget containing the BlurView that targets it), so this
-         stand-in target replaces the old self-referencing setup. -->
     <eightbitlab.com.blurview.BlurTarget
         android:id="@+id/blurTarget"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/blurBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop" />
+
+    </eightbitlab.com.blurview.BlurTarget>
 
     <eightbitlab.com.blurview.BlurView
-        android:layout_height="wrap_content"
+        android:id="@+id/layoutblur"
         android:layout_width="match_parent"
-        android:id="@+id/layoutblur">
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom">
 
         <LinearLayout
-            android:layout_height="wrap_content"
+            android:id="@+id/contentContainer"
             android:layout_width="match_parent"
-            android:orientation="vertical"
-            android:id="@+id/contentContainer">
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
 
-        </LinearLayout>
     </eightbitlab.com.blurview.BlurView>
 
 </FrameLayout>

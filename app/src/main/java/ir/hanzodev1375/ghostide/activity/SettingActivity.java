@@ -45,8 +45,8 @@ import ir.hanzodev1375.ghostide.themeengine.ThemeChooserDialogBuilder;
 import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
 import ir.hanzodev1375.ghostide.utils.LocaleHelper;
 import ir.hanzodev1375.ghostide.utils.BlurTransformation;
+import ir.hanzodev1375.ghostide.utils.FileUtil;
 import java.io.File;
-import java.io.FileInputStream;
 import ir.theme.GhostTheme;
 import com.google.gson.Gson;
 import ir.theme.ThemeManager;
@@ -886,7 +886,7 @@ public class SettingActivity extends BaseCompat {
               }
               try {
                 String json =
-                    new String(new FileInputStream(file).readAllBytes(), StandardCharsets.UTF_8);
+                    new String(FileUtil.readBytesCompat(file), StandardCharsets.UTF_8);
                 GhostTheme theme = new Gson().fromJson(json, GhostTheme.class);
                 if (theme == null) throw new Exception("Invalid theme format");
                 new ThemeManager(this).saveTheme(theme);

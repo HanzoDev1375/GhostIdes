@@ -34,6 +34,7 @@ import ir.hanzodev1375.ghostide.terminal.DebianInstaller;
 import ir.hanzodev1375.ghostide.terminal.GhostTerminalSessionClient;
 import ir.hanzodev1375.ghostide.terminal.GhostTerminalViewClient;
 import ir.hanzodev1375.ghostide.terminal.ProotSessionFactory;
+import ir.hanzodev1375.ghostide.terminal.TerminalInputDock;
 import ir.hanzodev1375.ghostide.terminal.TerminalSessionFactory;
 import ir.hanzodev1375.ghostide.terminal.TerminalTab;
 import ir.hanzodev1375.ghostide.terminal.adapters.TerminalTabAdapter;
@@ -56,6 +57,7 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
   private boolean altToggled = false;
   private int defaultKeyBackgroundColor;
   private int defaultKeyTextColor;
+  private TerminalInputDock inputDock;
 
   private AlertDialog installDialog;
   private TextView installStatusText;
@@ -99,10 +101,17 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
     terminalBinding.getRoot().setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
     setupTerminalView();
     setupExtraKeys();
+    setupInputDock();
     maybeRequestNotificationPermission();
     initializeTerminal();
     setupBackgroundBlur();
     setHasPeekMod(false);
+  }
+
+  private void setupInputDock() {
+    inputDock = new TerminalInputDock(terminalBinding, this::currentSession);
+    inputDock.attach();
+    inputDock.attachKeyboardWatcher(requireDialog().getWindow().getDecorView());
   }
 
   @Override
@@ -173,7 +182,8 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
 
     terminalBinding.toolbar.setBackgroundColor(Color.TRANSPARENT);
     terminalBinding.sessionTabsRow.setBackgroundColor(Color.TRANSPARENT);
-    terminalBinding.extraKeysScroll.setBackgroundColor(Color.TRANSPARENT);
+    terminalBinding.inputDock.setBackgroundColor(Color.TRANSPARENT);
+    terminalBinding.inputDock.setElevation(0f);
     terminalBinding.terminalView.setBackgroundColor(Color.TRANSPARENT);
     terminalBinding.backgroundIconTerminal.setVisibility(View.VISIBLE);
   }

@@ -393,6 +393,13 @@ public class FileManagerActivity extends BaseCompat
         .getAdapter()
         .setOnItemClickListener((view, nav, pos) -> viewModel.navigateTo(nav.getFilePath()));
 
+    bind.navmodel.setOnNavigateListener(
+        path -> {
+          viewModel.navigateTo(path);
+          bind.gitActionButton.setVisibility(isGitRepository(path) ? View.VISIBLE : View.GONE);
+        });
+    bind.btnGoToDir.setOnClickListener(this::showGoToDirMenu);
+
     stepMoreAdapter();
     setupSelectionPanel();
 
@@ -1172,7 +1179,7 @@ public class FileManagerActivity extends BaseCompat
         (filemodel, view, pos) -> {
           boolean showRenamePackage = isRenameablePackageDirectory(filemodel);
           boolean showRenameClass = isRenameableClassFile(filemodel);
-          var menu = ObjectUtil.stepMenu(this,view);
+          var menu = ObjectUtil.stepMenu(this, view);
           menu.addItem(new PowerMenuItem(getString(R.string.removed)));
           menu.addItem(new PowerMenuItem(getString(R.string.rename)));
           menu.addItem(new PowerMenuItem(getString(R.string.props_title_single)));
@@ -1228,7 +1235,7 @@ public class FileManagerActivity extends BaseCompat
                   }
                 }
               });
-           ObjectUtil.showFixPos(menu,view);
+          ObjectUtil.showFixPos(menu, view);
         });
   }
 
@@ -1551,7 +1558,8 @@ public class FileManagerActivity extends BaseCompat
                 .show(getSupportFragmentManager(), StringsTranslatorSheet.TAG);
             case 11 -> startActivity(new Intent(FileManagerActivity.this, TerminalActivity.class));
             case 12 -> startActivity(new Intent(FileManagerActivity.this, PostManActivity.class));
-            case 13 -> startActivity(new Intent(FileManagerActivity.this, PluginManagerActivity.class));
+            case 13 -> startActivity(
+                new Intent(FileManagerActivity.this, PluginManagerActivity.class));
           }
         });
     menu.showAsDropDown(bind.btnSettings);
@@ -1588,6 +1596,38 @@ public class FileManagerActivity extends BaseCompat
         });
     bind.ser.setIconClose(R.drawable.ic_close);
     bind.ser.setIconSearch(R.drawable.outline_search);
+  }
+
+  
+  private void showGoToDirMenu(View anchor) {
+    var menu = ObjectUtil.stepMenu(this, anchor);
+    menu.addItem(new PowerMenuItem(getString(R.string.goto_dir)));
+    menu.addItem(new PowerMenuItem(getString(R.string.internal_storage_label)));
+    menu.addItem(new PowerMenuItem(getString(R.string.sd_card_menu_item)));
+    menu.addItem(new PowerMenuItem(getString(R.string.goto_root)));
+    menu.setOnMenuItemClickListener(
+        (index, item) -> {
+          switch (index) {
+            case 0 -> bind.navmodel.showGoToDirDialog();
+            case 1 -> navigateToPath(Environment.getExternalStorageDirectory().getAbsolutePath());
+            case 2 -> {
+              StorageUtils.StorageEntry sd = StorageUtils.getSdCardVolume(this);
+              if (sd != null) {
+                navigateToPath(sd.path);
+              } else {
+                Toast.makeText(this, R.string.sd_card_not_found, Toast.LENGTH_SHORT).show();
+              }
+            }
+            case 3 -> navigateToPath (getCacheDir().getAbsolutePath());
+          }
+        });
+    ObjectUtil.showFixPos(menu, anchor);
+  }
+
+  private void navigateToPath(String path) {
+    if (path == null || path.isEmpty()) return;
+    viewModel.navigateTo(path);
+    bind.gitActionButton.setVisibility(isGitRepository(path) ? View.VISIBLE : View.GONE);
   }
 
   @Override

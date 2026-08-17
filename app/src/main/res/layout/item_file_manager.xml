@@ -1,74 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.listitem.ListItemLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="wrap_content"
-    android:id="@+id/rootadapter"
+<com.google.android.material.listitem.ListItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_height="wrap_content"
+  android:id="@+id/rootadapter"
+  android:layout_width="match_parent">
+  <com.google.android.material.listitem.ListItemCardView
     android:layout_width="match_parent"
-    
->
-    <com.google.android.material.listitem.ListItemCardView
-        android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/listcard">
+    <LinearLayout
+      android:layout_height="wrap_content"
+      android:layout_width="match_parent"
+      android:gravity="center_vertical"
+      android:padding="6dp"
+      android:orientation="horizontal">
+
+      <ImageView
+        android:layout_height="40dp"
+        android:layout_width="40dp"
+        android:id="@+id/ivIcon" />
+
+      <LinearLayout
         android:layout_height="wrap_content"
-        android:id="@+id/listcard"
-        
-    >
-        <LinearLayout
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:gravity="center_vertical"
-            android:padding="6dp"
-            android:orientation="horizontal"
-            
-        >
+        android:layout_width="0dp"
+        android:orientation="vertical"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1">
 
-            <ImageView
-                android:layout_height="40dp"
-                android:layout_width="40dp"
-                android:id="@+id/ivIcon"
-                
-            />
+        <TextView
+          android:layout_height="wrap_content"
+          android:layout_width="wrap_content"
+          android:ellipsize="end"
+          android:textSize="16sp"
+          android:maxLines="1"
+          android:id="@+id/tvName" />
 
-            <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="0dp"
-                android:orientation="vertical"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                
-            >
+        <TextView
+          android:layout_height="wrap_content"
+          android:layout_width="wrap_content"
+          android:textSize="12sp"
+          android:layout_marginTop="2dp"
+          android:id="@+id/tvDate" />
 
-                <TextView
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:ellipsize="end"
-                    android:textSize="16sp"
-                    android:maxLines="1"
-                    android:id="@+id/tvName"
-                    
-                />
+      </LinearLayout>
 
-                <TextView
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:textSize="12sp"
-                    android:layout_marginTop="2dp"
-                    android:id="@+id/tvDate"
-                    
-                />
+      <ImageView
+        android:layout_height="24dp"
+        android:layout_width="24dp"
+        android:src="@drawable/icon_more_vert_round"
+        android:padding="4dp"
+        android:id="@+id/ivMore" />
 
-            </LinearLayout>
-
-            <ImageView
-                android:layout_height="24dp"
-                android:layout_width="24dp"
-                android:src="@drawable/icon_more_vert_round"
-                android:padding="4dp"
-                android:id="@+id/ivMore"
-                
-            />
-
-        </LinearLayout>
-    </com.google.android.material.listitem.ListItemCardView>
+    </LinearLayout>
+  </com.google.android.material.listitem.ListItemCardView>
 </com.google.android.material.listitem.ListItemLayout>

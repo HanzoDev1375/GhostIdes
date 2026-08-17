@@ -25,6 +25,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 
+import ir.hanzodev1375.components.sheet.BlurBackdrop;
 import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.activity.SettingActivity;
@@ -219,6 +220,7 @@ public class PostManActivity extends BaseCompat {
     int overlay =
         androidx.core.graphics.ColorUtils.setAlphaComponent(
             ColorUtils.resolveAttrColor(this, R.attr.colorSurface), 160);
+    BlurBackdrop.captureInto(this, binding.responseSheetBlurBackdrop);
     BlurUtils.applyBlur(this, binding.responseSheetBlurView, binding.responseSheetBlurTarget, 18f);
     BottomSheetBehavior<LinearLayout> behavior = BottomSheetBehavior.from(binding.responseSheet);
     behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);

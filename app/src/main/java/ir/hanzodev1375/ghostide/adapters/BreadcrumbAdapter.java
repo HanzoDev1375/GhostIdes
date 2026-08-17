@@ -7,7 +7,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.model.BreadcrumbItem;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +49,7 @@ public class BreadcrumbAdapter extends RecyclerView.Adapter<BreadcrumbAdapter.Vi
         v -> {
           if (listener != null) listener.onBreadcrumbClick(item);
         });
+    
   }
 
   @Override

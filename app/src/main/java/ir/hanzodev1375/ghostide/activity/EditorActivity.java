@@ -46,8 +46,11 @@ import ir.hanzodev1375.ghostide.jgit.fragments.GitBottomSheetFragment;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitManager;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.FileChange;
 import ir.hanzodev1375.ghostide.runer.CodeRuner;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -116,6 +119,8 @@ public class EditorActivity extends BaseCompat
   private EditorPaneFragment activePane = null;
 
   private static final long LSP_STATUS_POLL_INTERVAL_MS = 1500;
+  /** تعداد خط و حجم فایل رو می‌خونه. برای فایل‌های خیلی بزرگ از شمردن خط صرف‌نظر می‌کنیم. */
+  private static final long STATS_MAX_SCAN_BYTES = 8L * 1024 * 1024;
   private final Handler lspStatusHandler = new Handler(Looper.getMainLooper());
   private BreadcrumbAdapter breadcrumbAdapter;
   private Disposable editorHostRegistration;
@@ -810,6 +815,9 @@ public class EditorActivity extends BaseCompat
         if (layoutTab != null && layoutTab.getCustomView() instanceof TabCustomView) {
           ((TabCustomView) layoutTab.getCustomView()).setHasStar(dirty);
         }
+        if (i == binding.viewPager.getCurrentItem()) {
+          binding.editorStatusBar.setDirty(dirty);
+        }
         return;
       }
     }
@@ -1022,9 +1030,33 @@ public class EditorActivity extends BaseCompat
 
   private void updateLanguageStatus(int position) {
     if (tabsList == null || position < 0 || position >= tabsList.size()) return;
-    String lang = getLanguageFromPath(tabsList.get(position).getFilePath());
+    String filePath = tabsList.get(position).getFilePath();
+    String lang = getLanguageFromPath(filePath);
     binding.editorStatusBar.setLanguageText(lang.isEmpty() ? "Text" : lang);
+    binding.editorStatusBar.setLinesText(formatFileStats(filePath));
+    binding.editorStatusBar.setDirty(tabsList.get(position).getHasStar());
     refreshLspStatusIndicator();
+  }
+
+  /** تعداد خط و حجم فایل رو می‌خونه. برای فایل‌های خیلی بزرگ از شمردن خط صرف‌نظر می‌کنیم. */
+  private String formatFileStats(String filePath) {
+    File file = new File(filePath);
+    if (!file.isFile()) return "";
+    String size = formatFileSize(file.length());
+    if (file.length() > STATS_MAX_SCAN_BYTES) return size;
+    int lines = 0;
+    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+      while (reader.readLine() != null) lines++;
+    } catch (IOException e) {
+      return size;
+    }
+    return getString(R.string.editor_status_lines, lines, size);
+  }
+
+  private static String formatFileSize(long bytes) {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return String.format(Locale.ROOT, "%.1f KB", bytes / 1024.0);
+    return String.format(Locale.ROOT, "%.1f MB", bytes / (1024.0 * 1024.0));
   }
 
   /**

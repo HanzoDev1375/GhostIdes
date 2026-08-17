@@ -79,165 +79,250 @@
              android:focusable="true"
              android:id="@+id/terminalView" />
 
-        <View
-             android:layout_height="1dp"
-             android:layout_width="match_parent"
-             android:background="?attr/colorOutlineVariant" />
-
-        <HorizontalScrollView
+        <FrameLayout
              android:layout_height="wrap_content"
              android:layout_width="match_parent"
-             android:scrollbars="none"
-             android:background="?attr/colorSurfaceContainerHigh"
-             android:minHeight="48dp"
-             android:id="@+id/extraKeysScroll">
+             android:background="@drawable/bg_input_dock"
+             android:elevation="8dp"
+             android:id="@+id/inputDock">
 
             <LinearLayout
-                 android:layout_height="match_parent"
-                 android:layout_width="wrap_content"
-                 android:paddingEnd="6dp"
-                 android:gravity="center_vertical"
-                 android:orientation="horizontal"
-                 android:paddingStart="6dp">
+                 android:layout_height="wrap_content"
+                 android:layout_width="match_parent"
+                 android:orientation="vertical"
+                 android:id="@+id/inputDockContent">
 
-                <Button
-                     android:layout_height="34dp"
-                     android:layout_width="wrap_content"
-                     android:layout_marginEnd="4dp"
-                     android:paddingEnd="0dp"
-                     android:textSize="11sp"
-                     style="@style/Widget.Material3.Button.TonalButton"
-                     android:paddingStart="0dp"
-                     android:minWidth="50dp"
-                     android:id="@+id/keyEsc"
-                     android:text="ESC" />
+                <FrameLayout
+                     android:layout_height="wrap_content"
+                     android:layout_width="match_parent"
+                     android:clipChildren="false"
+                     android:clipToPadding="false"
+                     android:id="@+id/dockPages">
 
-                <Button
-                     android:layout_height="34dp"
-                     android:layout_width="wrap_content"
-                     android:paddingEnd="0dp"
-                     android:textSize="11sp"
-                     style="@style/Widget.Material3.Button.TonalButton"
-                     android:paddingStart="0dp"
-                     android:minWidth="50dp"
-                     android:id="@+id/keyTab"
-                     android:text="TAB" />
+                    <HorizontalScrollView
+                         android:layout_height="wrap_content"
+                         android:layout_width="match_parent"
+                         android:scrollbars="none"
+                         android:background="@android:color/transparent"
+                         android:minHeight="48dp"
+                         android:layout_gravity="center_vertical"
+                         android:id="@+id/extraKeysScroll">
 
-                <View
-                     android:layout_height="24dp"
-                     android:layout_width="1dp"
-                     android:layout_marginEnd="8dp"
-                     android:background="?attr/colorOutlineVariant"
-                     android:layout_marginStart="8dp" />
+                        <LinearLayout
+                             android:layout_height="match_parent"
+                             android:layout_width="wrap_content"
+                             android:paddingEnd="6dp"
+                             android:gravity="center_vertical"
+                             android:orientation="horizontal"
+                             android:paddingStart="6dp">
 
-                <Button
-                     android:layout_height="34dp"
-                     android:layout_width="wrap_content"
-                     android:layout_marginEnd="4dp"
-                     android:paddingEnd="0dp"
-                     android:textSize="11sp"
-                     style="@style/Widget.Material3.Button.TonalButton"
-                     android:paddingStart="0dp"
-                     android:minWidth="50dp"
-                     android:id="@+id/keyCtrl"
-                     android:text="CTRL" />
+                            <Button
+                                 android:layout_height="34dp"
+                                 android:layout_width="wrap_content"
+                                 android:layout_marginEnd="4dp"
+                                 android:paddingEnd="0dp"
+                                 android:textSize="11sp"
+                                 style="@style/Widget.Material3.Button.TonalButton"
+                                 android:paddingStart="0dp"
+                                 android:minWidth="50dp"
+                                 android:id="@+id/keyEsc"
+                                 android:text="ESC" />
 
-                <Button
-                     android:layout_height="34dp"
-                     android:layout_width="wrap_content"
-                     android:paddingEnd="0dp"
-                     android:textSize="11sp"
-                     style="@style/Widget.Material3.Button.TonalButton"
-                     android:paddingStart="0dp"
-                     android:minWidth="50dp"
-                     android:id="@+id/keyAlt"
-                     android:text="ALT" />
+                            <Button
+                                 android:layout_height="34dp"
+                                 android:layout_width="wrap_content"
+                                 android:paddingEnd="0dp"
+                                 android:textSize="11sp"
+                                 style="@style/Widget.Material3.Button.TonalButton"
+                                 android:paddingStart="0dp"
+                                 android:minWidth="50dp"
+                                 android:id="@+id/keyTab"
+                                 android:text="TAB" />
 
-                <View
-                     android:layout_height="24dp"
-                     android:layout_width="1dp"
-                     android:layout_marginEnd="8dp"
-                     android:background="?attr/colorOutlineVariant"
-                     android:layout_marginStart="8dp" />
+                            <View
+                                 android:layout_height="24dp"
+                                 android:layout_width="1dp"
+                                 android:layout_marginEnd="8dp"
+                                 android:background="?attr/colorOutlineVariant"
+                                 android:layout_marginStart="8dp" />
 
-                <Button
-                     android:layout_height="34dp"
-                     android:layout_width="42dp"
-                     android:layout_marginEnd="4dp"
-                     android:padding="0dp"
-                     style="@style/Widget.Material3.Button.TonalButton"
-                     android:minWidth="0dp"
-                     android:id="@+id/keyUp"
-                     android:text="↑" />
+                            <Button
+                                 android:layout_height="34dp"
+                                 android:layout_width="wrap_content"
+                                 android:layout_marginEnd="4dp"
+                                 android:paddingEnd="0dp"
+                                 android:textSize="11sp"
+                                 style="@style/Widget.Material3.Button.TonalButton"
+                                 android:paddingStart="0dp"
+                                 android:minWidth="50dp"
+                                 android:id="@+id/keyCtrl"
+                                 android:text="CTRL" />
 
-                <Button
-                     android:layout_height="34dp"
-                     android:layout_width="42dp"
-                     android:layout_marginEnd="4dp"
-                     android:padding="0dp"
-                     style="@style/Widget.Material3.Button.TonalButton"
-                     android:minWidth="0dp"
-                     android:id="@+id/keyDown"
-                     android:text="↓" />
+                            <Button
+                                 android:layout_height="34dp"
+                                 android:layout_width="wrap_content"
+                                 android:paddingEnd="0dp"
+                                 android:textSize="11sp"
+                                 style="@style/Widget.Material3.Button.TonalButton"
+                                 android:paddingStart="0dp"
+                                 android:minWidth="50dp"
+                                 android:id="@+id/keyAlt"
+                                 android:text="ALT" />
 
-                <Button
-                     android:layout_height="34dp"
-                     android:layout_width="42dp"
-                     android:layout_marginEnd="4dp"
-                     android:padding="0dp"
-                     style="@style/Widget.Material3.Button.TonalButton"
-                     android:minWidth="0dp"
-                     android:id="@+id/keyLeft"
-                     android:text="←" />
+                            <View
+                                 android:layout_height="24dp"
+                                 android:layout_width="1dp"
+                                 android:layout_marginEnd="8dp"
+                                 android:background="?attr/colorOutlineVariant"
+                                 android:layout_marginStart="8dp" />
 
-                <Button
-                     android:layout_height="34dp"
-                     android:layout_width="42dp"
-                     android:padding="0dp"
-                     style="@style/Widget.Material3.Button.TonalButton"
-                     android:minWidth="0dp"
-                     android:id="@+id/keyRight"
-                     android:text="→" />
+                            <Button
+                                 android:layout_height="34dp"
+                                 android:layout_width="42dp"
+                                 android:layout_marginEnd="4dp"
+                                 android:padding="0dp"
+                                 style="@style/Widget.Material3.Button.TonalButton"
+                                 android:minWidth="0dp"
+                                 android:id="@+id/keyUp"
+                                 android:text="↑" />
 
-                <View
-                     android:layout_height="24dp"
-                     android:layout_width="1dp"
-                     android:layout_marginEnd="8dp"
-                     android:background="?attr/colorOutlineVariant"
-                     android:layout_marginStart="8dp" />
+                            <Button
+                                 android:layout_height="34dp"
+                                 android:layout_width="42dp"
+                                 android:layout_marginEnd="4dp"
+                                 android:padding="0dp"
+                                 style="@style/Widget.Material3.Button.TonalButton"
+                                 android:minWidth="0dp"
+                                 android:id="@+id/keyDown"
+                                 android:text="↓" />
 
-                <Button
-                     android:layout_height="34dp"
-                     android:layout_width="40dp"
-                     android:layout_marginEnd="4dp"
-                     android:padding="0dp"
-                     style="@style/Widget.Material3.Button.TonalButton"
-                     android:minWidth="0dp"
-                     android:id="@+id/keySlash"
-                     android:text="/" />
+                            <Button
+                                 android:layout_height="34dp"
+                                 android:layout_width="42dp"
+                                 android:layout_marginEnd="4dp"
+                                 android:padding="0dp"
+                                 style="@style/Widget.Material3.Button.TonalButton"
+                                 android:minWidth="0dp"
+                                 android:id="@+id/keyLeft"
+                                 android:text="←" />
 
-                <Button
-                     android:layout_height="34dp"
-                     android:layout_width="40dp"
-                     android:layout_marginEnd="4dp"
-                     android:padding="0dp"
-                     style="@style/Widget.Material3.Button.TonalButton"
-                     android:minWidth="0dp"
-                     android:id="@+id/keyDash"
-                     android:text="-" />
+                            <Button
+                                 android:layout_height="34dp"
+                                 android:layout_width="42dp"
+                                 android:padding="0dp"
+                                 style="@style/Widget.Material3.Button.TonalButton"
+                                 android:minWidth="0dp"
+                                 android:id="@+id/keyRight"
+                                 android:text="→" />
 
-                <Button
-                     android:layout_height="34dp"
-                     android:layout_width="40dp"
-                     android:padding="0dp"
-                     style="@style/Widget.Material3.Button.TonalButton"
-                     android:minWidth="0dp"
-                     android:id="@+id/keyPipe"
-                     android:text="|" />
+                            <View
+                                 android:layout_height="24dp"
+                                 android:layout_width="1dp"
+                                 android:layout_marginEnd="8dp"
+                                 android:background="?attr/colorOutlineVariant"
+                                 android:layout_marginStart="8dp" />
+
+                            <Button
+                                 android:layout_height="34dp"
+                                 android:layout_width="40dp"
+                                 android:layout_marginEnd="4dp"
+                                 android:padding="0dp"
+                                 style="@style/Widget.Material3.Button.TonalButton"
+                                 android:minWidth="0dp"
+                                 android:id="@+id/keySlash"
+                                 android:text="/" />
+
+                            <Button
+                                 android:layout_height="34dp"
+                                 android:layout_width="40dp"
+                                 android:layout_marginEnd="4dp"
+                                 android:padding="0dp"
+                                 style="@style/Widget.Material3.Button.TonalButton"
+                                 android:minWidth="0dp"
+                                 android:id="@+id/keyDash"
+                                 android:text="-" />
+
+                            <Button
+                                 android:layout_height="34dp"
+                                 android:layout_width="40dp"
+                                 android:padding="0dp"
+                                 style="@style/Widget.Material3.Button.TonalButton"
+                                 android:minWidth="0dp"
+                                 android:id="@+id/keyPipe"
+                                 android:text="|" />
+
+                        </LinearLayout>
+
+                    </HorizontalScrollView>
+
+                    <LinearLayout
+                         android:layout_height="wrap_content"
+                         android:layout_width="match_parent"
+                         android:visibility="invisible"
+                         android:paddingEnd="12dp"
+                         android:gravity="center_vertical"
+                         android:orientation="horizontal"
+                         android:paddingBottom="8dp"
+                         android:paddingStart="12dp"
+                         android:id="@+id/commandInputRow"
+                         android:paddingTop="8dp">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                             android:layout_height="wrap_content"
+                             android:layout_width="0dp"
+                             style="@style/Widget.GhostIDE.TextInputLayout"
+                             app:endIconMode="custom"
+                             app:endIconDrawable="@drawable/ic_send"
+                             app:endIconContentDescription="@string/terminal_send_command"
+                             app:endIconTint="?attr/colorPrimary"
+                             android:layout_weight="1"
+                             android:id="@+id/commandInputLayout">
+
+                            <EditText
+                                 android:layout_height="wrap_content"
+                                 android:layout_width="match_parent"
+                                 android:imeOptions="actionSend|flagNoFullscreen"
+                                 android:importantForAutofill="no"
+                                 android:textSize="14sp"
+                                 android:textColor="?attr/colorOnSurface"
+                                 android:hint="@string/terminal_command_hint"
+                                 android:textColorHint="?attr/colorOnSurfaceVariant"
+                                 android:maxLines="1"
+                                 android:inputType="text"
+                                 android:id="@+id/commandInput" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+
+                </FrameLayout>
+
+                <LinearLayout
+                     android:layout_height="30dp"
+                     android:layout_width="match_parent"
+                     android:background="?attr/selectableItemBackgroundBorderless"
+                     android:gravity="center"
+                     android:orientation="horizontal"
+                     android:id="@+id/dragHandle">
+
+                    <View
+                         android:layout_height="4dp"
+                         android:layout_width="36dp"
+                         android:background="@drawable/bg_drag_handle" />
+
+                    <ImageView
+                         android:layout_height="16dp"
+                         android:layout_width="16dp"
+                         android:contentDescription="@string/terminal_toggle_dock"
+                         android:src="@drawable/ic_expand"
+                         android:layout_marginStart="6dp"
+                         android:id="@+id/handleChevron" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
-        </HorizontalScrollView>
+        </FrameLayout>
 
     </LinearLayout>
 

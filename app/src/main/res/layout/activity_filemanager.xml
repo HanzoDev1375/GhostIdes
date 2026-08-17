@@ -97,12 +97,31 @@
             android:clipToOutline="true"
             android:id="@+id/headline">
 
-            <ir.hanzodev1375.ghostide.customui.NavModelPanel
+            <LinearLayout
                 android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:id="@+id/navmodel" />
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:id="@+id/navRow">
+
+                <ir.hanzodev1375.ghostide.customui.NavModelPanel
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="5dp"
+                    android:id="@+id/navmodel" />
+
+                <ImageButton
+                    android:layout_height="36dp"
+                    android:layout_width="36dp"
+                    android:contentDescription="@string/goto_dir"
+                    android:src="@drawable/ic_edit"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:tint="?colorOnSurface"
+                    android:layout_marginEnd="4dp"
+                    android:id="@+id/btnGoToDir" />
+
+            </LinearLayout>
 
             <FrameLayout
                 android:layout_height="match_parent"

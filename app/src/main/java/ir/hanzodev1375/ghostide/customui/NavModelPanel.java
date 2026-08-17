@@ -4,13 +4,20 @@ import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.skydoves.powermenu.PowerMenu;
+import com.skydoves.powermenu.PowerMenuItem;
+import ir.hanzodev1375.components.TextInputDialogFragment;
 import ir.hanzodev1375.ghostide.adapters.NavAdapter;
 import ir.hanzodev1375.ghostide.models.NavModel;
 import ir.hanzodev1375.ghostide.R;
+import ir.hanzodev1375.ghostide.utils.ObjectUtil;
+import ir.hanzodev1375.ghostide.utils.StorageUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,9 +28,16 @@ public class NavModelPanel extends RecyclerView {
   public static final String STORAGE_EMULATED =
       File.separator + "storage" + File.separator + "emulated";
   public static final String STORAGE_EMULATED_0 = STORAGE_EMULATED + File.separator + "0";
+
+  /** وقتی کاربر می‌خواد به یک مسیر دلخواه بره صدا زده می‌شه. */
+  public interface OnNavigateListener {
+    void onNavigate(String path);
+  }
+
   private final List<NavModel> breadCrumbs = new ArrayList<>();
   private NavAdapter adapter;
   private boolean visible;
+  private OnNavigateListener onNavigateListener;
 
   public NavModelPanel(Context context) {
     this(context, null);
@@ -43,6 +57,61 @@ public class NavModelPanel extends RecyclerView {
     setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
     setAdapter(adapter);
     visible = true;
+    adapter.setOnItemLongClickListener(
+        (view, model, pos) -> {
+          PowerMenu menu = ObjectUtil.stepMenu(view.getContext(), view);
+          menu.addItem(new PowerMenuItem(getContext().getString(R.string.goto_dir)));
+          menu.setOnMenuItemClickListener(
+              (index, item) -> {
+                if (index == 0) showGoToDirDialog();
+              });
+          ObjectUtil.showFixPos(menu, view);
+          return false;
+        });
+  }
+
+  public void setOnNavigateListener(OnNavigateListener listener) {
+    this.onNavigateListener = listener;
+  }
+
+  /** دیالوگ «رفتن به مسیر» — کاربر هر مسیری خواست تایپ می‌کنه و فایل‌منیجر می‌ره. */
+  public void showGoToDirDialog() {
+    Context context = getContext();
+    if (!(context instanceof FragmentActivity)) return;
+    TextInputDialogFragment.newInstance(
+            context.getString(R.string.goto_dir),
+            context.getString(R.string.goto_dir_hint),
+            currentPath())
+        .setCallback(this::navigateToPath)
+        .show(((FragmentActivity) context).getSupportFragmentManager(), "goto_dir");
+  }
+
+  private void navigateToPath(String path) {
+    String trimmed = path == null ? "" : path.trim();
+    if (trimmed.isEmpty()) return;
+    File file = new File(trimmed);
+    if (!file.exists()) {
+      Toast.makeText(
+              getContext(),
+              getContext().getString(R.string.goto_dir_not_found, trimmed),
+              Toast.LENGTH_SHORT)
+          .show();
+      return;
+    }
+    if (!file.isDirectory()) {
+      Toast.makeText(
+              getContext(),
+              getContext().getString(R.string.goto_dir_not_directory, trimmed),
+              Toast.LENGTH_SHORT)
+          .show();
+      return;
+    }
+    if (onNavigateListener != null) onNavigateListener.onNavigate(file.getAbsolutePath());
+  }
+
+  private String currentPath() {
+    if (breadCrumbs.isEmpty()) return null;
+    return breadCrumbs.get(breadCrumbs.size() - 1).getFilePath();
   }
 
   public NavAdapter getAdapter() {
@@ -53,8 +122,7 @@ public class NavModelPanel extends RecyclerView {
     if (visible && file != null) {
       breadCrumbs.clear();
 
-      java.util.List<ir.hanzodev1375.ghostide.utils.StorageUtils.StorageEntry> volumes =
-          ir.hanzodev1375.ghostide.utils.StorageUtils.getStorageVolumes(getContext());
+      List<StorageUtils.StorageEntry> volumes = StorageUtils.getStorageVolumes(getContext());
 
       while (file != null) {
         if (file.getPath().equals(STORAGE_EMULATED)) {
@@ -86,10 +154,8 @@ public class NavModelPanel extends RecyclerView {
     }
   }
 
-  private String labelForVolume(
-      java.util.List<ir.hanzodev1375.ghostide.utils.StorageUtils.StorageEntry> volumes,
-      String path) {
-    for (ir.hanzodev1375.ghostide.utils.StorageUtils.StorageEntry entry : volumes) {
+  private String labelForVolume(List<StorageUtils.StorageEntry> volumes, String path) {
+    for (var entry : volumes) {
       if (entry.path.equals(path)) {
         return entry.removable ? getContext().getString(R.string.sd_card_label) : null;
       }

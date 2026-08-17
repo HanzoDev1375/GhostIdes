@@ -8,6 +8,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.color.MaterialColors;
 import java.util.List;
 
@@ -48,6 +49,11 @@ public class ToolbarAdapter extends RecyclerView.Adapter<ToolbarAdapter.Holder> 
     holder.image.setOnClickListener(
         c -> {
           click.click(c, position);
+        });
+        holder.image.setOnLongClickListener(
+        v -> {
+          ToastUtils.showLong("Long");
+          return true;
         });
    // holder.image.setVisibility(icons.get(position).isShowVisblityItem() ? View.VISIBLE : View.GONE);
   }

@@ -9,8 +9,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.utils.ConstKeys;
+import ir.hanzodev1375.ghostide.utils.FileUtil;
 import java.io.File;
-import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 
 public class ThemeManager {
@@ -39,7 +39,7 @@ public class ThemeManager {
       if (file.exists()) {
         try {
           String json =
-              new String(new FileInputStream(file).readAllBytes(), StandardCharsets.UTF_8);
+              new String(FileUtil.readBytesCompat(file), StandardCharsets.UTF_8);
           String merged = mergeWithDefault(json);
           GhostTheme theme = gson.fromJson(merged, GhostTheme.class);
           if (theme != null) {

@@ -320,9 +320,6 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
     items = filteredList;
     rebuildIdMap();
     diffResult.dispatchUpdatesTo(this);
-    // DiffUtil فقط وقتی فیلد‌های مدل فرق کرده باشه rebind میکنه؛ چون searchQuery روی خودِ
-    // مدل نیست، آیتم‌هایی که جابه‌جا/حذف نشدن اصلاً دوباره bind نمیشن و رنگی‌شدن متن جا میفته.
-    // برای همین بعد از دیف، یه بار کل رنج فعلی رو صریحاً notifyItemRangeChanged میکنیم.
     notifyItemRangeChanged(0, items.size());
     if (selectionTracker != null) selectionTracker.clearSelection();
   }
@@ -399,7 +396,7 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
     holder.itemView.clearAnimation();
     if (!isAnimating) return;
     Animation animation =
-        AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.list_item);
+        AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.list_item_enter);
     animation.setStartOffset(animationStartOffset);
     animationStartOffset += STAGGER_STEP_MS;
     holder.itemView.startAnimation(animation);
