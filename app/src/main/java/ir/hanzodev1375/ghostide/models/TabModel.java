@@ -4,6 +4,7 @@ public class TabModel {
   private String filePath, fileName;
   private boolean pinned;
   private transient boolean hasStar;
+  private transient boolean hasError;
 
   public TabModel(String path, String name) {
     this.filePath = path;
@@ -38,5 +39,13 @@ public class TabModel {
 
   public void setHasStar(boolean hasStar) {
     this.hasStar = hasStar;
+  }
+
+  public boolean getHasError() {
+    return this.hasError;
+  }
+
+  public void setHasError(boolean hasError) {
+    this.hasError = hasError;
   }
 }

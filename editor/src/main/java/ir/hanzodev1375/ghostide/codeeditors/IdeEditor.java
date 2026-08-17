@@ -7,6 +7,7 @@ import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import io.github.rosemoe.sora.widget.component.EditorDiagnosticTooltipWindow;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.listener.GhostLspStatusListener;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.LspInitParamsHook;
 import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorTextActionWindow;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
@@ -52,6 +53,7 @@ public class IdeEditor extends CodeEditor
   private XmlAttrPreviewIde xmlAttrPreviewIde;
   private String currentFilePath;
   private volatile LspEditor lspEditor;
+  @Nullable private GhostLspStatusListener lspStatusListener;
   private GhostTextCompletionManager ghostCompletionManager;
 
   public IdeEditor(Context context) {
@@ -225,6 +227,15 @@ public class IdeEditor extends CodeEditor
   @Nullable
   public LspEditorStatus getLspStatus() {
     return lspEditor == null ? null : lspEditor.getStatus();
+  }
+
+  @Nullable
+  public GhostLspStatusListener getLspStatusListener() {
+    return lspStatusListener;
+  }
+
+  public void setLspStatusListener(@Nullable GhostLspStatusListener listener) {
+    this.lspStatusListener = listener;
   }
 
   public GhostTextCompletionManager getGhostCompletionManager() {

@@ -7,6 +7,7 @@ import android.util.Log;
 
 import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,6 +20,7 @@ import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import io.github.rosemoe.sora.lsp.editor.LspProject;
 import io.github.rosemoe.sora.widget.CodeEditor;
 
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.ide.api.EditorExtensionPoints;
 import ir.hanzodev1375.ghostide.ide.api.LspServerConnection;
 import ir.hanzodev1375.ghostide.ide.api.LspServerDefinition;
@@ -124,9 +126,15 @@ public class LspExtensionBridge {
                 var language = EditorLanguageFactory.create(context, filePath);
                 lspEditor.setWrapperLanguage(language);
                 lspEditor.setEditor(editor);
-                lspEditor.setEnableHover(true);
-                lspEditor.setEnableInlayHint(true);
-                lspEditor.setEnableSignatureHelp(true);
+                PreferencesUtils prefs = new PreferencesUtils(context);
+                lspEditor.setEnableHover(prefs.isHover());
+                lspEditor.setEnableInlayHint(prefs.isInlayHint());
+                lspEditor.setEnableSignatureHelp(prefs.isSignatureHelp());
+                if (prefs.isDiagnostics()) {
+                  lspEditor.setDiagnostics(lspEditor.getDiagnostics());
+                } else {
+                  lspEditor.setDiagnostics(Collections.emptyList());
+                }
                 holder[0] = lspEditor;
               } finally {
                 latch.countDown();

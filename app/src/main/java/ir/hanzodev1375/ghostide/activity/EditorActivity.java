@@ -823,6 +823,21 @@ public class EditorActivity extends BaseCompat
     }
   }
 
+  public void setTabError(String filePath, boolean hasError) {
+    if (filePath == null) return;
+    for (int i = 0; i < tabsList.size(); i++) {
+      TabModel tab = tabsList.get(i);
+      if (filePath.equals(tab.getFilePath())) {
+        tab.setHasError(hasError);
+        TabLayout.Tab layoutTab = binding.tab.getTabAt(i);
+        if (layoutTab != null && layoutTab.getCustomView() instanceof TabCustomView) {
+          ((TabCustomView) layoutTab.getCustomView()).setHasErrors(hasError);
+        }
+        return;
+      }
+    }
+  }
+
   void setupMenuCalltoAction(View v) {
     var menu = theme.apply(this);
     menu.addItem(new PowerMenuItem(getString(R.string.saveitemthis), false, R.drawable.save));
