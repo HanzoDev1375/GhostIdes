@@ -41,5 +41,5 @@ dependencies {
         exclude group: 'org.bouncycastle'
     }
     implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
-    implementation 'com.github.Dimezis:BlurView:version-3.2.0'
+    implementation 'com.github.QWEA0:liquidglass:v2.0.2'
 }

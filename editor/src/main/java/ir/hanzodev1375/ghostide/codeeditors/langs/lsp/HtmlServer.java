@@ -2,164 +2,91 @@ package ir.hanzodev1375.ghostide.codeeditors.langs.lsp;
 
 import android.content.Context;
 import android.util.Log;
-import android.os.Handler;
-import android.os.Looper;
 
-import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
+import io.github.rosemoe.sora.lsp.editor.LspProject;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition;
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.LanguageServerDefinition;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
-import io.github.rosemoe.sora.lsp.editor.LspProject;
+import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 import io.github.rosemoe.sora.widget.CodeEditor;
-import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
+import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 
-public class HtmlServer {
-  private static final String TAG = "HtmlServer";
-  private static final String SERVER_NAME = "vscode-html-language-server";
-  private static final Set<String> SUPPORTED_EXTENSIONS =
-      new HashSet<>(Arrays.asList("html", "htm"));
+/**
+ * @author Ghost
+ */
+public class HtmlServer extends LspContentImpl {
 
-  private static final String[] CANDIDATE_PATHS = {
-    "/usr/bin/vscode-html-language-server",
-    "/usr/local/bin/vscode-html-language-server",
-    "/usr/bin/html-languageserver",
-    "/usr/local/bin/html-languageserver"
-  };
+  public static final HtmlServer INSTANCE = new HtmlServer();
 
-  private static final Map<String, LspProject> projects = new HashMap<>();
-  private static final Set<String> registeredDefinitions = new HashSet<>();
-
-  private HtmlServer() {}
-
-  public static boolean isHtmlFile(String filePath) {
-    return SUPPORTED_EXTENSIONS.contains(extensionOf(filePath));
+  private HtmlServer() {
+    super(
+        "HtmlServer",
+        "vscode-html-language-server",
+        new HashSet<>(Arrays.asList("html", "htm")),
+        new String[] {
+          "/usr/bin/vscode-html-language-server",
+          "/usr/local/bin/vscode-html-language-server",
+          "/usr/bin/html-languageserver",
+          "/usr/local/bin/html-languageserver"
+        });
   }
 
-  private static String extensionOf(String filePath) {
-    if (filePath == null) return "";
-    int dot = filePath.lastIndexOf('.');
-    if (dot < 0 || dot == filePath.length() - 1) return "";
-    return filePath.substring(dot + 1).toLowerCase(Locale.ROOT);
+  @Override
+  public boolean isSupportedFile(String filePath) {
+    return supportedExtensions.contains(extensionOf(filePath));
   }
 
-  public static String findInstalledExecutable(Context context) {
-    File rootfs = DebianBootstrap.getRootfsDir(context);
-    if (rootfs == null || !rootfs.exists()) return null;
-    for (String candidate : CANDIDATE_PATHS) {
-      File f = new File(rootfs, candidate.substring(1));
-      if (f.exists()) return candidate;
-    }
-    return null;
-  }
-
-  public static boolean isInstalled(Context context) {
-    return findInstalledExecutable(context) != null;
-  }
-
-  private static LanguageServerDefinition createHtmlDefinition(
+  @Override
+  protected LanguageServerDefinition createDefinition(
       Context context, String executablePath, String ext) {
     List<String> args = Arrays.asList("--stdio");
     return new CustomLanguageServerDefinition(
         ext,
         workingDir -> new ProotStdioConnectionProvider(context, workingDir, executablePath, args),
-        SERVER_NAME,
+        serverName,
         null,
         null);
   }
 
-  private static synchronized LspProject getOrCreateProject(String projectRoot) {
-    LspProject project = projects.get(projectRoot);
-    if (project == null) {
-      project = new LspProject(projectRoot);
-      projects.put(projectRoot, project);
-    }
-    return project;
+  @Override
+  protected LspEditor onEditorCreated(LspEditor lspEditor, CodeEditor editor) {
+    Context context = editor.getContext();
+    var html = new HtmlLanguage(context, "");
+    lspEditor.setWrapperLanguage(html);
+    lspEditor.setEditor(editor);
+    return lspEditor;
   }
 
-  private static synchronized void ensureDefinitionRegistered(
-      LspProject project, Context context, String executablePath, String projectRoot, String ext) {
-    String key = projectRoot + "::" + ext + "::html";
-    if (!registeredDefinitions.contains(key)) {
-      project.addServerDefinition(createHtmlDefinition(context, executablePath, ext));
-      registeredDefinitions.add(key);
-    }
-  }
-
-  /**
-   * اتصال فایل HTML به vscode-html-language-server و در صورت نصب بودن، به Emmet نیز متصل می‌شود.
-   * (هر دو در یک LspProject و یک LspEditor)
-   */
-  public static LspEditor connectFile(
+  @Override
+  public LspEditor connectFile(
       Context context, String projectRoot, String filePath, CodeEditor editor) {
     String htmlExecutable = findInstalledExecutable(context);
     if (htmlExecutable == null) {
-      Log.e(TAG, "vscode-html-language-server نصب نیست");
+      Log.e(tag, "vscode-html-language-server is not installed");
       return null;
     }
 
     String ext = extensionOf(filePath);
     LspProject project = getOrCreateProject(projectRoot);
     ensureDefinitionRegistered(project, context, htmlExecutable, projectRoot, ext);
-    String emmetExecutable = EmmetServer.findInstalledExecutable(context);
+
+    String emmetExecutable = EmmetServer.INSTANCE.findInstalledExecutable(context);
     if (emmetExecutable != null) {
-      EmmetServer.ensureDefinitionRegistered(project, context, emmetExecutable, projectRoot, ext);
-      Log.d(TAG, "Emmet Language Server نیز به پروژه اضافه شد.");
+      EmmetServer.INSTANCE.ensureDefinitionRegistered(
+          project, context, emmetExecutable, projectRoot, ext);
+      Log.d(tag, "Emmet Language Server registered for this project");
     } else {
-      Log.d(TAG, "Emmet Language Server نصب نیست، فقط از HTML Server استفاده می‌شود.");
+      Log.d(tag, "Emmet Language Server not installed, using HTML Server only");
     }
 
-    final LspEditor[] holder = new LspEditor[1];
-    final CountDownLatch latch = new CountDownLatch(1);
-
-    new Handler(Looper.getMainLooper())
-        .post(
-            () -> {
-              try {
-                LspEditor e = project.createEditor(filePath);
-                var html = new HtmlLanguage(context, filePath);
-                e.setWrapperLanguage(html);
-                e.setEditor(editor);
-                holder[0] = e;
-              } finally {
-                latch.countDown();
-              }
-            });
-
-    try {
-      latch.await();
-    } catch (InterruptedException ignored) {
-    }
-
-    LspEditor lspEditor = holder[0];
-    if (lspEditor == null) return null;
-
-    try {
-      lspEditor.connectWithTimeoutBlocking();
-    } catch (Exception e) {
-      Log.e(TAG, "اتصال به HTML/Emmet LSP ناموفق بود", e);
-    }
-
-    return lspEditor;
-  }
-
-  public static void disconnectFile(LspEditor lspEditor) {
-    if (lspEditor == null) return;
-    try {
-      lspEditor.dispose();
-    } catch (Exception e) {
-      Log.e(TAG, "خطا در قطع اتصال LSP", e);
-    }
+    return super.connectFile(context, projectRoot, filePath, editor);
   }
 }

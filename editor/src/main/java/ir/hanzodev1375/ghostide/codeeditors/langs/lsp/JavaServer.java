@@ -157,11 +157,16 @@ public class JavaServer {
       List<File> libJars = AndroidClasspathResolver.findLibraryJars(context, projectRootFile);
       Log.i(
           TAG,
-          "jdtls invisible-project: " + sourceRoots.size() + " سورس‌روت، " + libJars.size() + " jar");
+          "jdtls invisible-project: "
+              + sourceRoots.size()
+              + " سورس‌روت، "
+              + libJars.size()
+              + " jar");
 
       project = new LspProject(projectRoot);
       project.addServerDefinition(
-          createDefinition(context, javaExecutable, jdtlsExecutable, projectRoot, sourceRoots, libJars));
+          createDefinition(
+              context, javaExecutable, jdtlsExecutable, projectRoot, sourceRoots, libJars));
       projects.put(projectRoot, project);
     }
     return project;

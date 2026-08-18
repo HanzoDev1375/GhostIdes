@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MusicPlayerBottomSheetTheme" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/MusicPlayerBottomSheetStyle</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="MusicPlayerBottomSheetStyle" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="shapeAppearance">@style/MusicPlayerBottomSheetShape</item>
+        <item name="animationMode">slide</item>
+    </style>
+
+    <style name="MusicPlayerBottomSheetShape" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+</resources>

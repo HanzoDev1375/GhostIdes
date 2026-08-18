@@ -2,21 +2,16 @@ package ir.hanzodev1375.components.sheet;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.graphics.Outline;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.graphics.ColorUtils;
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import eightbitlab.com.blurview.BlurController;
-import eightbitlab.com.blurview.RenderScriptBlur;
+import com.example.liquidglass.LiquidGlassView;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.databinding.BaseBlurBottomSheetBinding;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
@@ -46,10 +41,6 @@ public abstract class BaseBlurBottomSheet extends BottomSheetDialogFragment {
     float cornerRadius = getResources().getDimension(R.dimen.bottom_sheet_corner_radius);
     requireDialog().getWindow().setStatusBarColor(Color.TRANSPARENT);
     requireDialog().getWindow().setNavigationBarColor(Color.TRANSPARENT);
-    root.addOnLayoutChangeListener(
-        (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-          v.invalidateOutline();
-        });
     expandSheet();
     onContentReady(binding.contentContainer);
   }
@@ -67,23 +58,14 @@ public abstract class BaseBlurBottomSheet extends BottomSheetDialogFragment {
               if (binding == null) return;
               Activity activity = getActivity();
               if (activity == null) return;
-              bottomSheet.setBackgroundColor(0);
-              float cornerRadius = getResources().getDimension(R.dimen.bottom_sheet_corner_radius);
-              binding.layoutblur.setClipToOutline(true);
-              binding.layoutblur.setOutlineProvider(
-                  new ViewOutlineProvider() {
-                    @Override
-                    public void getOutline(View v, Outline outline) {
-                      outline.setRoundRect(
-                          0, 0, v.getWidth(), v.getHeight() + (int) cornerRadius, cornerRadius);
-                    }
-                  });
-              binding
-                  .layoutblur
-                  .setupWith(binding.blurTarget,new RenderScriptBlur(getContext()),BlurController.DEFAULT_SCALE_FACTOR,true)
-                  .setFrameClearDrawable(activity.getWindow().getDecorView().getBackground())
-                  .setBlurEnabled(true)
-                  .setBlurRadius(18f);
+
+              // شفاف کردن پس‌زمینه bottom sheet
+              bottomSheet.setBackgroundColor(Color.TRANSPARENT);
+
+              // مسیر شیشه‌ای: نمونه‌برداری پس‌زمینه از content view اکتیویتی
+              LiquidGlassView glass = binding.glassView;
+              glass.setBackdropSource(activity.findViewById(android.R.id.content));
+              glass.setEnableDynamicBackground(true);
             });
       }
     }

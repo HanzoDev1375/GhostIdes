@@ -103,6 +103,7 @@ import ninja.coder.appuploader.main.appupdate.UpadteAppView;
 import net.lingala.zip4j.ZipFile;
 import ir.hanzodev1375.components.store.activitys.StoreActivity;
 import ir.hanzodev1375.ghostide.translator.ui.StringsTranslatorSheet;
+import irhanzodev1375.musicpreview.MusicPlayerBottomSheetFragment;
 
 public class FileManagerActivity extends BaseCompat
     implements NetworkChangeReceiver.CallBackNetWork {
@@ -195,6 +196,7 @@ public class FileManagerActivity extends BaseCompat
   private final ExecutorService ftpExecutor = Executors.newSingleThreadExecutor();
   private String currentDir;
   private int systemBarsBottomInset = 0;
+  private MusicPlayerBottomSheetFragment musicBottomSheet;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -1112,11 +1114,34 @@ public class FileManagerActivity extends BaseCompat
 
   private void showMusicPreview(String path) {
     bind.musicPreview.setMusicPath(path);
+    bind.musicPreview.setSongName(new File(path).getName());
+    bind.musicPreview.setOnMusicClickListener(() -> showMusicPlayerBottomSheet());
     bind.musicPreview.setVisibility(View.VISIBLE);
     bind.musicPreview.post(this::updateFabBottomMargin);
   }
 
+  private void showMusicPlayerBottomSheet() {
+    if (bind.musicPreview.getVisibility() != View.VISIBLE) return;
+    String path = bind.musicPreview.getMusicPath();
+    if (path == null) return;
+    String songName = bind.musicPreview.getSongName();
+    String artistName = "";
+    try {
+      artistName = bind.musicPreview.getArtistName();
+    } catch (Exception ignored) {
+    }
+    musicBottomSheet =
+        MusicPlayerBottomSheetFragment.newInstance(path, songName, artistName);
+    musicBottomSheet.setMusicControl(bind.musicPreview);
+    musicBottomSheet.setOnDismissListener(
+        () -> musicBottomSheet = null);
+    musicBottomSheet.show(getSupportFragmentManager(), "music_player_sheet");
+  }
+
   private void hideMusicPreview() {
+    if (musicBottomSheet != null && musicBottomSheet.isAdded()) {
+      musicBottomSheet.dismiss();
+    }
     if (bind.musicPreview.getVisibility() != View.VISIBLE) return;
     bind.musicPreview.release();
     bind.musicPreview.setVisibility(View.GONE);
@@ -1144,6 +1169,10 @@ public class FileManagerActivity extends BaseCompat
             new OnBackPressedCallback(true) {
               @Override
               public void handleOnBackPressed() {
+                if (musicBottomSheet != null && musicBottomSheet.isAdded()) {
+                  musicBottomSheet.dismiss();
+                  return;
+                }
                 if (bind.musicPreview.getVisibility() == View.VISIBLE) {
                   hideMusicPreview();
                 } else if (isZipMode) {

@@ -35,7 +35,7 @@
 			android:padding="8dp"
 			android:maxWidth="200dp"
 			android:textSize="16sp"
-			android:textColor="?colorOnSurface"
+			android:textColor="?attr/colorOnSurface"
 			android:singleLine="true"
 			android:ellipsize="end"
 			android:layout_weight="2" />
@@ -46,7 +46,7 @@
 			android:gravity="center_vertical"
 			android:orientation="horizontal">
 
-			<ImageView
+			<irhanzodev1375.musicpreview.ButtonAnim
 				android:id="@+id/previous"
 				android:layout_width="40dp"
 				android:layout_height="40dp"
@@ -54,15 +54,15 @@
 				android:scaleType="centerInside"
 				android:contentDescription="@string/music_preview_previous" />
 
-			<ImageView
+			<irhanzodev1375.musicpreview.ButtonAnim
 				android:id="@+id/play"
 				android:layout_width="40dp"
 				android:layout_height="40dp"
-				android:src="@drawable/icon_play_arrow_round"
+				android:src="@drawable/music_icon_pause"
 				android:scaleType="centerInside"
 				android:contentDescription="@string/music_preview_play" />
 
-			<ImageView
+			<irhanzodev1375.musicpreview.ButtonAnim
 				android:id="@+id/next"
 				android:layout_width="40dp"
 				android:layout_height="40dp"

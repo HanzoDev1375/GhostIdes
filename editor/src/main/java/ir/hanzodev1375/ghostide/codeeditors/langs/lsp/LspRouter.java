@@ -22,6 +22,9 @@ import io.github.rosemoe.sora.widget.CodeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.model.BreadcrumbItem;
 import ir.hanzodev1375.ghostide.ide.api.LspServerProvider;
 
+/**
+ * @author Ghost
+ */
 public final class LspRouter {
   private static final String TAG = "LspRouter";
 
@@ -47,20 +50,21 @@ public final class LspRouter {
 
   private static Lang langOf(String filePath) {
     if (filePath == null) return Lang.NONE;
-    if (filePath.toLowerCase(Locale.ROOT).endsWith(".py")) return Lang.PYTHON;
-    if (JavaServer.isJavaFile(filePath)) return Lang.JAVA;
-    if (ClangdServer.isCppFile(filePath)) return Lang.CPP;
-    if (TsServer.isJsFile(filePath)) return Lang.JS;
-    if (PhpServer.isPhpFile(filePath)) return Lang.PHP;
-    if (HtmlServer.isHtmlFile(filePath)) return Lang.HTML;
-    if (VueServer.isVueFile(filePath)) return Lang.VUE;
-    if (CssServer.isCssFile(filePath)) return Lang.CSS;
-    if (JsonServer.isJsonFile(filePath)) return Lang.JSON;
-    if (MarkdownServer.isMarkdownFile(filePath)) return Lang.MARKDOWN;
-    if (GoServer.isGoFile(filePath)) return Lang.GO;
-    if (SassServer.isSassFile(filePath)) return Lang.SASS;
-    if (RubyServer.isRubyFile(filePath)) return Lang.RUBY;
-    if (CsharpServer.isCsharpFile(filePath)) return Lang.CSHARP;
+    String lower = filePath.toLowerCase(Locale.ROOT);
+    if (lower.endsWith(".py")) return Lang.PYTHON;
+    //   if (JavaServer.isSupportedFile(filePath)) return Lang.JAVA;
+    if (ClangdServer.INSTANCE.isSupportedFile(filePath)) return Lang.CPP;
+    if (TsServer.INSTANCE.isSupportedFile(filePath)) return Lang.JS;
+    if (PhpServer.INSTANCE.isSupportedFile(filePath)) return Lang.PHP;
+    if (HtmlServer.INSTANCE.isSupportedFile(filePath)) return Lang.HTML;
+    if (VueServer.INSTANCE.isSupportedFile(filePath)) return Lang.VUE;
+    if (CssServer.INSTANCE.isSupportedFile(filePath)) return Lang.CSS;
+    if (JsonServer.INSTANCE.isSupportedFile(filePath)) return Lang.JSON;
+    if (MarkdownServer.INSTANCE.isSupportedFile(filePath)) return Lang.MARKDOWN;
+    if (GoServer.INSTANCE.isSupportedFile(filePath)) return Lang.GO;
+    if (SassServer.INSTANCE.isSupportedFile(filePath)) return Lang.SASS;
+    if (RubyServer.INSTANCE.isSupportedFile(filePath)) return Lang.RUBY;
+    if (CsharpServer.INSTANCE.isSupportedFile(filePath)) return Lang.CSHARP;
     return Lang.NONE;
   }
 
@@ -71,38 +75,37 @@ public final class LspRouter {
 
   public static boolean isInstalled(Context context, String filePath) {
     if (context == null || filePath == null) return false;
-
     if (LspExtensionBridge.findProviderForFile(filePath) != null) return true;
 
     switch (langOf(filePath)) {
       case PYTHON:
-        return PylspServer.isInstalled(context);
-      case JAVA:
-        return JavaServer.isInstalled(context);
+        return PylspServer.INSTANCE.isInstalled(context);
+        //      case JAVA:
+        //        return JavaServer.INSTANCE.isInstalled(context);
       case CPP:
-        return ClangdServer.isInstalled(context);
+        return ClangdServer.INSTANCE.isInstalled(context);
       case GO:
-        return GoServer.findExecutable(context) != null;
+        return GoServer.INSTANCE.isInstalled(context);
       case CSS:
-        return CssServer.isInstalled(context);
+        return CssServer.INSTANCE.isInstalled(context);
       case HTML:
-        return HtmlServer.isInstalled(context);
+        return HtmlServer.INSTANCE.isInstalled(context);
       case VUE:
-        return VueServer.isInstalled(context);
+        return VueServer.INSTANCE.isInstalled(context);
       case PHP:
-        return PhpServer.isInstalled(context);
+        return PhpServer.INSTANCE.isInstalled(context);
       case SASS:
-        return SassServer.isInstalled(context);
+        return SassServer.INSTANCE.isInstalled(context);
       case JS:
-        return TsServer.isInstalled(context);
+        return TsServer.INSTANCE.isInstalled(context);
       case RUBY:
-        return RubyServer.isInstalled(context);
+        return RubyServer.INSTANCE.isInstalled(context);
       case CSHARP:
-        return CsharpServer.isInstalled(context);
+        return CsharpServer.INSTANCE.isInstalled(context);
       case JSON:
-        return JsonServer.isInstalled(context);
+        return JsonServer.INSTANCE.isInstalled(context);
       case MARKDOWN:
-        return MarkdownServer.isInstalled(context);
+        return MarkdownServer.INSTANCE.isInstalled(context);
       default:
         return false;
     }
@@ -121,38 +124,39 @@ public final class LspRouter {
 
       switch (langOf(filePath)) {
         case PYTHON:
-          return PylspServer.connectFile(context, projectRoot, filePath, editor);
-        case JAVA:
-          return JavaServer.connectFile(context, projectRoot, filePath, editor);
+          return PylspServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
+          //        case JAVA:
+          //          return JavaServer.INSTANCE.connectFile(context, projectRoot, filePath,
+          // editor);
         case CPP:
-          return ClangdServer.connectFile(context, projectRoot, filePath, editor);
+          return ClangdServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case GO:
-          return GoServer.connectFile(context, projectRoot, filePath, editor);
+          return GoServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case CSS:
-          return CssServer.connectFile(context, projectRoot, filePath, editor);
+          return CssServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case HTML:
-          return HtmlServer.connectFile(context, projectRoot, filePath, editor);
+          return HtmlServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case VUE:
-          return VueServer.connectFile(context, projectRoot, filePath, editor);
+          return VueServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case PHP:
-          return PhpServer.connectFile(context, projectRoot, filePath, editor);
+          return PhpServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case SASS:
-          return SassServer.connectFile(context, projectRoot, filePath, editor);
+          return SassServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case JS:
-          return TsServer.connectFile(context, projectRoot, filePath, editor);
+          return TsServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case RUBY:
-          return RubyServer.connectFile(context, projectRoot, filePath, editor);
+          return RubyServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case CSHARP:
-          return CsharpServer.connectFile(context, projectRoot, filePath, editor);
+          return CsharpServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case JSON:
-          return JsonServer.connectFile(context, projectRoot, filePath, editor);
+          return JsonServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case MARKDOWN:
-          return MarkdownServer.connectFile(context, projectRoot, filePath, editor);
+          return MarkdownServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         default:
           return null;
       }
     } catch (Exception e) {
-      Log.e(TAG, "اتصال LSP برای فایل ناموفق بود: " + filePath, e);
+      Log.e(TAG, "LSP connection failed for: " + filePath, e);
       return null;
     }
   }
@@ -162,7 +166,7 @@ public final class LspRouter {
     try {
       lspEditor.dispose();
     } catch (Exception e) {
-      Log.e(TAG, "بستن اتصال LSP با خطا مواجه شد", e);
+      Log.e(TAG, "Failed to disconnect LSP", e);
     }
   }
 
@@ -175,13 +179,13 @@ public final class LspRouter {
     RequestManager requestManager = lspEditor.getRequestManager();
     if (requestManager == null) return Collections.emptyList();
     String documentUri = new File(filePath).toURI().toString();
-    Log.d(TAG, "درخواست documentSymbol برای " + documentUri);
+    Log.d(TAG, "documentSymbol request for " + documentUri);
     DocumentSymbolParams params = new DocumentSymbolParams(new TextDocumentIdentifier(documentUri));
     CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> future;
     try {
       future = requestManager.documentSymbol(params);
     } catch (Exception e) {
-      Log.e(TAG, "درخواست documentSymbol برای breadcrumb ناموفق بود", e);
+      Log.e(TAG, "documentSymbol request failed", e);
       return Collections.emptyList();
     }
     if (future == null) return Collections.emptyList();
@@ -189,11 +193,11 @@ public final class LspRouter {
     try {
       symbols = future.get(BREADCRUMB_TIMEOUT_MS, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      Log.e(TAG, "پاسخ documentSymbol برای breadcrumb نرسید", e);
+      Log.e(TAG, "documentSymbol response timed out", e);
       return Collections.emptyList();
     }
     if (symbols == null || symbols.isEmpty()) {
-      Log.d(TAG, "سرور برای " + documentUri + " هیچ سمبلی برنگردوند");
+      Log.d(TAG, "No symbols returned for " + documentUri);
       return Collections.emptyList();
     }
     List<BreadcrumbItem> path = new ArrayList<>();
