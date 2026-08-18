@@ -73,6 +73,7 @@ import ir.hanzodev1375.ghostide.models.ToolbarModel;
 import ir.hanzodev1375.ghostide.activity.pluginmanager.EditorHostAdapter;
 import ir.hanzodev1375.ghostide.activity.pluginmanager.CodeRunnerHostAdapter;
 import ir.hanzodev1375.ghostide.ide.ui.api.EditorPanel;
+import ir.hanzodev1375.ghostide.ide.ui.api.CodeRunnerHost;
 import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
 import ir.hanzodev1375.ghostide.plugin.PluginPanelHost;
@@ -1213,11 +1214,11 @@ public class EditorActivity extends BaseCompat
   }
 
   private void setupFAB() {
-    var coderun = new CodeRuner(this);
     binding.fabineditor.setOnClickListener(
         v -> {
           String currentFilePath = getCurrentFilePath();
-          if (currentFilePath != null && currentFilePath.endsWith(".html")) {
+          if (currentFilePath == null) return;
+          if (currentFilePath.endsWith(".html")) {
             Intent intent = new Intent(EditorActivity.this, WebViewActivity.class);
             intent.putExtra("keyweb", currentFilePath);
             startActivity(intent);
@@ -1227,7 +1228,16 @@ public class EditorActivity extends BaseCompat
             var mdview = new MarkDownPreview();
             mdview.setArguments(bl);
             mdview.show(getSupportFragmentManager(), "MarkDownPreview");
-          } else coderun.bindof(currentFilePath, settings.isTerminalFragment());
+          } else {
+            CodeRunnerHost runner =
+                GlobalRegistry.services().get(IdeHostServices.CODE_RUNNER_HOST);
+            if (runner != null) {
+              runner.runFile(currentFilePath, settings.isTerminalFragment());
+            } else {
+              new CodeRuner(EditorActivity.this)
+                  .bindof(currentFilePath, settings.isTerminalFragment());
+            }
+          }
         });
   }
 

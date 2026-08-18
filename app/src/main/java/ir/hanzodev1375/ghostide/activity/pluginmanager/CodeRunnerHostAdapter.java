@@ -3,8 +3,15 @@ package ir.hanzodev1375.ghostide.activity.pluginmanager;
 import android.os.Handler;
 import android.os.Looper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ir.hanzodev1375.ghostide.activity.EditorActivity;
 import ir.hanzodev1375.ghostide.ide.ui.api.CodeRunnerHost;
+import ir.hanzodev1375.ghostide.ide.ui.api.EditorActionHandler;
+import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
+import ir.hanzodev1375.ghostide.ide.ui.api.PluginUiExtensionPoints;
+import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
 import ir.hanzodev1375.ghostide.plugin.PluginPanelHost;
 import ir.hanzodev1375.ghostide.runer.CodeRuner;
 
@@ -30,19 +37,43 @@ public final class CodeRunnerHostAdapter implements CodeRunnerHost {
     mainHandler.post(
         () -> {
           String path = PluginPanelHost.resolveLastPath(activity::getCurrentFilePath);
-          if (path != null) {
-            delegate.bindof(path, asBottomSheet);
-          }
+          if (path == null) return;
+          if (dispatchToPlugins(CMD_RUN_CURRENT_FILE, path, asBottomSheet)) return;
+          delegate.bindof(path, asBottomSheet);
         });
   }
 
   @Override
   public void runFile(String filePath, boolean asBottomSheet) {
-    mainHandler.post(() -> delegate.bindof(filePath, asBottomSheet));
+    mainHandler.post(
+        () -> {
+          if (dispatchToPlugins(CMD_RUN_FILE, filePath, asBottomSheet)) return;
+          delegate.bindof(filePath, asBottomSheet);
+        });
   }
 
   @Override
   public boolean isSupported(String filePath) {
     return delegate.isSupported(filePath);
+  }
+
+  private static final String CMD_RUN_FILE = "ghostide.runFile";
+  private static final String CMD_RUN_CURRENT_FILE = "ghostide.runCurrentFile";
+
+  private boolean dispatchToPlugins(String command, String filePath, boolean asBottomSheet) {
+    List<EditorActionHandler> handlers =
+        GlobalRegistry.extensions()
+            .extensions(PluginUiExtensionPoints.EDITOR_ACTION_HANDLER);
+    for (EditorActionHandler handler : handlers) {
+      if (command.equals(handler.getCommandId())) {
+        ArrayList<Object> args = new ArrayList<>();
+        args.add(filePath);
+        args.add(asBottomSheet);
+        if (handler.execute(null, command, args)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

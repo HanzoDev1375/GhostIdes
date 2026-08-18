@@ -52,7 +52,7 @@ public final class LspRouter {
     if (filePath == null) return Lang.NONE;
     String lower = filePath.toLowerCase(Locale.ROOT);
     if (lower.endsWith(".py")) return Lang.PYTHON;
-    //   if (JavaServer.isSupportedFile(filePath)) return Lang.JAVA;
+    if (JavaServer.INSTANCE.isSupportedFile(filePath)) return Lang.JAVA;
     if (ClangdServer.INSTANCE.isSupportedFile(filePath)) return Lang.CPP;
     if (TsServer.INSTANCE.isSupportedFile(filePath)) return Lang.JS;
     if (PhpServer.INSTANCE.isSupportedFile(filePath)) return Lang.PHP;
@@ -80,8 +80,8 @@ public final class LspRouter {
     switch (langOf(filePath)) {
       case PYTHON:
         return PylspServer.INSTANCE.isInstalled(context);
-        //      case JAVA:
-        //        return JavaServer.INSTANCE.isInstalled(context);
+      case JAVA:
+        return JavaServer.INSTANCE.isInstalled(context);
       case CPP:
         return ClangdServer.INSTANCE.isInstalled(context);
       case GO:
@@ -125,9 +125,8 @@ public final class LspRouter {
       switch (langOf(filePath)) {
         case PYTHON:
           return PylspServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
-          //        case JAVA:
-          //          return JavaServer.INSTANCE.connectFile(context, projectRoot, filePath,
-          // editor);
+        case JAVA:
+          return JavaServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case CPP:
           return ClangdServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case GO:
