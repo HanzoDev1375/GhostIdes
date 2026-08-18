@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/settingRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
+    <ImageView
+        android:id="@+id/backgroundIconSetting"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop"
+        android:visibility="visible" />
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:elevation="0dp"
-        app:liftOnScroll="false">
+        android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
@@ -39,18 +44,6 @@
             android:paddingHorizontal="8dp"
             android:paddingTop="8dp"
             android:paddingBottom="20dp">
-
-            <ImageView
-                android:id="@+id/backgroundIconSetting"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:importantForAccessibility="no"
-                android:maxWidth="64dp"
-                android:maxHeight="64dp"
-                android:scaleType="centerInside"
-                android:visibility="visible"
-                tools:src="@drawable/atomicghost" />
 
             <ir.hanzodev1375.ghostide.customui.ExpandableLayout
                 android:id="@+id/expandEditor"
@@ -85,7 +78,6 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="16dp"
         app:layout_anchor="@id/scrollView"
-        app:layout_anchorGravity="bottom|center"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+        app:layout_anchorGravity="bottom|center_horizontal" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

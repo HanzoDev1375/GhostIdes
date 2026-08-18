@@ -17,7 +17,7 @@ import java.util.List;
 public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHolder> {
 
   private final List<SettingItem> items;
-  private final List<SettingItem> itemsFull;
+  private final List<SettingItem> backupList;
   private OnItemClickListener listener;
   private String currentQuery = "";
 
@@ -27,7 +27,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
 
   public SettingsAdapter(List<SettingItem> items) {
     this.items = new ArrayList<>(items);
-    this.itemsFull = new ArrayList<>(items);
+    this.backupList = new ArrayList<>(items);
   }
 
   public void setOnItemClickListener(OnItemClickListener listener) {
@@ -46,7 +46,6 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
 
   public void updateItem(int position, SettingItem newItem) {
     items.set(position, newItem);
-    itemsFull.set(position, newItem);
     notifyItemChanged(position);
   }
 
@@ -68,14 +67,20 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
 
       holder.itemView.post(
           () -> {
-            if (holder.getBindingAdapterPosition() == RecyclerView.NO_POSITION) return;
+            int bindingPos = holder.getBindingAdapterPosition();
+            if (bindingPos == RecyclerView.NO_POSITION) {
+              return;
+            }
+
+            if (bindingPos >= items.size() || items.get(bindingPos) != item) {
+              return;
+            }
 
             SpannableString highlightedTitle = highlightText(text, query, holder);
             holder.switchGroup.setTitle(highlightedTitle);
 
             if (item.getDescription() != null && !item.getDescription().isEmpty()) {
-              SpannableString highlightedDesc =
-                  highlightText(desc, query, holder);
+              SpannableString highlightedDesc = highlightText(desc, query, holder);
               holder.switchGroup.setDescription(highlightedDesc);
             }
           });
@@ -104,7 +109,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
       holder.switchGroup.setOnClickListener(
           v -> {
             if (listener != null) {
-              int originalPosition = itemsFull.indexOf(item);
+              int originalPosition = backupList.indexOf(item);
               listener.onItemClick(originalPosition);
             }
           });
@@ -139,10 +144,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
   }
 
   public void resetToFull() {
-    currentQuery = "";
-    items.clear();
-    items.addAll(itemsFull);
-    notifyDataSetChanged();
+    filter("");
   }
 
   public SettingItem getItemAtPosition(int position) {
@@ -158,10 +160,10 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
 
     List<SettingItem> newList;
     if (currentQuery.isEmpty()) {
-      newList = new ArrayList<>(itemsFull);
+      newList = new ArrayList<>(backupList);
     } else {
       newList = new ArrayList<>();
-      for (SettingItem item : itemsFull) {
+      for (SettingItem item : backupList) {
         if (item.getTitle().toLowerCase().contains(currentQuery)
             || (item.getDescription() != null
                 && item.getDescription().toLowerCase().contains(currentQuery))) {

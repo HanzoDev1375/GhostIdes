@@ -2,15 +2,15 @@ pluginManagement {
     settings.ext.canReachIran = false
     try {
         def timeout = 2000
-        def address = InetAddress.getByName("maven.myket.ir")
-        def reachable = address.isReachable(timeout)
+        def url = new URL("https://maven.myket.ir")
+        def connection = url.openConnection()
+        connection.setConnectTimeout(timeout)
+        connection.setReadTimeout(timeout)
+        connection.setRequestMethod("HEAD")
+        connection.connect()
 
-        if (reachable) {
-            ext.canReachIran = true
-            println "Iranian mirror reachable"
-        } else {
-            println "Iranian mirror not reachable"
-        }
+        ext.canReachIran = true
+        println "Iranian mirror reachable"
     } catch (Exception e) {
         ext.canReachIran = false
         println "Iranian mirror unreachable: " + e.getMessage()
