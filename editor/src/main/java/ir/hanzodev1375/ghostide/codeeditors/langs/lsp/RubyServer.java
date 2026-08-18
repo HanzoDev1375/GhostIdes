@@ -2,125 +2,63 @@ package ir.hanzodev1375.ghostide.codeeditors.langs.lsp;
 
 import android.content.Context;
 import android.util.Log;
-import io.github.rosemoe.sora.lsp.editor.LspLanguage;
+
 import java.io.File;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import android.os.Handler;
-import android.os.Looper;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition;
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.LanguageServerDefinition;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
-import io.github.rosemoe.sora.lsp.editor.LspProject;
+import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 import io.github.rosemoe.sora.widget.CodeEditor;
-import ir.hanzodev1375.ghostide.codeeditors.langs.ruby.RubyLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
+import ir.hanzodev1375.ghostide.codeeditors.langs.ruby.RubyLanguage;
 
-public class RubyServer {
+/**
+ * @author Ghost
+ */
+public class RubyServer extends LspContentImpl {
 
-  private static final String TAG = "RubyServer";
-  private static final Set<String> SUPPORTED_EXTENSIONS =
-      new HashSet<>(Collections.singletonList("rb"));
-  private static final String[] CANDIDATE_PATHS = {
-    "/usr/local/bin/solargraph", "/usr/bin/solargraph"
-  };
-  private static final Map<String, LspProject> projects = new HashMap<>();
-  private static final Set<String> registeredDefinitions = new HashSet<>();
+  public static final RubyServer INSTANCE = new RubyServer();
 
-  public static boolean isRubyFile(String path) {
-    return SUPPORTED_EXTENSIONS.contains(extensionOf(path));
+  private RubyServer() {
+    super(
+        "RubyServer",
+        "solargraph",
+        new HashSet<>(Collections.singletonList("rb")),
+        new String[] {"/usr/local/bin/solargraph", "/usr/bin/solargraph"});
   }
 
-  private static String extensionOf(String path) {
-    int dot = path.lastIndexOf('.');
-    return dot > 0 ? path.substring(dot + 1).toLowerCase(Locale.ROOT) : "";
+  @Override
+  public boolean isSupportedFile(String filePath) {
+    return supportedExtensions.contains(extensionOf(filePath));
   }
 
-  public static String findExecutable(Context context) {
-    File root = DebianBootstrap.getRootfsDir(context);
-    if (root == null) return null;
-    for (String p : CANDIDATE_PATHS) {
-      if (new File(root, p.substring(1)).exists()) return p;
-    }
-    return null;
+  @Override
+  protected LanguageServerDefinition createDefinition(
+      Context context, String executablePath, String ext) {
+    return new CustomLanguageServerDefinition(
+        ext,
+        workingDir ->
+            new ProotStdioConnectionProvider(
+                context, workingDir, executablePath, Collections.singletonList("stdio")),
+        serverName,
+        null,
+        null);
   }
 
-  public static boolean isInstalled(Context context) {
-    return findExecutable(context) != null;
-  }
-
-  private static synchronized LspProject getOrCreateProject(String projectRoot) {
-    LspProject project = projects.get(projectRoot);
-    if (project == null) {
-      project = new LspProject(projectRoot);
-      projects.put(projectRoot, project);
-    }
-    return project;
-  }
-
-  public static LspEditor connectFile(
-      Context context, String projectRoot, String filePath, CodeEditor editor) {
-    String exe = findExecutable(context);
-    if (exe == null) {
-      Log.e(TAG, "solargraph پیدا نشد. دستور: gem install solargraph");
-      return null;
-    }
-
-    String ext = extensionOf(filePath);
-    LspProject project = getOrCreateProject(projectRoot);
-
-    String key = projectRoot + "::" + ext;
-    if (!registeredDefinitions.contains(key)) {
-      LanguageServerDefinition def =
-          new CustomLanguageServerDefinition(
-              ext,
-              wd -> new ProotStdioConnectionProvider(context, wd, exe, Collections.singletonList("stdio")),
-              "solargraph",
-              null,
-              null);
-      project.addServerDefinition(def);
-      registeredDefinitions.add(key);
-    }
-
-    final LspEditor[] holder = new LspEditor[1];
-    CountDownLatch latch = new CountDownLatch(1);
-    new Handler(Looper.getMainLooper())
-        .post(
-            () -> {
-              try {
-                LspEditor e = project.createEditor(filePath);
-                var rubyLang = new RubyLanguage(context);
-                e.setWrapperLanguage(rubyLang);
-                e.setEditor(editor);
-                var lang = (LspLanguage) editor.getEditorLanguage();
-                lang.setFormatter(rubyLang.getFormatter());
-                holder[0] = e;
-              } finally {
-                latch.countDown();
-              }
-            });
-
-    try {
-      latch.await();
-    } catch (InterruptedException ignored) {
-    }
-    LspEditor lsp = holder[0];
-    if (lsp != null) {
-      try {
-        lsp.connectWithTimeoutBlocking();
-      } catch (Exception e) {
-        Log.e(TAG, "اتصال به solargraph ناموفق", e);
-      }
-    }
-    return lsp;
-  }
-
-  public static void disconnectFile(LspEditor lsp) {
-    if (lsp != null)
-      try {
-        lsp.dispose();
-      } catch (Exception e) {
-        Log.e(TAG, "خطا در بستن LSP روبی", e);
-      }
+  @Override
+  protected LspEditor onEditorCreated(LspEditor lspEditor, CodeEditor editor) {
+    Context context = editor.getContext();
+    var rubyLang = new RubyLanguage(context);
+    lspEditor.setWrapperLanguage(rubyLang);
+    lspEditor.setEditor(editor);
+    var lang = (LspLanguage) editor.getEditorLanguage();
+    lang.setFormatter(rubyLang.getFormatter());
+    return lspEditor;
   }
 }

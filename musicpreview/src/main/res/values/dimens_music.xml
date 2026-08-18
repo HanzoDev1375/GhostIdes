@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="music_squiggly_wavelength">27dp</dimen>
+    <dimen name="music_squiggly_amplitude">2.7dp</dimen>
+    <dimen name="music_squiggly_phase">8dp</dimen>
+    <dimen name="music_squiggly_stroke_width">3.4dp</dimen>
+    <dimen name="music_bottom_sheet_corner_radius">28dp</dimen>
+    <dimen name="music_bottom_sheet_cover_radius">22dp</dimen>
+    <dimen name="music_bottom_sheet_cover_margin_horizontal">24dp</dimen>
+</resources>
