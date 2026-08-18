@@ -1,8 +1,6 @@
 package ir.hanzodev1375.ghostide.customui;
 
 import android.content.Context;
-import android.transition.AutoTransition;
-import android.transition.TransitionManager;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,12 +83,16 @@ public class ExpandableLayout extends LinearLayout {
       if (isExpanded) return;
       isExpanded = true;
 
-      AutoTransition transition = new AutoTransition();
-      transition.setDuration(250);
-      TransitionManager.beginDelayedTransition(this, transition);
+      recyclerView.setVisibility(View.VISIBLE);
+      recyclerView.setAlpha(0f);
+      recyclerView.setTranslationY(-20f);
 
-      recyclerView.setVisibility(VISIBLE);
-      arrowIcon.animate().rotation(90).setDuration(200).start();
+      recyclerView.postOnAnimation(
+          () -> {
+            recyclerView.animate().alpha(1f).translationY(0f).setDuration(150).start();
+          });
+
+      arrowIcon.animate().rotation(90).setDuration(150).start();
     } else recyclerView.setVisibility(VISIBLE);
   }
 
@@ -98,11 +100,14 @@ public class ExpandableLayout extends LinearLayout {
     if (AnimationManager.getInstance(getContext()).areAnimationsEnabled()) {
       if (!isExpanded) return;
       isExpanded = false;
-      AutoTransition transition = new AutoTransition();
-      transition.setDuration(250);
-      TransitionManager.beginDelayedTransition(this, transition);
-      recyclerView.setVisibility(GONE);
-      arrowIcon.animate().rotation(0).setDuration(200).start();
+      recyclerView
+          .animate()
+          .alpha(0f)
+          .translationY(-20f)
+          .setDuration(150)
+          .withEndAction(() -> recyclerView.setVisibility(View.GONE))
+          .start();
+      arrowIcon.animate().rotation(0).setDuration(150).start();
     } else recyclerView.setVisibility(GONE);
   }
 

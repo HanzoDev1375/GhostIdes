@@ -8,8 +8,7 @@ import android.transition.TransitionManager;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -18,6 +17,7 @@ import android.widget.ImageView;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.transition.platform.MaterialSharedAxis;
@@ -35,43 +35,48 @@ public class SearchLayout extends FrameLayout {
 
   public SearchLayout(@NonNull Context context) {
     super(context);
-    init(context, null, 0);
+    init(context);
   }
 
   public SearchLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
-    init(context, attrs, 0);
+    init(context);
   }
 
-  private void init(Context context, AttributeSet attrs, int defStyleAttr) {
-    setting = new PreferencesUtils(getContext());
-    
+  private void init(Context context) {
+    setting = new PreferencesUtils(context);
     LayoutInflater.from(context).inflate(R.layout.search_layout, this, true);
 
+    View rootView = findViewById(R.id.rootView);
     editText = findViewById(R.id.etSearch);
     clearButton = findViewById(R.id.btnClear);
     searchIcon = findViewById(R.id.ivSearchIcon);
     clearButton.setVisibility(View.INVISIBLE);
     clearButton.setAlpha(0f);
+
     setVisibility(GONE);
     setupListeners();
-    
-    View v = findViewById(R.id.rootView);
-    //  if(setting.isShowBackground())
-    
-    GradientDrawable gd = (GradientDrawable) v.getBackground().mutate();
-    gd.setColor(
-        setting.isShowBackground()
-            ? ColorUtils.setAlphaComponent(
-                MaterialColors.getColor(v, R.attr.colorSurfaceContainerHigh), 90)
-            : MaterialColors.getColor(v, R.attr.colorSurfaceContainerHigh));
-    gd.setStroke(
-        2,
-        setting.isShowBackground()
-            ? ColorUtils.setAlphaComponent(
-                MaterialColors.getColor(v, R.attr.colorOutlineVariant), 90)
-            : MaterialColors.getColor(v, R.attr.colorOutlineVariant));
-            
+
+    GradientDrawable gd =
+        (GradientDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.bg_shape, null);
+    if (gd == null) return;
+
+    post(
+        () -> {
+          gd.setColor(
+              setting.isShowBackground()
+                  ? ColorUtils.setAlphaComponent(
+                      MaterialColors.getColor(rootView, R.attr.colorSurfaceContainerHigh), 90)
+                  : MaterialColors.getColor(rootView, R.attr.colorSurfaceContainerHigh));
+          gd.setStroke(
+              2,
+              setting.isShowBackground()
+                  ? ColorUtils.setAlphaComponent(
+                      MaterialColors.getColor(rootView, R.attr.colorOutlineVariant), 90)
+                  : MaterialColors.getColor(rootView, R.attr.colorOutlineVariant));
+
+          rootView.setBackground(gd);
+        });
   }
 
   private void setupListeners() {
@@ -83,11 +88,7 @@ public class SearchLayout extends FrameLayout {
           @Override
           public void onTextChanged(CharSequence s, int start, int before, int count) {
             String text = s.toString();
-            if (text.isEmpty()) {
-              animateClearButton(false);
-            } else {
-              animateClearButton(true);
-            }
+            showClearButton(!text.isEmpty());
             if (onTextChangedListener != null) {
               onTextChangedListener.onTextChanged(text);
             }
@@ -99,8 +100,8 @@ public class SearchLayout extends FrameLayout {
 
     clearButton.setOnClickListener(
         v -> {
-          editText.getText().clear();
-          editText.requestFocus();
+          clear();
+          requestFocusForEditText();
         });
 
     editText.setOnEditorActionListener(
@@ -115,34 +116,9 @@ public class SearchLayout extends FrameLayout {
     searchIcon.setOnClickListener(v -> performSearch());
   }
 
-  /**
-   * نمایش (فید این) یا نامرئی سازی (فید اوت) دکمه Clear
-   *
-   * @param show true = VISIBLE + fade in, false = INVISIBLE + fade out
-   */
-  private void animateClearButton(boolean show) {
-    clearButton.animate().cancel();
-
-    if (show) {
-      if (clearButton.getVisibility() != View.VISIBLE) {
-        clearButton.setVisibility(View.VISIBLE);
-        clearButton.setAlpha(0f);
-      }
-      clearButton
-          .animate()
-          .alpha(1f)
-          .setDuration(200)
-          .setInterpolator(new DecelerateInterpolator())
-          .start();
-    } else {
-      clearButton
-          .animate()
-          .alpha(0f)
-          .setDuration(150)
-          .setInterpolator(new AccelerateInterpolator())
-          .withEndAction(() -> clearButton.setVisibility(View.INVISIBLE))
-          .start();
-    }
+  private void showClearButton(boolean show) {
+    clearButton.setAlpha(1f);
+    clearButton.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
   }
 
   private void performSearch() {
@@ -206,13 +182,17 @@ public class SearchLayout extends FrameLayout {
 
   public void show() {
     var material = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
-    TransitionManager.beginDelayedTransition(this, material);
+    if (getParent() instanceof ViewGroup) {
+      TransitionManager.beginDelayedTransition((ViewGroup) getParent(), material);
+    }
     setVisibility(VISIBLE);
   }
 
   public void hide() {
     var material = new MaterialSharedAxis(MaterialSharedAxis.Z, false);
-    TransitionManager.beginDelayedTransition(this, material);
+    if (getParent() instanceof ViewGroup) {
+      TransitionManager.beginDelayedTransition((ViewGroup) getParent(), material);
+    }
     setVisibility(GONE);
   }
 }

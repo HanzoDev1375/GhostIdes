@@ -154,5 +154,6 @@
   <color name="status_server_error">#AD5760</color>
   <color name="status_neutral">#6B6D78</color>
   <color name="status_on_chip">#FFFFFF</color>
+  <color name="colorOverlay">#78ffffff</color>
 
 </resources>

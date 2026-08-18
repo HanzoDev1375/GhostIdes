@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Process;
 import android.util.Log;
 import com.downloader.PRDownloader;
@@ -22,7 +20,6 @@ import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
 import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
-import java.util.Calendar;
 
 public class GhostIdeAppLoader extends Application {
 

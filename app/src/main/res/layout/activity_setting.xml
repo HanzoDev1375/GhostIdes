@@ -1,77 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/settingRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <ImageView
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:scaleType="centerCrop"
-        android:visibility="visible"
-        android:id="@+id/backgroundIconSetting" />
-
     <com.google.android.material.appbar.AppBarLayout
-        android:layout_height="wrap_content"
+        android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:id="@+id/appbar">
+        android:layout_height="wrap_content"
+        app:elevation="0dp"
+        app:liftOnScroll="false">
 
         <com.google.android.material.appbar.MaterialToolbar
-            android:layout_height="?attr/actionBarSize"
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            app:title="@string/settings_title"
-            android:id="@+id/toolbar">
+            android:layout_height="?attr/actionBarSize"
+            app:title="@string/settings_title">
 
         </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
-        android:layout_height="match_parent"
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <LinearLayout
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:orientation="vertical"
-            android:paddingBottom="20dp"
             android:id="@+id/settings_container"
-            android:paddingTop="8dp">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="20dp">
+
+            <ImageView
+                android:id="@+id/backgroundIconSetting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                android:maxWidth="64dp"
+                android:maxHeight="64dp"
+                android:scaleType="centerInside"
+                android:visibility="visible"
+                tools:src="@drawable/atomicghost" />
 
             <ir.hanzodev1375.ghostide.customui.ExpandableLayout
-                android:layout_height="wrap_content"
+                android:id="@+id/expandEditor"
                 android:layout_width="match_parent"
-                android:id="@+id/expandEditor" />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp" />
 
             <ir.hanzodev1375.ghostide.customui.ExpandableLayout
-                android:layout_height="wrap_content"
+                android:id="@+id/expandApp"
                 android:layout_width="match_parent"
-                android:id="@+id/expandApp" />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp" />
 
             <ir.hanzodev1375.ghostide.customui.ExpandableLayout
-                android:layout_height="wrap_content"
+                android:id="@+id/expandAi"
                 android:layout_width="match_parent"
-                android:id="@+id/expandAi" />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp" />
+
             <ir.hanzodev1375.ghostide.customui.ExpandableLayout
-                android:layout_height="wrap_content"
+                android:id="@+id/lspsetting"
                 android:layout_width="match_parent"
-                android:id="@+id/lspsetting" />
+                android:layout_height="wrap_content" />
         </LinearLayout>
-
     </androidx.core.widget.NestedScrollView>
 
     <ir.hanzodev1375.components.SearchLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:layout_marginBottom="4dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:id="@+id/searchitem"
-        android:visibility="visible"
-        android:layout_gravity="bottom|center_horizontal" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_anchor="@id/scrollView"
+        app:layout_anchorGravity="bottom|center"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
