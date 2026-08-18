@@ -1,36 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
+
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <uses-permission
+        android:name="android.permission.REQUEST_INSTALL_PACKAGES"
+        tools:ignore="RequestInstallPackagesPolicy" />
+
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_IMAGES"
+        tools:ignore="PhotoAndVideoPolicy" />
+
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_VIDEO"
+        tools:ignore="PhotoAndVideoPolicy,SelectedPhotoAccess" />
+
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_AUDIO"
+        tools:ignore="SelectedPhotoAccess" />
+
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+        tools:ignore="AllFilesAccessPolicy,ScopedStorage" />
+
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE"
+        tools:ignore="ForegroundServicesPolicy" />
+
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
+        android:name=".GhostIdeAppLoader"
         android:allowBackup="true"
+        android:extractNativeLibs="true"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_lego"
         android:label="@string/app_name"
-        android:name=".GhostIdeAppLoader"
+        android:requestLegacyExternalStorage="true"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        android:requestLegacyExternalStorage="true"
-        android:extractNativeLibs="true"
         tools:targetApi="31">
 
         <provider
@@ -61,24 +86,20 @@
         <activity
             android:name=".postman.HistoryActivity"
             android:exported="false"
-            android:label="@string/title_history"
-        />
+            android:label="@string/title_history" />
 
         <activity
             android:name=".postman.CollectionsActivity"
             android:exported="false"
-            android:label="@string/title_collections"
-        />
+            android:label="@string/title_collections" />
         <activity
             android:name=".postman.PostManActivity"
-            android:exported="false"
-        />
+            android:exported="false" />
 
         <activity
             android:name=".postman.CollectionDetailActivity"
             android:exported="false"
-            android:label="@string/title_collection_detail"
-        />
+            android:label="@string/title_collection_detail" />
 
         <activity
             android:name=".activity.EditorActivity"
@@ -87,8 +108,10 @@
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:mimeType="text/*" />
                 <data android:mimeType="application/json" />
                 <data android:mimeType="application/xml" />
@@ -97,6 +120,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:scheme="file" />
                 <data android:scheme="content" />
                 <data android:host="*" />
@@ -145,10 +169,13 @@
                 <data android:pathPattern=".*\\.rb" />
 
             </intent-filter>
-            <intent-filter>
+
+            <intent-filter tools:ignore="AppLinkWarning">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="*" />
@@ -181,28 +208,32 @@
         <activity android:name="ir.theme.themeeditor.ThemeEditorActivity" />
         <activity android:name="ir.hanzodev1375.ghostide.ai.chat.AiChatActivity" />
         <activity android:name="ir.hanzodev1375.components.store.activitys.StoreActivity" />
+
         <receiver
+            android:name="ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver"
             android:enabled="false"
-            android:exported="true"
-            android:name="ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver">
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action
+                    android:name="android.net.conn.CONNECTIVITY_CHANGE"
+                    tools:ignore="BatteryLife" />
             </intent-filter>
         </receiver>
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"
-            android:multiprocess="false"
             android:enabled="true"
             android:exported="true"
+            android:multiprocess="false"
             android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
         <activity-alias
             android:name=".IconAliasBlue"
-            android:targetActivity=".MainActivity"
+            android:enabled="false"
+            android:exported="true"
             android:icon="@drawable/iconblue"
             android:label="@string/app_name"
-            android:enabled="false"
-            android:exported="true">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -211,11 +242,11 @@
 
         <activity-alias
             android:name=".IconAliasHellish"
-            android:targetActivity=".MainActivity"
+            android:enabled="false"
+            android:exported="true"
             android:icon="@drawable/iconhellish"
             android:label="@string/app_name"
-            android:enabled="false"
-            android:exported="true">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -223,25 +254,24 @@
         </activity-alias>
         <activity-alias
             android:name=".IconAliasatomicghost"
-            android:targetActivity=".MainActivity"
+            android:enabled="false"
+            android:exported="true"
             android:icon="@drawable/atomicghost"
             android:label="@string/app_name"
-            android:enabled="false"
-            android:exported="true">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
 
-
         <activity-alias
             android:name=".IconAliasdevilishpurple"
-            android:targetActivity=".MainActivity"
+            android:enabled="false"
+            android:exported="true"
             android:icon="@drawable/devilishpurple"
             android:label="@string/app_name"
-            android:enabled="false"
-            android:exported="true">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -249,11 +279,11 @@
         </activity-alias>
         <activity-alias
             android:name=".IconAliasneonpurple"
-            android:targetActivity=".MainActivity"
+            android:enabled="false"
+            android:exported="true"
             android:icon="@drawable/neonpurple"
             android:label="@string/app_name"
-            android:enabled="false"
-            android:exported="true">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -262,11 +292,11 @@
 
         <activity-alias
             android:name=".IconAliasblackmagic"
-            android:targetActivity=".MainActivity"
+            android:enabled="false"
+            android:exported="true"
             android:icon="@drawable/blackmagic"
             android:label="@string/app_name"
-            android:enabled="false"
-            android:exported="true">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -275,11 +305,11 @@
 
         <activity-alias
             android:name=".IconAliaspurplewitch"
-            android:targetActivity=".MainActivity"
+            android:enabled="false"
+            android:exported="true"
             android:icon="@drawable/purplewitch"
             android:label="@string/app_name"
-            android:enabled="false"
-            android:exported="true">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

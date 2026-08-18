@@ -1,60 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content"
-    android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root"
-    >
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_marginVertical="12dp"
+    android:layout_marginHorizontal="16dp">
 
     <ImageView
-        android:layout_height="18dp"
-        android:layout_width="18dp"
-        android:scaleType="centerInside"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="5dp"
-        android:layout_marginLeft="16dp"
         android:id="@+id/preference_icon"
-        />
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginEnd="5dp"
+        android:scaleType="centerInside" />
 
-    <TextView
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_toLeftOf="@id/preference_switch"
-        android:layout_toRightOf="@id/preference_icon"
-        android:textSize="16sp"
-        android:text="text"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="16dp"
-        android:textColor="?colorOnSurface"
-        android:layout_marginTop="12dp"
-        android:id="@+id/preference_name"
-        />
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginHorizontal="8dp" >
 
-    <TextView
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_below="@id/preference_name"
-        android:layout_toLeftOf="@id/preference_switch"
-        android:layout_toRightOf="@id/preference_icon"
-        android:textSize="14sp"
-        android:text="test"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="16dp"
-        android:textColor="?colorOnSurface"
-        android:layout_marginTop="4dp"
-        android:id="@+id/preference_description"
-        />
+        <TextView
+            android:id="@+id/preference_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="text"
+            android:textColor="?colorOnSurface"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/preference_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="test"
+            android:textColor="?colorOnSurface"
+            android:textSize="14sp" />
+
+    </LinearLayout>
 
     <com.google.android.material.materialswitch.MaterialSwitch
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:clickable="false"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="16dp"
-        android:layout_alignParentRight="true"
-        android:focusable="false"
         android:id="@+id/preference_switch"
-        />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:focusable="false" />
 
-</RelativeLayout>
+</LinearLayout>

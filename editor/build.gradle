@@ -1,9 +1,12 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id 'com.android.library'
     alias(libs.plugins.kotlin.android)
 }
 
 android {
+    //noinspection GradleDependency
     compileSdk = 36
     namespace = 'ir.hanzodev1375.ghostide.codeeditors'
     
@@ -13,7 +16,8 @@ android {
     
     defaultConfig {
         minSdkVersion 26
-        targetSdkVersion = 36
+        //noinspection OldTargetApi
+        targetSdkVersion 36
     }
     
     buildTypes {
@@ -25,6 +29,12 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
 }
 

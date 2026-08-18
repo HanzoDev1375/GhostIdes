@@ -1,60 +1,54 @@
 package ir.hanzodev1375.ghostide.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import com.blankj.utilcode.util.ClipboardUtils;
+import androidx.core.widget.NestedScrollView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.blankj.utilcode.util.ThreadUtils;
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.MaterialToolbar;
-import ir.hanzodev1375.components.SearchLayout;
-import ir.hanzodev1375.components.TextInputDialogFragment;
-import android.widget.TextView;
-import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
+import ir.hanzodev1375.components.SearchLayout;
+import ir.hanzodev1375.components.TextInputDialogFragment;
 import ir.hanzodev1375.components.sheet.SliderSheet;
-import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
-import ir.hanzodev1375.ghostide.MainActivity;
 import ir.hanzodev1375.ghostide.R;
-import ir.hanzodev1375.ghostide.appicon.AppIconChooserDialogBuilder;
-import ir.hanzodev1375.ghostide.appicon.AppIconManager;
 import ir.hanzodev1375.ghostide.adapters.SettingsAdapter;
 import ir.hanzodev1375.ghostide.ai.utils.AiConstants;
 import ir.hanzodev1375.ghostide.ai.utils.AiPreferencesUtils;
+import ir.hanzodev1375.ghostide.appicon.AppIconChooserDialogBuilder;
+import ir.hanzodev1375.ghostide.appicon.AppIconManager;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.ghostide.codeeditors.ui.power.PowerModeEffectManager;
 import ir.hanzodev1375.ghostide.codeeditors.util.TranslateLanguages;
 import ir.hanzodev1375.ghostide.customui.ExpandableLayout;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.models.SettingItem;
-import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
-import ir.hanzodev1375.ghostide.themeengine.Theme;
 import ir.hanzodev1375.ghostide.themeengine.ThemeChooserDialogBuilder;
 import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
-import ir.hanzodev1375.ghostide.utils.LocaleHelper;
 import ir.hanzodev1375.ghostide.utils.BlurTransformation;
 import ir.hanzodev1375.ghostide.utils.FileUtil;
-import java.io.File;
+import ir.hanzodev1375.ghostide.utils.LocaleHelper;
 import ir.theme.GhostTheme;
-import com.google.gson.Gson;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import ir.hanzodev1375.ghostide.codeeditors.ui.power.PowerModeEffectManager;
 
 public class SettingActivity extends BaseCompat {
 
@@ -65,6 +59,9 @@ public class SettingActivity extends BaseCompat {
   private ThemeEngine themeEngine;
   private AiPreferencesUtils aiPrefs;
   private SearchLayout ser;
+  private boolean isSearchActive = false;
+  private Runnable filterRunnable;
+  private Runnable expandRunnable;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +73,7 @@ public class SettingActivity extends BaseCompat {
     themeEngine = ThemeEngine.getInstance(this);
     MaterialToolbar toolbar = findViewById(R.id.toolbar);
     ser = findViewById(R.id.searchitem);
+
     setSupportActionBar(toolbar);
     if (getSupportActionBar() != null) {
       getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -101,6 +99,7 @@ public class SettingActivity extends BaseCompat {
     lspAdapter = new SettingsAdapter(getLspSetting());
     ser.show();
     View root = findViewById(R.id.settingRoot);
+
     ViewCompat.setOnApplyWindowInsetsListener(
         root,
         (v, insets) -> {
@@ -111,8 +110,12 @@ public class SettingActivity extends BaseCompat {
           ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) ser.getLayoutParams();
           lp.bottomMargin = bottomInset + (int) (4 * getResources().getDisplayMetrics().density);
           ser.setLayoutParams(lp);
+          // adjust padding for insets
+          NestedScrollView scrollView = findViewById(R.id.scrollView);
+          scrollView.setPadding(0, 0, 0, bottomInset + (int) (80 * getResources().getDisplayMetrics().density));
           return insets;
         });
+
     rvEditor.setAdapter(editorAdapter);
     rvApp.setAdapter(appAdapter);
     rvLsp.setAdapter(lspAdapter);
@@ -125,28 +128,57 @@ public class SettingActivity extends BaseCompat {
     rvAi.setAdapter(aiAdapter);
     ser.setIconClose(R.drawable.ic_close);
     ser.setIconSearch(R.drawable.outline_search);
+
+    // Prevents crash when DiffUtil updates lists while animations are running
+    rvEditor.setItemAnimator(null);
+    rvApp.setItemAnimator(null);
+    rvLsp.setItemAnimator(null);
+    rvAi.setItemAnimator(null);
+
     ser.setOnTextChangedListener(
         (item) -> {
-          if (item.length() > 0) {
-            editorAdapter.filter(item);
-            appAdapter.filter(item);
-            lspAdapter.filter(item);
-            aiAdapter.filter(item);
-            if (!expandAi.isExpanded()) expandAi.expand();
-            if (!expandApp.isExpanded()) expandApp.expand();
-            if (!expandEditor.isExpanded()) expandEditor.expand();
-            if (!LspView.isExpanded()) LspView.expand();
-          } else {
-            editorAdapter.filter("");
-            appAdapter.filter("");
-            aiAdapter.filter("");
-            lspAdapter.filter("");
-            expandAi.collapse();
-            expandApp.collapse();
-            expandEditor.collapse();
-            LspView.collapse();
+          boolean hasText = item.length() > 0;
+
+          if (hasText && !isSearchActive) {
+            isSearchActive = true;
+
+            ser.removeCallbacks(expandRunnable);
+            expandRunnable =
+                () -> {
+                  if (!expandAi.isExpanded()) expandAi.expand();
+                  if (!expandApp.isExpanded()) expandApp.expand();
+                  if (!expandEditor.isExpanded()) expandEditor.expand();
+                  if (!LspView.isExpanded()) LspView.expand();
+                };
+
+            ser.postDelayed(expandRunnable, 50);
           }
+
+          ser.removeCallbacks(filterRunnable);
+          filterRunnable =
+              () -> {
+                if (hasText) {
+                  editorAdapter.filter(item);
+                  appAdapter.filter(item);
+                  lspAdapter.filter(item);
+                  aiAdapter.filter(item);
+                } else {
+                  editorAdapter.resetToFull();
+                  appAdapter.resetToFull();
+                  lspAdapter.resetToFull();
+                  aiAdapter.resetToFull();
+
+                  if (expandAi.isExpanded()) expandAi.collapse();
+                  if (expandApp.isExpanded()) expandApp.collapse();
+                  if (expandEditor.isExpanded()) expandEditor.collapse();
+                  if (LspView.isExpanded()) LspView.collapse();
+                  isSearchActive = false;
+                  ser.removeCallbacks(expandRunnable);
+                }
+              };
+          ser.postDelayed(filterRunnable, 50);
         });
+
     editorAdapter.setOnItemClickListener(
         position -> {
           if (position == 17) showTabSizeDialog();
@@ -885,8 +917,7 @@ public class SettingActivity extends BaseCompat {
                 return;
               }
               try {
-                String json =
-                    new String(FileUtil.readBytesCompat(file), StandardCharsets.UTF_8);
+                String json = new String(FileUtil.readBytesCompat(file), StandardCharsets.UTF_8);
                 GhostTheme theme = new Gson().fromJson(json, GhostTheme.class);
                 if (theme == null) throw new Exception("Invalid theme format");
                 new ThemeManager(this).saveTheme(theme);
