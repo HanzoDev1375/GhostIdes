@@ -2,6 +2,7 @@ package ir.hanzodev1375.ghostide.customui;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.SpannableString;
 import androidx.core.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -111,7 +112,28 @@ public class TabCustomView extends LinearLayout
 
   private void updateTitleText() {
     if (binding == null || binding.tabTitle == null || currentModel == null) return;
-    binding.tabTitle.setText(
-        hasStar ? "*" + currentModel.getFileName() : currentModel.getFileName());
+    String displayName = hasStar ? "*" + currentModel.getFileName() : currentModel.getFileName();
+    binding.tabTitle.setText(displayName);
+    applyErrorSpan();
+  }
+
+  public void setHasErrors(boolean hasError) {
+    if (currentModel != null) {
+      currentModel.setHasError(hasError);
+    }
+    applyErrorSpan();
+  }
+
+  private void applyErrorSpan() {
+    if (binding == null || binding.tabTitle == null || currentModel == null) return;
+    boolean hasError = currentModel.getHasError();
+    String text = binding.tabTitle.getText().toString();
+    SpannableString spannable = new SpannableString(text);
+    if (hasError) {
+      WavyUnderlineSpan waveSpan = new WavyUnderlineSpan(WavyUnderlineSpan.StatosMod.ERROR);
+      waveSpan.setEnabled(true);
+      spannable.setSpan(waveSpan, 0, text.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    binding.tabTitle.setText(spannable);
   }
 }

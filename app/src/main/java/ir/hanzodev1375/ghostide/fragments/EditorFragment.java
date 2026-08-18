@@ -32,6 +32,8 @@ import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
+import ir.hanzodev1375.ghostide.mvvm.viewmodel.LspViewModel;
+import ir.hanzodev1375.ghostide.models.LspState;
 import ir.hanzodev1375.ghostide.paged.PagedEditSession;
 import ir.hanzodev1375.ghostide.refactor.renameclass.ui.RenameClassBottomSheet;
 import ir.hanzodev1375.ghostide.tasks.FileChangeReceiver;
@@ -44,6 +46,7 @@ import ir.hanzodev1375.ghostide.R;
 import java.io.Reader;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -80,7 +83,7 @@ public class EditorFragment extends Fragment {
   private PreferencesUtils setting;
   private PagedEditSession pagedSession;
   private int pageIndex = -1;
-  private volatile LspEditor lspEditor;
+  private LspViewModel lspViewModel;
   private static final int DIAGNOSTICS_COLOR_OK = Color.parseColor("#4CAF50");
   private static final int DIAGNOSTICS_COLOR_ERROR = Color.parseColor("#F44336");
   private final Handler breadcrumbHandler = new Handler(Looper.getMainLooper());
@@ -107,6 +110,7 @@ public class EditorFragment extends Fragment {
     super.onViewCreated(view, savedInstanceState);
     filePath = getArguments().getString("file_path");
     viewModel = new ViewModelProvider(this).get(EditorViewModel.class);
+    lspViewModel = new ViewModelProvider(this).get(LspViewModel.class);
     editor = binding.editor;
     var manager = new ThemeManager(requireActivity());
     theme = new ThemeUtils(manager);
@@ -157,52 +161,34 @@ public class EditorFragment extends Fragment {
     if (lang != null) editor.setEditorLanguage(lang);
 
     if (LspRouter.isSupportedFile(filePath)) {
-      final String targetFilePath = filePath;
-      final Context appContext = getContext() != null ? getContext().getApplicationContext() : null;
-      final IdeEditor targetEditor = editor;
-      if (appContext != null) {
-        new Thread(
-                () -> {
-                  File targetFile = new File(targetFilePath);
-                  String projectRoot =
-                      AndroidClasspathResolver.findProjectRoot(targetFile).getAbsolutePath();
-                  LspEditor connected =
-                      LspRouter.connectFile(appContext, projectRoot, targetFilePath, targetEditor);
-                  if (!isAdded() || binding == null) {
-                    if (connected != null) {
-                      try {
-                        connected.dispose();
-                      } catch (Exception e) {
-                        Log.e("EditorFragment", "بستن اتصال یتیم LSP با خطا مواجه شد", e);
-                      }
-                    }
-                    return;
-                  }
+      File targetFile = new File(filePath);
+      String projectRoot = AndroidClasspathResolver.findProjectRoot(targetFile).getAbsolutePath();
+      lspViewModel.connect(projectRoot, filePath, editor);
 
-                  lspEditor = connected;
-                  targetEditor.setLspEditor(lspEditor);
-                  ThreadUtils.runOnUiThread(
-                      () -> {
-                        if (binding == null || !isAdded()) {
-                          return;
-                        }
-                        if (lspEditor == null) {
-                          return;
-                        }
-                        lspEditor.setEnableInlayHint(setting.isInlayHint());
-                        lspEditor.setEnableHover(setting.isHover());
-                        lspEditor.setEnableSignatureHelp(setting.isSignatureHelp());
-                        if (setting.isDiagnostics()) {
-                          lspEditor.setDiagnostics(new ArrayList<>());
-                        } else {
-                          lspEditor.setDiagnostics(lspEditor.getDiagnostics());
-                        }
-                        updateDiagnosticsIcon(lspEditor);
-                        scheduleBreadcrumbRefresh();
-                      });
-                })
-            .start();
-      }
+      lspViewModel
+          .getState()
+          .observe(
+              getViewLifecycleOwner(),
+              state -> {
+                if (state == null) return;
+                if (state.isConnected()) {
+                  LspEditor connected = lspViewModel.getLspEditor();
+                  if (connected != null) {
+                    editor.setLspEditor(connected);
+                    lspViewModel.applySettings(
+                        setting.isHover(), setting.isInlayHint(), setting.isSignatureHelp());
+                    if (setting.isDiagnostics()) {
+                      connected.setDiagnostics(connected.getDiagnostics());
+                    } else {
+                      connected.setDiagnostics(Collections.emptyList());
+                    }
+                    updateDiagnosticsIcon(connected);
+                    scheduleBreadcrumbRefresh();
+                  }
+                } else if (state.hasError()) {
+                  Log.e("EditorFragment", "LSP Error: " + state.errorMessage);
+                }
+              });
     }
 
     GradientDrawable color = (GradientDrawable) binding.tvCursorPosition.getBackground().mutate();
@@ -476,21 +462,9 @@ public class EditorFragment extends Fragment {
     super.onDestroyView();
     breadcrumbHandler.removeCallbacksAndMessages(null);
     FileChangeReceiver.stopWatching();
-    if (lspEditor != null) {
-      final LspEditor toClose = lspEditor;
-      lspEditor = null;
-      if (editor != null) {
-        editor.setLspEditor(null);
-      }
-      new Thread(
-              () -> {
-                try {
-                  toClose.dispose();
-                } catch (Exception e) {
-                  Log.e("EditorFragment", "بستن اتصال lsp با خطا مواجه شد", e);
-                }
-              })
-          .start();
+    notifyTabError(false);
+    if (lspViewModel != null) {
+      lspViewModel.disconnect();
     }
     pagedExecutor.shutdownNow();
     if (pagedSession != null) {
@@ -505,13 +479,13 @@ public class EditorFragment extends Fragment {
   }
 
   public void scheduleBreadcrumbRefresh() {
-    if (lspEditor == null) return;
+    if (lspViewModel == null || !lspViewModel.isConnected()) return;
     breadcrumbHandler.removeCallbacks(breadcrumbRefreshRunnable);
     breadcrumbHandler.postDelayed(breadcrumbRefreshRunnable, BREADCRUMB_DEBOUNCE_MS);
   }
 
   private void refreshBreadcrumbs() {
-    LspEditor currentLspEditor = lspEditor;
+    LspEditor currentLspEditor = lspViewModel != null ? lspViewModel.getLspEditor() : null;
     IdeEditor currentEditor = editor;
     String currentFilePath = filePath;
     if (currentLspEditor == null || currentEditor == null || currentFilePath == null) return;
@@ -538,6 +512,7 @@ public class EditorFragment extends Fragment {
     boolean connected = lspEditor.isConnected();
     binding.dlch.setVisibility(connected ? View.VISIBLE : View.INVISIBLE);
     if (!connected) {
+      notifyTabError(false);
       return;
     }
 
@@ -555,6 +530,14 @@ public class EditorFragment extends Fragment {
     } else {
       binding.dlch.setImageResource(R.drawable.check_24px);
       binding.dlch.setColorFilter(DIAGNOSTICS_COLOR_OK, PorterDuff.Mode.SRC_IN);
+    }
+    notifyTabError(hasError);
+  }
+
+  private void notifyTabError(boolean hasError) {
+    if (filePath == null) return;
+    if (getActivity() instanceof EditorActivity) {
+      ((EditorActivity) getActivity()).setTabError(filePath, hasError);
     }
   }
 
