@@ -112,7 +112,7 @@ public class SettingActivity extends BaseCompat {
           ser.setLayoutParams(lp);
           // adjust padding for insets
           NestedScrollView scrollView = findViewById(R.id.scrollView);
-          scrollView.setPadding(0, 0, 0, bottomInset + (int) (20 * getResources().getDisplayMetrics().density));
+          scrollView.setPadding(0, 0, 0, bottomInset + (int) (80 * getResources().getDisplayMetrics().density));
           return insets;
         });
 
