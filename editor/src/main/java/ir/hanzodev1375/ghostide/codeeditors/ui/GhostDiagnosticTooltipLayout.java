@@ -123,7 +123,7 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
     }
 
     var message =
-        diagnostic.getDetailedMessage() != null && (!diagnostic.getDetailedMessage().length() > 0)
+        diagnostic.getDetailedMessage() != null && !(diagnostic.getDetailedMessage().length() > 0)
             ? diagnostic.getDetailedMessage()
             : diagnostic.getBriefMessage();
     messageText.setText(message == null ? "" : message);

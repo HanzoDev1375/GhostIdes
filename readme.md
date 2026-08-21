@@ -12,6 +12,13 @@
 
 Ghost IDE is an advanced mobile development environment built for Android developers, web developers, and scripting workflows. Unlike many mobile editors, Ghost IDE provides real tooling and compiler integrations directly inside the application.
 
+
+> [!WARNING]
+> Ghost IDE requires **Android 11 or higher** to run.
+> Android versions below Android 11 are **not supported**.
+
+
+
 **Core Focus Areas:**
 - ⚡ High-performance editing
 - 🧩 Rich language support
