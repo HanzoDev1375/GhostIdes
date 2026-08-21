@@ -58,11 +58,7 @@ public abstract class BaseBlurBottomSheet extends BottomSheetDialogFragment {
               if (binding == null) return;
               Activity activity = getActivity();
               if (activity == null) return;
-
-              // شفاف کردن پس‌زمینه bottom sheet
               bottomSheet.setBackgroundColor(Color.TRANSPARENT);
-
-              // مسیر شیشه‌ای: نمونه‌برداری پس‌زمینه از content view اکتیویتی
               LiquidGlassView glass = binding.glassView;
               glass.setBackdropSource(activity.findViewById(android.R.id.content));
               glass.setEnableDynamicBackground(true);

@@ -8,6 +8,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,9 +27,7 @@ import com.blankj.utilcode.util.ClipboardUtils;
 import com.bumptech.glide.Glide;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.skydoves.powermenu.MenuAnimation;
-import com.skydoves.powermenu.PowerMenu;
-import com.skydoves.powermenu.PowerMenuItem;
+
 import ir.ghostide.logcat.BottomSheetLogView;
 import ir.hanzodev1375.components.RenameDialogFragment;
 import ir.hanzodev1375.components.TextInputDialogFragment;
@@ -38,6 +37,7 @@ import ir.hanzodev1375.components.ftp.views.FtpBrowserSheet;
 import ir.hanzodev1375.components.searchdata.model.FileSearchResult;
 import ir.hanzodev1375.components.searchdata.ui.SearchBottomSheet;
 import ir.hanzodev1375.components.searchdata.interfaces.OnLineClickListener;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.CustomItemSheet;
 import ir.hanzodev1375.components.ui.ProfileView;
 import ir.hanzodev1375.ghostide.adapters.FileManagerAdapter;
 import ir.hanzodev1375.ghostide.adapters.ToolbarAdapter;
@@ -68,11 +68,17 @@ import ir.hanzodev1375.ghostide.history.HistoryBottomSheet;
 import ir.hanzodev1375.ghostide.history.HistoryViewModel;
 
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.FileViewModel;
-import ir.hanzodev1375.ghostide.activity.pluginmanager.FileManagerHostAdapter;
+import ir.hanzodev1375.ghostide.adapters.FileManagerHostAdapter;
 import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
+import ir.hanzodev1375.ghostide.ide.ui.api.PluginUiExtensionPoints;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
 import ir.hanzodev1375.ghostide.plugin.api.Disposable;
 import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
+import ir.hanzodev1375.ghostide.plugin.gpl.GplInstalledPlugins;
+import ir.hanzodev1375.ghostide.plugin.gpl.GplManifest;
+import ir.hanzodev1375.ghostide.plugin.gpl.GplManifestReader;
+import ir.hanzodev1375.ghostide.plugin.gpl.GplPluginLoader;
+import ir.hanzodev1375.ghostide.adapters.PluginPopupAdapter;
 import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
 import androidx.core.content.FileProvider;
 import ir.hanzodev1375.ghostide.terminal.activity.TerminalActivity;
@@ -88,7 +94,9 @@ import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import ir.theme.themeeditor.ThemeEditorActivity;
 import java.io.File;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -208,6 +216,7 @@ public class FileManagerActivity extends BaseCompat
     appsetting = new PreferencesUtils(this);
     var themeManager = new ThemeManager(this);
     themeutil = new ThemeUtils(themeManager);
+    bind.fab.bindOfAcivity(this);
     if (appsetting.isShowBackground()) {
       themeutil.setFileManagerBack(bind.headline, bind.headtop, bind.backgroundiconfilemanager);
     } else {
@@ -434,6 +443,8 @@ public class FileManagerActivity extends BaseCompat
     bind.buttonAi.setOnClickListener(
         v -> startActivity(new Intent(getApplicationContext(), AiChatActivity.class)));
 
+    bind.buttonPlugins.setOnClickListener(this::showPluginPopup);
+
     setOnBackPress();
     setupGitButton();
     observePathForGit();
@@ -471,20 +482,18 @@ public class FileManagerActivity extends BaseCompat
         });
     zipAdapter.setOnMoreClickListener(
         (item, anchor, pos) -> {
-          PowerMenu menu = new PowerMenu.Builder(anchor.getContext()).setIsMaterial(true).build();
-          menu.addItem(new PowerMenuItem(getString(R.string.removed)));
-          menu.addItem(new PowerMenuItem(getString(R.string.rename)));
-          menu.addItem(new PowerMenuItem(getString(R.string.zip_extract_here)));
-          menu.addItem(new PowerMenuItem(getString(R.string.zip_extract_to)));
-          menu.addItem(new PowerMenuItem(getString(R.string.zip_info)));
-          menu.setMenuColor(MaterialColors.getColor(anchor.getContext(), R.attr.colorSurface, 0));
-          menu.setTextColor(MaterialColors.getColor(anchor.getContext(), R.attr.colorOnSurface, 0));
-          menu.setShowBackground(false);
-          menu.setAutoDismiss(true);
-          menu.setMenuRadius(30f);
-          menu.setAnimation(MenuAnimation.FADE);
-          menu.setOnMenuItemClickListener(
-              (index, menuItem) -> {
+          List<String> items =
+              List.of(
+                  getString(R.string.removed),
+                  getString(R.string.rename),
+                  getString(R.string.zip_extract_here),
+                  getString(R.string.zip_extract_to),
+                  getString(R.string.zip_info));
+          ObjectUtil.showGlassMenu(
+              FileManagerActivity.this,
+              anchor,
+              items,
+              (index, title) -> {
                 ZipOperationManager zipOp = new ZipOperationManager();
                 String destDefault = new File(currentZipFilePath).getParent();
                 switch (index) {
@@ -653,19 +662,6 @@ public class FileManagerActivity extends BaseCompat
                       });
                 }
               });
-          int[] location = new int[2];
-          anchor.getLocationOnScreen(location);
-          int x = location[0];
-          int y = location[1];
-          var dm = anchor.getResources().getDisplayMetrics();
-          int screenHeight = dm.heightPixels;
-          int menuHeight = menu.getContentViewHeight();
-          if (menuHeight <= 0) menuHeight = 200;
-          int spaceBelow = screenHeight - (y + anchor.getHeight());
-          int spaceAbove = y;
-          if (spaceBelow < menuHeight && spaceAbove > spaceBelow) y -= menuHeight;
-          else y += anchor.getHeight();
-          menu.showAtLocation(anchor, Gravity.TOP | Gravity.START, x, y);
         });
     zipAdapter.setSelectionStateListener(
         new ZipBrowserAdapter.SelectionStateListener() {
@@ -791,9 +787,26 @@ public class FileManagerActivity extends BaseCompat
       intent.putExtra("file_name", name);
       startActivity(intent);
     } else if (path.endsWith(".gth")) {
-      Intent i = new Intent(FileManagerActivity.this, ThemeEditorActivity.class);
-      i.putExtra(ThemeEditorActivity.EXTRA_THEME_PATH, path);
-      startActivity(i);
+      var sheets = new CustomItemSheet(FileManagerActivity.this);
+      sheets.add(getString(R.string.theme_edit), R.drawable.ic_edit);
+      sheets.add(getString(R.string.theme_apply), R.drawable.outline_color_lens);
+      sheets.setOnClickListener(
+          (models, pos, view) -> {
+            switch (pos) {
+              case 0 -> {
+                sheets.dismiss();
+                Intent i = new Intent(FileManagerActivity.this, ThemeEditorActivity.class);
+                i.putExtra(ThemeEditorActivity.EXTRA_THEME_PATH, path);
+                startActivity(i);
+              }
+              case 1 -> {
+                appsetting.setAppThemeFile(path);
+                sheets.dismiss();
+              }
+            }
+          });
+      sheets.show();
+
     } else if (images.contains(extension)) {
       String currentDir = new File(path).getParent();
       File dir = new File(currentDir);
@@ -1034,18 +1047,14 @@ public class FileManagerActivity extends BaseCompat
           List<FileManagerModel> selected = adapter.getSelectedItems();
           if (selected.isEmpty()) return;
 
-          PowerMenu menu = new PowerMenu.Builder(this).setIsMaterial(true).build();
-          menu.addItem(new PowerMenuItem(getString(R.string.zip)));
-          menu.addItem(new PowerMenuItem(getString(R.string.props_title_multi)));
-          menu.addItem(new PowerMenuItem("Rename Group"));
-          menu.setMenuColor(MaterialColors.getColor(this, R.attr.colorSurface, 0));
-          menu.setTextColor(MaterialColors.getColor(this, R.attr.colorOnSurface, 0));
-          menu.setShowBackground(false);
-          menu.setAutoDismiss(true);
-          menu.setMenuRadius(30f);
-          menu.setAnimation(MenuAnimation.FADE);
-          menu.setOnMenuItemClickListener(
-              (index, item) -> {
+          List<String> items =
+              List.of(
+                  getString(R.string.zip), getString(R.string.props_title_multi), "Rename Group");
+          ObjectUtil.showGlassMenu(
+              this,
+              v,
+              items,
+              (index, title) -> {
                 if (index == 0) {
                   List<File> filesToZip = new ArrayList<>();
                   for (FileManagerModel model : selected) {
@@ -1060,7 +1069,7 @@ public class FileManagerActivity extends BaseCompat
                 } else if (index == 2) {
                   BatchRenameSheet sheet = BatchRenameSheet.newInstance(selected);
                   sheet.setOnRenameListener(
-                      (items, pattern, find, replace, useRegex) -> {
+                      (items1, pattern, find, replace, useRegex) -> {
                         btnClose.performClick();
                         viewModel.loadFiles(viewModel.getCurrentPath().getValue());
                         refreshFileList();
@@ -1068,7 +1077,6 @@ public class FileManagerActivity extends BaseCompat
                   sheet.show(getSupportFragmentManager(), BatchRenameSheet.TAG);
                 }
               });
-          ObjectUtil.showFixPos(menu, selectionMore);
         });
     selectionPanel.setVisibility(View.GONE);
   }
@@ -1130,11 +1138,9 @@ public class FileManagerActivity extends BaseCompat
       artistName = bind.musicPreview.getArtistName();
     } catch (Exception ignored) {
     }
-    musicBottomSheet =
-        MusicPlayerBottomSheetFragment.newInstance(path, songName, artistName);
+    musicBottomSheet = MusicPlayerBottomSheetFragment.newInstance(path, songName, artistName);
     musicBottomSheet.setMusicControl(bind.musicPreview);
-    musicBottomSheet.setOnDismissListener(
-        () -> musicBottomSheet = null);
+    musicBottomSheet.setOnDismissListener(() -> musicBottomSheet = null);
     musicBottomSheet.show(getSupportFragmentManager(), "music_player_sheet");
   }
 
@@ -1208,27 +1214,24 @@ public class FileManagerActivity extends BaseCompat
         (filemodel, view, pos) -> {
           boolean showRenamePackage = isRenameablePackageDirectory(filemodel);
           boolean showRenameClass = isRenameableClassFile(filemodel);
-          var menu = ObjectUtil.stepMenu(this, view);
-          menu.addItem(new PowerMenuItem(getString(R.string.removed)));
-          menu.addItem(new PowerMenuItem(getString(R.string.rename)));
-          menu.addItem(new PowerMenuItem(getString(R.string.props_title_single)));
-          menu.addItem(new PowerMenuItem(getString(R.string.bookmark_add)));
-          menu.addItem(new PowerMenuItem(getString(R.string.shortcut_menu_item)));
-          menu.addItem(new PowerMenuItem(getString(R.string.copyfullpath)));
+          List<String> items = new ArrayList<>();
+          items.add(getString(R.string.removed));
+          items.add(getString(R.string.rename));
+          items.add(getString(R.string.props_title_single));
+          items.add(getString(R.string.bookmark_add));
+          items.add(getString(R.string.shortcut_menu_item));
+          items.add(getString(R.string.copyfullpath));
           if (showRenamePackage) {
-            menu.addItem(new PowerMenuItem(getString(R.string.rename_package_menu_item)));
+            items.add(getString(R.string.rename_package_menu_item));
           }
           if (showRenameClass) {
-            menu.addItem(new PowerMenuItem(getString(R.string.rename_class_menu_item)));
+            items.add(getString(R.string.rename_class_menu_item));
           }
-          menu.setMenuColor(MaterialColors.getColor(view.getContext(), R.attr.colorSurface, 0));
-          menu.setTextColor(MaterialColors.getColor(view.getContext(), R.attr.colorOnSurface, 0));
-          menu.setShowBackground(false);
-          menu.setAutoDismiss(true);
-          menu.setMenuRadius(30f);
-          menu.setAnimation(MenuAnimation.FADE);
-          menu.setOnMenuItemClickListener(
-              (index, item) -> {
+          ObjectUtil.showGlassMenu(
+              this,
+              view,
+              items,
+              (index, title) -> {
                 switch (index) {
                   case 0 -> removedItem(filemodel);
                   case 1 -> renameItem(filemodel);
@@ -1264,7 +1267,6 @@ public class FileManagerActivity extends BaseCompat
                   }
                 }
               });
-          ObjectUtil.showFixPos(menu, view);
         });
   }
 
@@ -1418,7 +1420,7 @@ public class FileManagerActivity extends BaseCompat
                 .show();
           }
         });
-    bind.btnSettings.setOnClickListener(v -> stepButton());
+    bind.btnSettings.setOnClickListener(v -> stepButton(v));
   }
 
   @Override
@@ -1512,30 +1514,29 @@ public class FileManagerActivity extends BaseCompat
     }
   }
 
-  void stepButton() {
-    var menu = new PowerMenu.Builder(this).build();
-    menu.addItem(new PowerMenuItem(getString(R.string.settings_title)));
-    menu.addItem(new PowerMenuItem(getString(R.string.search_hint)));
-    menu.addItem(new PowerMenuItem(getString(R.string.serachdata)));
-    menu.addItem(new PowerMenuItem(getString(R.string.openlogcat)));
-    menu.addItem(new PowerMenuItem(getString(R.string.history_title)));
-    menu.addItem(new PowerMenuItem(getString(R.string.bookmark_title)));
-    menu.addItem(new PowerMenuItem(getString(R.string.ftp_connect)));
-    menu.addItem(new PowerMenuItem(getString(R.string.sd_card_menu_item)));
-    menu.addItem(new PowerMenuItem(getString(R.string.store)));
-    menu.addItem(new PowerMenuItem(getString(R.string.aboutapp)));
-    menu.addItem(new PowerMenuItem(getString(R.string.translator_title)));
-    menu.addItem(new PowerMenuItem(getString(R.string.terminal_title)));
-    menu.addItem(new PowerMenuItem(getString(R.string.postman_title)));
-    menu.addItem(new PowerMenuItem(getString(R.string.plugin_manager_title)));
-    menu.setAutoDismiss(true);
-    menu.setShowBackground(false);
-    menu.setAnimation(MenuAnimation.FADE);
-    menu.setTextColor(MaterialColors.getColor(this, R.attr.colorOnSurface, 0));
-    menu.setMenuColor(MaterialColors.getColor(this, R.attr.colorSurface, 0));
-    menu.setOnMenuItemClickListener(
-        (c, f) -> {
-          switch (c) {
+  void stepButton(View v) {
+    List<String> items =
+        List.of(
+            getString(R.string.settings_title),
+            getString(R.string.search_hint),
+            getString(R.string.serachdata),
+            getString(R.string.openlogcat),
+            getString(R.string.history_title),
+            getString(R.string.bookmark_title),
+            getString(R.string.ftp_connect),
+            getString(R.string.sd_card_menu_item),
+            getString(R.string.store),
+            getString(R.string.aboutapp),
+            getString(R.string.translator_title),
+            getString(R.string.terminal_title),
+            getString(R.string.postman_title),
+            getString(R.string.plugin_manager_title));
+    ObjectUtil.showGlassMenu(
+        this,
+        v,
+        items,
+        (index, title) -> {
+          switch (index) {
             case 0 -> startActivity(new Intent(getApplicationContext(), SettingActivity.class));
             case 1 -> {
               if (!bind.ser.isShow()) {
@@ -1591,7 +1592,6 @@ public class FileManagerActivity extends BaseCompat
                 new Intent(FileManagerActivity.this, PluginManagerActivity.class));
           }
         });
-    menu.showAsDropDown(bind.btnSettings);
   }
 
   private void openSearchSheet() {
@@ -1627,15 +1627,18 @@ public class FileManagerActivity extends BaseCompat
     bind.ser.setIconSearch(R.drawable.outline_search);
   }
 
-  
   private void showGoToDirMenu(View anchor) {
-    var menu = ObjectUtil.stepMenu(this, anchor);
-    menu.addItem(new PowerMenuItem(getString(R.string.goto_dir)));
-    menu.addItem(new PowerMenuItem(getString(R.string.internal_storage_label)));
-    menu.addItem(new PowerMenuItem(getString(R.string.sd_card_menu_item)));
-    menu.addItem(new PowerMenuItem(getString(R.string.goto_root)));
-    menu.setOnMenuItemClickListener(
-        (index, item) -> {
+    List<String> items =
+        List.of(
+            getString(R.string.goto_dir),
+            getString(R.string.internal_storage_label),
+            getString(R.string.sd_card_menu_item),
+            getString(R.string.goto_root));
+    ObjectUtil.showGlassMenu(
+        this,
+        anchor,
+        items,
+        (index, title) -> {
           switch (index) {
             case 0 -> bind.navmodel.showGoToDirDialog();
             case 1 -> navigateToPath(Environment.getExternalStorageDirectory().getAbsolutePath());
@@ -1647,10 +1650,114 @@ public class FileManagerActivity extends BaseCompat
                 Toast.makeText(this, R.string.sd_card_not_found, Toast.LENGTH_SHORT).show();
               }
             }
-            case 3 -> navigateToPath (getCacheDir().getAbsolutePath());
+            case 3 -> navigateToPath(getCacheDir().getAbsolutePath());
           }
         });
-    ObjectUtil.showFixPos(menu, anchor);
+  }
+
+  private void showPluginPopup(View anchor) {
+    var installedFiles = GplInstalledPlugins.listInstalled(this);
+
+    if (installedFiles.isEmpty()) {
+      Toast.makeText(this, R.string.no_plugins, Toast.LENGTH_SHORT).show();
+      return;
+    }
+
+    var loader = GplPluginLoader.getInstance(this);
+    for (var f : installedFiles) {
+      try {
+        var manifest = GplManifestReader.read(f);
+        if (manifest == null) continue;
+        if (!loader.isLoaded(manifest.id())) {
+          loader.load(f);
+        }
+      } catch (Exception e) {
+        Log.e("FileManagerActivity", "showPluginPopup: failed to load " + f.getName(), e);
+      }
+    }
+
+    var registeredScreens =
+        GlobalRegistry.extensions()
+            .extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
+
+    var pluginItems =
+        installedFiles.stream()
+            .map(
+                f -> {
+                  try {
+                    GplManifest manifest = GplManifestReader.read(f);
+                    if (manifest == null) {
+                      return Optional.<PluginPopupAdapter.PluginItem>empty();
+                    }
+
+                    var matchingScreen =
+                        registeredScreens.stream()
+                            .filter(s -> manifest.id().equals(s.getId()))
+                            .findFirst();
+
+                    if (matchingScreen.isPresent()) {
+                      return Optional.of(
+                          new PluginPopupAdapter.PluginItem(
+                              matchingScreen.get().getId(),
+                              matchingScreen.get().getTitle(),
+                              f,
+                              manifest));
+                    } else {
+                      return Optional.of(
+                          new PluginPopupAdapter.PluginItem(
+                              manifest.id(),
+                              manifest.name(),
+                              f,
+                              manifest));
+                    }
+                  } catch (Exception e) {
+                    Log.e("FileManagerActivity", "showPluginPopup: error reading: " + f.getName(), e);
+                    return Optional.<PluginPopupAdapter.PluginItem>empty();
+                  }
+                })
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
+
+    if (pluginItems.isEmpty()) {
+      Toast.makeText(this, R.string.no_plugins, Toast.LENGTH_SHORT).show();
+      return;
+    }
+
+    var rv = new RecyclerView(this);
+    rv.setLayoutManager(new LinearLayoutManager(this));
+    rv.setAdapter(
+        new PluginPopupAdapter(
+            (view, item, pos) -> {
+              var allScreens =
+                  GlobalRegistry.extensions()
+                      .extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
+
+              var matchingScreen =
+                  allScreens.stream()
+                      .filter(
+                          s ->
+                              item.id().equals(s.getId())
+                                  || (item.manifest() != null
+                                      && item.manifest().id().equals(s.getId())))
+                      .findFirst();
+              if (matchingScreen.isPresent()) {
+                startActivity(
+                    PluginScreenActivity.createIntent(
+                        this, matchingScreen.get().getId()));
+                return;
+              }
+
+              Toast.makeText(
+                      this,
+                      getString(R.string.plugin_manager_installed_toast, item.name()),
+                      Toast.LENGTH_SHORT)
+                  .show();
+            }));
+
+    ((PluginPopupAdapter) rv.getAdapter()).submit(pluginItems);
+
+    ObjectUtil.showGlassPopup(this, anchor, rv);
   }
 
   private void navigateToPath(String path) {

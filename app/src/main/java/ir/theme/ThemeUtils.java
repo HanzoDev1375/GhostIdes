@@ -48,10 +48,16 @@ public class ThemeUtils {
     }
     if (w.getImagepath() != null && !w.getImagepath().isEmpty()) {
       v.setVisibility(View.VISIBLE);
-      Glide.with(v.getContext())
-          .load(w.getImagepath())
-          .transform(new BlurTransformation((int) w.getBlursize()))
-          .into(v);
+      if (w.getBlursize() == 0) {
+        Glide.with(v.getContext())
+            .load(w.getImagepath()) // noblur
+            .into(v);
+      } else {
+        Glide.with(v.getContext())
+            .load(w.getImagepath())
+            .transform(new BlurTransformation((int) w.getBlursize()))
+            .into(v);
+      }
     } else v.setVisibility(View.INVISIBLE);
   }
 
@@ -110,10 +116,16 @@ public class ThemeUtils {
     }
     if (w.getImagepath() != null && !w.getImagepath().isEmpty()) {
       ic.setVisibility(View.VISIBLE);
-      Glide.with(ic.getContext())
-          .load(w.getImagepath())
-          .transform(new BlurTransformation((int) w.getBlursize()))
-          .into(ic);
+      if (w.getBlursize() == 0) {
+        Glide.with(ic.getContext())
+            .load(w.getImagepath()) // not blur mod inject
+            .into(ic);
+      } else {
+        Glide.with(ic.getContext())
+            .load(w.getImagepath())
+            .transform(new BlurTransformation((int) w.getBlursize()))
+            .into(ic);
+      }
     } else ic.setVisibility(View.INVISIBLE);
   }
 

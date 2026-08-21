@@ -25,11 +25,11 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 
-import ir.hanzodev1375.components.sheet.BlurBackdrop;
+import com.example.liquidglass.LiquidGlassView;
 import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.activity.SettingActivity;
-import ir.hanzodev1375.ghostide.postman.util.BlurUtils;
+
 import ir.hanzodev1375.ghostide.utils.BlurTransformation;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
@@ -131,13 +131,7 @@ public class PostManActivity extends BaseCompat {
         .transform(new BlurTransformation((int) ids))
         .into(binding.iconBackground);
     binding.getRoot().setBackgroundColor(Color.TRANSPARENT);
-    int cardBackColor = MaterialColors.getColor(binding.cardStatus, R.attr.colorSurface);
-    int cardStrokeColor = MaterialColors.getColor(binding.cardStatus, R.attr.colorSecondaryVariant);
-    binding.cardStatus.setCardBackgroundColor(
-        androidx.core.graphics.ColorUtils.setAlphaComponent(cardBackColor, 128));
-    binding.cardStatus.setStrokeColor(
-        androidx.core.graphics.ColorUtils.setAlphaComponent(cardStrokeColor, 128));
-
+    int cardBackColor = MaterialColors.getColor(this, R.attr.colorSurfaceContainerLow, 0);
     binding.responseEmptyState.setBackgroundTintList(
         ColorStateList.valueOf(
             androidx.core.graphics.ColorUtils.setAlphaComponent(cardBackColor, 128)));
@@ -217,11 +211,9 @@ public class PostManActivity extends BaseCompat {
   }
 
   private void setupResponseSheet() {
-    int overlay =
-        androidx.core.graphics.ColorUtils.setAlphaComponent(
-            ColorUtils.resolveAttrColor(this, R.attr.colorSurface), 160);
-    BlurBackdrop.captureInto(this, binding.responseSheetBlurBackdrop);
-    BlurUtils.applyBlur(this, binding.responseSheetBlurView, binding.responseSheetBlurTarget, 18f);
+    LiquidGlassView glass = binding.responseSheetGlassView;
+    glass.setBackdropSource(binding.mainContentContainer);
+    glass.setEnableDynamicBackground(true);
     BottomSheetBehavior<LinearLayout> behavior = BottomSheetBehavior.from(binding.responseSheet);
     behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 

@@ -25,8 +25,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import ir.hanzodev1375.ghostide.R;
-import ir.hanzodev1375.ghostide.activity.pluginmanager.InstalledPluginAdapter;
-import ir.hanzodev1375.ghostide.activity.pluginmanager.InstalledPluginInfo;
+import ir.hanzodev1375.ghostide.adapters.InstalledPluginAdapter;
+import ir.hanzodev1375.ghostide.models.InstalledPluginInfo;
 import ir.hanzodev1375.ghostide.databinding.ActivityPluginManagerBinding;
 import ir.hanzodev1375.ghostide.plugin.api.PluginSetupAction;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplInstalledPlugins;
@@ -127,6 +127,10 @@ public class PluginManagerActivity extends BaseCompat {
       for (File file : files) {
         try {
           GplManifest manifest = GplManifestReader.read(file);
+          if (manifest == null) {
+            Log.w(TAG, "Skipping plugin with unreadable manifest: " + file);
+            continue;
+          }
           if (!loader.isLoaded(manifest.id())) {
             loader.load(file);
           }
@@ -172,6 +176,9 @@ public class PluginManagerActivity extends BaseCompat {
     try {
       copyUriToFile(uri, tempFile);
       GplManifest manifest = GplManifestReader.read(tempFile);
+      if (manifest == null) {
+        throw new IOException("Could not read plugin manifest from " + uri);
+      }
       File installedFile = new File(installDir, manifest.id() + GPL_EXTENSION);
       if (!tempFile.renameTo(installedFile)) {
         throw new IOException("Could not move installed plugin into place");

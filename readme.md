@@ -150,3 +150,10 @@ The editor supports deep UI customization, including:
 - [x] nodejs
 - [x] typesctipt
 - [x] go lang
+
+
+## Plugin 
+
+- how in install Plugin? [click](https://github.com/HanzoDev1375/GhostIdes/blob/main/Plugin.md)
+- نحوه پیاده سازی پلاگین [click](https://github.com/HanzoDev1375/GhostIdes/blob/main/Pluginfa.md)
+- or see website [click]()

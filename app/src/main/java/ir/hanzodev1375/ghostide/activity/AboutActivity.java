@@ -28,8 +28,7 @@ import java.util.List;
 import ir.hanzodev1375.ghostide.R;
 
 public class AboutActivity extends BaseCompat {
-  private MaterialGradientCard cardDeviceInfo;
-  private MaterialCardView cardDisplay, cardMemory, cardStorage;
+  private MaterialGradientCard cardDisplay, cardMemory, cardStorage,cardDeviceInfo;
   private LinearLayout bodyDeviceInfo, bodyDisplay, bodyMemory, bodyStorage;
   private View arrowDeviceInfo, arrowDisplay, arrowMemory, arrowStorage;
   private boolean expDeviceInfo = true, expDisplay = true, expMemory = true, expStorage = true;

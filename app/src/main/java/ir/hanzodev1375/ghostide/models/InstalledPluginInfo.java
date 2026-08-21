@@ -1,4 +1,4 @@
-package ir.hanzodev1375.ghostide.activity.pluginmanager;
+package ir.hanzodev1375.ghostide.models;
 
 import java.io.File;
 

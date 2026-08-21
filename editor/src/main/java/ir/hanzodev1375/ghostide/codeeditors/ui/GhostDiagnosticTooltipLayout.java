@@ -123,7 +123,7 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
     }
 
     var message =
-        diagnostic.getDetailedMessage() != null && !diagnostic.getDetailedMessage().isEmpty()
+        diagnostic.getDetailedMessage() != null && (!diagnostic.getDetailedMessage().length() > 0)
             ? diagnostic.getDetailedMessage()
             : diagnostic.getBriefMessage();
     messageText.setText(message == null ? "" : message);
@@ -407,5 +407,5 @@ public class GhostDiagnosticTooltipLayout implements DiagnosticTooltipLayout {
   private void copyMessage() {
     CharSequence text = messageText.getText();
     ClipboardUtils.copyText(text);
-  } 
+  }
 }

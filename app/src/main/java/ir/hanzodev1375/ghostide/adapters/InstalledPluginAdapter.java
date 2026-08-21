@@ -1,4 +1,4 @@
-package ir.hanzodev1375.ghostide.activity.pluginmanager;
+package ir.hanzodev1375.ghostide.adapters;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,12 +18,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ir.hanzodev1375.ghostide.R;
+import ir.hanzodev1375.ghostide.models.InstalledPluginInfo;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplManifestReader;
 
 /** Shows the currently installed plugins and lets the user filter or uninstall one. */
 public final class InstalledPluginAdapter extends RecyclerView.Adapter<InstalledPluginAdapter.ViewHolder> {
 
-  /** Called when the user taps the uninstall button on a row. */
   public interface OnUninstallListener {
     void onUninstall(InstalledPluginInfo plugin);
   }

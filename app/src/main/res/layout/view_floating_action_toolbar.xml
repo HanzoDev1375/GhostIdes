@@ -1,33 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/floating_root"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical">
+<LinearLayout
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     android:layout_height="wrap_content"
+     android:layout_width="wrap_content"
+     android:gravity="center_vertical"
+     android:orientation="horizontal"
+     android:id="@+id/floating_root">
 
-    <FrameLayout
-        android:id="@+id/floating_card_view"
-        android:layout_width="wrap_content"
-        android:layout_height="56dp"
-        android:visibility="gone">
+    <com.example.liquidglass.LiquidGlassView
+         android:layout_height="56dp"
+         android:layout_width="wrap_content"
+         android:visibility="gone"
+         app:glassMaterial="regular"
+         android:layout_marginStart="9dp"
+         app:sensorHighlight="false"
+         app:cornerRadius="10dp"
+         app:refractionHeight="66dp"
+         app:bevelWidth="14dp"
+         app:adaptiveTint="true"
+         app:dispersionStrength="0.12"
+         android:id="@+id/floating_card_view">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/floating_recycler_view"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
+             android:layout_height="match_parent"
+             android:layout_width="wrap_content"
+             android:id="@+id/floating_recycler_view" />
 
-    </FrameLayout>
+    </com.example.liquidglass.LiquidGlassView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floating_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/add"
-        android:elevation="8dp"
-        android:outlineProvider="none"
-        app:fabCustomSize="70dp"
-        app:useCompatPadding="true" />
+    <com.example.liquidglass.LiquidGlassFab
+         android:layout_height="70dp"
+         android:layout_width="70dp"
+         android:src="@drawable/add"
+         app:glassMaterial="regular"
+         app:sensorHighlight="false"
+         app:cornerRadius="10dp"
+         app:refractionHeight="66dp"
+         app:bevelWidth="14dp"
+         app:adaptiveTint="true"
+         app:dispersionStrength="0.12"
+         android:id="@+id/floating_fab" />
 
 </LinearLayout>

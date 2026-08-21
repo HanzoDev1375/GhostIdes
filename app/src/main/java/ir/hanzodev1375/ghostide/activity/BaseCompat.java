@@ -1,6 +1,7 @@
 package ir.hanzodev1375.ghostide.activity;
 
 import android.app.ActivityOptions;
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import com.google.android.material.transition.platform.MaterialSharedAxis;
 import android.content.Context;
@@ -16,7 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
+import ir.hanzodev1375.ghostide.utils.BlurTransformation;
 import ir.hanzodev1375.ghostide.utils.LocaleHelper;
+import ir.theme.ThemeManager;
+import ir.theme.ThemeUtils;
+import com.bumptech.glide.Glide;
+import android.view.View;
 
 public class BaseCompat extends AppCompatActivity
     implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -85,6 +91,28 @@ public class BaseCompat extends AppCompatActivity
         continue;
       }
       activity.runOnUiThread(activity::recreate);
+    }
+  }
+
+  protected void setupBackgroundBlur(ImageView backgroundView, View... transparentViews) {
+    PreferencesUtils setting = new PreferencesUtils(this);
+    if (!setting.isShowBackground()) return;
+
+    ThemeUtils themeUtil = new ThemeUtils(new ThemeManager(this));
+    var theme = themeUtil.getTheme();
+    if (theme == null || theme.getWidget() == null) return;
+    var widget = theme.getWidget();
+    if (widget.getImagepath() == null || widget.getImagepath().isEmpty()) return;
+
+    getWindow().setStatusBarColor(Color.TRANSPARENT);
+    getWindow().setNavigationBarColor(Color.TRANSPARENT);
+    backgroundView.setVisibility(View.VISIBLE);
+    Glide.with(this)
+        .load(widget.getImagepath())
+        .transform(new BlurTransformation((int) widget.getBlursize()))
+        .into(backgroundView);
+    for (View v : transparentViews) {
+      v.setBackgroundColor(Color.TRANSPARENT);
     }
   }
 

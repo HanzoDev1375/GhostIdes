@@ -208,28 +208,10 @@ public class TerminalActivity extends BaseCompat
   }
 
   private void setupBackgroundBlur() {
-    appsetting = new PreferencesUtils(this);
-    themeutil = new ThemeUtils(new ThemeManager(this));
-
-    if (!appsetting.isShowBackground()) {
-      return;
-    }
-
-    var theme = themeutil.getTheme();
-    if (theme == null || theme.getWidget() == null) return;
-    var widget = theme.getWidget();
-    if (widget.getImagepath() == null || widget.getImagepath().isEmpty()) return;
-
-    b.toolbar.setBackgroundColor(Color.TRANSPARENT);
-    b.sessionTabsRow.setBackgroundColor(Color.TRANSPARENT);
-    b.inputDock.setBackgroundColor(Color.TRANSPARENT);
     b.inputDock.setElevation(0f);
-    b.terminalView.setBackgroundColor(Color.TRANSPARENT);
-    b.backgroundIconTerminal.setVisibility(View.VISIBLE);
-    Glide.with(this)
-        .load(widget.getImagepath())
-        .transform(new BlurTransformation((int) widget.getBlursize()))
-        .into(b.backgroundIconTerminal);
+    setupBackgroundBlur(
+        b.backgroundIconTerminal,
+        b.toolbar, b.sessionTabsRow, b.inputDock, b.terminalView);
   }
 
   private void setupToolbar() {

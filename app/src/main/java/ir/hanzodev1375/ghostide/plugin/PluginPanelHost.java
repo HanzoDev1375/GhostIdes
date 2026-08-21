@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -15,14 +14,14 @@ import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.sidesheet.SideSheetDialog;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
+import ir.hanzodev1375.components.sheet.BaseSheet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -187,10 +186,8 @@ public final class PluginPanelHost {
   }
 
   private void showBottomSheetDialog(ViewGroup wrapper) {
-    BottomSheetDialog sheet = new BottomSheetDialog(activity);
+    BaseSheet sheet = new BaseSheet(activity);
     sheet.setContentView(wrapper);
-    sheet.getWindow().setNavigationBarColor(Color.TRANSPARENT);
-    styleDialogWindow(sheet.getWindow());
     sheet.show();
   }
 
@@ -305,10 +302,7 @@ public final class PluginPanelHost {
     if (widget == null) {
       return;
     }
-    String background = widget.getMenubackground();
-    if (background != null) {
-      headerBox.setBackground(new ColorDrawable(Color.parseColor(background)));
-    }
+    headerBox.setBackgroundColor(Color.TRANSPARENT);
     String text = widget.getMenutextcolor();
     if (text != null) {
       int color = Color.parseColor(text);
@@ -353,7 +347,7 @@ public final class PluginPanelHost {
   }
 
   /** Dialog-hosted panel. */
-  private static final class PanelDialogFragment extends androidx.fragment.app.DialogFragment {
+  private static final class PanelDialogFragment extends DialogFragment{
     private View content;
 
     public PanelDialogFragment() {
@@ -370,8 +364,8 @@ public final class PluginPanelHost {
     }
   }
 
-  /** Bottom sheet hosted panel. */
-  private static final class PanelBottomSheetFragment extends BottomSheetDialogFragment {
+  /** Bottom sheet hosted panel with glass effect. */
+  private static final class PanelBottomSheetFragment extends BaseBlurBottomSheet {
     private View content;
 
     public PanelBottomSheetFragment() {
@@ -383,8 +377,13 @@ public final class PluginPanelHost {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      return attach(content);
+    protected void onContentReady(ViewGroup contentContainer) {
+      if (content != null) {
+        if (content.getParent() instanceof ViewGroup) {
+          ((ViewGroup) content.getParent()).removeView(content);
+        }
+        contentContainer.addView(content);
+      }
     }
   }
 

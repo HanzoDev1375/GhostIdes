@@ -1,33 +1,10 @@
 pluginManagement {
-    settings.ext.canReachIran = false
-    try {
-        def timeout = 2000
-        def url = new URL("https://maven.myket.ir")
-        def connection = url.openConnection()
-        connection.setConnectTimeout(timeout)
-        connection.setReadTimeout(timeout)
-        connection.setRequestMethod("HEAD")
-        connection.connect()
-
-        ext.canReachIran = true
-        println "Iranian mirror reachable"
-    } catch (Exception e) {
-        ext.canReachIran = false
-        println "Iranian mirror unreachable: " + e.getMessage()
-    }
-
     repositories {
         google()
         mavenCentral()
         gradlePluginPortal()
-        if (settings.ext.canReachIran) {
-            maven { url 'https://maven.myket.ir' }
-        }
+        maven { url 'https://maven.myket.ir' }
     }
-}
-
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
 
 dependencyResolutionManagement {
@@ -35,9 +12,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        if (settings.ext.canReachIran) {
-            maven { url 'https://maven.myket.ir' }
-        }
+        maven { url 'https://maven.myket.ir' }
         maven { url 'https://jitpack.io' }
     }
 }

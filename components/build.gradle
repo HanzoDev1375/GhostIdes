@@ -40,6 +40,6 @@ dependencies {
     implementation('eu.agno3.jcifs:jcifs-ng:2.1.9') {
         exclude group: 'org.bouncycastle'
     }
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
-    implementation 'com.github.QWEA0:liquidglass:v2.0.2'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78' 
+    implementation("com.github.QWEA0:Liquid-Glass-Android:v2.0.3")
 }

@@ -16,7 +16,6 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.blankj.utilcode.util.ThreadUtils;
-import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
@@ -39,7 +38,6 @@ import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.models.SettingItem;
 import ir.hanzodev1375.ghostide.themeengine.ThemeChooserDialogBuilder;
 import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
-import ir.hanzodev1375.ghostide.utils.BlurTransformation;
 import ir.hanzodev1375.ghostide.utils.FileUtil;
 import ir.hanzodev1375.ghostide.utils.LocaleHelper;
 import ir.theme.GhostTheme;
@@ -233,27 +231,11 @@ public class SettingActivity extends BaseCompat {
    * بک‌گراند ست کرده باشه، همون عکسِ بلورشده رو پشتِ تولبار و لیست تنظیمات نشون میدیم.
    */
   private void setupBackgroundBlur() {
-    if (!prefs.isShowBackground()) return;
-
-    ThemeUtils themeutil = new ThemeUtils(new ThemeManager(this));
-    GhostTheme theme = themeutil.getTheme();
-    if (theme == null || theme.getWidget() == null) return;
-    var widget = theme.getWidget();
-    if (widget.getImagepath() == null || widget.getImagepath().isEmpty()) return;
-
     View appbar = findViewById(R.id.appbar);
     View settingsContainer = findViewById(R.id.settings_container);
     ImageView backgroundIcon = findViewById(R.id.backgroundIconSetting);
     if (appbar == null || settingsContainer == null || backgroundIcon == null) return;
-
-    appbar.setBackgroundColor(android.graphics.Color.TRANSPARENT);
-    settingsContainer.setBackgroundColor(android.graphics.Color.TRANSPARENT);
-
-    backgroundIcon.setVisibility(View.VISIBLE);
-    Glide.with(this)
-        .load(widget.getImagepath())
-        .transform(new BlurTransformation((int) widget.getBlursize()))
-        .into(backgroundIcon);
+    setupBackgroundBlur(backgroundIcon, appbar, settingsContainer);
   }
 
   private List<SettingItem> getAiItems() {
@@ -588,7 +570,10 @@ public class SettingActivity extends BaseCompat {
             getString(R.string.pref_show_background_desc),
             prefs.isShowBackground(),
             0,
-            prefs::setShowBackground));
+            isChecked -> {
+              prefs.setShowBackground(isChecked);
+              recreate();
+            }));
     items.add(
         new SettingItem(
             getString(R.string.pref_animation_battery_threshold),

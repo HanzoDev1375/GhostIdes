@@ -27,6 +27,7 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.palette.graphics.Palette;
 import androidx.viewpager2.widget.ViewPager2;
+import com.example.liquidglass.LiquidGlassView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.hanzodev1375.ghostide.R;
 import com.bumptech.glide.Glide;
@@ -61,6 +62,13 @@ public class ImageViewerActivity extends BaseCompat {
       btnSave,
       btnShare;
 
+  private void setupGlassBackdrop(LiquidGlassView glass) {
+    glass.setBackdropSource(bind.contentArea);
+    glass.setEnableDynamicBackground(true);
+    glass.setEnableChromaticAberration(true);
+    glass.setEnableEdgeHighlight(true);
+  }
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -72,6 +80,14 @@ public class ImageViewerActivity extends BaseCompat {
     tvCounter = bind.tvCounter;
     topBar = bind.topBar;
     bottomBar = bind.bottomBar;
+    setupGlassBackdrop(bind.btnSettingsg);
+    setupGlassBackdrop(bind.btnGalleryg);
+    setupGlassBackdrop(bind.btnNextg);
+    setupGlassBackdrop(bind.btnInfog);
+    setupGlassBackdrop(bind.btnRotateg);
+    setupGlassBackdrop(bind.btnZoomg);
+    setupGlassBackdrop(bind.btnSaveg);
+    setupGlassBackdrop(bind.btnShareg);
     btnSettings = bind.btnSettings;
     btnGallery = bind.btnGallery;
     btnNext = bind.btnNext;

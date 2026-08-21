@@ -39,6 +39,10 @@ public final class GplInstalledPlugins {
     for (File file : listInstalled(context)) {
       try {
         GplManifest manifest = GplManifestReader.read(file);
+        if (manifest == null) {
+          Log.w(TAG, "Skipping plugin with unreadable manifest: " + file);
+          continue;
+        }
         if (!loader.isLoaded(manifest.id())) {
           loader.load(file);
         }

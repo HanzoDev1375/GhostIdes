@@ -10,8 +10,8 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.skydoves.powermenu.PowerMenu;
-import com.skydoves.powermenu.PowerMenuItem;
+import android.app.Activity;
+import ir.hanzodev1375.components.sheet.BlurBackdrop;
 import ir.hanzodev1375.components.TextInputDialogFragment;
 import ir.hanzodev1375.ghostide.adapters.NavAdapter;
 import ir.hanzodev1375.ghostide.models.NavModel;
@@ -59,13 +59,16 @@ public class NavModelPanel extends RecyclerView {
     visible = true;
     adapter.setOnItemLongClickListener(
         (view, model, pos) -> {
-          PowerMenu menu = ObjectUtil.stepMenu(view.getContext(), view);
-          menu.addItem(new PowerMenuItem(getContext().getString(R.string.goto_dir)));
-          menu.setOnMenuItemClickListener(
-              (index, item) -> {
-                if (index == 0) showGoToDirDialog();
-              });
-          ObjectUtil.showFixPos(menu, view);
+          Activity activity = BlurBackdrop.findActivity(getContext());
+          if (activity != null) {
+            ObjectUtil.showGlassMenu(
+                activity,
+                view,
+                List.of(getContext().getString(R.string.goto_dir)),
+                (index, title) -> {
+                  if (index == 0) showGoToDirDialog();
+                });
+          }
           return false;
         });
   }

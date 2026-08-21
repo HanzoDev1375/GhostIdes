@@ -54,6 +54,9 @@ public final class GplPluginLoader {
   public synchronized LoadedGplPlugin load(File gplFile)
       throws IOException, ReflectiveOperationException {
     GplManifest manifest = GplManifestReader.read(gplFile);
+    if (manifest == null) {
+      throw new IOException("Could not read manifest from " + gplFile);
+    }
     LoadedGplPlugin existing = loaded.get(manifest.id());
     if (existing != null) {
       return existing;
@@ -193,5 +196,13 @@ public final class GplPluginLoader {
 
   public synchronized boolean isLoaded(String pluginId) {
     return loaded.containsKey(pluginId);
+  }
+
+  public synchronized List<PluginDescriptor> getLoadedDescriptors() {
+    return loaded.values().stream().map(LoadedGplPlugin::getDescriptor).toList();
+  }
+
+  public synchronized LoadedGplPlugin getLoaded(String pluginId) {
+    return loaded.get(pluginId);
   }
 }

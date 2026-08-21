@@ -472,4 +472,7 @@
     <string name="icon_devilishpurple">Devilish Purple</string>
     <string name="icon_blackmagic"> Black Magic </string>
     <string name="icon_purplewitch">Purple Witch </string>
+    <string name="theme_edit"> Edit Theme Now </string>
+    <string name="theme_apply"> Apply Theme Now </string>
+    <string name="no_plugins">No plugins installed</string>
 </resources>

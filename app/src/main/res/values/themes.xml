@@ -12,6 +12,10 @@
         <item name="android:enforceNavigationBarContrast">false</item>
         <item name="android:enforceStatusBarContrast">false</item>
     </style>
+    <style name="GlassMenuFadeAnimation">
+        <item name="android:windowEnterAnimation">@anim/popup_split_enter</item>
+        <item name="android:windowExitAnimation">@anim/popup_split_exit</item>
+    </style>
     <style
         name="AppTheme"
         parent="BaseThemeLight"
@@ -95,7 +99,9 @@
     >
         <item name="android:textColor">?attr/colorPrimary</item>
     </style>
-        <style name="Widget.GhostIDE.Button" parent="Widget.Material3.Button">
+    <style
+        name="Widget.GhostIDE.Button"
+        parent="Widget.Material3.Button">
         <item name="cornerRadius">14dp</item>
         <item name="android:paddingTop">12dp</item>
         <item name="android:paddingBottom">12dp</item>
@@ -103,16 +109,22 @@
         <item name="android:letterSpacing">0</item>
     </style>
 
-    <style name="Widget.GhostIDE.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+    <style
+        name="Widget.GhostIDE.Button.Tonal"
+        parent="Widget.Material3.Button.TonalButton">
         <item name="cornerRadius">14dp</item>
         <item name="android:textAllCaps">false</item>
     </style>
 
-    <style name="Widget.GhostIDE.Button.Text" parent="Widget.Material3.Button.TextButton">
+    <style
+        name="Widget.GhostIDE.Button.Text"
+        parent="Widget.Material3.Button.TextButton">
         <item name="android:textAllCaps">false</item>
     </style>
 
-    <style name="Widget.GhostIDE.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+    <style
+        name="Widget.GhostIDE.TextInputLayout"
+        parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="boxCornerRadiusTopStart">14dp</item>
         <item name="boxCornerRadiusTopEnd">14dp</item>
         <item name="boxCornerRadiusBottomStart">14dp</item>
@@ -121,40 +133,54 @@
         <item name="boxStrokeColor">?attr/colorOutline</item>
     </style>
 
-    <style name="Widget.GhostIDE.TextInputLayout.Dense" parent="Widget.GhostIDE.TextInputLayout">
+    <style
+        name="Widget.GhostIDE.TextInputLayout.Dense"
+        parent="Widget.GhostIDE.TextInputLayout">
         <item name="boxCornerRadiusTopStart">10dp</item>
         <item name="boxCornerRadiusTopEnd">10dp</item>
         <item name="boxCornerRadiusBottomStart">10dp</item>
         <item name="boxCornerRadiusBottomEnd">10dp</item>
     </style>
 
-    <style name="Widget.GhostIDE.TextInputLayout.ExposedDropdown" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+    <style
+        name="Widget.GhostIDE.TextInputLayout.ExposedDropdown"
+        parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
         <item name="boxCornerRadiusTopStart">14dp</item>
         <item name="boxCornerRadiusTopEnd">14dp</item>
         <item name="boxCornerRadiusBottomStart">14dp</item>
         <item name="boxCornerRadiusBottomEnd">14dp</item>
     </style>
 
-    <style name="Widget.GhostIDE.CardView" parent="Widget.Material3.CardView.Elevated">
+    <style
+        name="Widget.GhostIDE.CardView"
+        parent="Widget.Material3.CardView.Elevated">
         <item name="cardCornerRadius">18dp</item>
         <item name="cardElevation">0dp</item>
         <item name="strokeWidth">1dp</item>
     </style>
 
-    <style name="Widget.GhostIDE.Toolbar" parent="Widget.Material3.Toolbar">
+    <style
+        name="Widget.GhostIDE.Toolbar"
+        parent="Widget.Material3.Toolbar">
         <item name="titleTextColor">?attr/colorOnSurface</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
 
-    <style name="TextAppearance.GhostIDE.Mono" parent="TextAppearance.Material3.BodyMedium">
+    <style
+        name="TextAppearance.GhostIDE.Mono"
+        parent="TextAppearance.Material3.BodyMedium">
         <item name="android:fontFamily">monospace</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
-    <style name="TextAppearance.GhostIDE.Label" parent="TextAppearance.Material3.LabelLarge">
+    <style
+        name="TextAppearance.GhostIDE.Label"
+        parent="TextAppearance.Material3.LabelLarge">
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     </style>
 
-    <style name="ShapeAppearance.GhostIDE.Chip" parent="ShapeAppearance.Material3.Corner.Full" />
+    <style
+        name="ShapeAppearance.GhostIDE.Chip"
+        parent="ShapeAppearance.Material3.Corner.Full" />
 
 </resources>

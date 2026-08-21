@@ -1,4 +1,4 @@
-package ir.hanzodev1375.ghostide.activity.pluginmanager;
+package ir.hanzodev1375.ghostide.adapters;
 
 import android.os.Handler;
 import android.os.Looper;

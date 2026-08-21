@@ -4,11 +4,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Rect;
+import ir.hanzodev1375.ghostide.plugin.gpl.GplManifest;
+import ir.hanzodev1375.ghostide.utils.ObjectUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.TypedValue;
@@ -57,12 +60,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.adapters.EditorPagerAdapter;
 import ir.hanzodev1375.ghostide.adapters.ToolbarListAdapter;
+import ir.hanzodev1375.ghostide.adapters.PluginPopupAdapter;
 import ir.hanzodev1375.ghostide.adapters.BreadcrumbAdapter;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.customui.GhostIdeEditorSearch;
@@ -70,26 +76,31 @@ import ir.hanzodev1375.ghostide.databinding.ActivityEditorBinding;
 import ir.hanzodev1375.ghostide.fragments.EditorFragment;
 import ir.hanzodev1375.ghostide.models.TabModel;
 import ir.hanzodev1375.ghostide.models.ToolbarModel;
-import ir.hanzodev1375.ghostide.activity.pluginmanager.EditorHostAdapter;
-import ir.hanzodev1375.ghostide.activity.pluginmanager.CodeRunnerHostAdapter;
+import ir.hanzodev1375.ghostide.adapters.EditorHostAdapter;
+import ir.hanzodev1375.ghostide.adapters.CodeRunnerHostAdapter;
 import ir.hanzodev1375.ghostide.ide.ui.api.EditorPanel;
 import ir.hanzodev1375.ghostide.ide.ui.api.CodeRunnerHost;
 import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
+import ir.hanzodev1375.ghostide.ide.ui.api.PluginUiExtensionPoints;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
 import ir.hanzodev1375.ghostide.plugin.PluginPanelHost;
 import ir.hanzodev1375.ghostide.plugin.api.Disposable;
 import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
+import ir.hanzodev1375.ghostide.plugin.gpl.GplInstalledPlugins;
+import ir.hanzodev1375.ghostide.plugin.gpl.GplManifestReader;
+import ir.hanzodev1375.ghostide.plugin.gpl.GplPluginLoader;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import android.view.ViewTreeObserver;
 import ir.hanzodev1375.ghostide.splitlayout.EditorPaneFragment;
 import ir.hanzodev1375.ghostide.splitlayout.SplitLayoutPopup;
+import ir.hanzodev1375.ghostide.refactor.rename.FileRenameNotifier;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 public class EditorActivity extends BaseCompat
-    implements ir.hanzodev1375.ghostide.refactor.rename.FileRenameNotifier.Listener {
+    implements FileRenameNotifier.Listener {
 
   private ActivityEditorBinding binding;
   private EditorPagerAdapter adapter;
@@ -120,8 +131,10 @@ public class EditorActivity extends BaseCompat
   private EditorPaneFragment activePane = null;
 
   private static final long LSP_STATUS_POLL_INTERVAL_MS = 1500;
+
   /** تعداد خط و حجم فایل رو می‌خونه. برای فایل‌های خیلی بزرگ از شمردن خط صرف‌نظر می‌کنیم. */
   private static final long STATS_MAX_SCAN_BYTES = 8L * 1024 * 1024;
+
   private final Handler lspStatusHandler = new Handler(Looper.getMainLooper());
   private BreadcrumbAdapter breadcrumbAdapter;
   private Disposable editorHostRegistration;
@@ -345,7 +358,7 @@ public class EditorActivity extends BaseCompat
     super.onResume();
 
     refreshGitStatus();
-    ir.hanzodev1375.ghostide.refactor.rename.FileRenameNotifier.getInstance().addListener(this);
+    FileRenameNotifier.getInstance().addListener(this);
     lspStatusHandler.removeCallbacks(lspStatusPollRunnable);
     lspStatusHandler.post(lspStatusPollRunnable);
   }
@@ -353,7 +366,7 @@ public class EditorActivity extends BaseCompat
   @Override
   protected void onPause() {
     super.onPause();
-    ir.hanzodev1375.ghostide.refactor.rename.FileRenameNotifier.getInstance().removeListener(this);
+    FileRenameNotifier.getInstance().removeListener(this);
     lspStatusHandler.removeCallbacks(lspStatusPollRunnable);
   }
 
@@ -642,11 +655,7 @@ public class EditorActivity extends BaseCompat
     toolbarModel.add(new ToolbarModel(R.drawable.outline_undo, "undo"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_redo, "redo"));
     toolbarModel.add(new ToolbarModel(R.drawable.more_vert, "more"));
-    if (pluginPanelHost != null) {
-      for (EditorPanel panel : pluginPanelHost.getPanels()) {
-        toolbarModel.add(new ToolbarModel(R.drawable.ic_panel, panel.getTitle()));
-      }
-    }
+    toolbarModel.add(new ToolbarModel(R.drawable.ic_panel, "plugins"));
     listAdapter =
         new ToolbarListAdapter(
             toolbarModel,
@@ -663,7 +672,7 @@ public class EditorActivity extends BaseCompat
                   if (getEditor().canRedo()) getEditor().redo();
                 }
                 case 6 -> setupMenuCalltoAction(view);
-                default -> openPluginPanelAt(pos);
+                case 7 -> showPluginPopup(view);
               }
             },
             EditorActivity.this);
@@ -681,6 +690,161 @@ public class EditorActivity extends BaseCompat
     if (panelIndex >= 0 && panelIndex < panels.size()) {
       pluginPanelHost.showPanel(panels.get(panelIndex));
     }
+  }
+
+  private void showPluginPopup(View anchor) {
+    var installedFiles = GplInstalledPlugins.listInstalled(this);
+    Log.d("EditorActivity", "showPluginPopup: installed files = " + installedFiles.size());
+
+    if (installedFiles.isEmpty()) {
+      Log.w("EditorActivity", "showPluginPopup: no .gpl files found on disk");
+      Toast.makeText(this, R.string.no_plugins, Toast.LENGTH_SHORT).show();
+      return;
+    }
+
+    var loader = GplPluginLoader.getInstance(this);
+    for (var f : installedFiles) {
+      try {
+        var manifest = GplManifestReader.read(f);
+        if (manifest == null) continue;
+        if (!loader.isLoaded(manifest.id())) {
+          loader.load(f);
+          Log.d("EditorActivity", "showPluginPopup: loaded .gpl plugin: " + manifest.id());
+        }
+      } catch (Exception e) {
+        Log.e("EditorActivity", "showPluginPopup: failed to load " + f.getName(), e);
+      }
+    }
+
+    var registeredPanels =
+        GlobalRegistry.extensions()
+            .extensions(PluginUiExtensionPoints.EDITOR_PANEL);
+    var registeredScreens =
+        GlobalRegistry.extensions()
+            .extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
+    Log.d("EditorActivity", "showPluginPopup: registered EditorPanels = " + registeredPanels.size());
+    Log.d("EditorActivity", "showPluginPopup: registered PluginScreens = " + registeredScreens.size());
+
+    var pluginItems =
+        installedFiles.stream()
+            .map(
+                f -> {
+                  try {
+                    GplManifest manifest = GplManifestReader.read(f);
+                    if (manifest == null) {
+                      Log.w("EditorActivity", "  manifest null for: " + f.getName());
+                      return Optional.<PluginPopupAdapter.PluginItem>empty();
+                    }
+                    Log.d(
+                        "EditorActivity",
+                        "  file=" + f.getName() + " manifestId=" + manifest.id());
+
+                    var matchingPanel =
+                        registeredPanels.stream()
+                            .filter(p -> manifest.id().equals(p.getId()))
+                            .findFirst();
+                    var matchingScreen =
+                        registeredScreens.stream()
+                            .filter(s -> manifest.id().equals(s.getId()))
+                            .findFirst();
+
+                    if (matchingPanel.isPresent()) {
+                      Log.d(
+                          "EditorActivity",
+                          "    -> matched EditorPanel: " + matchingPanel.get().getId());
+                      return Optional.of(
+                          new PluginPopupAdapter.PluginItem(
+                              matchingPanel.get().getId(),
+                              matchingPanel.get().getTitle(),
+                              f,
+                              manifest));
+                    } else if (matchingScreen.isPresent()) {
+                      Log.d(
+                          "EditorActivity",
+                          "    -> matched PluginScreen: " + matchingScreen.get().getId());
+                      return Optional.of(
+                          new PluginPopupAdapter.PluginItem(
+                              matchingScreen.get().getId(),
+                              matchingScreen.get().getTitle(),
+                              f,
+                              manifest));
+                    } else {
+                      Log.d(
+                          "EditorActivity",
+                          "    -> no extension for manifestId=" + manifest.id() + ", showing by manifest name");
+                      return Optional.of(
+                          new PluginPopupAdapter.PluginItem(
+                              manifest.id(),
+                              manifest.name(),
+                              f,
+                              manifest));
+                    }
+                  } catch (Exception e) {
+                    Log.e("EditorActivity", "  error reading: " + f.getName(), e);
+                    return Optional.<PluginPopupAdapter.PluginItem>empty();
+                  }
+                })
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
+
+    Log.d("EditorActivity", "showPluginPopup: pluginItems size = " + pluginItems.size());
+
+    if (pluginItems.isEmpty()) {
+      Toast.makeText(this, R.string.no_plugins, Toast.LENGTH_SHORT).show();
+      return;
+    }
+
+    var rv = new RecyclerView(this);
+    rv.setLayoutManager(new LinearLayoutManager(this));
+    rv.setAdapter(
+        new PluginPopupAdapter(
+            (view, item, pos) -> {
+              var allPanels =
+                  GlobalRegistry.extensions()
+                      .extensions(PluginUiExtensionPoints.EDITOR_PANEL);
+              var allScreens =
+                  GlobalRegistry.extensions()
+                      .extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
+
+              var matchingPanel =
+                  allPanels.stream()
+                      .filter(
+                          p ->
+                              item.id().equals(p.getId())
+                                  || (item.manifest() != null
+                                      && item.manifest().id().equals(p.getId())))
+                      .findFirst();
+              if (matchingPanel.isPresent()) {
+                pluginPanelHost.showPanel(matchingPanel.get());
+                return;
+              }
+
+              var matchingScreen =
+                  allScreens.stream()
+                      .filter(
+                          s ->
+                              item.id().equals(s.getId())
+                                  || (item.manifest() != null
+                                      && item.manifest().id().equals(s.getId())))
+                      .findFirst();
+              if (matchingScreen.isPresent()) {
+                startActivity(
+                    PluginScreenActivity.createIntent(
+                        this, matchingScreen.get().getId()));
+                return;
+              }
+
+              Toast.makeText(
+                      this,
+                      getString(R.string.plugin_manager_installed_toast, item.name()),
+                      Toast.LENGTH_SHORT)
+                  .show();
+            }));
+
+    ((PluginPopupAdapter) rv.getAdapter()).submit(pluginItems);
+
+    ObjectUtil.showGlassPopup(this, anchor, rv);
   }
 
   void stepSearch() {
@@ -1229,8 +1393,7 @@ public class EditorActivity extends BaseCompat
             mdview.setArguments(bl);
             mdview.show(getSupportFragmentManager(), "MarkDownPreview");
           } else {
-            CodeRunnerHost runner =
-                GlobalRegistry.services().get(IdeHostServices.CODE_RUNNER_HOST);
+            CodeRunnerHost runner = GlobalRegistry.services().get(IdeHostServices.CODE_RUNNER_HOST);
             if (runner != null) {
               runner.runFile(currentFilePath, settings.isTerminalFragment());
             } else {
