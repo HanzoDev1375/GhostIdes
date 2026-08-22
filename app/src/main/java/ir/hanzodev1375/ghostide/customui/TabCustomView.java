@@ -7,7 +7,7 @@ import androidx.core.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
-import com.bluewhaleyt.materialfileicon.core.FileIconHelper;
+import ir.hanzodev1375.ghostide.materialfileicon.core.FileIconHelper;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.codeeditors.setting.Constants;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;

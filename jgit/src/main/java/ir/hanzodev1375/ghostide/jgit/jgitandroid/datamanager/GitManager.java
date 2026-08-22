@@ -240,6 +240,13 @@ public class GitManager {
   public OperationResult stageFile(String filePath) {
     try {
       if (git == null) return notOpen();
+
+      // Deleted on disk: AddCommand can't match anything, must stage removal instead
+      if (!new File(projectPath, filePath).exists()) {
+        git.rm().addFilepattern(filePath).setCached(true).call();
+        return new OperationResult(true, "Deletion staged");
+      }
+
       if (isIgnored(filePath)) {
         // Force add ignored files if explicitly staged
         git.add().addFilepattern(filePath).setUpdate(false).call();
@@ -257,6 +264,8 @@ public class GitManager {
     try {
       if (git == null) return notOpen();
       git.add().addFilepattern(".").call();
+      // Equivalent of git add -A: picks up deletions of tracked files
+      git.add().addFilepattern(".").setUpdate(true).call();
       return new OperationResult(true, "All files staged");
     } catch (Exception e) {
       e.printStackTrace();

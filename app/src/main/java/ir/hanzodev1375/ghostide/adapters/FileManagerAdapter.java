@@ -28,7 +28,7 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
-import com.bluewhaleyt.materialfileicon.core.FileIconHelper;
+import ir.hanzodev1375.ghostide.materialfileicon.core.FileIconHelper;
 import com.bumptech.glide.Glide;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
@@ -507,7 +507,7 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
       if (item.getPath().endsWith(".xml")) {
         Glide.with(ivIcon)
             .load(new VectorModel(new File(item.getPath()), ivIcon.getContext()))
-            .error(R.drawable.ic_material_xml)
+            .error(R.drawable.ic_fileicon)
             .into(ivIcon);
       } else {
         iconHelper.bindIcon(ivIcon);

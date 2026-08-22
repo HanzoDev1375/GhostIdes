@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bluewhaleyt.materialfileicon.core.FileIconHelper;
+import ir.hanzodev1375.ghostide.materialfileicon.core.FileIconHelper;
 import com.bumptech.glide.Glide;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;

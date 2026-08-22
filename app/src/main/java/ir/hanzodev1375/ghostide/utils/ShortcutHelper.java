@@ -5,15 +5,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Picture;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.core.graphics.drawable.IconCompat;
-import com.bluewhaleyt.materialfileicon.core.FileIconHelper;
+import ir.hanzodev1375.ghostide.materialfileicon.core.JsonFileIconHelper;
+import com.caverock.androidsvg.SVG;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.activity.FileManagerActivity;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
 import java.io.File;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -80,10 +84,24 @@ public class ShortcutHelper {
       }
     }
 
-    var iconhelper = new FileIconHelper(filePath);
-    iconhelper.setDynamicFolderEnabled(true);
-    iconhelper.setEnvironmentEnabled(false);
-    return IconCompat.createWithResource(context, iconhelper.getFileIcon());
+    var iconHelper = new JsonFileIconHelper(filePath);
+    Bitmap iconBitmap = renderSvg(context, iconHelper.getIconPath(), 108);
+    if (iconBitmap != null) {
+      return IconCompat.createWithAdaptiveBitmap(iconBitmap);
+    }
+    return IconCompat.createWithResource(context, R.drawable.ic_fileicon);
+  }
+
+  private static Bitmap renderSvg(Context context, String assetPath, int size) {
+    try (InputStream is = context.getAssets().open(assetPath)) {
+      SVG svg = SVG.getFromInputStream(is);
+      Picture picture = svg.renderToPicture(size, size);
+      Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+      new Canvas(bitmap).drawPicture(picture);
+      return bitmap;
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   private static Bitmap resizeBitmap(String filePath, int maxSize) {

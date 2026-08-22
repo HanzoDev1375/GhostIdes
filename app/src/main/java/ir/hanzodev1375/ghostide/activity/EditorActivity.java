@@ -650,9 +650,7 @@ public class EditorActivity extends BaseCompat
     toolbarModel.add(new ToolbarModel(R.drawable.ic_split_column, "Item Spilt!"));
     toolbarModel.add(new ToolbarModel(R.drawable.round_account_tree, "file tree"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_search, "search"));
-    toolbarModel.add(
-        new ToolbarModel(
-            com.bluewhaleyt.materialfileicon.R.drawable.ic_material_git, "git", isGit()));
+    toolbarModel.add(new ToolbarModel(R.drawable.ic_fileicon, "git", isGit()));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_undo, "undo"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_redo, "redo"));
     toolbarModel.add(new ToolbarModel(R.drawable.more_vert, "more"));

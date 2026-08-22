@@ -13,7 +13,7 @@ public class Icon {
     };
     for (var it : arr) {
       if (pathIcon.endsWith(it))
-        Glide.with(icon.getContext()).load(pathIcon).error(R.drawable.ic_material_xml).into(icon);
+        Glide.with(icon.getContext()).load(pathIcon).error(R.drawable.ic_fileicon).into(icon);
     }
     
   }

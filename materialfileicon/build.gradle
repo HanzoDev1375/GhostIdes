@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace 'com.bluewhaleyt.materialfileicon'
+    namespace 'ir.hanzodev1375.ghostide.materialfileicon'
     compileSdk 36
 
     defaultConfig {
@@ -24,4 +24,5 @@ android {
 
 dependencies {
   implementation(libs.material)
+  implementation(libs.glide)
 }
