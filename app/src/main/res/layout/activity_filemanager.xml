@@ -66,8 +66,9 @@
                         android:layout_height="40dp"
                         android:layout_width="40dp"
                         android:visibility="visible"
+                        android:contentDescription="@string/goto_dir"
                         android:layout_marginEnd="8dp"
-                        android:src="@drawable/ic_fileicon"
+                        android:src="@drawable/ic_git"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:tint="?colorOnSurface"
                         android:id="@+id/gitActionButton" />

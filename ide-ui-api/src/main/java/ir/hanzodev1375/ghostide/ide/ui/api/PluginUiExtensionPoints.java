@@ -23,5 +23,14 @@ public final class PluginUiExtensionPoints {
       new ExtensionPoint<>(
           "ir.hanzodev1375.ghostide.ui.editorActionHandler", EditorActionHandler.class);
 
+  /**
+   * Custom file icons contributed by plugins. Consulted (by descending priority) before the
+   * built-in icon set everywhere file icons are shown: file manager, editor tabs, history,
+   * bookmarks.
+   */
+  public static final ExtensionPoint<FileIconContributor> FILE_ICON_CONTRIBUTOR =
+      new ExtensionPoint<>(
+          "ir.hanzodev1375.ghostide.ui.fileIconContributor", FileIconContributor.class);
+
   private PluginUiExtensionPoints() {}
 }

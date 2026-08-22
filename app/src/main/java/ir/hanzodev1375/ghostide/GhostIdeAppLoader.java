@@ -12,7 +12,10 @@ import com.downloader.PRDownloader;
 import ir.hanzodev1375.ghostide.activity.ErrorManagerActivity;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.ProotProcessLauncherImpl;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.ghostide.ide.ui.api.FileIconContributor;
 import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
+import ir.hanzodev1375.ghostide.ide.ui.api.PluginUiExtensionPoints;
+import ir.hanzodev1375.ghostide.materialfileicon.core.JsonFileIconHelper;
 import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplInstalledPlugins;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplPluginLoader;
@@ -50,6 +53,19 @@ public class GhostIdeAppLoader extends Application {
     PRDownloader.initialize(getApplicationContext());
     GlobalRegistry.services()
         .register(IdeHostServices.PROOT_PROCESS_LAUNCHER, new ProotProcessLauncherImpl(this));
+    JsonFileIconHelper.setExternalResolver(
+        path -> {
+          for (FileIconContributor contributor :
+              GlobalRegistry.extensions()
+                  .extensions(PluginUiExtensionPoints.FILE_ICON_CONTRIBUTOR)) {
+            try {
+              String icon = contributor.getIcon(path);
+              if (icon != null && !icon.trim().isEmpty()) return icon;
+            } catch (Throwable ignored) {
+            }
+          }
+          return null;
+        });
     GplInstalledPlugins.loadAll(this, GplPluginLoader.getInstance(this));
 
     Thread.setDefaultUncaughtExceptionHandler(

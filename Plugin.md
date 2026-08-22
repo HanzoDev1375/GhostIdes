@@ -194,6 +194,35 @@ context.registerDisposable(
 The handler may be called on a background thread, so hop to the UI thread before touching the
 editor.
 
+## Contributing file icons
+
+Implement `FileIconContributor` (`ide-ui-api`) and register it at
+`PluginUiExtensionPoints.FILE_ICON_CONTRIBUTOR`. Your contributor is consulted for every icon
+shown in the file manager, editor tabs, history and bookmarks *before* the built-in
+`file_icons.json` set; return `null` for paths you don't handle so the next contributor (or the
+default set) takes over.
+
+- Return a full URI (`file://`, `content://`, ...) to load artwork shipped inside your `.gpl`.
+  Copy it out of your assets into private storage once during `activate()` — Glide cannot open
+  plugin assets through `android_asset`.
+- Return a bare name (`file_type_kotlin`) to reuse any icon of the built-in `vscode_icons` set.
+- For bulk mappings, ship a JSON file with the same schema as `data/file_icons.json`
+  (`asset_dir`, `extensions`, `filenames`, `folders`, `defaults`) plus your SVGs, then register
+  the ready-made `JsonFileIconContributor`. It extracts only the SVGs actually present in your
+  plugin, serves them as `file://` URIs, and passes unknown names through to the built-in set:
+
+```java
+public void activate(PluginContext context) {
+  Context pluginContext = context.getServices().require(IdeHostServices.PLUGIN_ANDROID_CONTEXT);
+  context.registerDisposable(context.getExtensions().register(
+      PluginUiExtensionPoints.FILE_ICON_CONTRIBUTOR,
+      new JsonFileIconContributor(pluginContext, "myicons.json")));
+}
+```
+
+Multiple icon plugins can be active at once: they are queried in descending priority order and
+the first non-null answer wins. Unloading a plugin removes its contributions automatically.
+
 ## Building the `.gpl` package
 
 A `.gpl` is a normal Android **application** module — build it in Android Studio like any app,

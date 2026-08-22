@@ -194,6 +194,36 @@ context.registerDisposable(
 
 حواستون باشه هندلر ممکنه روی ترد پس‌زمینه صدا زده بشه؛ قبل از دست زدن به ادیتور به ترد UI برید.
 
+## مشارکت در آیکون فایل‌ها
+
+یه `FileIconContributor` (از `ide-ui-api`) پیاده کنید و در
+`PluginUiExtensionPoints.FILE_ICON_CONTRIBUTOR` ثبتش کنید. برای هر آیکونی که تو فایل منیجر، تب‌های
+ادیتور، تاریخچه و بوکمارک‌ها نمایش داده می شه، *قبل از* مجموعه پیش‌فرض `file_icons.json` از شما
+پرسیده می شه؛ برای مسیرهایی که هندل نمی کنید `null` برگردونید تا contributor بعدی (یا مجموعه
+پیش‌فرض) جواب بده.
+
+- یه URI کامل بر گردونید (`file://`، `content://`، ...) تا آرت ورک داخل `.gpl` خودتون لود بشه.
+  موقع `activate()` یک بار فایل ها رو از asset به حافظه خصوصی کپی کنید — Glide از طریق
+  `android_asset` نمی تونه asset پلاگین رو باز کنه.
+- فقط یه اسم بر گردونید (مثل `file_type_kotlin`) تا از مجموعه داخلی `vscode_icons` استفاده بشه.
+- برای مپ کردن گروهی آیکون ها، یه فایل JSON با همون ساختار `data/file_icons.json` (`asset_dir`,
+  `extensions`, `filenames`, `folders`, `defaults`) به همراه SVG های خودتون داخل پلاگین بذارید و
+  `JsonFileIconContributor` آماده رو ثبت کنید. این کلاس فقط SVG هایی که واقعا داخل پلاگین هستند
+  رو استخراج و به صورت `file://` سرو می کنه، و اسم های ناشناخته رو بدون تغییر به مجموعه داخلی
+  می سپاره:
+
+```java
+public void activate(PluginContext context) {
+  Context pluginContext = context.getServices().require(IdeHostServices.PLUGIN_ANDROID_CONTEXT);
+  context.registerDisposable(context.getExtensions().register(
+      PluginUiExtensionPoints.FILE_ICON_CONTRIBUTOR,
+      new JsonFileIconContributor(pluginContext, "myicons.json")));
+}
+```
+
+چند تا افزونه آیکون می تونن همزمان فعال باشن: به ترتیب اولویت نزولی پرسیده می شن و اولین جواب
+non-null برنده است. با unload شدن پلاگین، contribution هاش خودکار حذف می شن.
+
 ## ساخت پکیج `.gpl`
 
 `.gpl` یه ماژول عادی **android-application**ه — دقیقاً مثل هر اپ دیگه ای تو Android Studio

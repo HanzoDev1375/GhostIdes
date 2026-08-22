@@ -16,10 +16,15 @@ import org.json.JSONObject;
 
 public class JsonFileIconHelper {
 
+    public interface ExternalResolver {
+        String resolve(String filePath);
+    }
+
     private static final String DATA_ASSET = "data/file_icons.json";
     private static final Object LOCK = new Object();
 
     private static volatile boolean loaded;
+    private static volatile ExternalResolver externalResolver;
     private static String assetDir = "vscode_icons";
     private static JSONObject extensions;
     private static JSONObject filenames;
@@ -30,9 +35,36 @@ public class JsonFileIconHelper {
     private static String defaultFolder = "default_folder";
 
     private final String filePath;
+    private transient String resolvedExternal;
 
     public JsonFileIconHelper(String filePath) {
         this.filePath = filePath == null ? "" : filePath;
+    }
+
+    public static void setExternalResolver(ExternalResolver resolver) {
+        externalResolver = resolver;
+    }
+
+    public static ExternalResolver getExternalResolver() {
+        return externalResolver;
+    }
+
+    private String resolveExternalOnce() {
+        String resolved = resolvedExternal;
+        if (resolved != null) return resolved.isEmpty() ? null : resolved;
+        ExternalResolver resolver = externalResolver;
+        if (resolver != null) {
+            try {
+                String icon = resolver.resolve(filePath);
+                if (icon != null && !icon.trim().isEmpty()) {
+                    resolvedExternal = icon;
+                    return icon;
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+        resolvedExternal = "";
+        return null;
     }
 
     public static void load(Context context) {
@@ -79,6 +111,8 @@ public class JsonFileIconHelper {
     }
 
     public String getIconName(boolean matchFolderNames) {
+        String provided = resolveExternalOnce();
+        if (provided != null && !provided.contains("://")) return provided;
         File file = new File(filePath);
         if (file.isDirectory()) {
             if (!matchFolderNames) return defaultFolder;
@@ -111,10 +145,19 @@ public class JsonFileIconHelper {
     }
 
     public String getIconUri() {
-        return "file:///android_asset/" + getIconPath(true);
+        return externalUri(true);
     }
 
     public String getIconUri(boolean matchFolderNames) {
+        return externalUri(matchFolderNames);
+    }
+
+    private String externalUri(boolean matchFolderNames) {
+        String provided = resolveExternalOnce();
+        if (provided != null) {
+            if (provided.contains("://")) return provided;
+            return "file:///android_asset/" + assetDir + "/" + provided + ".svg";
+        }
         return "file:///android_asset/" + getIconPath(matchFolderNames);
     }
 
