@@ -66,7 +66,7 @@ public class ThemeEditorActivity extends BaseCompat {
   private Gson gson = new GsonBuilder().setPrettyPrinting().create();
   private String currentThemePath;
   private SearchView searchView;
-  private String currentQuery = "", colorToShow;
+  private String currentQuery = "";
   private boolean isSearching = false;
   private List<ThemeRow> activityItems = new ArrayList<>();
   private List<ThemeRow> editorItems = new ArrayList<>();
@@ -96,6 +96,7 @@ public class ThemeEditorActivity extends BaseCompat {
             });
 
     setContentView(R.layout.activity_theme_editor);
+    setupBackgroundBlur();
 
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -174,6 +175,13 @@ public class ThemeEditorActivity extends BaseCompat {
     recyclerView.setAdapter(adapter);
   }
 
+  private void setupBackgroundBlur() {
+    ImageView background = findViewById(R.id.backgroundIconThemeEditor);
+    View appbar = findViewById(R.id.appbar);
+    if (background == null || appbar == null) return;
+    setupBackgroundBlur(background, appbar);
+  }
+
   private String readFileToString(File file) {
     try (FileInputStream fis = new FileInputStream(file)) {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -195,7 +203,7 @@ public class ThemeEditorActivity extends BaseCompat {
     titleToKeyMap.put("Navigation Bar", "navigationBar");
 
     // Editor
-    titleToKeyMap.put("Whole Background", "wholeBackground");
+    titleToKeyMap.put("Line Divider", "lineDivider");
     titleToKeyMap.put("Text Normal", "textNormal");
     titleToKeyMap.put("Keyword", "keyword");
     titleToKeyMap.put("Comment", "comment");
@@ -231,6 +239,11 @@ public class ThemeEditorActivity extends BaseCompat {
     titleToKeyMap.put("Problem Error", "problemError");
     titleToKeyMap.put("Problem Warning", "problemWarning");
     titleToKeyMap.put("Problem Typo", "problemTypo");
+    titleToKeyMap.put("Color Next Dot", "colornextdot");
+    titleToKeyMap.put("Color Next Brak", "colornextbrak");
+    titleToKeyMap.put("Color Next Char", "colornextchar");
+    titleToKeyMap.put("Color Uppercase", "coloruppercase");
+    titleToKeyMap.put("Color Next Less", "colornextless");
     titleToKeyMap.put("Line Number Current", "lineNumberCurrent");
     titleToKeyMap.put("Selected Text Border", "selectedTextBorder");
     titleToKeyMap.put("Current Row Border", "currentRowBorder");
@@ -440,10 +453,7 @@ public class ThemeEditorActivity extends BaseCompat {
 
     EditorTheme e = currentTheme.getEditor();
     editorItems.add(
-        new ColorItem(
-            "Whole Background",
-            e.getWholeBackground(),
-            (t, c) -> t.getEditor().setWholeBackground(c)));
+        new ColorItem("Line Divider", e.getLineDivider(), (t, c) -> t.getEditor().setLineDivider(c)));
     editorItems.add(
         new ColorItem("Text Normal", e.getTextNormal(), (t, c) -> t.getEditor().setTextNormal(c)));
     editorItems.add(
@@ -575,6 +585,23 @@ public class ThemeEditorActivity extends BaseCompat {
     editorItems.add(
         new ColorItem(
             "Problem Typo", e.getProblemTypo(), (t, c) -> t.getEditor().setProblemTypo(c)));
+    editorItems.add(
+        new ColorItem(
+            "Color Next Dot", e.getColornextdot(), (t, c) -> t.getEditor().setColornextdot(c)));
+    editorItems.add(
+        new ColorItem(
+            "Color Next Brak", e.getColornextbrak(), (t, c) -> t.getEditor().setColornextbrak(c)));
+    editorItems.add(
+        new ColorItem(
+            "Color Next Char", e.getColornextchar(), (t, c) -> t.getEditor().setColornextchar(c)));
+    editorItems.add(
+        new ColorItem(
+            "Color Uppercase",
+            e.getColoruppercase(),
+            (t, c) -> t.getEditor().setColoruppercase(c)));
+    editorItems.add(
+        new ColorItem(
+            "Color Next Less", e.getColornextless(), (t, c) -> t.getEditor().setColornextless(c)));
     editorItems.add(
         new ColorItem(
             "Line Number Current",
@@ -962,7 +989,7 @@ public class ThemeEditorActivity extends BaseCompat {
 
     private void bindColor(ColorViewHolder holder, ColorItem item) {
       bindTitle(holder.title, item.title);
-      colorToShow = item.currentColor;
+      String colorToShow = item.currentColor;
       if (colorToShow == null || colorToShow.isEmpty()) {
         String def = getDefaultColorForTitle(item.title);
         if (def != null) colorToShow = def;
@@ -970,8 +997,9 @@ public class ThemeEditorActivity extends BaseCompat {
       if (colorToShow == null || colorToShow.isEmpty()) {
         colorToShow = "#000000";
       }
+      final String initialHex = colorToShow;
       try {
-        shape(holder.colorPreview, Color.parseColor(colorToShow));
+        shape(holder.colorPreview, Color.parseColor(initialHex));
       } catch (Exception e) {
         holder.colorPreview.setBackgroundColor(Color.BLACK);
       }
@@ -979,7 +1007,7 @@ public class ThemeEditorActivity extends BaseCompat {
           v -> {
             int initialColor;
             try {
-              initialColor = Color.parseColor(colorToShow);
+              initialColor = Color.parseColor(initialHex);
             } catch (Exception e) {
               initialColor = Color.BLACK;
             }

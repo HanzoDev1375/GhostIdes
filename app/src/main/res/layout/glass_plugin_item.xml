@@ -22,4 +22,12 @@
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="13sp" />
 
+    <ImageView
+        android:id="@+id/pluginTypeBadge"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/ic_plugin_misc"
+        android:contentDescription="@string/plugin_type_badge" />
+
 </LinearLayout>

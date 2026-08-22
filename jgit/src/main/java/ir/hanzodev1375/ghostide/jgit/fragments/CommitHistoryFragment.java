@@ -2,6 +2,7 @@ package ir.hanzodev1375.ghostide.jgit.fragments;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import ir.hanzodev1375.components.views.EmptyView;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.adapter.CommitAdapter;
 import android.view.LayoutInflater;
@@ -30,6 +31,7 @@ public class CommitHistoryFragment extends Fragment {
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     adapter = new CommitAdapter();
     recyclerView.setAdapter(adapter);
+    ((EmptyView) view.findViewById(R.id.emptyView)).bindTo(recyclerView);
 
     viewModel.commitHistory.observe(getViewLifecycleOwner(), adapter::submitList);
     view.findViewById(R.id.btnRefreshHistory)

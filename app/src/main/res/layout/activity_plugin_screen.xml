@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/plugin_screen_container"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent" />
+    android:id="@+id/pluginScreenRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/backgroundIconPluginScreen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/plugin_screen_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>

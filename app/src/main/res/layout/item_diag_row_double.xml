@@ -15,7 +15,7 @@
     android:clickable="true"
     android:focusable="true"
     app:cardCornerRadius="12dp"
-    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardBackgroundColor="@android:color/transparent"
     app:cardElevation="0dp"
     app:rippleColor="?attr/colorPrimary">
 
@@ -55,7 +55,7 @@
     android:clickable="true"
     android:focusable="true"
     app:cardCornerRadius="12dp"
-    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardBackgroundColor="@android:color/transparent"
     app:cardElevation="0dp"
     app:rippleColor="?attr/colorPrimary">
 

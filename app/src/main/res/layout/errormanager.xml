@@ -8,6 +8,15 @@
     android:id="@+id/_coordinator"
     >
 
+    <ImageView
+        android:id="@+id/backgroundIconError"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        />
+
     <com.google.android.material.appbar.AppBarLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
@@ -28,6 +37,7 @@
         android:layout_width="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:orientation="vertical"
+        android:id="@+id/errorContent"
         >
 
         <LinearLayout

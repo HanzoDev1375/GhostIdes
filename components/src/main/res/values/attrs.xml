@@ -25,4 +25,13 @@
         <attr name="ringRadius" format="dimension" />
         <attr name="usingcolorpalette" format="boolean"/>
     </declare-styleable>
+
+    <declare-styleable name="EmptyView">
+        <!-- Drawable shown above the title -->
+        <attr name="emptyIcon" format="reference" />
+        <!-- Primary empty-state text -->
+        <attr name="emptyTitle" format="string" />
+        <!-- Secondary empty-state text -->
+        <attr name="emptyDescription" format="string" />
+    </declare-styleable>
 </resources>

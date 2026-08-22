@@ -12,11 +12,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,9 +43,12 @@ import ir.hanzodev1375.ghostide.terminal.TerminalSessionService;
 import ir.hanzodev1375.ghostide.terminal.TerminalTab;
 import ir.hanzodev1375.ghostide.terminal.adapters.TerminalTabAdapter;
 import ir.hanzodev1375.ghostide.utils.BlurTransformation;
+import ir.hanzodev1375.ghostide.utils.ObjectUtil;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class TerminalActivity extends BaseCompat
@@ -218,6 +218,26 @@ public class TerminalActivity extends BaseCompat
     setSupportActionBar(b.toolbar);
     if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     b.toolbar.setNavigationOnClickListener(v -> finish());
+    b.btnMoreMenu.setOnClickListener(this::showMoreMenu);
+  }
+
+  private void showMoreMenu(View anchor) {
+    List<String> items =
+        Collections.singletonList(
+            DebianBootstrap.isInstalled(this)
+                ? getString(R.string.terminal_remove_debian)
+                : getString(R.string.terminal_install_debian));
+    ObjectUtil.showGlassMenu(
+        this,
+        anchor,
+        items,
+        (index, title) -> {
+          if (DebianBootstrap.isInstalled(this)) {
+            confirmAndRemoveDebian();
+          } else {
+            startDebianInstall();
+          }
+        });
   }
 
   private void setupTerminalView() {
@@ -259,19 +279,18 @@ public class TerminalActivity extends BaseCompat
       addNewSession();
       return;
     }
-    var popup = new PopupMenu(this, anchor);
-    popup.getMenu().add(0, 1, 0, "Shell");
-    popup.getMenu().add(0, 2, 1, "Debian");
-    popup.setOnMenuItemClickListener(
-        item -> {
-          if (item.getItemId() == 2) {
+    List<String> items = Arrays.asList("Shell", "Debian");
+    ObjectUtil.showGlassMenu(
+        this,
+        anchor,
+        items,
+        (index, title) -> {
+          if (index == 1) {
             addNewDebianSession();
           } else {
             addNewSession();
           }
-          return true;
         });
-    popup.show();
   }
 
   private void setupExtraKeys() {
@@ -470,31 +489,6 @@ public class TerminalActivity extends BaseCompat
     updateModifierButtonStyle(b.keyAlt, false);
   }
 
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    menu.add(
-        0,
-        1001,
-        0,
-        DebianBootstrap.isInstalled(this)
-            ? getString(R.string.terminal_remove_debian)
-            : getString(R.string.terminal_install_debian));
-    return true;
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    if (item.getItemId() == 1001) {
-      if (DebianBootstrap.isInstalled(this)) {
-        confirmAndRemoveDebian();
-      } else {
-        startDebianInstall();
-      }
-      return true;
-    }
-    return super.onOptionsItemSelected(item);
-  }
-
   private void confirmAndRemoveDebian() {
     new MaterialAlertDialogBuilder(this)
         .setTitle(getString(R.string.terminal_remove_debian))
@@ -502,14 +496,13 @@ public class TerminalActivity extends BaseCompat
         .setPositiveButton(
             getString(R.string.terminal_action_remove),
             (dialog, which) ->
-                DebianBootstrap.uninstall(
-                    this,
-                    () -> {
-                      Toast.makeText(
-                              this, getString(R.string.terminal_debian_removed), Toast.LENGTH_SHORT)
-                          .show();
-                      invalidateOptionsMenu();
-                    }))
+                  DebianBootstrap.uninstall(
+                      this,
+                      () -> {
+                        Toast.makeText(
+                                this, getString(R.string.terminal_debian_removed), Toast.LENGTH_SHORT)
+                            .show();
+                      }))
         .setNegativeButton(getString(R.string.terminal_action_cancel), null)
         .show();
   }
@@ -582,7 +575,6 @@ public class TerminalActivity extends BaseCompat
                           getString(R.string.terminal_debian_installed_success),
                           Toast.LENGTH_LONG)
                       .show();
-                  invalidateOptionsMenu();
                   b.terminalView.setVisibility(View.VISIBLE);
                   bindServiceAndStart();
                 });

@@ -228,53 +228,86 @@ public class GitManager {
     return changes;
   }
 
-  public boolean stageFile(String filePath) {
+  private static String describe(Exception e) {
+    String msg = e.getMessage();
+    return (msg == null || msg.isEmpty()) ? e.getClass().getSimpleName() : msg;
+  }
+
+  private OperationResult notOpen() {
+    return new OperationResult(false, "Repository not open");
+  }
+
+  public OperationResult stageFile(String filePath) {
     try {
+      if (git == null) return notOpen();
       if (isIgnored(filePath)) {
         // Force add ignored files if explicitly staged
         git.add().addFilepattern(filePath).setUpdate(false).call();
       } else {
         git.add().addFilepattern(filePath).call();
       }
-      return true;
+      return new OperationResult(true, "File staged");
     } catch (Exception e) {
       e.printStackTrace();
-      return false;
+      return new OperationResult(false, describe(e));
     }
   }
 
-  public boolean stageAllFiles() {
+  public OperationResult stageAllFiles() {
     try {
+      if (git == null) return notOpen();
       git.add().addFilepattern(".").call();
-      return true;
+      return new OperationResult(true, "All files staged");
     } catch (Exception e) {
       e.printStackTrace();
-      return false;
+      return new OperationResult(false, describe(e));
     }
   }
 
-  public boolean unstageFile(String filePath) {
+  public OperationResult unstageFile(String filePath) {
     try {
+      if (git == null) return notOpen();
       git.reset().addPath(filePath).call();
-      return true;
+      return new OperationResult(true, "File unstaged");
     } catch (Exception e) {
       e.printStackTrace();
-      return false;
+      return new OperationResult(false, describe(e));
     }
   }
 
-  public boolean commit(String message, String author, String email) {
+  public OperationResult commit(String message, String author, String email) {
     try {
-      git.commit().setMessage(message).setAuthor(new PersonIdent(author, email)).call();
-      return true;
+      if (git == null) return notOpen();
+      if (message == null || message.trim().isEmpty()) {
+        return new OperationResult(false, "Commit message required");
+      }
+      if (author == null || author.trim().isEmpty()) {
+        String[] cfg = getUserConfig();
+        author = cfg != null ? cfg[0] : "User";
+      }
+      if (email == null || email.trim().isEmpty()) {
+        String[] cfg = getUserConfig();
+        email = cfg != null ? cfg[1] : "user@example.com";
+      }
+
+      Status st = git.status().call();
+      boolean hasStaged =
+          !st.getAdded().isEmpty() || !st.getChanged().isEmpty() || !st.getRemoved().isEmpty();
+      if (!hasStaged) {
+        return new OperationResult(false, "Nothing to commit — stage your changes first");
+      }
+
+      PersonIdent ident = new PersonIdent(author, email);
+      git.commit().setMessage(message).setAuthor(ident).setCommitter(ident).call();
+      return new OperationResult(true, "Changes committed");
     } catch (Exception e) {
       e.printStackTrace();
-      return false;
+      return new OperationResult(false, describe(e));
     }
   }
 
-  public boolean commit(String message) {
-    return commit(message, "User", "user@example.com");
+  public OperationResult commit(String message) {
+    return commit(message, null, null);
   }
 
   public List<CommitInfo> getCommitHistory(int maxCount) {
@@ -439,13 +472,14 @@ public class GitManager {
     }
   }
 
-  public boolean discardChanges(String filePath) {
+  public OperationResult discardChanges(String filePath) {
     try {
+      if (git == null) return notOpen();
       git.checkout().addPath(filePath).call();
-      return true;
+      return new OperationResult(true, "Changes discarded");
     } catch (Exception e) {
       e.printStackTrace();
-      return false;
+      return new OperationResult(false, describe(e));
     }
   }
 

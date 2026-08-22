@@ -71,7 +71,7 @@ public class GitViewModel extends ViewModel {
   private final MutableLiveData<List<BlameInfo>> _blameResult = new MutableLiveData<>();
   public final LiveData<List<BlameInfo>> blameResult = _blameResult;
 
-  private final ExecutorService executor = Executors.newFixedThreadPool(4);
+  private final ExecutorService executor = Executors.newSingleThreadExecutor();
   private final MutableLiveData<String> _selectedDiffFile = new MutableLiveData<>();
   public final LiveData<String> selectedDiffFile = _selectedDiffFile;
 
@@ -80,6 +80,14 @@ public class GitViewModel extends ViewModel {
 
   private final MutableLiveData<String> _commitDiff = new MutableLiveData<>();
   public final LiveData<String> commitDiff = _commitDiff;
+
+  private final MutableLiveData<Boolean> _commitCompleted = new MutableLiveData<>();
+  public final LiveData<Boolean> commitCompleted = _commitCompleted;
+
+  private GitManager replaceManager(GitManager next) {
+    if (gitManager != null) gitManager.close();
+    return gitManager = next;
+  }
 
   public void setUserConfig(String name, String email) {
     executor.execute(
@@ -98,7 +106,7 @@ public class GitViewModel extends ViewModel {
   public void checkRepositoryStatus(String projectPath) {
     executor.execute(
         () -> {
-          gitManager = new GitManager(projectPath);
+          replaceManager(new GitManager(projectPath));
           boolean initialized = gitManager.isRepositoryInitialized();
           _isRepositoryInitialized.postValue(initialized);
 
@@ -116,7 +124,7 @@ public class GitViewModel extends ViewModel {
     _progressMessage.postValue("Initializing repository...");
     executor.execute(
         () -> {
-          gitManager = new GitManager(path);
+          replaceManager(new GitManager(path));
           boolean success = gitManager.initRepository(initialBranch);
           if (success) {
             gitManager.openRepository();
@@ -142,7 +150,7 @@ public class GitViewModel extends ViewModel {
     _progressMessage.postValue("Opening repository...");
     executor.execute(
         () -> {
-          gitManager = new GitManager(path);
+          replaceManager(new GitManager(path));
           boolean success = gitManager.openRepository();
           if (success) {
             _repositoryStatus.postValue(RepositoryStatus.OPENED);
@@ -160,7 +168,7 @@ public class GitViewModel extends ViewModel {
     _progressMessage.postValue("Cloning repository...");
     executor.execute(
         () -> {
-          gitManager = new GitManager(localPath);
+          replaceManager(new GitManager(localPath));
           boolean success = gitManager.clone(remoteUrl, localPath, username, password);
           if (success) {
             _repositoryStatus.postValue(RepositoryStatus.INITIALIZED);
@@ -181,10 +189,12 @@ public class GitViewModel extends ViewModel {
     _progressMessage.postValue("Staging file...");
     executor.execute(
         () -> {
-          boolean success = gitManager != null && gitManager.stageFile(filePath);
-          _operationResult.postValue(
-              new OperationResult(success, success ? "File staged" : "Failed to stage file"));
-          if (success) refreshChangedFiles();
+          OperationResult result =
+              gitManager != null
+                  ? gitManager.stageFile(filePath)
+                  : new OperationResult(false, "Git manager not initialized");
+          _operationResult.postValue(result);
+          if (result.isSuccess()) refreshChangedFiles();
           _progressMessage.postValue(null);
         });
   }
@@ -193,10 +203,12 @@ public class GitViewModel extends ViewModel {
     _progressMessage.postValue("Staging all files...");
     executor.execute(
         () -> {
-          boolean success = gitManager != null && gitManager.stageAllFiles();
-          _operationResult.postValue(
-              new OperationResult(success, success ? "All files staged" : "Failed to stage files"));
-          if (success) refreshChangedFiles();
+          OperationResult result =
+              gitManager != null
+                  ? gitManager.stageAllFiles()
+                  : new OperationResult(false, "Git manager not initialized");
+          _operationResult.postValue(result);
+          if (result.isSuccess()) refreshChangedFiles();
           _progressMessage.postValue(null);
         });
   }
@@ -205,10 +217,12 @@ public class GitViewModel extends ViewModel {
     _progressMessage.postValue("Unstaging file...");
     executor.execute(
         () -> {
-          boolean success = gitManager != null && gitManager.unstageFile(filePath);
-          _operationResult.postValue(
-              new OperationResult(success, success ? "File unstaged" : "Failed to unstage file"));
-          if (success) refreshChangedFiles();
+          OperationResult result =
+              gitManager != null
+                  ? gitManager.unstageFile(filePath)
+                  : new OperationResult(false, "Git manager not initialized");
+          _operationResult.postValue(result);
+          if (result.isSuccess()) refreshChangedFiles();
           _progressMessage.postValue(null);
         });
   }
@@ -217,11 +231,12 @@ public class GitViewModel extends ViewModel {
     _progressMessage.postValue("Discarding changes...");
     executor.execute(
         () -> {
-          boolean success = gitManager != null && gitManager.discardChanges(filePath);
-          _operationResult.postValue(
-              new OperationResult(
-                  success, success ? "Changes discarded" : "Failed to discard changes"));
-          if (success) refreshChangedFiles();
+          OperationResult result =
+              gitManager != null
+                  ? gitManager.discardChanges(filePath)
+                  : new OperationResult(false, "Git manager not initialized");
+          _operationResult.postValue(result);
+          if (result.isSuccess()) refreshChangedFiles();
           _progressMessage.postValue(null);
         });
   }
@@ -230,12 +245,15 @@ public class GitViewModel extends ViewModel {
     _progressMessage.postValue("Committing changes...");
     executor.execute(
         () -> {
-          boolean success = gitManager != null && gitManager.commit(message, author, email);
-          _operationResult.postValue(
-              new OperationResult(success, success ? "Changes committed" : "Failed to commit"));
-          if (success) {
+          OperationResult result =
+              gitManager != null
+                  ? gitManager.commit(message, author, email)
+                  : new OperationResult(false, "Git manager not initialized");
+          _operationResult.postValue(result);
+          if (result.isSuccess()) {
             refreshChangedFiles();
             refreshCommitHistory();
+            _commitCompleted.postValue(true);
           }
           _progressMessage.postValue(null);
         });
@@ -244,12 +262,15 @@ public class GitViewModel extends ViewModel {
   public void commit(String message) {
     executor.execute(
         () -> {
-          boolean success = gitManager != null && gitManager.commit(message);
-          _operationResult.postValue(
-              new OperationResult(success, success ? "Changes committed" : "Failed to commit"));
-          if (success) {
+          OperationResult result =
+              gitManager != null
+                  ? gitManager.commit(message)
+                  : new OperationResult(false, "Git manager not initialized");
+          _operationResult.postValue(result);
+          if (result.isSuccess()) {
             refreshChangedFiles();
             refreshCommitHistory();
+            _commitCompleted.postValue(true);
           }
         });
   }
@@ -700,7 +721,7 @@ public class GitViewModel extends ViewModel {
   @Override
   protected void onCleared() {
     super.onCleared();
+    executor.shutdownNow();
     if (gitManager != null) gitManager.close();
-    executor.shutdown();
   }
 }

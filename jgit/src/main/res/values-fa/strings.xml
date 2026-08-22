@@ -95,4 +95,17 @@
   <string name="gitignore_failed">gitignore ذخیره نشد</string>
   <string name="gitignore_templates">قالب ها</string>
   <string name="tab_blame">سرزنش کردن</string>
+
+  <string name="git_empty_changes_title">تغییری وجود ندارد</string>
+  <string name="git_empty_changes_desc">درخت کاری شما تمیز است. فایل‌های جدید یا ویرایش‌شده اینجا نمایش داده می‌شوند.</string>
+  <string name="git_empty_history_title">هنوز کامیتی وجود ندارد</string>
+  <string name="git_empty_history_desc">اولین کامیت خود را بسازید تا تاریخچه‌اش اینجا بیاید.</string>
+  <string name="git_empty_branches_title">برنچی وجود ندارد</string>
+  <string name="git_empty_branches_desc">برای شروع کار یک برنچ بسازید.</string>
+  <string name="git_empty_remotes_title">رموتی وجود ندارد</string>
+  <string name="git_empty_remotes_desc">برای پوش کردن کامیت‌ها یک ریموت (مثلاً origin) اضافه کنید.</string>
+  <string name="git_empty_stash_title">استشی ذخیره نشده</string>
+  <string name="git_empty_stash_desc">تغییراتتان را استش کنید تا برای بعد امن بمانند.</string>
+  <string name="git_empty_tags_title">تگی وجود ندارد</string>
+  <string name="git_empty_tags_desc">یک تگ بسازید تا نقاط مهم تاریخچه را علامت‌گذاری کنید.</string>
 </resources>

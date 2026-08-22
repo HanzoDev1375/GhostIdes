@@ -33,8 +33,14 @@ import java.util.List;
 
 public class GitBottomSheetFragment extends BaseBlurBottomSheet {
 
+  private static final int TAB_CHANGES = 0;
+  private static final int TAB_HISTORY = 1;
+  private static final int TAB_BRANCHES = 2;
+  private static final int TAB_REMOTES = 3;
+
   private GitViewModel viewModel;
   private LinearProgressIndicator progressBar;
+  private ViewPager2 viewPager;
   private String repoPath;
   private boolean isInitialized = false;
 
@@ -94,6 +100,14 @@ public class GitBottomSheetFragment extends BaseBlurBottomSheet {
 
     setupViewPager(view);
 
+    viewModel.commitCompleted.observe(
+        getViewLifecycleOwner(),
+        completed -> {
+          if (Boolean.TRUE.equals(completed) && viewPager != null) {
+            viewPager.post(() -> viewPager.setCurrentItem(TAB_REMOTES, true));
+          }
+        });
+
     if (!isInitialized && repoPath != null && !repoPath.isEmpty()) {
       File gitDir = new File(repoPath, ".git");
       if (gitDir.exists() && gitDir.isDirectory()) {
@@ -139,13 +153,14 @@ public class GitBottomSheetFragment extends BaseBlurBottomSheet {
     tabs.add(new GitTab(getString(R.string.tab_blame), new BlameFragment()));
     tabs.add(new GitTab(getString(R.string.tab_diff), new DiffViewerFragment()));
 
-    ViewPager2 viewPager = root.findViewById(R.id.viewPager);
+    ViewPager2 pager = root.findViewById(R.id.viewPager);
+    viewPager = pager;
     ViewPagerAdapter adapter = new ViewPagerAdapter(requireActivity(), tabs);
-    viewPager.setAdapter(adapter);
+    pager.setAdapter(adapter);
 
     TabLayout tabLayout = root.findViewById(R.id.tabLayout);
     new TabLayoutMediator(
-            tabLayout, viewPager, (tab, position) -> tab.setText(tabs.get(position).getTitle()))
+            tabLayout, pager, (tab, position) -> tab.setText(tabs.get(position).getTitle()))
         .attach();
   }
 

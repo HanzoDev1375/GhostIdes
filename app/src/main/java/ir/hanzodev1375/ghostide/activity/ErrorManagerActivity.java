@@ -44,6 +44,7 @@ public class ErrorManagerActivity extends BaseCompat {
     super.onCreate(savedInstanceState);
     bind = ErrormanagerBinding.inflate(getLayoutInflater());
     setContentView(bind.getRoot());
+    setupBackgroundBlur();
     setSupportActionBar(bind.toolbar);
     if (getSupportActionBar() != null) {
       getSupportActionBar().setTitle("💀 App Crashed");
@@ -133,6 +134,10 @@ public class ErrorManagerActivity extends BaseCompat {
           ClipboardUtils.copyText(plainText);
           FileIOUtils.writeFileFromString("/sdcard/Ghostide/error.log", plainText);
         });
+  }
+
+  private void setupBackgroundBlur() {
+    setupBackgroundBlur(bind.backgroundIconError, bind.appbar, bind.errorContent);
   }
 
   private void appendSection(SpannableStringBuilder sb, String text, int color, boolean bold) {

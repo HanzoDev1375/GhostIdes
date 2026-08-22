@@ -48,20 +48,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewTags"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvNoTags"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="24dp"
-        android:text="@string/tag_no_tags"
-        android:visibility="gone"
-        android:textAppearance="?attr/textAppearanceBodyMedium"
-        android:textColor="?attr/colorOnSurfaceVariant" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewTags"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ir.hanzodev1375.components.views.EmptyView
+            android:id="@+id/emptyView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:emptyIcon="@drawable/ic_empty_state"
+            app:emptyTitle="@string/git_empty_tags_title"
+            app:emptyDescription="@string/git_empty_tags_desc" />
+
+    </FrameLayout>
 
 </LinearLayout>

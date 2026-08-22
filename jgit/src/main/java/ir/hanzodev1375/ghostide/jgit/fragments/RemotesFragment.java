@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import ir.hanzodev1375.components.views.EmptyView;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.adapter.RemoteAdapter;
 import ir.hanzodev1375.ghostide.jgit.dialogs.AddRemoteDialog;
@@ -38,6 +39,7 @@ public class RemotesFragment extends Fragment {
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     adapter = new RemoteAdapter();
     recyclerView.setAdapter(adapter);
+    ((EmptyView) view.findViewById(R.id.emptyView)).bindTo(recyclerView);
 
     viewModel.remotes.observe(getViewLifecycleOwner(), adapter::submitList);
 

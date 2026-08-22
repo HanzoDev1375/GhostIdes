@@ -16,19 +16,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import com.google.android.material.card.MaterialCardView;
-import ir.hanzodev1375.ghostide.customui.MaterialGradientCard;
+import com.example.liquidglass.LiquidGlassView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.R;
 
 public class AboutActivity extends BaseCompat {
-  private MaterialGradientCard cardDisplay, cardMemory, cardStorage,cardDeviceInfo;
+  private LiquidGlassView cardDisplay, cardMemory, cardStorage, cardDeviceInfo;
   private LinearLayout bodyDeviceInfo, bodyDisplay, bodyMemory, bodyStorage;
   private View arrowDeviceInfo, arrowDisplay, arrowMemory, arrowStorage;
   private boolean expDeviceInfo = true, expDisplay = true, expMemory = true, expStorage = true;
@@ -37,6 +37,7 @@ public class AboutActivity extends BaseCompat {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_about);
+    setupBackgroundBlur();
 
     View root = findViewById(R.id.root_scroll);
     ViewCompat.setOnApplyWindowInsetsListener(
@@ -49,9 +50,27 @@ public class AboutActivity extends BaseCompat {
         });
 
     bindViews();
+    setupGlassBackdrop(cardDeviceInfo);
+    setupGlassBackdrop(cardDisplay);
+    setupGlassBackdrop(cardMemory);
+    setupGlassBackdrop(cardStorage);
     fillData();
     setupClickListeners();
     animateCardsIn();
+  }
+
+  private void setupGlassBackdrop(LiquidGlassView glass) {
+    glass.setBackdropSource(findViewById(R.id.contentAreaAbout));
+    glass.setEnableDynamicBackground(true);
+    glass.setEnableChromaticAberration(true);
+    glass.setEnableEdgeHighlight(true);
+  }
+
+  private void setupBackgroundBlur() {
+    ImageView background = findViewById(R.id.backgroundIconAbout);
+    View content = findViewById(R.id.root_scroll);
+    if (background == null || content == null) return;
+    setupBackgroundBlur(background, content);
   }
 
   private void bindViews() {

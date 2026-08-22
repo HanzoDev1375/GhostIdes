@@ -107,10 +107,7 @@ public class BaseCompat extends AppCompatActivity
     getWindow().setStatusBarColor(Color.TRANSPARENT);
     getWindow().setNavigationBarColor(Color.TRANSPARENT);
     backgroundView.setVisibility(View.VISIBLE);
-    Glide.with(this)
-        .load(widget.getImagepath())
-        .transform(new BlurTransformation((int) widget.getBlursize()))
-        .into(backgroundView);
+    themeUtil.applyImageBackground(backgroundView);
     for (View v : transparentViews) {
       v.setBackgroundColor(Color.TRANSPARENT);
     }

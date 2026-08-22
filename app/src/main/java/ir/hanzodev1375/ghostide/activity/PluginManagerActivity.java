@@ -60,6 +60,7 @@ public class PluginManagerActivity extends BaseCompat {
     super.onCreate(savedInstanceState);
     bind = ActivityPluginManagerBinding.inflate(getLayoutInflater());
     setContentView(bind.getRoot());
+    setupBackgroundBlur();
 
     loader = GplPluginLoader.getInstance(this);
     installDir = GplInstalledPlugins.installDir(this);
@@ -77,6 +78,10 @@ public class PluginManagerActivity extends BaseCompat {
 
     setupInsets();
     refreshList();
+  }
+
+  private void setupBackgroundBlur() {
+    setupBackgroundBlur(bind.backgroundIconPlugins, bind.headtop, bind.pluginContent);
   }
 
   @Override

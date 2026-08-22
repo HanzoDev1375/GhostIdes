@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import ir.hanzodev1375.components.views.EmptyView;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.adapter.BranchAdapter;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
@@ -32,6 +33,7 @@ public class BranchesFragment extends Fragment {
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     adapter = new BranchAdapter();
     recyclerView.setAdapter(adapter);
+    ((EmptyView) view.findViewById(R.id.emptyView)).bindTo(recyclerView);
 
     viewModel.branches.observe(
         getViewLifecycleOwner(),

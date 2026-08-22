@@ -254,6 +254,11 @@
   <string name="internal_storage_label">内部存储</string>
   <string name="sd_card_not_found">未检测到 SD 卡</string>
   <string name="sd_card_space_info">SD 卡：%1$s 不含 %2$s</string>
+  <string name="goto_dir">转到路径</string>
+  <string name="goto_dir_hint">输入文件夹路径</string>
+  <string name="goto_root">根</string>
+  <string name="goto_dir_not_found">未找到路径：%1$s</string>
+  <string name="goto_dir_not_directory">不是文件夹：%1$s</string>
   <string name="pref_animation_battery_threshold_desc">动画电池阈值</string>
   <string name="pref_animation_battery_threshold">动画电池</string>
   <string name="pref_grid">网格数 %s</string>
@@ -294,9 +299,15 @@
   <string name="split_layout_columns">专栏</string>
   <string name="split_layout_apply">应用拆分</string>
   <string name="split_layout_exit">退出分裂</string>
+  <string name="editor_status_lines">%1$d 行 · %2$s</string>
   <string name="terminal_title">终端</string>
   <string name="terminal_new_session">新会话</string>
+  <string name="terminal_more_options">更多选择</string>
+  <string name="plugin_type_badge">插件类型</string>
   <string name="terminal_close_session">结束会议</string>
+  <string name="terminal_command_hint">输入命令</string>
+  <string name="terminal_send_command">发送命令</string>
+  <string name="terminal_toggle_dock">切换终端输入</string>
   <string name="rename_package_menu_item">重命名包</string>
   <string name="rename_package_title">重命名包</string>
   <string name="rename_package_description">重命名包会更新此模块中的每个包声明、导入和引用，然后将源文件移动到新的文件夹结构中。</string>
@@ -461,4 +472,7 @@
   <string name="icon_devilishpurple">恶魔紫</string>
   <string name="icon_blackmagic">黑魔法</string>
   <string name="icon_purplewitch">紫色女巫</string>
+  <string name="theme_edit">立即编辑主题</string>
+  <string name="theme_apply">立即应用主题</string>
+  <string name="no_plugins">没有安装插件</string>
 </resources>

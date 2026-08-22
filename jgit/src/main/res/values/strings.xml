@@ -113,4 +113,17 @@
     <string name="gitignore_templates">Templates</string>
 
     <string name="tab_blame">Blame</string>
+
+    <string name="git_empty_changes_title">No changes</string>
+    <string name="git_empty_changes_desc">Your working tree is clean. Edited or new files will show up here.</string>
+    <string name="git_empty_history_title">No commits yet</string>
+    <string name="git_empty_history_desc">Make your first commit and its history will appear here.</string>
+    <string name="git_empty_branches_title">No branches</string>
+    <string name="git_empty_branches_desc">Create a branch to start working.</string>
+    <string name="git_empty_remotes_title">No remotes</string>
+    <string name="git_empty_remotes_desc">Add a remote (e.g. origin) to push your commits.</string>
+    <string name="git_empty_stash_title">Nothing stashed</string>
+    <string name="git_empty_stash_desc">Stash your changes to keep them safe for later.</string>
+    <string name="git_empty_tags_title">No tags</string>
+    <string name="git_empty_tags_desc">Create a tag to mark important points in history.</string>
 </resources>

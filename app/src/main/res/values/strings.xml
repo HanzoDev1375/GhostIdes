@@ -304,6 +304,8 @@
     <string name="editor_status_lines">%1$d lines · %2$s</string>
     <string name="terminal_title">Terminal</string>
     <string name="terminal_new_session">New session</string>
+    <string name="terminal_more_options">More options</string>
+    <string name="plugin_type_badge">Plugin type</string>
     <string name="terminal_close_session">Close session</string>
     <string name="terminal_command_hint">Enter command</string>
     <string name="terminal_send_command">Send command</string>

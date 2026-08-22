@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textview.MaterialTextView;
+import ir.hanzodev1375.components.views.EmptyView;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.adapter.TagAdapter;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
@@ -37,18 +37,14 @@ public class TagsFragment extends Fragment {
     rv.setLayoutManager(new LinearLayoutManager(getContext()));
     adapter = new TagAdapter();
     rv.setAdapter(adapter);
+    EmptyView emptyView = view.findViewById(R.id.emptyView);
+    emptyView.bindTo(rv);
 
-    MaterialTextView tvNoTags = view.findViewById(R.id.tvNoTags);
     TextInputEditText editName = view.findViewById(R.id.editTagName);
     TextInputEditText editMsg = view.findViewById(R.id.editTagMessage);
     MaterialButton btnCreate = view.findViewById(R.id.btnCreateTag);
 
-    viewModel.tags.observe(getViewLifecycleOwner(), tags -> {
-      adapter.submitList(tags);
-      boolean empty = tags == null || tags.isEmpty();
-      tvNoTags.setVisibility(empty ? View.VISIBLE : View.GONE);
-      rv.setVisibility(empty ? View.GONE : View.VISIBLE);
-    });
+    viewModel.tags.observe(getViewLifecycleOwner(), tags -> adapter.submitList(tags));
     viewModel.refreshTags();
 
     adapter.setOnTagActionListener(tag ->

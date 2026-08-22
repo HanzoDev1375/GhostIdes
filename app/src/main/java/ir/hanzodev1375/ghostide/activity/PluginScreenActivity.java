@@ -3,6 +3,8 @@ package ir.hanzodev1375.ghostide.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -32,6 +34,7 @@ public class PluginScreenActivity extends BaseCompat {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_plugin_screen);
+    setupBackgroundBlur();
 
     String screenId = getIntent().getStringExtra(EXTRA_SCREEN_ID);
     PluginScreen screen = findScreen(screenId);
@@ -49,6 +52,13 @@ public class PluginScreenActivity extends BaseCompat {
           .replace(R.id.plugin_screen_container, fragment)
           .commit();
     }
+  }
+
+  private void setupBackgroundBlur() {
+    ImageView background = findViewById(R.id.backgroundIconPluginScreen);
+    View container = findViewById(R.id.plugin_screen_container);
+    if (background == null || container == null) return;
+    setupBackgroundBlur(background, container);
   }
 
   private static PluginScreen findScreen(String screenId) {

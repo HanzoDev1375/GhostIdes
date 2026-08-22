@@ -11,7 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import ir.hanzodev1375.ghostide.R;
+import ir.hanzodev1375.ghostide.ide.api.EditorExtensionPoints;
+import ir.hanzodev1375.ghostide.ide.ui.api.PluginUiExtensionPoints;
 import ir.hanzodev1375.ghostide.interfaces.OnItemClickListener;
+import ir.hanzodev1375.ghostide.plugin.api.ExtensionPoint;
+import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplManifest;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplManifestReader;
 import java.io.File;
@@ -44,8 +48,7 @@ public final class PluginPopupAdapter extends RecyclerView.Adapter<PluginPopupAd
   @Override
   public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     View v =
-        LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.glass_plugin_item, parent, false);
+        LayoutInflater.from(parent.getContext()).inflate(R.layout.glass_plugin_item, parent, false);
     return new VH(v);
   }
 
@@ -53,15 +56,12 @@ public final class PluginPopupAdapter extends RecyclerView.Adapter<PluginPopupAd
   public void onBindViewHolder(@NonNull VH holder, int position) {
     PluginItem item = items.get(position);
     holder.name.setText(item.name());
+    holder.typeIcon.setImageResource(typeIconRes(item.id()));
 
     byte[] iconBytes = GplManifestReader.readIconBytes(item.gplFile(), item.manifest());
     if (iconBytes != null) {
       Bitmap bitmap = BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.length);
-      Glide.with(holder.icon.getContext())
-          .asBitmap()
-          .load(bitmap)
-          .centerInside()
-          .into(holder.icon);
+      Glide.with(holder.icon.getContext()).asBitmap().load(bitmap).centerInside().into(holder.icon);
     } else {
       holder.icon.setImageResource(fallbackIconRes);
     }
@@ -75,14 +75,36 @@ public final class PluginPopupAdapter extends RecyclerView.Adapter<PluginPopupAd
     return items.size();
   }
 
+  private static boolean owns(String pluginId, ExtensionPoint<?> point) {
+    try {
+      return GlobalRegistry.extensions().registrations(point).stream()
+          .anyMatch(r -> pluginId.equals(r.ownerPluginId()));
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  private static int typeIconRes(String pluginId) {
+    if (owns(pluginId, EditorExtensionPoints.LSP_SERVER_PROVIDER)) {
+      return R.drawable.ic_plugin_lsp;
+    }
+    if (owns(pluginId, PluginUiExtensionPoints.EDITOR_PANEL)
+        || owns(pluginId, PluginUiExtensionPoints.EDITOR_ACTION_HANDLER)) {
+      return R.drawable.ic_plugin_editor;
+    }
+    return R.drawable.ic_plugin_misc;
+  }
+
   static final class VH extends RecyclerView.ViewHolder {
     final ImageView icon;
     final TextView name;
+    final ImageView typeIcon;
 
     VH(@NonNull View itemView) {
       super(itemView);
       icon = itemView.findViewById(R.id.pluginIcon);
       name = itemView.findViewById(R.id.pluginName);
+      typeIcon = itemView.findViewById(R.id.pluginTypeBadge);
     }
   }
 }

@@ -77,9 +77,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
+        android:background="@android:color/transparent"
         app:tabMode="scrollable"
         app:tabGravity="start"
-        android:background="?attr/colorSurfaceContainerLow"
         app:tabIndicatorFullWidth="false"
         app:tabIndicatorHeight="3dp"
         app:tabRippleColor="@android:color/transparent" />

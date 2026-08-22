@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
 /**
- * Switches the app's launcher icon by enabling exactly one AppIcon's component (MainActivity or one
+ * Switches the app's launcher icon by enabling exactly one AppIcon's component (SplashActivity or one
  * of its activity-aliases) and disabling all the others.
  *
  * <p>Usage: AppIconManager.applyIcon(context, AppIcon.DARK); AppIcon current =

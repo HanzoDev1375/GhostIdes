@@ -35,6 +35,7 @@ public class CollectionsActivity extends BaseCompat {
     super.onCreate(savedInstanceState);
     binding = ActivityCollectionsBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
+    setupBackgroundBlur(binding.backgroundIconCollections, binding.toolbar);
     UiUtils.fixUi(binding.getRoot());
     repository = new AppRepository(this);
     binding.toolbar.setNavigationOnClickListener(v -> finish());

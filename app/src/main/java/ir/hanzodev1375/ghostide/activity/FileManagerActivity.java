@@ -13,6 +13,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
@@ -1726,9 +1727,11 @@ public class FileManagerActivity extends BaseCompat
 
     var rv = new RecyclerView(this);
     rv.setLayoutManager(new LinearLayoutManager(this));
+    var popupRef = new PopupWindow[1];
     rv.setAdapter(
         new PluginPopupAdapter(
             (view, item, pos) -> {
+              if (popupRef[0] != null) popupRef[0].dismiss();
               var allScreens =
                   GlobalRegistry.extensions()
                       .extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
@@ -1757,7 +1760,7 @@ public class FileManagerActivity extends BaseCompat
 
     ((PluginPopupAdapter) rv.getAdapter()).submit(pluginItems);
 
-    ObjectUtil.showGlassPopup(this, anchor, rv);
+    popupRef[0] = ObjectUtil.showGlassPopup(this, anchor, rv);
   }
 
   private void navigateToPath(String path) {

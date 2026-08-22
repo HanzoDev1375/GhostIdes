@@ -1,5 +1,8 @@
 <resources>
   <string name="empty">empty</string>
+  <string name="empty_view_default_title">Nothing here yet</string>
+  <string name="empty_view_default_description">Items will appear here once available</string>
+  <string name="empty_view_cd_icon">Empty state icon</string>
   <string name="dialog_rename">Rename?</string>
   <string name="dialog_rename_massges">Rename item %s</string>
   <string name="ftp_connect_title">Connect to Server</string>

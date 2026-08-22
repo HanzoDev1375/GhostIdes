@@ -7,7 +7,16 @@
   android:backgroundTint="?colorSurfaceContainer"
   android:id="@+id/coordinator">
 
+  <ImageView
+    android:id="@+id/backgroundIconPlugins"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:importantForAccessibility="no"
+    android:scaleType="centerCrop"
+    android:visibility="gone" />
+
   <LinearLayout
+    android:id="@+id/pluginContent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">

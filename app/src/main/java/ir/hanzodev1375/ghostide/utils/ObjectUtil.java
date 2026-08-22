@@ -72,7 +72,7 @@ public class ObjectUtil {
     void onItemClick(int position, String title);
   }
 
-  public static void showGlassPopup(Activity activity, View anchor, View content) {
+  public static PopupWindow showGlassPopup(Activity activity, View anchor, View content) {
     int[] loc = new int[2];
     anchor.getLocationOnScreen(loc);
 
@@ -124,6 +124,7 @@ public class ObjectUtil {
       y = loc[1] - menuHeight;
     }
     popupWindow.showAtLocation(anchor, Gravity.TOP | Gravity.START, loc[0], y);
+    return popupWindow;
   }
 
   public static void showGlassMenu(

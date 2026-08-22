@@ -10,7 +10,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import android.widget.Toast;
 
-public class MainActivity extends BaseCompat {
+public class SplashActivity extends BaseCompat {
 
   private ActivityResultLauncher<Intent> manageStorageLauncher;
   private boolean started = false;
@@ -18,7 +18,7 @@ public class MainActivity extends BaseCompat {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
+    setContentView(R.layout.activity_splash);
 
     manageStorageLauncher =
         registerForActivityResult(

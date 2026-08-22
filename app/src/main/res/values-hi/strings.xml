@@ -254,6 +254,11 @@
   <string name="internal_storage_label">आंतरिक स्टोरेज</string>
   <string name="sd_card_not_found">कोई एसडी कार्ड नहीं मिला</string>
   <string name="sd_card_space_info">एसडी कार्ड: %1$s %2$s से निःशुल्क</string>
+  <string name="goto_dir">पथ पर जाओ</string>
+  <string name="goto_dir_hint">एक फ़ोल्डर पथ दर्ज करें</string>
+  <string name="goto_root">जड़</string>
+  <string name="goto_dir_not_found">पथ नहीं मिला: %1$s</string>
+  <string name="goto_dir_not_directory">फ़ोल्डर नहीं: %1$s</string>
   <string name="pref_animation_battery_threshold_desc">एनिमेशन बैटरी थ्रेशोल्ड</string>
   <string name="pref_animation_battery_threshold">एनीमेशन बैटरी</string>
   <string name="pref_grid">ग्रिड गिनती %s</string>
@@ -294,9 +299,15 @@
   <string name="split_layout_columns">कॉलम</string>
   <string name="split_layout_apply">स्प्लिट लागू करें</string>
   <string name="split_layout_exit">विभाजन से बाहर निकलें</string>
+  <string name="editor_status_lines">%1$d पंक्तियाँ · %2$s</string>
   <string name="terminal_title">टर्मिनल</string>
   <string name="terminal_new_session">नया सत्र</string>
+  <string name="terminal_more_options">अधिक विकल्प</string>
+  <string name="plugin_type_badge">प्लगइन प्रकार</string>
   <string name="terminal_close_session">सत्र बंद करें</string>
+  <string name="terminal_command_hint">आदेश दर्ज करें</string>
+  <string name="terminal_send_command">आदेश भेजें</string>
+  <string name="terminal_toggle_dock">टर्मिनल इनपुट टॉगल करें</string>
   <string name="rename_package_menu_item">पैकेज का नाम बदलें</string>
   <string name="rename_package_title">पैकेज का नाम बदलें</string>
   <string name="rename_package_description">किसी पैकेज का नाम बदलना इस मॉड्यूल में प्रत्येक पैकेज घोषणा, आयात और संदर्भ को अद्यतन करता है, फिर स्रोत फ़ाइलों को नई फ़ोल्डर संरचना में ले जाता है।</string>
@@ -461,4 +472,7 @@
   <string name="icon_devilishpurple">शैतानी बैंगनी</string>
   <string name="icon_blackmagic">टोना टोटका</string>
   <string name="icon_purplewitch">बैंगनी चुड़ैल</string>
+  <string name="theme_edit">अभी थीम संपादित करें</string>
+  <string name="theme_apply">अभी थीम लागू करें</string>
+  <string name="no_plugins">कोई प्लगइन्स स्थापित नहीं है</string>
 </resources>

@@ -16,6 +16,7 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.ViewCompat;
@@ -797,9 +798,11 @@ public class EditorActivity extends BaseCompat
 
     var rv = new RecyclerView(this);
     rv.setLayoutManager(new LinearLayoutManager(this));
+    var popupRef = new PopupWindow[1];
     rv.setAdapter(
         new PluginPopupAdapter(
             (view, item, pos) -> {
+              if (popupRef[0] != null) popupRef[0].dismiss();
               var allPanels =
                   GlobalRegistry.extensions()
                       .extensions(PluginUiExtensionPoints.EDITOR_PANEL);
@@ -844,7 +847,7 @@ public class EditorActivity extends BaseCompat
 
     ((PluginPopupAdapter) rv.getAdapter()).submit(pluginItems);
 
-    ObjectUtil.showGlassPopup(this, anchor, rv);
+    popupRef[0] = ObjectUtil.showGlassPopup(this, anchor, rv);
   }
 
   void stepSearch() {
