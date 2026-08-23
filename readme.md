@@ -108,7 +108,16 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
 - [x] vue
 - [ ] cmake
 - [x] antlr
-
+- [x] swift 
+- [x] scala
+- [x] perl
+- [x] julia
+- [x] r
+- [x] elixir
+- [x] haskell
+- [x] nim
+- [x] solidity
+- [x] asm
 
 ---
 

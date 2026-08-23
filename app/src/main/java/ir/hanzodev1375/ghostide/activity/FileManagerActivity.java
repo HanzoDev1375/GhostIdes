@@ -184,7 +184,22 @@ public class FileManagerActivity extends BaseCompat
               ".g4",
               ".ini",
               ".zig",
-              ".vue"));
+              ".vue",
+              ".asm",
+              ".s",
+              ".nasm",
+              ".swift",
+              ".scala",
+              ".sc",
+              ".pl",
+              ".pm",
+              ".jl",
+              ".r",
+              ".ex",
+              ".exs",
+              ".hs",
+              ".nim",
+              ".sol"));
   private Set<String> images =
       new HashSet<>(
           Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp", ".avif", ".webp", ".svg"));

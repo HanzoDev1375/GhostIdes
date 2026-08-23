@@ -20,6 +20,7 @@ import androidx.appcompat.app.AlertDialog;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.databinding.ActivityWebBinding;
+import ir.hanzodev1375.ghostide.utils.WebDownloadHelper;
 import ir.hanzodev1375.ghostide.utils.WebViewSetting;
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -113,6 +114,11 @@ public class WebViewActivity extends BaseCompat {
         });
 
     b.swiperefreshlayout.setOnRefreshListener(() -> b.webView.reload());
+
+    b.webView.setDownloadListener(
+        (url, userAgent, contentDisposition, mimetype, contentLength) ->
+            WebDownloadHelper.handleDownload(
+                this, url, contentDisposition, mimetype, contentLength));
   }
 
   private void setupUrlBar() {

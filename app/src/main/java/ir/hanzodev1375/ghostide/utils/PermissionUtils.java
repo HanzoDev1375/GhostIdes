@@ -56,6 +56,14 @@ public class PermissionUtils {
     }
   }
 
+  public static void requestManageStoragePermission(Activity activity) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
+      Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+      intent.setData(Uri.parse("package:" + activity.getPackageName()));
+      activity.startActivity(intent);
+    }
+  }
+
   public static boolean hasPermissions(Context context) {
     for (String perm : getRequiredPermissions()) {
       if (ContextCompat.checkSelfPermission(context, perm) != PackageManager.PERMISSION_GRANTED)
