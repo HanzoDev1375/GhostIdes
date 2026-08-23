@@ -10,6 +10,8 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.FileIOUtils;
+import ir.hanzodev1375.ghostide.ide.ui.api.FileEvent;
+import ir.hanzodev1375.ghostide.ide.ui.api.IdeEvents;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -93,6 +95,7 @@ public class EditorViewModel extends AndroidViewModel {
                 boolean success = FileIOUtils.writeFileFromString(filePath, textContent, false);
                 if (success) {
                   Log.d("EditorViewModel", "فایل ذخیره شد: " + filePath);
+                  IdeEvents.post(FileEvent.saved(filePath));
                 } else {
                   Log.e("EditorViewModel", "خطا در ذخیره فایل: " + filePath);
                 }

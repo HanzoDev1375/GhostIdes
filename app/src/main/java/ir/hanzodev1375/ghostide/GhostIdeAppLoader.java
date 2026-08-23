@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Process;
 import android.util.Log;
 import com.downloader.PRDownloader;
+import ir.hanzodev1375.ghostide.adapters.UiFeedbackHostImpl;
 import ir.hanzodev1375.ghostide.activity.ErrorManagerActivity;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.ProotProcessLauncherImpl;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
@@ -53,6 +54,10 @@ public class GhostIdeAppLoader extends Application {
     PRDownloader.initialize(getApplicationContext());
     GlobalRegistry.services()
         .register(IdeHostServices.PROOT_PROCESS_LAUNCHER, new ProotProcessLauncherImpl(this));
+    UiFeedbackHostImpl uiFeedbackHost = new UiFeedbackHostImpl();
+    registerActivityLifecycleCallbacks(uiFeedbackHost);
+    GlobalRegistry.services()
+        .register(IdeHostServices.UI_FEEDBACK, uiFeedbackHost);
     JsonFileIconHelper.setExternalResolver(
         path -> {
           for (FileIconContributor contributor :

@@ -22,6 +22,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import android.os.Environment;
 import ir.hanzodev1375.ghostide.enums.FileState;
+import ir.hanzodev1375.ghostide.ide.ui.api.FileEvent;
+import ir.hanzodev1375.ghostide.ide.ui.api.IdeEvents;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 
@@ -180,13 +182,17 @@ public class FileViewModel extends AndroidViewModel {
     File newFile = new File(oldFile.getParent(), newName);
     if (oldFile.renameTo(newFile)) {
       model.setState(FileState.RENAME);
+      IdeEvents.post(FileEvent.renamed(oldFile.getAbsolutePath(), newFile.getAbsolutePath()));
       loadFiles(currentPath.getValue());
     }
   }
 
   public void deleteFile(FileManagerModel model) {
     File file = new File(model.getPath());
-    if (file.delete()) loadFiles(currentPath.getValue());
+    if (file.delete()) {
+      IdeEvents.post(FileEvent.deleted(file.getAbsolutePath()));
+      loadFiles(currentPath.getValue());
+    }
   }
 
   public void deleteFiles(List<FileManagerModel> items) {
@@ -211,6 +217,9 @@ public class FileViewModel extends AndroidViewModel {
           }
 
           deleteProgress.postValue(new DeleteProgress("", 0, 0, false));
+          for (FileManagerModel item : items) {
+            IdeEvents.post(FileEvent.deleted(item.getPath()));
+          }
           loadFiles(currentPath.getValue());
         });
   }

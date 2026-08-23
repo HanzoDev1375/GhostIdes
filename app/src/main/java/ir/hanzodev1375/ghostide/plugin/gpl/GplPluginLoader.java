@@ -23,6 +23,7 @@ import dalvik.system.DexClassLoader;
 import dalvik.system.InMemoryDexClassLoader;
 
 import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
+import ir.hanzodev1375.ghostide.plugin.api.CoreServices;
 import ir.hanzodev1375.ghostide.plugin.api.GhostPlugin;
 import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
 import ir.hanzodev1375.ghostide.plugin.api.LayeredServiceRegistry;
@@ -106,6 +107,8 @@ public final class GplPluginLoader {
 
     MutableServiceRegistry pluginServices = new LayeredServiceRegistry(GlobalRegistry.services());
     pluginServices.register(IdeHostServices.PLUGIN_ANDROID_CONTEXT, pluginAndroidContext);
+    pluginServices.register(
+        CoreServices.PLUGIN_STORAGE, new PluginStorageImpl(appContext, manifest.id()));
 
     DefaultPluginContext pluginContext =
         new DefaultPluginContext(

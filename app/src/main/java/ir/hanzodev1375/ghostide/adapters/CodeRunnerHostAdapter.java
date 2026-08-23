@@ -5,6 +5,10 @@ import android.os.Looper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import ir.hanzodev1375.ghostide.activity.EditorActivity;
 import ir.hanzodev1375.ghostide.ide.ui.api.CodeRunnerHost;
@@ -55,6 +59,39 @@ public final class CodeRunnerHostAdapter implements CodeRunnerHost {
   @Override
   public boolean isSupported(String filePath) {
     return delegate.isSupported(filePath);
+  }
+
+  @Override
+  public ExecResult exec(String command, Consumer<String> onOutputLine) {
+    Process process = null;
+    try {
+      ProcessBuilder pb = new ProcessBuilder("sh", "-c", command);
+      pb.redirectErrorStream(true);
+      process = pb.start();
+      StringBuilder output = new StringBuilder();
+      try (BufferedReader reader =
+          new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+        String line;
+        while ((line = reader.readLine()) != null) {
+          output.append(line).append('\n');
+          if (onOutputLine != null) {
+            try {
+              onOutputLine.accept(line);
+            } catch (Throwable ignored) {
+            }
+          }
+        }
+      }
+      int exitCode = process.waitFor();
+      return new ExecResult(exitCode, output.toString());
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return new ExecResult(-2, "");
+    } catch (IOException e) {
+      return new ExecResult(-1, "");
+    } finally {
+      if (process != null) process.destroy();
+    }
   }
 
   private static final String CMD_RUN_FILE = "ghostide.runFile";

@@ -33,5 +33,12 @@ public final class IdeHostServices {
   public static final ServiceKey<ProotProcessLauncher> PROOT_PROCESS_LAUNCHER =
       new ServiceKey<>("ir.hanzodev1375.ghostide.ui.prootProcessLauncher", ProotProcessLauncher.class);
 
+  /**
+   * Shows toasts and simple dialogs (input, confirm) on behalf of a plugin. Safe from any thread;
+   * see {@link UiFeedbackHost}.
+   */
+  public static final ServiceKey<UiFeedbackHost> UI_FEEDBACK =
+      new ServiceKey<>("ir.hanzodev1375.ghostide.ui.uiFeedback", UiFeedbackHost.class);
+
   private IdeHostServices() {}
 }

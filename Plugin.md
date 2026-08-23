@@ -163,6 +163,100 @@ return a code action whose `command` is one of these built-ins, and the editor r
 | `ghostide.runFile` | `["/path/file.py", true]` — file path, optional `asBottomSheet` |
 | `ghostide.runCurrentFile` | `[true]` — optional `asBottomSheet` |
 
+### Headless execution with output capture
+
+When you need a command's output programmatically instead of showing it in the terminal, use
+`exec()`. It runs headlessly (`sh -c`, no UI) and blocks until the process exits — call it from a
+background thread:
+
+```java
+CodeRunnerHost.ExecResult result =
+    runner.exec("git -C /sdcard/Project status --porcelain", null);
+if (result.success()) {
+  String listing = result.output();
+}
+```
+
+Pass a `Consumer<String>` as the second argument to receive each merged stdout/stderr line as it
+arrives. Note this runs in the app's own shell environment; binaries that live inside the proot
+rootfs should go through `ProotProcessLauncher` instead.
+
+## Subscribing to IDE events
+
+Register a `FileEventListener` at `IdeEvents.FILE_EVENT` (`ide-ui-api`) to observe file
+lifecycle changes everywhere in the IDE:
+
+```java
+context.registerDisposable(
+    context.getExtensions().register(
+        IdeEvents.FILE_EVENT,
+        event -> {
+          switch (event.type()) {
+            case SAVED -> lint(event.path());
+            case RENAMED -> updateIndex(event.previousPath(), event.path());
+            case OPENED, CLOSED, DELETED -> {}
+          }
+        }));
+```
+
+Event types: `OPENED`, `SAVED`, `CLOSED`, `DELETED`, `RENAMED`. Paths are absolute; for
+`RENAMED`, `path()` is the new location and `previousPath()` the old one. Listeners may be called
+from any thread (saves and deletes happen on background threads) — hop to the main thread before
+touching UI.
+
+## Showing user feedback (toast / input / confirm)
+
+The host publishes a `UiFeedbackHost` service under `IdeHostServices.UI_FEEDBACK`. All methods are
+safe from any thread; dialog callbacks fire with `null`/`false` when no Activity is available:
+
+```java
+UiFeedbackHost ui = context.getServices().require(IdeHostServices.UI_FEEDBACK);
+
+ui.toast("Indexed 42 files");
+
+ui.confirm("Format all?", "This rewrites 12 files.", confirmed -> {
+  if (confirmed) formatAll();
+});
+
+ui.promptInput("Project name", "my-app", name -> {
+  if (name == null) return; // cancelled
+  createProject(name);
+});
+```
+
+## Persistent per-plugin storage
+
+Every plugin gets its own isolated key-value store, published under `CoreServices.PLUGIN_STORAGE`
+(defined in `plugin-api`, so LSP-only plugins can use it too). Data survives restarts and reloads;
+keep values small and use your private directory for large blobs:
+
+```java
+PluginStorage storage = context.getServices().require(CoreServices.PLUGIN_STORAGE);
+
+int runs = storage.getInt("runCount", 0);
+storage.putInt("runCount", runs + 1);
+storage.putString("lastPath", "/sdcard/Project/main.py");
+```
+
+## Registering commands
+
+Implement `PluginCommand` (`plugin-api`) and register it at `CoreExtensionPoints.PLUGIN_COMMAND`
+so the host can list and invoke your action (e.g. from a command palette):
+
+```java
+public final class FormatCommand implements PluginCommand {
+  @Override public String getId() { return "com.example.myplugin.format"; }
+  @Override public String getTitle() { return "Format project"; }
+  @Override public void execute() { /* may be called off the main thread */ }
+}
+
+// in activate():
+context.registerDisposable(
+    context.getExtensions().register(CoreExtensionPoints.PLUGIN_COMMAND, new FormatCommand()));
+```
+
+Ids must be unique and reverse-domain namespaced.
+
 ## Handling your own LSP actions (optional editor access)
 
 Commands that are not `ghostide.*` are still forwarded to your server via

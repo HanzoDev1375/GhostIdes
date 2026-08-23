@@ -164,6 +164,101 @@ code action یک `command` از این دستورهای داخلی برگردو�
 | `ghostide.runFile` | `["/path/file.py", true]` — مسیر فایل، `asBottomSheet` اختیاری |
 | `ghostide.runCurrentFile` | `[true]` — `asBottomSheet` اختیاری |
 
+### اجرای headless با گرفتن خروجی
+
+وقتی خروجی یه دستور رو برنامه‌نویسی‌شده می‌خواید (نه نمایش تو ترمینال)، از `exec()` استفاده کنید.
+این متد بدون هیچ UI ای (`sh -c`) اجرا می‌کنه و تا تموم شدن پروسس بلاک می‌شه — فقط از ترد
+پس‌زمینه صدا بزنید:
+
+```java
+CodeRunnerHost.ExecResult result =
+    runner.exec("git -C /sdcard/Project status --porcelain", null);
+if (result.success()) {
+  String listing = result.output();
+}
+```
+
+با پاس دادن یه `Consumer<String>` به عنوان آرگومان دوم، هر خط از stdout/stderr (ادغام‌شده) همون
+لحظه به دستتون می‌رسه. توجه: این اجرا تو محیط شل خود اپه؛ باینری‌های داخل rootfs پرووت باید از
+`ProotProcessLauncher` برن.
+
+## گوش دادن به رویدادهای IDE
+
+یه `FileEventListener` پیاده کنید و تو `IdeEvents.FILE_EVENT` (تو `ide-ui-api`) ثبتش کنید تا
+رویدادهای چرخه‌ی عمر فایل در کل IDE رو ببینید:
+
+```java
+context.registerDisposable(
+    context.getExtensions().register(
+        IdeEvents.FILE_EVENT,
+        event -> {
+          switch (event.type()) {
+            case SAVED -> lint(event.path());
+            case RENAMED -> updateIndex(event.previousPath(), event.path());
+            case OPENED, CLOSED, DELETED -> {}
+          }
+        }));
+```
+
+انواع رویداد: `OPENED`، `SAVED`، `CLOSED`، `DELETED`، `RENAMED`. مسیرها absolute هستن؛ برای
+`RENAMED` مقدار `path()` مسیر جدید و `previousPath()` مسیر قبلیه. لیسنر ممکنه روی هر تردی صدا
+زده بشه (ذخیره و حذف روی ترد پس‌زمینه اتفاق می‌افته) — قبل از کار با UI به ترد اصلی سوییچ کنید.
+
+## نشون دادن بازخورد به کاربر (toast / ورودی / تأیید)
+
+هاست یه سرویس `UiFeedbackHost` زیر `IdeHostServices.UI_FEEDBACK` منتشر می‌کنه. همه‌ی متدهاش از
+هر تردی امنن؛ اگر Activity ای برای میزبانی دیالوگ نباشه، callback ها با `null`/`false` صدا زده
+می شن:
+
+```java
+UiFeedbackHost ui = context.getServices().require(IdeHostServices.UI_FEEDBACK);
+
+ui.toast("۴۲ فایل ایندکس شد");
+
+ui.confirm("فرمت همه؟", "این کار ۱۲ فایل رو بازنویسی می‌کنه.", confirmed -> {
+  if (confirmed) formatAll();
+});
+
+ui.promptInput("اسم پروژه", "my-app", name -> {
+  if (name == null) return; // کنسل شد
+  createProject(name);
+});
+```
+
+## فضای ذخیره‌سازی دائمی مخصوص پلاگین
+
+هر پلاگین یه key-value store ایزوله‌ی خودش داره که زیر `CoreServices.PLUGIN_STORAGE` منتشر می‌شه
+(تعریفش تو `plugin-api`ـه، پس پلاگین‌های LSP خالص هم می‌تونن استفاده کنن). داده بعد از ری‌استارت و
+reload پلاگین می‌مونه؛ مقادیر رو کوچیک نگه دارید و برای حجم زیاد از دایرکتوری خصوصی خودتون استفاده
+کنید:
+
+```java
+PluginStorage storage = context.getServices().require(CoreServices.PLUGIN_STORAGE);
+
+int runs = storage.getInt("runCount", 0);
+storage.putInt("runCount", runs + 1);
+storage.putString("lastPath", "/sdcard/Project/main.py");
+```
+
+## ثبت Command
+
+اینترفیس `PluginCommand` رو (تو `plugin-api`) پیاده کنید و تو `CoreExtensionPoints.PLUGIN_COMMAND`
+ثبتش کنید تا هاست بتونه اکشن شما رو لیست و اجرا کنه (مثلاً از command palette):
+
+```java
+public final class FormatCommand implements PluginCommand {
+  @Override public String getId() { return "com.example.myplugin.format"; }
+  @Override public String getTitle() { return "Format project"; }
+  @Override public void execute() { /* ممکنه خارج از ترد اصلی صدا زده بشه */ }
+}
+
+// داخل activate():
+context.registerDisposable(
+    context.getExtensions().register(CoreExtensionPoints.PLUGIN_COMMAND, new FormatCommand()));
+```
+
+شناسه‌ها باید یکتا و به سبک reverse-domain باشن.
+
 ## هندل کردن اکشن‌های LSP خودتون (دسترسی اختیاری به ادیتور)
 
 دستورهایی که `ghostide.*` نیستن همچنان از طریق `workspace/executeCommand` به سرور شما فرستاده

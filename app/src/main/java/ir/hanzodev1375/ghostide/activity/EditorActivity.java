@@ -81,6 +81,8 @@ import ir.hanzodev1375.ghostide.adapters.EditorHostAdapter;
 import ir.hanzodev1375.ghostide.adapters.CodeRunnerHostAdapter;
 import ir.hanzodev1375.ghostide.ide.ui.api.EditorPanel;
 import ir.hanzodev1375.ghostide.ide.ui.api.CodeRunnerHost;
+import ir.hanzodev1375.ghostide.ide.ui.api.FileEvent;
+import ir.hanzodev1375.ghostide.ide.ui.api.IdeEvents;
 import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
 import ir.hanzodev1375.ghostide.ide.ui.api.PluginUiExtensionPoints;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
@@ -1198,6 +1200,7 @@ public class EditorActivity extends BaseCompat
     int dot = path.lastIndexOf('.');
     if (dot != -1) ext = path.substring(dot + 1);
     PluginManager.getInstance().setCurrentEditorActivity(this, getEditor(), path, ext);
+    IdeEvents.post(FileEvent.opened(path));
     refreshGitStatus();
   }
 
@@ -1309,6 +1312,7 @@ public class EditorActivity extends BaseCompat
   private void closeTab(int position) {
     if (position >= 0 && position < tabsList.size()) {
       if (tabsList.get(position).isPinned()) return;
+      IdeEvents.post(FileEvent.closed(tabsList.get(position).getFilePath()));
       tabsList.remove(position);
       adapter.setTabs(new ArrayList<>(tabsList));
       if (binding.splitPaneRoot != null) binding.splitPaneRoot.notifyTabsChanged(tabsList);
@@ -1330,6 +1334,7 @@ public class EditorActivity extends BaseCompat
     newList.add(current);
     for (int i = 0; i < tabsList.size(); i++) {
       if (i != position && tabsList.get(i).isPinned()) newList.add(tabsList.get(i));
+      else if (i != position) IdeEvents.post(FileEvent.closed(tabsList.get(i).getFilePath()));
     }
     tabsList = newList;
     adapter.setTabs(new ArrayList<>(tabsList));
@@ -1342,7 +1347,10 @@ public class EditorActivity extends BaseCompat
 
   private void closeAllTabs() {
     List<TabModel> pinned = new ArrayList<>();
-    for (TabModel tab : tabsList) if (tab.isPinned()) pinned.add(tab);
+    for (TabModel tab : tabsList) {
+      if (tab.isPinned()) pinned.add(tab);
+      else IdeEvents.post(FileEvent.closed(tab.getFilePath()));
+    }
     tabsList = pinned;
     adapter.setTabs(new ArrayList<>(tabsList));
     if (binding.splitPaneRoot != null) binding.splitPaneRoot.notifyTabsChanged(tabsList);

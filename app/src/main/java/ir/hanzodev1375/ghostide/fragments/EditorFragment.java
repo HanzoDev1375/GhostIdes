@@ -31,6 +31,8 @@ import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.EditorFragmentBinding;
+import ir.hanzodev1375.ghostide.ide.ui.api.FileEvent;
+import ir.hanzodev1375.ghostide.ide.ui.api.IdeEvents;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.EditorViewModel;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.LspViewModel;
 import ir.hanzodev1375.ghostide.models.LspState;
@@ -437,6 +439,7 @@ public class EditorFragment extends Fragment {
                   @Override
                   public void onSuccess() {
                     Log.d("EditorFragment", "فایل بزرگ ذخیره شد: " + filePath);
+                    IdeEvents.post(FileEvent.saved(filePath));
                     updateKnownModifiedTime();
                     if (getActivity() instanceof EditorActivity) {
                       ((EditorActivity) getActivity()).setTabDirty(filePath, false);
