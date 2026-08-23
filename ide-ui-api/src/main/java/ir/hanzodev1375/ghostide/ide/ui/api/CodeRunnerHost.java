@@ -4,9 +4,9 @@ import androidx.annotation.Nullable;
 import java.util.function.Consumer;
 
 /**
- * Published as a service by the host under {@link IdeHostServices#CODE_RUNNER_HOST}. Lets a
- * plugin run shell commands or source files exactly like the editor's run (FAB) button does:
- * the command is handed to the IDE terminal, either as a bottom sheet or a full screen.
+ * Published as a service by the host under {@link IdeHostServices#CODE_RUNNER_HOST}. Lets a plugin
+ * run shell commands or source files exactly like the editor's run (FAB) button does: the command
+ * is handed to the IDE terminal, either as a bottom sheet or a full screen.
  *
  * <pre>{@code
  * CodeRunnerHost runner = context.getServices().require(IdeHostServices.CODE_RUNNER_HOST);
@@ -22,7 +22,7 @@ import java.util.function.Consumer;
  *
  * // run headlessly and read the output programmatically (blocking!)
  * ExecResult r = runner.exec("ls -1 /sdcard/Project", null);
- * if (r.exitCode() == 0) { /* parse r.output() */ }
+ * if (r.exitCode() == 0) {  parse r.output() }
  * }</pre>
  */
 public interface CodeRunnerHost {
@@ -54,8 +54,8 @@ public interface CodeRunnerHost {
   /**
    * Runs {@code command} headlessly — no terminal UI — and returns once the process exits. Runs in
    * the app's shell environment ({@code sh -c}), which is not necessarily identical to the
-   * interactive terminal session; binaries living inside the proot rootfs should go through
-   * {@link ProotProcessLauncher} instead. <b>Blocking:</b> call from a background thread only.
+   * interactive terminal session; binaries living inside the proot rootfs should go through {@link
+   * ProotProcessLauncher} instead. <b>Blocking:</b> call from a background thread only.
    *
    * @param onOutputLine invoked per merged stdout/stderr line as it arrives, may be {@code null};
    *     called on the executing thread, so it must be thread-safe and fast
