@@ -104,11 +104,14 @@ public class ZipOperationManager {
     executor.execute(() -> {
         try {
             ZipFile zip = new ZipFile(zipPath);
-           
             String onlyName = newName.contains("/")
                 ? newName.substring(newName.lastIndexOf('/') + 1)
                 : newName;
-            zip.renameFile(oldEntryPath, onlyName);
+            boolean isDirectory = oldEntryPath.endsWith("/") || oldEntryPath.endsWith("\\");
+            int slash = Math.max(oldEntryPath.lastIndexOf('/'), oldEntryPath.lastIndexOf('\\'));
+            String parentPrefix = slash >= 0 ? oldEntryPath.substring(0, slash + 1) : "";
+            String newEntryPath = parentPrefix + onlyName + (isDirectory ? "/" : "");
+            zip.renameFile(oldEntryPath, newEntryPath);
             post(cb, true, "Name is Changed");
         } catch (ZipException e) {
             post(cb, false, e.getMessage());

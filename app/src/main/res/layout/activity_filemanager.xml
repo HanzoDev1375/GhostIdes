@@ -12,11 +12,10 @@
         android:layout_width="match_parent"
         android:id="@+id/backdropContent">
 
-        <ImageView
+        <ir.hanzodev1375.components.childern.ViewChilder
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:visibility="visible"
-            android:scaleType="centerCrop"
             android:id="@+id/backgroundiconfilemanager" />
 
         <LinearLayout

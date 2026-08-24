@@ -188,11 +188,13 @@ public class FileViewModel extends AndroidViewModel {
   }
 
   public void deleteFile(FileManagerModel model) {
-    File file = new File(model.getPath());
-    if (file.delete()) {
-      IdeEvents.post(FileEvent.deleted(file.getAbsolutePath()));
-      loadFiles(currentPath.getValue());
-    }
+    ioExecutor.execute(
+        () -> {
+          File file = new File(model.getPath());
+          deleteRecursive(file);
+          IdeEvents.post(FileEvent.deleted(file.getAbsolutePath()));
+          loadFiles(currentPath.getValue());
+        });
   }
 
   public void deleteFiles(List<FileManagerModel> items) {

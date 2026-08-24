@@ -22,6 +22,7 @@ import net.lingala.zip4j.model.enums.AesKeyStrength;
 import net.lingala.zip4j.model.enums.CompressionLevel;
 import net.lingala.zip4j.model.enums.CompressionMethod;
 import net.lingala.zip4j.model.enums.EncryptionMethod;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
 import java.util.Locale;
@@ -96,7 +97,7 @@ public class ZipUtil {
 
   private static void updateProgress(String fileName, long processedBytes, long totalBytes) {
     if (progressDialog == null || !progressDialog.isShowing()) return;
-    int percent = (int) (processedBytes * 100 / totalBytes);
+    int percent = totalBytes <= 0 ? 100 : (int) (processedBytes * 100 / totalBytes);
     progressBar.setProgress(percent);
     tvPercent.setText(percent + "%");
     tvFileName.setText(fileName);
@@ -150,7 +151,7 @@ public class ZipUtil {
                 new ZipFile(destination, password != null ? password.toCharArray() : null)) {
               AtomicLong processedBytes = new AtomicLong(0);
               for (File src : sources) {
-                addToZip(zipFile, src, parameters, processedBytes, totalBytes);
+                addToZip(zipFile, src, "", parameters, processedBytes, totalBytes);
               }
             }
 
@@ -178,21 +179,37 @@ public class ZipUtil {
   }
 
   private static void addToZip(
-      ZipFile zipFile, File file, ZipParameters params, AtomicLong processed, long total)
+      ZipFile zipFile,
+      File file,
+      String parentRel,
+      ZipParameters params,
+      AtomicLong processed,
+      long total)
       throws Exception {
+    String entryName = parentRel.isEmpty() ? file.getName() : parentRel + "/" + file.getName();
+
     if (file.isDirectory()) {
+      ZipParameters dirParams = new ZipParameters();
+      dirParams.setCompressionMethod(CompressionMethod.STORE);
+      dirParams.setFileNameInZip(entryName + "/");
+      try {
+        zipFile.addStream(new ByteArrayInputStream(new byte[0]), dirParams);
+      } catch (Exception ignored) {
+      }
       File[] children = file.listFiles();
       if (children != null) {
         for (File child : children) {
-          addToZip(zipFile, child, params, processed, total);
+          addToZip(zipFile, child, entryName, params, processed, total);
         }
       }
-    } else {
-      zipFile.addFile(file, params);
-      long added = file.length();
-      long newProcessed = processed.addAndGet(added);
-      mainHandler.post(() -> updateProgress(file.getName(), newProcessed, total));
+      return;
     }
+
+    params.setFileNameInZip(entryName);
+    zipFile.addFile(file, params);
+    long added = file.length();
+    long newProcessed = processed.addAndGet(added);
+    mainHandler.post(() -> updateProgress(file.getName(), newProcessed, total));
   }
 
   public static void showZipDialog(Context context, List<File> selectedFiles) {

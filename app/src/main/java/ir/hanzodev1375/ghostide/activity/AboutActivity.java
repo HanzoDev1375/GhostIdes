@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.core.view.ViewCompat;
@@ -25,6 +24,7 @@ import com.example.liquidglass.LiquidGlassView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.hanzodev1375.ghostide.R;
 
 public class AboutActivity extends BaseCompat {
@@ -67,7 +67,7 @@ public class AboutActivity extends BaseCompat {
   }
 
   private void setupBackgroundBlur() {
-    ImageView background = findViewById(R.id.backgroundIconAbout);
+    ViewChilder background = findViewById(R.id.backgroundIconAbout);
     View content = findViewById(R.id.root_scroll);
     if (background == null || content == null) return;
     setupBackgroundBlur(background, content);

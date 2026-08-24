@@ -3,7 +3,6 @@ package ir.theme.themeeditor;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.BackgroundColorSpan;
@@ -26,7 +25,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.tabs.TabLayout;
@@ -46,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.codeeditors.colorrender.ColorPickerBottomSheetDialog;
@@ -176,7 +175,7 @@ public class ThemeEditorActivity extends BaseCompat {
   }
 
   private void setupBackgroundBlur() {
-    ImageView background = findViewById(R.id.backgroundIconThemeEditor);
+    ViewChilder background = findViewById(R.id.backgroundIconThemeEditor);
     View appbar = findViewById(R.id.appbar);
     if (background == null || appbar == null) return;
     setupBackgroundBlur(background, appbar);
@@ -968,6 +967,14 @@ public class ThemeEditorActivity extends BaseCompat {
       }
     }
 
+    @Override
+    public void onViewRecycled(@NonNull RootHolder holder) {
+      super.onViewRecycled(holder);
+      if (holder instanceof ImageViewHolder) {
+        ((ImageViewHolder) holder).mediaPreview.clear();
+      }
+    }
+
     private void bindTitle(TextView titleView, String title) {
       if (highlightQuery != null && !highlightQuery.isEmpty()) {
         SpannableString spannable = new SpannableString(title);
@@ -1028,23 +1035,19 @@ public class ThemeEditorActivity extends BaseCompat {
       bindTitle(holder.title, item.title);
       boolean hasImage = item.currentPath != null && !item.currentPath.isEmpty();
       holder.clearIcon.setVisibility(hasImage ? View.VISIBLE : View.GONE);
+      // ViewChilder previews every supported media type (image/gif/video/html),
+      // not only static images.
       if (hasImage) {
-        try {
-          Glide.with(holder.imagePreview.getContext())
-              .load(Uri.parse(item.currentPath))
-              .placeholder(R.drawable.ic_photo)
-              .error(R.drawable.ic_photo)
-              .into(holder.imagePreview);
-        } catch (Exception e) {
-          holder.imagePreview.setImageResource(R.drawable.ic_photo);
-        }
+        holder.mediaPreview.setVisibility(View.VISIBLE);
+        holder.mediaPreview.load(item.currentPath);
       } else {
-        holder.imagePreview.setImageResource(R.drawable.ic_photo);
+        holder.mediaPreview.clear();
+        holder.mediaPreview.setVisibility(View.GONE);
       }
       holder.browseIcon.setOnClickListener(
           v -> {
             pendingImageItem = item;
-            pickImageLauncher.launch(new String[] {"image/*"});
+            pickImageLauncher.launch(new String[] {"image/*", "video/*", "text/html"});
           });
       holder.clearIcon.setOnClickListener(
           v -> {
@@ -1114,14 +1117,14 @@ public class ThemeEditorActivity extends BaseCompat {
 
     class ImageViewHolder extends RootHolder {
       TextView title;
-      ImageView imagePreview;
+      ViewChilder mediaPreview;
       ImageView clearIcon;
       ImageView browseIcon;
 
       ImageViewHolder(@NonNull View itemView) {
         super(itemView);
         title = itemView.findViewById(R.id.title);
-        imagePreview = itemView.findViewById(R.id.imagePreview);
+        mediaPreview = itemView.findViewById(R.id.mediaPreview);
         clearIcon = itemView.findViewById(R.id.clearIcon);
         browseIcon = itemView.findViewById(R.id.browseIcon);
       }

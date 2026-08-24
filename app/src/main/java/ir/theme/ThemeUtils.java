@@ -10,20 +10,19 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.sidesheet.SideSheetDialog;
 import com.google.android.material.tabs.TabLayout;
 import com.skydoves.powermenu.PowerMenu;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
+import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.hanzodev1375.filetreelib.widget.FileTreeView;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorscheme.GhostColorScheme;
 import ir.hanzodev1375.ghostide.customui.EditorStatusBar;
 import ir.hanzodev1375.ghostide.customui.GhostIdeEditorSearch;
 import ir.hanzodev1375.ghostide.customui.LayoutSymbolbar;
-import ir.hanzodev1375.ghostide.utils.BlurTransformation;
 
 public class ThemeUtils {
 
@@ -37,7 +36,7 @@ public class ThemeUtils {
     return manager.getTheme();
   }
 
-  public void applyImageBackground(ImageView v) {
+  public void applyImageBackground(ViewChilder v) {
     GhostTheme theme = getTheme();
     if (theme == null) {
       return;
@@ -46,19 +45,12 @@ public class ThemeUtils {
     if (w == null) {
       return;
     }
-    if (w.getImagepath() != null && !w.getImagepath().isEmpty()) {
-      v.setVisibility(View.VISIBLE);
-      if (w.getBlursize() == 0) {
-        Glide.with(v.getContext())
-            .load(w.getImagepath()) // noblur
-            .into(v);
-      } else {
-        Glide.with(v.getContext())
-            .load(w.getImagepath())
-            .transform(new BlurTransformation((int) w.getBlursize()))
-            .into(v);
-      }
-    } else v.setVisibility(View.INVISIBLE);
+    String path = w.getImagepath();
+    if (path != null && !path.isEmpty()) {
+      v.load(path, w.getBlursize());
+    } else {
+      v.clear();
+    }
   }
 
   public void applyView(View v) {
@@ -103,7 +95,7 @@ public class ThemeUtils {
     tv.setTextColor(Color.parseColor(wiget.getMenutextcolor()));
   }
 
-  public void setFileManagerBack(View headTop, View headBottom, ImageView ic) {
+  public void setFileManagerBack(View headTop, View headBottom, ViewChilder ic) {
     headBottom.setBackgroundColor(Color.TRANSPARENT);
     headTop.setBackgroundColor(Color.TRANSPARENT);
     GhostTheme theme = getTheme();
@@ -115,18 +107,10 @@ public class ThemeUtils {
       return;
     }
     if (w.getImagepath() != null && !w.getImagepath().isEmpty()) {
-      ic.setVisibility(View.VISIBLE);
-      if (w.getBlursize() == 0) {
-        Glide.with(ic.getContext())
-            .load(w.getImagepath()) // not blur mod inject
-            .into(ic);
-      } else {
-        Glide.with(ic.getContext())
-            .load(w.getImagepath())
-            .transform(new BlurTransformation((int) w.getBlursize()))
-            .into(ic);
-      }
-    } else ic.setVisibility(View.INVISIBLE);
+      ic.load(w.getImagepath(), w.getBlursize());
+    } else {
+      ic.clear();
+    }
   }
 
   public int getMenuColor() {

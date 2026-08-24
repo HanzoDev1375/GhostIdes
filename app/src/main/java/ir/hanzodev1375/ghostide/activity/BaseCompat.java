@@ -1,7 +1,6 @@
 package ir.hanzodev1375.ghostide.activity;
 
 import android.app.ActivityOptions;
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import com.google.android.material.transition.platform.MaterialSharedAxis;
 import android.content.Context;
@@ -12,16 +11,15 @@ import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import ir.hanzodev1375.components.animators.AnimationManager;
+import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.hanzodev1375.ghostide.themeengine.Theme;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
-import ir.hanzodev1375.ghostide.utils.BlurTransformation;
 import ir.hanzodev1375.ghostide.utils.LocaleHelper;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
-import com.bumptech.glide.Glide;
 import android.view.View;
 
 public class BaseCompat extends AppCompatActivity
@@ -94,7 +92,7 @@ public class BaseCompat extends AppCompatActivity
     }
   }
 
-  protected void setupBackgroundBlur(ImageView backgroundView, View... transparentViews) {
+  protected void setupBackgroundBlur(ViewChilder backgroundView, View... transparentViews) {
     PreferencesUtils setting = new PreferencesUtils(this);
     if (!setting.isShowBackground()) return;
 
@@ -102,7 +100,10 @@ public class BaseCompat extends AppCompatActivity
     var theme = themeUtil.getTheme();
     if (theme == null || theme.getWidget() == null) return;
     var widget = theme.getWidget();
-    if (widget.getImagepath() == null || widget.getImagepath().isEmpty()) return;
+    if (widget.getImagepath() == null || widget.getImagepath().isEmpty()) {
+      backgroundView.clear();
+      return;
+    }
 
     getWindow().setStatusBarColor(Color.TRANSPARENT);
     getWindow().setNavigationBarColor(Color.TRANSPARENT);

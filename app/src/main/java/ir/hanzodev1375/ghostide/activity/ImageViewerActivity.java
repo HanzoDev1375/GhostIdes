@@ -27,6 +27,7 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.palette.graphics.Palette;
 import androidx.viewpager2.widget.ViewPager2;
+import com.blankj.utilcode.util.ToastUtils;
 import com.example.liquidglass.LiquidGlassView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.hanzodev1375.ghostide.R;
@@ -88,6 +89,7 @@ public class ImageViewerActivity extends BaseCompat {
     setupGlassBackdrop(bind.btnZoomg);
     setupGlassBackdrop(bind.btnSaveg);
     setupGlassBackdrop(bind.btnShareg);
+    setupGlassBackdrop(bind.tvCounterg);
     btnSettings = bind.btnSettings;
     btnGallery = bind.btnGallery;
     btnNext = bind.btnNext;
@@ -268,8 +270,9 @@ public class ImageViewerActivity extends BaseCompat {
 
   private void showImageInfo() {
     if (uriList.isEmpty()) return;
-    Uri uri = uriList.get(viewPager.getCurrentItem());
-    Toast.makeText(this, "URI: " + uri.toString(), Toast.LENGTH_LONG).show();
+    //    Uri uri = uriList.get(viewPager.getCurrentItem());
+    //    Toast.makeText(this, "URI: " + uri.toString(), Toast.LENGTH_LONG).show();
+    ToastUtils.showLong("Share not work...");
   }
 
   private void saveCurrentImage() {

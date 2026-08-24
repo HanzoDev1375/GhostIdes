@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -23,6 +22,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 import ir.hanzodev1375.components.SearchLayout;
 import ir.hanzodev1375.components.TextInputDialogFragment;
+import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.hanzodev1375.components.sheet.SliderSheet;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.adapters.SettingsAdapter;
@@ -233,7 +233,7 @@ public class SettingActivity extends BaseCompat {
   private void setupBackgroundBlur() {
     View appbar = findViewById(R.id.appbar);
     View settingsContainer = findViewById(R.id.settings_container);
-    ImageView backgroundIcon = findViewById(R.id.backgroundIconSetting);
+    ViewChilder backgroundIcon = findViewById(R.id.backgroundIconSetting);
     if (appbar == null || settingsContainer == null || backgroundIcon == null) return;
     setupBackgroundBlur(backgroundIcon, appbar, settingsContainer);
   }

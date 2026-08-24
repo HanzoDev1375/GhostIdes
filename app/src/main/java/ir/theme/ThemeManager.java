@@ -19,6 +19,14 @@ public class ThemeManager {
   private final Gson gson;
   private final Context context;
 
+  // Single-entry cache for the merged theme JSON. Keyed by the source identity
+  // (file path + timestamp + size, or prefs content hash) so any edit to the
+  // theme file invalidates it automatically. Prevents re-reading the file and
+  // re-parsing JSON (3 parses per call before) on every activity create/resume.
+  private static final Object CACHE_LOCK = new Object();
+  private static String cacheKey;
+  private static String cachedMergedJson;
+
   public ThemeManager(Context context) {
     this.context = context;
     this.preferences = context.getSharedPreferences(ConstKeys.PREFS_NAME, Context.MODE_PRIVATE);
@@ -28,6 +36,7 @@ public class ThemeManager {
   public void saveTheme(GhostTheme theme) {
     String json = gson.toJson(theme);
     preferences.edit().putString(ConstKeys.THEME, json).apply();
+    invalidateCache();
   }
 
   public GhostTheme getTheme() {
@@ -38,9 +47,13 @@ public class ThemeManager {
       File file = new File(themeFile);
       if (file.exists()) {
         try {
-          String json =
-              new String(FileUtil.readBytesCompat(file), StandardCharsets.UTF_8);
-          String merged = mergeWithDefault(json);
+          String key = "file:" + themeFile + "@" + file.lastModified() + ":" + file.length();
+          String merged = peekCache(key);
+          if (merged == null) {
+            merged =
+                mergeWithDefault(new String(FileUtil.readBytesCompat(file), StandardCharsets.UTF_8));
+            putCache(key, merged);
+          }
           GhostTheme theme = gson.fromJson(merged, GhostTheme.class);
           if (theme != null) {
             return theme;
@@ -57,7 +70,12 @@ public class ThemeManager {
     }
 
     try {
-      String merged = mergeWithDefault(json);
+      String key = "prefs:" + json.length() + "@" + json.hashCode();
+      String merged = peekCache(key);
+      if (merged == null) {
+        merged = mergeWithDefault(json);
+        putCache(key, merged);
+      }
       GhostTheme theme = gson.fromJson(merged, GhostTheme.class);
       if (theme == null) {
         return gson.fromJson(getDefaultThemeJson(), GhostTheme.class);
@@ -68,7 +86,28 @@ public class ThemeManager {
     }
   }
 
+  private static String peekCache(String key) {
+    synchronized (CACHE_LOCK) {
+      return key.equals(cacheKey) ? cachedMergedJson : null;
+    }
+  }
+
+  private static void putCache(String key, String mergedJson) {
+    synchronized (CACHE_LOCK) {
+      cacheKey = key;
+      cachedMergedJson = mergedJson;
+    }
+  }
+
+  private static void invalidateCache() {
+    synchronized (CACHE_LOCK) {
+      cacheKey = null;
+      cachedMergedJson = null;
+    }
+  }
+
   public void setThemeFromFile(String filePath) {
+    invalidateCache();
     PreferencesUtils prefsUtils = new PreferencesUtils(context);
     if (filePath == null || filePath.trim().isEmpty()) {
       prefsUtils.setAppThemeFile("");
@@ -236,6 +275,7 @@ public class ThemeManager {
   }
 
   public void resetToDefault() {
+    invalidateCache();
     preferences.edit().remove(ConstKeys.THEME).apply();
     new PreferencesUtils(context).setAppThemeFile("");
   }

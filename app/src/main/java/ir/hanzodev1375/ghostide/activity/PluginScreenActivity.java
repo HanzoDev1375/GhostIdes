@@ -4,13 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.List;
 
 import androidx.fragment.app.Fragment;
 
+import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.ide.ui.api.PluginScreen;
 import ir.hanzodev1375.ghostide.ide.ui.api.PluginUiExtensionPoints;
@@ -55,7 +55,7 @@ public class PluginScreenActivity extends BaseCompat {
   }
 
   private void setupBackgroundBlur() {
-    ImageView background = findViewById(R.id.backgroundIconPluginScreen);
+    ViewChilder background = findViewById(R.id.backgroundIconPluginScreen);
     View container = findViewById(R.id.plugin_screen_container);
     if (background == null || container == null) return;
     setupBackgroundBlur(background, container);

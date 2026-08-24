@@ -6,12 +6,11 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <ImageView
+    <ir.hanzodev1375.components.childern.ViewChilder
         android:id="@+id/backgroundIconSetting"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:importantForAccessibility="no"
-        android:scaleType="centerCrop"
         android:visibility="visible" />
 
     <com.google.android.material.appbar.AppBarLayout

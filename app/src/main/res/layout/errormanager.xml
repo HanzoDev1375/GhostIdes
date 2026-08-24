@@ -8,12 +8,11 @@
     android:id="@+id/_coordinator"
     >
 
-    <ImageView
+    <ir.hanzodev1375.components.childern.ViewChilder
         android:id="@+id/backgroundIconError"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:importantForAccessibility="no"
-        android:scaleType="centerCrop"
         android:visibility="gone"
         />
 

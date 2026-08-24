@@ -127,6 +127,9 @@ public class FileManagerActivity extends BaseCompat
   private ImageView btnCopy, btnCut, btnDelete, btnPaste, btnClose, btnSelectall;
   private boolean isCutOperation = false;
   private List<FileManagerModel> pendingClipboard = new ArrayList<>();
+  private List<ZipEntryModel> zipClipboard = new ArrayList<>();
+  private String zipClipboardSource = null;
+  private boolean zipClipboardCut = false;
   private SelectionPanelBinding selectionPanelBinding;
   private FileManagerModel fileModels;
   private UpadteAppView app;
@@ -233,9 +236,7 @@ public class FileManagerActivity extends BaseCompat
     var themeManager = new ThemeManager(this);
     themeutil = new ThemeUtils(themeManager);
     bind.fab.bindOfAcivity(this);
-    if (appsetting.isShowBackground()) {
-      themeutil.setFileManagerBack(bind.headline, bind.headtop, bind.backgroundiconfilemanager);
-    } else {
+    if (!appsetting.isShowBackground()) {
       bind.headtop.setBackgroundColor(
           MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
       bind.headline.setBackground(ShapeUtil.shape(40f, this));
@@ -434,7 +435,7 @@ public class FileManagerActivity extends BaseCompat
         new FileManagerAdapter.SelectionStateListener() {
           @Override
           public void onSelectionChanged(int count) {
-            if (count == 0 && pendingClipboard.isEmpty()) {
+            if (count == 0 && pendingClipboard.isEmpty() && zipClipboard.isEmpty()) {
               if (selectionPanel != null) selectionPanel.setVisibility(View.GONE);
             } else if (count > 0) {
               selectionPanel.setVisibility(View.VISIBLE);
@@ -683,7 +684,7 @@ public class FileManagerActivity extends BaseCompat
         new ZipBrowserAdapter.SelectionStateListener() {
           @Override
           public void onSelectionChanged(int count) {
-            if (count == 0 && pendingClipboard.isEmpty()) {
+            if (count == 0 && pendingClipboard.isEmpty() && zipClipboard.isEmpty()) {
               if (selectionPanel != null) selectionPanel.setVisibility(View.GONE);
             } else if (count > 0) {
               selectionPanel.setVisibility(View.VISIBLE);
@@ -716,6 +717,8 @@ public class FileManagerActivity extends BaseCompat
   private void exitZipMode() {
     isZipMode = false;
     currentZipFilePath = null;
+    zipAdapter.clearSelection();
+    resetZipClipboard();
     bind.rvfiles.setAdapter(adapter);
     adapter.setupSelectionTracker(bind.rvfiles);
     viewModel.loadFiles(viewModel.getCurrentPath().getValue());
@@ -978,6 +981,19 @@ public class FileManagerActivity extends BaseCompat
     var selectionMore = selectionPanelBinding.selectionmore;
     btnCopy.setOnClickListener(
         v -> {
+          if (isZipMode) {
+            List<ZipEntryModel> selected = zipAdapter.getSelectedItems();
+            if (!selected.isEmpty()) {
+              zipClipboard = new ArrayList<>(selected);
+              zipClipboardSource = currentZipFilePath;
+              zipClipboardCut = false;
+              zipAdapter.clearSelection();
+              btnPaste.setColorFilter(0xff00ff00);
+              selectionCount.setText("0");
+              selectionPanel.setVisibility(View.VISIBLE);
+            }
+            return;
+          }
           List<FileManagerModel> selected = adapter.getSelectedItems();
           if (!selected.isEmpty()) {
             pendingClipboard = new ArrayList<>(selected);
@@ -991,6 +1007,19 @@ public class FileManagerActivity extends BaseCompat
 
     btnCut.setOnClickListener(
         v -> {
+          if (isZipMode) {
+            List<ZipEntryModel> selected = zipAdapter.getSelectedItems();
+            if (!selected.isEmpty()) {
+              zipClipboard = new ArrayList<>(selected);
+              zipClipboardSource = currentZipFilePath;
+              zipClipboardCut = true;
+              zipAdapter.clearSelection();
+              btnPaste.setColorFilter(0xff00ff00);
+              selectionCount.setText("0");
+              selectionPanel.setVisibility(View.VISIBLE);
+            }
+            return;
+          }
           List<FileManagerModel> selected = adapter.getSelectedItems();
           if (!selected.isEmpty()) {
             pendingClipboard = new ArrayList<>(selected);
@@ -1004,6 +1033,46 @@ public class FileManagerActivity extends BaseCompat
 
     btnDelete.setOnClickListener(
         v -> {
+          if (isZipMode) {
+            List<ZipEntryModel> selected = zipAdapter.getSelectedItems();
+            if (selected.isEmpty()) return;
+            List<String> entryPaths = new ArrayList<>();
+            for (ZipEntryModel e : selected) entryPaths.add(e.getEntryPath());
+            new MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.removed))
+                .setMessage(getString(R.string.removedmassges, selected.size()))
+                .setPositiveButton(
+                    getString(R.string.ok),
+                    (d, w) ->
+                        new ZipOperationManager()
+                            .deleteEntries(
+                                currentZipFilePath,
+                                entryPaths,
+                                new ZipOperationManager.Callback() {
+                                  @Override
+                                  public void onSuccess(String msg) {
+                                    Toast.makeText(
+                                            FileManagerActivity.this,
+                                            getString(R.string.zip_deleted_ok),
+                                            Toast.LENGTH_SHORT)
+                                        .show();
+                                    zipAdapter.loadZip(
+                                        currentZipFilePath, zipAdapter.getCurrentInternalPath());
+                                  }
+
+                                  @Override
+                                  public void onError(String err) {
+                                    Toast.makeText(
+                                            FileManagerActivity.this,
+                                            getString(R.string.zip_error_prefix, err),
+                                            Toast.LENGTH_SHORT)
+                                        .show();
+                                  }
+                                }))
+                .setNegativeButton(getString(R.string.cancel), null)
+                .show();
+            return;
+          }
           List<FileManagerModel> selected = adapter.getSelectedItems();
           if (!selected.isEmpty()) {
             new MaterialAlertDialogBuilder(this)
@@ -1022,6 +1091,68 @@ public class FileManagerActivity extends BaseCompat
 
     btnPaste.setOnClickListener(
         v -> {
+          if (isZipMode) {
+            if (zipClipboard.isEmpty()) return;
+            String destDir = viewModel.getCurrentPath().getValue();
+            if (destDir == null) return;
+            List<String> entryPaths = new ArrayList<>();
+            for (ZipEntryModel e : zipClipboard) entryPaths.add(e.getEntryPath());
+            String sourceZip = zipClipboardSource;
+            boolean cut = zipClipboardCut;
+            new ZipOperationManager()
+                .extractMultiple(
+                    currentZipFilePath,
+                    entryPaths,
+                    destDir,
+                    new ZipOperationManager.ProgressCallback() {
+                      @Override
+                      public void onProgress(int percent, String fileName) {}
+
+                      @Override
+                      public void onSuccess(String msg) {
+                        Toast.makeText(
+                                FileManagerActivity.this,
+                                getString(R.string.zip_extracted_ok),
+                                Toast.LENGTH_SHORT)
+                            .show();
+                        zipAdapter.clearSelection();
+                        resetZipClipboard();
+                        if (cut && sourceZip != null && sourceZip.equals(currentZipFilePath)) {
+                          new ZipOperationManager()
+                              .deleteEntries(
+                                  sourceZip,
+                                  entryPaths,
+                                  new ZipOperationManager.Callback() {
+                                    @Override
+                                    public void onSuccess(String msg1) {
+                                      zipAdapter.loadZip(
+                                          currentZipFilePath,
+                                          zipAdapter.getCurrentInternalPath());
+                                    }
+
+                                    @Override
+                                    public void onError(String err) {
+                                      Toast.makeText(
+                                              FileManagerActivity.this,
+                                              getString(R.string.zip_error_prefix, err),
+                                              Toast.LENGTH_SHORT)
+                                          .show();
+                                    }
+                                  });
+                        }
+                      }
+
+                      @Override
+                      public void onError(String err) {
+                        Toast.makeText(
+                                FileManagerActivity.this,
+                                getString(R.string.zip_error_prefix, err),
+                                Toast.LENGTH_SHORT)
+                            .show();
+                      }
+                    });
+            return;
+          }
           if (pendingClipboard.isEmpty()) return;
           String currentDir = viewModel.getCurrentPath().getValue();
           if (currentDir != null) {
@@ -1043,6 +1174,10 @@ public class FileManagerActivity extends BaseCompat
 
     btnSelectall.setOnClickListener(
         v -> {
+          if (isZipMode) {
+            zipAdapter.selectAll();
+            return;
+          }
           adapter.selectAll();
           selectionCount.setText(
               getString(R.string.selected_items_count, adapter.getSelectedItems().size()));
@@ -1055,11 +1190,14 @@ public class FileManagerActivity extends BaseCompat
         v -> {
           pendingClipboard.clear();
           adapter.clearSelection();
+          zipAdapter.clearSelection();
+          resetZipClipboard();
           btnPaste.clearColorFilter();
           selectionPanel.setVisibility(View.GONE);
         });
     selectionMore.setOnClickListener(
         v -> {
+          if (isZipMode) return;
           List<FileManagerModel> selected = adapter.getSelectedItems();
           if (selected.isEmpty()) return;
 
@@ -1095,6 +1233,13 @@ public class FileManagerActivity extends BaseCompat
               });
         });
     selectionPanel.setVisibility(View.GONE);
+  }
+
+  private void resetZipClipboard() {
+    zipClipboard.clear();
+    zipClipboardSource = null;
+    zipClipboardCut = false;
+    btnPaste.clearColorFilter();
   }
 
   private void setupInsets() {
@@ -1493,7 +1638,7 @@ public class FileManagerActivity extends BaseCompat
           new FileManagerAdapter.SelectionStateListener() {
             @Override
             public void onSelectionChanged(int count) {
-              if (count == 0 && pendingClipboard.isEmpty()) {
+              if (count == 0 && pendingClipboard.isEmpty() && zipClipboard.isEmpty()) {
                 if (selectionPanel != null) selectionPanel.setVisibility(View.GONE);
               } else if (count > 0) {
                 selectionPanel.setVisibility(View.VISIBLE);

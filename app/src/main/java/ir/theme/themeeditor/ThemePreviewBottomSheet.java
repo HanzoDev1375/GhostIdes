@@ -6,12 +6,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -25,7 +23,7 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.cpp.CppLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
-import ir.hanzodev1375.ghostide.utils.BlurTransformation;
+import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.theme.EditorTheme;
 import ir.theme.GhostTheme;
 
@@ -35,7 +33,7 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
 
   private IdeEditor editorPreview;
   private TabLayout tabLayout;
-  private ImageView ivBackground;
+  private ViewChilder backgroundMedia;
   private GhostTheme currentTheme;
   private FloatingActionButton fabClose;
 
@@ -74,7 +72,7 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
 
     editorPreview = view.findViewById(R.id.editorPreview);
     tabLayout = view.findViewById(R.id.tabLayout);
-    ivBackground = view.findViewById(R.id.ivBackgroundImage);
+    backgroundMedia = view.findViewById(R.id.ivBackgroundImage);
     fabClose = view.findViewById(R.id.fabClose);
 
     applyThemeToEditor();
@@ -84,13 +82,22 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
     fabClose.setOnClickListener(v -> dismiss());
   }
 
+  @Override
+  public void onDestroyView() {
+    // Release the media child (video player / webview) when the sheet goes away.
+    if (backgroundMedia != null) {
+      backgroundMedia.clear();
+    }
+    super.onDestroyView();
+  }
+
   private void applyThemeToEditor() {
     if (currentTheme == null || currentTheme.getEditor() == null) return;
 
     EditorTheme t = currentTheme.getEditor();
     var scheme = editorPreview.getColorScheme();
     var widget = currentTheme.getWidget();
-    ivBackground.setBackgroundColor(parseColor(widget.getBackground()));
+    backgroundMedia.setBackgroundColor(parseColor(widget.getBackground()));
     if (widget.getBackground() != null) {
       tabLayout.setBackgroundColor(parseColor(widget.getBackground()));
     }
@@ -260,13 +267,11 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
         (currentTheme.getWidget() != null) ? currentTheme.getWidget().getImagepath() : null;
     getView().setBackgroundColor(Color.parseColor(currentTheme.getActivity().getBackground()));
     if (imagePath != null && !imagePath.isEmpty()) {
-      Glide.with(this)
-          .load(imagePath)
-          .transform(new BlurTransformation((int) currentTheme.getWidget().getBlursize()))
-          .into(ivBackground);
-      ivBackground.setVisibility(View.VISIBLE);
+      backgroundMedia.setVisibility(View.VISIBLE);
+      backgroundMedia.load(imagePath, currentTheme.getWidget().getBlursize());
     } else {
-      ivBackground.setVisibility(View.GONE);
+      backgroundMedia.clear();
+      backgroundMedia.setVisibility(View.GONE);
     }
   }
 

@@ -48,7 +48,6 @@ public class WebViewSetting {
     webView.setLayerType(WebView.LAYER_TYPE_HARDWARE, null);
     webView.setScrollBarStyle(WebView.SCROLLBARS_INSIDE_OVERLAY);
     webView.setOverScrollMode(WebView.OVER_SCROLL_ALWAYS);
-    webView.requestFocus(WebView.FOCUS_DOWN);
   }
 
   

@@ -25,7 +25,6 @@ import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import ir.hanzodev1375.ghostide.materialfileicon.core.FileIconHelper;
-import com.bumptech.glide.Glide;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
 import com.google.android.material.listitem.ListItemViewHolder;
@@ -374,20 +373,17 @@ public class ZipBrowserAdapter extends RecyclerView.Adapter<ZipBrowserAdapter.Vi
 
     void bind(ZipEntryModel item) {
 
-      String iconPath = item.isDirectory() ? item.getName() + "/" : item.getName();
       if (item.isDirectory()) {
-        ivIcon.setImageResource(R.drawable.folder);
         ivIcon.setImageTintList(
             ColorStateList.valueOf(MaterialColors.getColor(ivIcon, R.attr.colorOnSurface, 0)));
+        ivIcon.setImageResource(R.drawable.folder);
       } else {
+        ivIcon.setImageTintList(null);
         ivIcon.clearColorFilter();
-        FileIconHelper iconHelper = new FileIconHelper(iconPath);
+        FileIconHelper iconHelper = new FileIconHelper(item.getName());
         iconHelper.setDynamicFolderEnabled(false);
         iconHelper.setEnvironmentEnabled(false);
-        Glide.with(ivIcon.getContext())
-            .load(iconHelper.getFileIcon())
-            .error(R.drawable.ic_close)
-            .into(ivIcon);
+        iconHelper.bindIcon(ivIcon);
       }
 
       GradientDrawable gd = new GradientDrawable();

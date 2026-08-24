@@ -7,11 +7,10 @@
   android:fitsSystemWindows="false"
   android:id="@+id/_coordinator">
 
-  <ImageView
+  <ir.hanzodev1375.components.childern.ViewChilder
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:visibility="invisible"
-    android:scaleType="centerCrop"
     android:id="@+id/backgroundicon" />
 
   <LinearLayout

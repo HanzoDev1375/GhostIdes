@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     android:layout_height="match_parent"
+     android:layout_width="match_parent">
+
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/contentArea"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent">
+         android:layout_height="match_parent"
+         android:layout_width="match_parent"
+         android:id="@+id/contentArea">
 
         <ImageView
              android:layout_height="0dp"
@@ -40,7 +41,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Top bar overlay: LiquidGlass buttons are SIBLINGS of contentArea, not children -->
     <LinearLayout
          android:layout_height="wrap_content"
          android:layout_width="match_parent"
@@ -52,17 +52,35 @@
          android:layout_gravity="top"
          android:id="@+id/topBar">
 
-        <TextView
+        <com.example.liquidglass.LiquidGlassView
              android:layout_height="52dp"
-             android:layout_width="72dp"
-             android:gravity="center"
-             android:background="@drawable/bg_pill_dark"
-             android:textSize="15sp"
-             android:fontFamily="sans-serif-medium"
-             android:textColor="#FFFFFF"
-             android:id="@+id/tvCounter"
-             android:text="1·1"
-             android:textStyle="bold" />
+             android:layout_width="52dp"
+             app:aberrationIntensity="2"
+             app:cornerRadius="26dp"
+             app:saturation="140"
+             android:layout_marginStart="10dp"
+             app:blurAmount="0.0625"
+             android:id="@+id/tvCounterg">
+
+            <LinearLayout
+                 android:layout_height="match_parent"
+                 android:layout_width="match_parent"
+                 android:orientation="vertical">
+
+                <TextView
+                     android:layout_height="match_parent"
+                     android:layout_width="match_parent"
+                     android:gravity="center"
+                     android:textSize="15sp"
+                     android:fontFamily="sans-serif-medium"
+                     android:textColor="#FFFFFF"
+                     android:id="@+id/tvCounter"
+                     android:text="1·1"
+                     android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </com.example.liquidglass.LiquidGlassView>
 
         <com.example.liquidglass.LiquidGlassView
              android:layout_height="52dp"
@@ -70,9 +88,9 @@
              app:aberrationIntensity="2"
              app:cornerRadius="26dp"
              app:saturation="140"
-             android:id="@+id/btnSettingsg"
              android:layout_marginStart="10dp"
-             app:blurAmount="0.0625">
+             app:blurAmount="0.0625"
+             android:id="@+id/btnSettingsg">
 
             <ImageButton
                  android:layout_height="match_parent"
@@ -92,9 +110,9 @@
              app:aberrationIntensity="2"
              app:cornerRadius="26dp"
              app:saturation="140"
-             android:id="@+id/btnGalleryg"
              android:layout_marginStart="10dp"
-             app:blurAmount="0.0625">
+             app:blurAmount="0.0625"
+             android:id="@+id/btnGalleryg">
 
             <ImageButton
                  android:layout_height="match_parent"
@@ -119,8 +137,8 @@
              app:aberrationIntensity="2"
              app:cornerRadius="25dp"
              app:saturation="140"
-             android:id="@+id/btnNextg"
-             app:blurAmount="0.0625">
+             app:blurAmount="0.0625"
+             android:id="@+id/btnNextg">
 
             <ImageButton
                  android:layout_height="match_parent"
@@ -136,7 +154,6 @@
 
     </LinearLayout>
 
-    <!-- Bottom bar overlay -->
     <LinearLayout
          android:layout_height="wrap_content"
          android:layout_width="wrap_content"
@@ -152,8 +169,8 @@
              app:aberrationIntensity="2"
              app:cornerRadius="26dp"
              app:saturation="140"
-             android:id="@+id/btnInfog"
-             app:blurAmount="0.0625">
+             app:blurAmount="0.0625"
+             android:id="@+id/btnInfog">
 
             <ImageButton
                  android:layout_height="match_parent"
@@ -173,9 +190,9 @@
              app:aberrationIntensity="2"
              app:cornerRadius="26dp"
              app:saturation="140"
-             android:id="@+id/btnRotateg"
              android:layout_marginStart="14dp"
-             app:blurAmount="0.0625">
+             app:blurAmount="0.0625"
+             android:id="@+id/btnRotateg">
 
             <ImageButton
                  android:layout_height="match_parent"
@@ -195,9 +212,9 @@
              app:aberrationIntensity="2"
              app:cornerRadius="26dp"
              app:saturation="140"
-             android:id="@+id/btnZoomg"
              android:layout_marginStart="14dp"
-             app:blurAmount="0.0625">
+             app:blurAmount="0.0625"
+             android:id="@+id/btnZoomg">
 
             <ImageButton
                  android:layout_height="match_parent"
@@ -216,10 +233,10 @@
              android:layout_width="52dp"
              app:aberrationIntensity="2"
              app:cornerRadius="26dp"
-             android:id="@+id/btnSaveg"
              app:saturation="140"
              android:layout_marginStart="14dp"
-             app:blurAmount="0.0625">
+             app:blurAmount="0.0625"
+             android:id="@+id/btnSaveg">
 
             <ImageButton
                  android:layout_height="match_parent"
@@ -239,9 +256,9 @@
              app:aberrationIntensity="2"
              app:cornerRadius="26dp"
              app:saturation="140"
-             android:id="@+id/btnShareg"
              android:layout_marginStart="14dp"
-             app:blurAmount="0.0625">
+             app:blurAmount="0.0625"
+             android:id="@+id/btnShareg">
 
             <ImageButton
                  android:layout_height="match_parent"

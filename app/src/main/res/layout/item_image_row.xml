@@ -15,14 +15,13 @@
          android:layout_weight="1"
          android:id="@+id/title" />
 
-    <ImageView
+    <ir.hanzodev1375.components.childern.ViewChilder
          android:layout_height="48dp"
          android:layout_width="48dp"
          android:layout_marginEnd="12dp"
-         android:scaleType="centerCrop"
-         android:src="@drawable/ic_photo"
-         android:contentDescription="Preview"
-         android:id="@+id/imagePreview" />
+         android:importantForAccessibility="no"
+         android:visibility="gone"
+         android:id="@+id/mediaPreview" />
 
     <ImageView
          android:layout_height="24dp"

@@ -185,7 +185,7 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
     terminalBinding.inputDock.setBackgroundColor(Color.TRANSPARENT);
     terminalBinding.inputDock.setElevation(0f);
     terminalBinding.terminalView.setBackgroundColor(Color.TRANSPARENT);
-    terminalBinding.backgroundIconTerminal.setVisibility(View.VISIBLE);
+    themeutil.applyImageBackground(terminalBinding.backgroundIconTerminal);
   }
 
   private void setupTerminalView() {

@@ -9,10 +9,10 @@
          android:layout_height="match_parent"
          android:layout_width="match_parent">
 
-        <ImageView
+        <ir.hanzodev1375.components.childern.ViewChilder
              android:layout_height="match_parent"
              android:layout_width="match_parent"
-             android:scaleType="centerCrop"
+             android:importantForAccessibility="no"
              android:id="@+id/ivBackgroundImage" />
 
         <LinearLayout
