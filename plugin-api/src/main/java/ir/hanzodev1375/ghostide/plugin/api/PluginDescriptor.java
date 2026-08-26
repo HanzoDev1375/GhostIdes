@@ -32,13 +32,13 @@ public final class PluginDescriptor {
       throw new IllegalArgumentException(
           "Plugin id '" + builder.id + "' must use letters, numbers, '.', '_' or '-'");
     }
-    if (builder.name == null || builder.name.isBlank()) {
+    if (builder.name == null || builder.name.trim().isEmpty()) {
       throw new IllegalArgumentException("Plugin name must not be blank");
     }
-    if (builder.version == null || builder.version.isBlank()) {
+    if (builder.version == null || builder.version.trim().isEmpty()) {
       throw new IllegalArgumentException("Plugin version must not be blank");
     }
-    if (builder.entryClass == null || builder.entryClass.isBlank()) {
+    if (builder.entryClass == null || builder.entryClass.trim().isEmpty()) {
       throw new IllegalArgumentException("Plugin entry class must not be blank");
     }
     this.id = builder.id;

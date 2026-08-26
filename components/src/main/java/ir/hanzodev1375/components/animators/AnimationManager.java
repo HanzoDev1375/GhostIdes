@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.util.Log;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 
@@ -52,7 +53,11 @@ public class AnimationManager {
   public void registerReceiver(Context context) {
     if (!receiverRegistered) {
       IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-      context.getApplicationContext().registerReceiver(batteryReceiver, filter);
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        context.getApplicationContext().registerReceiver(batteryReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+      } else {
+        context.getApplicationContext().registerReceiver(batteryReceiver, filter);
+      }
       receiverRegistered = true;
     }
   }

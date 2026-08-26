@@ -10,7 +10,7 @@ package ir.hanzodev1375.ghostide.plugin.api;
 public record PluginDependency(String id, String minVersion, boolean optional) {
 
   public PluginDependency {
-    if (id == null || id.isBlank()) {
+    if (id == null || id.trim().isEmpty()) {
       throw new IllegalArgumentException("Plugin dependency id must not be blank");
     }
   }

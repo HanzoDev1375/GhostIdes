@@ -3,25 +3,21 @@ package ir.hanzodev1375.ghostide.utils;
 import android.app.Activity;
 import android.os.Environment;
 import android.text.TextUtils;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import ir.hanzodev1375.ghostide.R;
 import androidx.appcompat.app.AlertDialog;
-
 import com.downloader.PRDownloader;
 import com.downloader.OnDownloadListener;
-
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.textfield.TextInputEditText;
+
 import java.io.File;
 import java.util.Locale;
 
-/**
- * Custom WebView download handler. Shows a confirm dialog (name / destination / size) and downloads
- * with PRDownloader into /Download/GhostIDE using a custom progress dialog (percent + transferred
- * bytes + speed + cancel).
- */
 public final class WebDownloadHelper {
 
   private static final String DEFAULT_SUBDIR = "Download/GhostIDE";
@@ -66,50 +62,26 @@ public final class WebDownloadHelper {
 
     String suggestedName = uniqueTarget(dir, resolveFileName(url, contentDisposition, mimetype));
 
-    LinearLayout box = new LinearLayout(activity);
-    box.setOrientation(LinearLayout.VERTICAL);
-    int p = dp(activity, 20);
-    box.setPadding(p, dp(activity, 8), p, 0);
+    View view = LayoutInflater.from(activity).inflate(R.layout.dialog_download_confirm, null);
 
-    TextView tvUrl = new TextView(activity);
-    tvUrl.setText("From: " + shorten(hostOf(url), 46));
-    tvUrl.setTextSize(12);
-    tvUrl.setAlpha(.7f);
-    box.addView(tvUrl);
+    TextView tvFrom = view.findViewById(R.id.tvFrom);
+    tvFrom.setText("From: " + shorten(hostOf(url), 46));
 
-    TextView tvDir = new TextView(activity);
-    tvDir.setText("To: " + dir.getAbsolutePath());
-    tvDir.setTextSize(12);
-    tvDir.setAlpha(.7f);
-    int padTop = dp(activity, 6);
-    tvDir.setPadding(0, padTop, 0, 0);
-    box.addView(tvDir);
+    TextView tvTo = view.findViewById(R.id.tvTo);
+    tvTo.setText("To: " + dir.getAbsolutePath());
 
-    TextView lbl = new TextView(activity);
-    lbl.setText("File name");
-    lbl.setTextSize(12);
-    lbl.setPadding(0, dp(activity, 14), 0, dp(activity, 4));
-    box.addView(lbl);
-
-    android.widget.EditText etName = new android.widget.EditText(activity);
+    TextInputEditText etName = view.findViewById(R.id.etName);
     etName.setText(suggestedName);
-    etName.setSingleLine(true);
-    etName.setTypeface(android.graphics.Typeface.MONOSPACE);
-    etName.setTextSize(13);
-    box.addView(etName);
 
+    TextView tvSize = view.findViewById(R.id.tvSize);
     if (contentLength > 0) {
-      TextView tvSize = new TextView(activity);
       tvSize.setText("Size: " + formatBytes(contentLength));
-      tvSize.setTextSize(12);
-      tvSize.setAlpha(.7f);
-      tvSize.setPadding(0, padTop, 0, 0);
-      box.addView(tvSize);
+      tvSize.setVisibility(View.VISIBLE);
     }
 
     new MaterialAlertDialogBuilder(activity)
         .setTitle("Download")
-        .setView(box)
+        .setView(view)
         .setPositiveButton(
             "Download",
             (d, w) -> {
@@ -123,35 +95,20 @@ public final class WebDownloadHelper {
 
   private static void start(final Activity activity, String url, final File dir, String fileName) {
 
-    ProgressBar bar = new ProgressBar(activity, null, android.R.attr.progressBarStyleHorizontal);
-    LinearLayout.LayoutParams lp =
-        new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-    bar.setLayoutParams(lp);
+    View view = LayoutInflater.from(activity).inflate(R.layout.dialog_download_progress, null);
 
-    LinearLayout box = new LinearLayout(activity);
-    box.setOrientation(LinearLayout.VERTICAL);
-    int p = dp(activity, 20);
-    box.setPadding(p, dp(activity, 10), p, 0);
-    box.addView(bar);
-
-    final TextView tvPercent = new TextView(activity);
-    tvPercent.setText("0%  ·  0 / ?  ·  –");
-    tvPercent.setTextSize(12);
-    tvPercent.setTypeface(android.graphics.Typeface.MONOSPACE);
-    tvPercent.setPadding(0, dp(activity, 10), 0, 0);
-    box.addView(tvPercent);
+    LinearProgressIndicator progressBar = view.findViewById(R.id.progressBar);
+    final TextView tvProgress = view.findViewById(R.id.tvProgress);
 
     final AlertDialog progressDialog =
         new MaterialAlertDialogBuilder(activity)
             .setTitle(fileName)
-            .setView(box)
+            .setView(view)
             .setCancelable(false)
             .setNegativeButton(
                 "Cancel",
                 (d, w) -> {
-                  
-                  Object tag = bar.getTag();
+                  Object tag = progressBar.getTag();
                   if (tag instanceof Integer) PRDownloader.cancel((Integer) tag);
                 })
             .create();
@@ -180,13 +137,13 @@ public final class WebDownloadHelper {
                   String speedTxt =
                       speed > 0 ? String.format(Locale.US, "%.1f MB/s", speed / 1048576f) : "–";
                   if (progress.totalBytes <= 0) {
-                    bar.setIndeterminate(true);
-                    tvPercent.setText(formatBytes(progress.currentBytes) + "  ·  " + speedTxt);
+                    progressBar.setIndeterminate(true);
+                    tvProgress.setText(formatBytes(progress.currentBytes) + "  ·  " + speedTxt);
                   } else {
                     int percent = (int) (progress.currentBytes * 100 / progress.totalBytes);
-                    bar.setIndeterminate(false);
-                    bar.setProgress(percent);
-                    tvPercent.setText(
+                    progressBar.setIndeterminate(false);
+                    progressBar.setProgress(percent);
+                    tvProgress.setText(
                         percent
                             + "%  ·  "
                             + formatBytes(progress.currentBytes)
@@ -223,14 +180,13 @@ public final class WebDownloadHelper {
                   }
                 });
 
-    bar.setTag(reqId);
+    progressBar.setTag(reqId);
   }
 
   private static File targetDir() {
     return new File(Environment.getExternalStorageDirectory(), DEFAULT_SUBDIR);
   }
 
-  /** contentDisposition wins, then URL segment, then timestamped fallback. */
   private static String resolveFileName(String url, String contentDisposition, String mimetype) {
     if (!TextUtils.isEmpty(contentDisposition)) {
       java.util.regex.Matcher m =
@@ -256,7 +212,6 @@ public final class WebDownloadHelper {
     return s.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
   }
 
-  /** avoid overwriting: name.ext -> name(1).ext ... */
   private static String uniqueTarget(File dir, String name) {
     File f = new File(dir, name);
     if (!f.exists()) return name;
@@ -338,9 +293,5 @@ public final class WebDownloadHelper {
     if (b < 1048576) return String.format(Locale.US, "%.1f KB", b / 1024f);
     if (b < 1073741824L) return String.format(Locale.US, "%.1f MB", b / 1048576f);
     return String.format(Locale.US, "%.2f GB", b / 1073741824f);
-  }
-
-  private static int dp(Activity activity, int val) {
-    return Math.round(val * activity.getResources().getDisplayMetrics().density);
   }
 }

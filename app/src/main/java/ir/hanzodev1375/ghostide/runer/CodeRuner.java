@@ -38,7 +38,7 @@ public class CodeRuner {
 
     /** Runs a raw shell command, without building one from a file. */
     public void runShell(String command, boolean asBottomSheet) {
-        if (command == null || command.isBlank()) return;
+        if (command == null || command.trim().isEmpty()) return;
         if (asBottomSheet) {
             runInBottomSheet(command);
         } else {

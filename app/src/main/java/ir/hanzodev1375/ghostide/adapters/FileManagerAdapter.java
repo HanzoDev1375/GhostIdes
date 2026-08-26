@@ -131,9 +131,37 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
     Set<String> newPaths = changedPaths != null ? changedPaths : Collections.emptySet();
     if (newPaths.equals(this.gitChangedPaths)) return;
 
+    Set<String> oldPaths = this.gitChangedPaths;
+    Set<String> oldDirPrefixes = this.gitChangedDirPrefixes;
     this.gitChangedPaths = newPaths;
     this.gitChangedDirPrefixes = computeDirPrefixes(newPaths);
-    notifyDataSetChanged();
+
+    if (oldPaths.isEmpty() && newPaths.isEmpty()) return;
+    if (items.isEmpty()) return;
+
+    List<Integer> changedPositions = new ArrayList<>();
+    for (int i = 0; i < items.size(); i++) {
+      FileManagerModel item = items.get(i);
+      boolean wasChanged = isGitChangedWithSet(item, oldPaths, oldDirPrefixes);
+      boolean isNowChanged = isGitChanged(item);
+      if (wasChanged != isNowChanged) {
+        changedPositions.add(i);
+      }
+    }
+    if (!changedPositions.isEmpty()) {
+      for (int pos : changedPositions) {
+        notifyItemChanged(pos);
+      }
+    }
+  }
+
+  private boolean isGitChangedWithSet(
+      FileManagerModel item, Set<String> paths, Set<String> dirPrefixes) {
+    if (paths.isEmpty()) return false;
+    String path = item.getPath();
+    if (path == null) return false;
+    if (!item.isDirectory()) return paths.contains(path);
+    return dirPrefixes.contains(path);
   }
 
   /**
@@ -285,13 +313,19 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
   }
 
   public void submitList(List<FileManagerModel> newList) {
+    submitList(newList, true);
+  }
+
+  public void submitList(List<FileManagerModel> newList, boolean animate) {
     DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new FileDiffCallback(items, newList));
     items = newList != null ? newList : new ArrayList<>();
     itemsFull = new ArrayList<>(items);
     rebuildIdMap();
     diffResult.dispatchUpdatesTo(this);
     if (selectionTracker != null) selectionTracker.clearSelection();
-    resetAnimation();
+    if (animate) {
+      resetAnimation();
+    }
   }
 
   private void rebuildIdMap() {
@@ -304,8 +338,12 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
   public void search(String query) {
     this.searchQuery = query == null ? "" : query.trim();
     if (searchQuery.isEmpty()) {
-      submitList(new ArrayList<>(itemsFull));
-      notifyDataSetChanged();
+      DiffUtil.DiffResult diffResult =
+          DiffUtil.calculateDiff(new FileDiffCallback(items, itemsFull));
+      items = new ArrayList<>(itemsFull);
+      rebuildIdMap();
+      diffResult.dispatchUpdatesTo(this);
+      if (selectionTracker != null) selectionTracker.clearSelection();
       return;
     }
     String lowerQuery = searchQuery.toLowerCase();
@@ -320,7 +358,6 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
     items = filteredList;
     rebuildIdMap();
     diffResult.dispatchUpdatesTo(this);
-    notifyItemRangeChanged(0, items.size());
     if (selectionTracker != null) selectionTracker.clearSelection();
   }
 

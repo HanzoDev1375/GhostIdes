@@ -8,7 +8,7 @@ package ir.hanzodev1375.ghostide.plugin.api;
 public record ServiceKey<T>(String name, Class<T> type) {
 
   public ServiceKey {
-    if (name == null || name.isBlank()) {
+    if (name == null || name.trim().isEmpty()) {
       throw new IllegalArgumentException("Service key name must not be blank");
     }
     if (type == null) {

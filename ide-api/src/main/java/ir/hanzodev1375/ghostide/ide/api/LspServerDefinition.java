@@ -24,18 +24,18 @@ public final class LspServerDefinition {
   private final String textMateGrammarLink;
 
   private LspServerDefinition(Builder builder) {
-    if (builder.id == null || builder.id.isBlank()) {
+    if (builder.id == null || builder.id.trim().isEmpty()) {
       throw new IllegalArgumentException("LSP definition id must not be blank");
     }
     if (builder.fileExtensions == null || builder.fileExtensions.isEmpty()) {
       throw new IllegalArgumentException("LSP definition must support at least one file extension");
     }
     for (String extension : builder.fileExtensions) {
-      if (extension == null || extension.isBlank()) {
+      if (extension == null || extension.trim().isEmpty()) {
         throw new IllegalArgumentException("LSP file extensions must not be blank");
       }
     }
-    if (builder.displayName == null || builder.displayName.isBlank()) {
+    if (builder.displayName == null || builder.displayName.trim().isEmpty()) {
       throw new IllegalArgumentException("LSP display name must not be blank");
     }
     if (builder.connectionFactory == null) {

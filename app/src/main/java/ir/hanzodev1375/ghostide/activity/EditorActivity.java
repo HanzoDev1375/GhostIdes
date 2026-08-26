@@ -8,11 +8,9 @@ import ir.hanzodev1375.ghostide.plugin.gpl.GplManifest;
 import ir.hanzodev1375.ghostide.utils.ObjectUtil;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.TypedValue;
 import android.view.View;
@@ -102,8 +100,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-public class EditorActivity extends BaseCompat
-    implements FileRenameNotifier.Listener {
+public class EditorActivity extends BaseCompat implements FileRenameNotifier.Listener {
 
   private ActivityEditorBinding binding;
   private EditorPagerAdapter adapter;
@@ -198,7 +195,7 @@ public class EditorActivity extends BaseCompat
     loadSavedTabs();
     updateLanguageStatus(binding.viewPager.getCurrentItem());
     PluginManager.init(this);
-    String configPath = Environment.getExternalStorageDirectory() + "/GhostIDE/plugins/config.json";
+    String configPath = new File(getFilesDir(), "GhostIDE/plugins/config.json").getAbsolutePath();
     PluginManager.getInstance().loadPluginsFromConfig(configPath);
     editorHostRegistration =
         GlobalRegistry.services()
@@ -486,6 +483,7 @@ public class EditorActivity extends BaseCompat
     if (Intent.ACTION_SEND.equals(action)
         && intent.getType() != null
         && "text/plain".equals(intent.getType())) {
+      @SuppressWarnings("deprecation")
       Uri sharedUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
       if (sharedUri != null) {
         String path = getRealPathFromUri(sharedUri);
@@ -498,8 +496,7 @@ public class EditorActivity extends BaseCompat
   }
 
   private void saveAndOpenSharedText(String text) {
-    String tempDir = Environment.getExternalStorageDirectory() + "/GhostIDE/temp/";
-    File dir = new File(tempDir);
+    File dir = new File(getCacheDir(), "GhostIDE/temp");
     if (!dir.exists()) dir.mkdirs();
     String fileName = "shared_text_" + System.currentTimeMillis() + ".txt";
     File file = new File(dir, fileName);
@@ -513,16 +510,6 @@ public class EditorActivity extends BaseCompat
       return uri.getPath();
     }
     if ("content".equals(uri.getScheme())) {
-      String[] projection = {MediaStore.MediaColumns.DATA};
-      try (Cursor cursor = getContentResolver().query(uri, projection, null, null, null)) {
-        if (cursor != null && cursor.moveToFirst()) {
-          int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-          String path = cursor.getString(columnIndex);
-          if (path != null) return path;
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
       return copyFileFromContentUri(uri);
     }
     return null;
@@ -537,7 +524,7 @@ public class EditorActivity extends BaseCompat
       }
     } catch (Exception ignored) {
     }
-    File tempDir = new File(Environment.getExternalStorageDirectory(), "GhostIDE/temp");
+    File tempDir = new File(getCacheDir(), "GhostIDE/temp");
     if (!tempDir.exists()) tempDir.mkdirs();
     File destFile = new File(tempDir, fileName);
     try (InputStream is = getContentResolver().openInputStream(uri);
@@ -607,26 +594,37 @@ public class EditorActivity extends BaseCompat
 
   private void setupKeyboardListener() {
     View rootView = getWindow().getDecorView();
-    keyboardLayoutListener =
-        () -> {
-          Rect r = new Rect();
-          rootView.getWindowVisibleDisplayFrame(r);
-          int screenHeight = rootView.getRootView().getHeight();
-          int keypadHeight = screenHeight - r.bottom;
-          if (binding.editorSearch.isShowing) {
-            binding.symbolBarContainer.hide();
-            return;
-          }
-          if (keypadHeight > screenHeight * 0.15) {
-            binding.backgroundicon.animate().scaleX(1.5f).scaleY(1.5f).setDuration(1000).start();
-            binding.symbolBarContainer.show();
-          } else {
-            binding.backgroundicon.animate().scaleX(1.0f).scaleY(1.0f).setDuration(1000).start();
-            isShowSys = false;
-            binding.symbolBarContainer.hide();
-          }
-        };
-    rootView.getViewTreeObserver().addOnGlobalLayoutListener(keyboardLayoutListener);
+    if (binding.backgroundicon.getCurrentPath().endsWith(".mp4")
+        || binding.backgroundicon.getCurrentPath().endsWith(".gif")) {
+      if (keyboardLayoutListener != null) {
+        getWindow()
+            .getDecorView()
+            .getViewTreeObserver()
+            .removeOnGlobalLayoutListener(keyboardLayoutListener);
+        keyboardLayoutListener = null;
+      }
+    } else {
+      keyboardLayoutListener =
+          () -> {
+            Rect r = new Rect();
+            rootView.getWindowVisibleDisplayFrame(r);
+            int screenHeight = rootView.getRootView().getHeight();
+            int keypadHeight = screenHeight - r.bottom;
+            if (binding.editorSearch.isShowing) {
+              binding.symbolBarContainer.hide();
+              return;
+            }
+            if (keypadHeight > screenHeight * 0.15) {
+              binding.backgroundicon.animate().scaleX(1.5f).scaleY(1.5f).setDuration(1000).start();
+              binding.symbolBarContainer.show();
+            } else {
+              binding.backgroundicon.animate().scaleX(1.0f).scaleY(1.0f).setDuration(1000).start();
+              isShowSys = false;
+              binding.symbolBarContainer.hide();
+            }
+          };
+      rootView.getViewTreeObserver().addOnGlobalLayoutListener(keyboardLayoutListener);
+    }
   }
 
   /**
@@ -718,13 +716,14 @@ public class EditorActivity extends BaseCompat
     }
 
     var registeredPanels =
-        GlobalRegistry.extensions()
-            .extensions(PluginUiExtensionPoints.EDITOR_PANEL);
+        GlobalRegistry.extensions().extensions(PluginUiExtensionPoints.EDITOR_PANEL);
     var registeredScreens =
-        GlobalRegistry.extensions()
-            .extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
-    Log.d("EditorActivity", "showPluginPopup: registered EditorPanels = " + registeredPanels.size());
-    Log.d("EditorActivity", "showPluginPopup: registered PluginScreens = " + registeredScreens.size());
+        GlobalRegistry.extensions().extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
+    Log.d(
+        "EditorActivity", "showPluginPopup: registered EditorPanels = " + registeredPanels.size());
+    Log.d(
+        "EditorActivity",
+        "showPluginPopup: registered PluginScreens = " + registeredScreens.size());
 
     var pluginItems =
         installedFiles.stream()
@@ -737,8 +736,7 @@ public class EditorActivity extends BaseCompat
                       return Optional.<PluginPopupAdapter.PluginItem>empty();
                     }
                     Log.d(
-                        "EditorActivity",
-                        "  file=" + f.getName() + " manifestId=" + manifest.id());
+                        "EditorActivity", "  file=" + f.getName() + " manifestId=" + manifest.id());
 
                     var matchingPanel =
                         registeredPanels.stream()
@@ -772,13 +770,12 @@ public class EditorActivity extends BaseCompat
                     } else {
                       Log.d(
                           "EditorActivity",
-                          "    -> no extension for manifestId=" + manifest.id() + ", showing by manifest name");
+                          "    -> no extension for manifestId="
+                              + manifest.id()
+                              + ", showing by manifest name");
                       return Optional.of(
                           new PluginPopupAdapter.PluginItem(
-                              manifest.id(),
-                              manifest.name(),
-                              f,
-                              manifest));
+                              manifest.id(), manifest.name(), f, manifest));
                     }
                   } catch (Exception e) {
                     Log.e("EditorActivity", "  error reading: " + f.getName(), e);
@@ -804,11 +801,9 @@ public class EditorActivity extends BaseCompat
             (view, item, pos) -> {
               if (popupRef[0] != null) popupRef[0].dismiss();
               var allPanels =
-                  GlobalRegistry.extensions()
-                      .extensions(PluginUiExtensionPoints.EDITOR_PANEL);
+                  GlobalRegistry.extensions().extensions(PluginUiExtensionPoints.EDITOR_PANEL);
               var allScreens =
-                  GlobalRegistry.extensions()
-                      .extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
+                  GlobalRegistry.extensions().extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
 
               var matchingPanel =
                   allPanels.stream()
@@ -833,8 +828,7 @@ public class EditorActivity extends BaseCompat
                       .findFirst();
               if (matchingScreen.isPresent()) {
                 startActivity(
-                    PluginScreenActivity.createIntent(
-                        this, matchingScreen.get().getId()));
+                    PluginScreenActivity.createIntent(this, matchingScreen.get().getId()));
                 return;
               }
 

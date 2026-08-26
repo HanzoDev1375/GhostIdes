@@ -105,33 +105,32 @@ public class VideoChild implements IChild, DefaultLifecycleObserver {
   private void initPlayer() {
     if (mediaPlayer != null || surface == null) return;
     try {
-      mediaPlayer = new MediaPlayer();
-      mediaPlayer.setAudioAttributes(
-          new AudioAttributes.Builder()
-              .setUsage(AudioAttributes.USAGE_MEDIA)
-              .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
-              .build());
-      mediaPlayer.setVolume(0f, 0f);
-      mediaPlayer.setLooping(true);
-      mediaPlayer.setScreenOnWhilePlaying(false);
-      mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
-      setDataSource();
-      mediaPlayer.setSurface(surface);
-      mediaPlayer.setOnPreparedListener(
-          mp -> {
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioAttributes(
+            new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
+                .build());
+        mediaPlayer.setVolume(0f, 0f);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.setScreenOnWhilePlaying(false);
+        setDataSource();
+        mediaPlayer.setSurface(surface);
+        mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+
+        mediaPlayer.setOnPreparedListener(mp -> {
             prepared = true;
             playIfReady();
-          });
-      mediaPlayer.setOnErrorListener(
-          (mp, what, extra) -> {
+        });
+        mediaPlayer.setOnErrorListener((mp, what, extra) -> {
             teardown();
             return true;
-          });
-      mediaPlayer.prepareAsync();
+        });
+        mediaPlayer.prepareAsync();
     } catch (IOException | IllegalStateException | IllegalArgumentException e) {
-      teardown();
+        teardown();
     }
-  }
+}
 
   private void setDataSource() throws IOException {
     if (path != null && path.startsWith("content:")) {

@@ -31,4 +31,9 @@ public class GifChild implements IChild {
   public String pathTheme() {
     return path;
   }
+
+  @Override
+  public void release() {
+    Glide.with(imageView).clear(imageView);
+  }
 }

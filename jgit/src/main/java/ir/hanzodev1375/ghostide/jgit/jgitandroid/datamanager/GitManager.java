@@ -12,7 +12,6 @@ import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.OperationResult;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.ChangeType;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.lib.Constants;
@@ -29,8 +28,11 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.ignore.IgnoreNode;
 import org.eclipse.jgit.attributes.AttributesNode;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -297,13 +299,6 @@ public class GitManager {
       if (email == null || email.trim().isEmpty()) {
         String[] cfg = getUserConfig();
         email = cfg != null ? cfg[1] : "user@example.com";
-      }
-
-      Status st = git.status().call();
-      boolean hasStaged =
-          !st.getAdded().isEmpty() || !st.getChanged().isEmpty() || !st.getRemoved().isEmpty();
-      if (!hasStaged) {
-        return new OperationResult(false, "Nothing to commit — stage your changes first");
       }
 
       PersonIdent ident = new PersonIdent(author, email);
@@ -661,15 +656,20 @@ public class GitManager {
   private ConflictFile readConflictFile(String relativePath) {
     try {
       File file = new File(repository.getWorkTree(), relativePath);
-      String content = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+      StringBuilder sb = new StringBuilder();
+      try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+        String line;
+        while ((line = br.readLine()) != null) {
+          sb.append(line).append("\n");
+        }
+      }
+      String content = sb.toString();
 
       StringBuilder ours = new StringBuilder();
       StringBuilder theirs = new StringBuilder();
-      StringBuilder base = new StringBuilder();
       StringBuilder current = new StringBuilder();
 
-      // Parse conflict markers: <<<<<<< / ======= / >>>>>>>
-      int state = 0; // 0=normal, 1=ours, 2=base/theirs
+      int state = 0;
       for (String line : content.split("\n")) {
         if (line.startsWith("<<<<<<<")) {
           state = 1;
@@ -707,7 +707,14 @@ public class GitManager {
     try {
       if (repository == null) return new OperationResult(false, "Repository not open");
       File file = new File(repository.getWorkTree(), relativePath);
-      String content = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+      StringBuilder sb = new StringBuilder();
+      try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+        String line;
+        while ((line = br.readLine()) != null) {
+          sb.append(line).append("\n");
+        }
+      }
+      String content = sb.toString();
 
       StringBuilder resolved = new StringBuilder();
       int state = 0;
@@ -727,7 +734,10 @@ public class GitManager {
         }
       }
 
-      Files.write(file.toPath(), resolved.toString().getBytes(StandardCharsets.UTF_8));
+      try (FileOutputStream fos = new FileOutputStream(file)) {
+        fos.write(resolved.toString().getBytes(StandardCharsets.UTF_8));
+        fos.flush();
+      }
       stageFile(relativePath);
       return new OperationResult(true, "Conflict resolved in: " + relativePath);
     } catch (Exception e) {
@@ -740,7 +750,9 @@ public class GitManager {
     try {
       if (repository == null) return new OperationResult(false, "Repository not open");
       File file = new File(repository.getWorkTree(), relativePath);
-      Files.write(file.toPath(), resolvedContent.getBytes(StandardCharsets.UTF_8));
+      try (FileOutputStream fos = new FileOutputStream(file)) {
+        fos.write(resolvedContent.getBytes(StandardCharsets.UTF_8));
+      }
       stageFile(relativePath);
       return new OperationResult(true, "Conflict resolved with custom content");
     } catch (Exception e) {
@@ -1072,8 +1084,14 @@ public class GitManager {
     try {
       java.io.File f = new java.io.File(projectPath, ".gitignore");
       if (!f.exists()) return "";
-      return new String(
-          java.nio.file.Files.readAllBytes(f.toPath()), java.nio.charset.StandardCharsets.UTF_8);
+      StringBuilder sb = new StringBuilder();
+      try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
+        String line;
+        while ((line = br.readLine()) != null) {
+          sb.append(line).append('\n');
+        }
+      }
+      return sb.toString();
     } catch (Exception e) {
       e.printStackTrace();
       return "";
@@ -1084,8 +1102,9 @@ public class GitManager {
       String content) {
     try {
       java.io.File f = new java.io.File(projectPath, ".gitignore");
-      java.nio.file.Files.write(
-          f.toPath(), content.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+      try (FileOutputStream fos = new FileOutputStream(f)) {
+        fos.write(content.getBytes(StandardCharsets.UTF_8));
+      }
       return new OperationResult(true, "Gitignore saved");
     } catch (Exception e) {
       e.printStackTrace();

@@ -152,7 +152,7 @@ public class TerminalSessionService extends Service {
   }
 
   private void stopServiceIfIdle() {
-    stopForeground(true);
+    stopForeground(STOP_FOREGROUND_REMOVE);
     stopSelf();
   }
 

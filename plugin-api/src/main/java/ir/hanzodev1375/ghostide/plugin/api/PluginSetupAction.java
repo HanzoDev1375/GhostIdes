@@ -13,13 +13,13 @@ package ir.hanzodev1375.ghostide.plugin.api;
 public record PluginSetupAction(String id, String label, String command, String description) {
 
   public PluginSetupAction {
-    if (id == null || id.isBlank()) {
+    if (id == null || id.trim().isEmpty()) {
       throw new IllegalArgumentException("Plugin setup action id must not be blank");
     }
-    if (label == null || label.isBlank()) {
+    if (label == null || label.trim().isEmpty()) {
       throw new IllegalArgumentException("Plugin setup action label must not be blank");
     }
-    if (command == null || command.isBlank()) {
+    if (command == null || command.trim().isEmpty()) {
       throw new IllegalArgumentException("Plugin setup command must not be blank");
     }
     if (description == null) {

@@ -17,9 +17,9 @@ import java.util.Locale;
  * A container that renders a single piece of media content (image / gif / video / html script)
  * addressed by path or content Uri.
  *
- * <p>{@link #load(String, LifecycleOwner, float)} is idempotent: requesting the same path and
- * blur again while it is already displayed is a no-op, so calling it from both onCreate and
- * onResume does not recreate players or webviews (no flicker, no restart).</p>
+ * <p>{@link #load(String, LifecycleOwner, float)} is idempotent: requesting the same path and blur
+ * again while it is already displayed is a no-op, so calling it from both onCreate and onResume
+ * does not recreate players or webviews (no flicker, no restart).
  */
 public class ViewChilder extends FrameLayout {
 
@@ -29,8 +29,6 @@ public class ViewChilder extends FrameLayout {
   private static final int TYPE_IMAGE = 1;
   private static final int TYPE_GIF = 2;
   private static final int TYPE_VIDEO = 3;
-  private static final int TYPE_SCRIPT = 4;
-
   private IChild current;
   private String currentPath;
   private float currentBlur = Float.NaN;
@@ -132,11 +130,14 @@ public class ViewChilder extends FrameLayout {
           return new ImageChild(context, path);
         }
         return new VideoChild(context, path, resolved);
-      case TYPE_SCRIPT:
-        return new ScriptChild(context, path, resolved);
       default:
-        Log.e(TAG, "Unknown extension \"" + extensionOf(path) + "\" for: "
-            + path + ", falling back to ImageChild");
+        Log.e(
+            TAG,
+            "Unknown extension \""
+                + extensionOf(path)
+                + "\" for: "
+                + path
+                + ", falling back to ImageChild");
         return new ImageChild(context, path);
     }
   }
@@ -157,9 +158,6 @@ public class ViewChilder extends FrameLayout {
       case "webm":
       case "3gp":
         return TYPE_VIDEO;
-      case "html":
-      case "htm":
-        return TYPE_SCRIPT;
       default:
         break;
     }
@@ -169,7 +167,6 @@ public class ViewChilder extends FrameLayout {
     if ("image/gif".equals(mime)) return TYPE_GIF;
     if (mime.startsWith("image/")) return TYPE_IMAGE;
     if (mime.startsWith("video/")) return TYPE_VIDEO;
-    if ("text/html".equals(mime) || "application/xhtml+xml".equals(mime)) return TYPE_SCRIPT;
     return TYPE_UNKNOWN;
   }
 
@@ -204,5 +201,13 @@ public class ViewChilder extends FrameLayout {
       return "";
     }
     return path.substring(dot + 1).toLowerCase(Locale.US);
+  }
+
+  public String getCurrentPath() {
+    return this.currentPath;
+  }
+
+  public void setCurrentPath(String currentPath) {
+    this.currentPath = currentPath;
   }
 }

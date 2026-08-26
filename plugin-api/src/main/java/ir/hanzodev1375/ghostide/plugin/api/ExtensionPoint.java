@@ -8,7 +8,7 @@ package ir.hanzodev1375.ghostide.plugin.api;
 public record ExtensionPoint<T>(String id, Class<T> type) {
 
   public ExtensionPoint {
-    if (id == null || id.isBlank()) {
+    if (id == null || id.trim().isEmpty()) {
       throw new IllegalArgumentException("Extension point id must not be blank");
     }
     if (type == null) {

@@ -202,7 +202,7 @@ public final class GplPluginLoader {
   }
 
   public synchronized List<PluginDescriptor> getLoadedDescriptors() {
-    return loaded.values().stream().map(LoadedGplPlugin::getDescriptor).toList();
+    return loaded.values().stream().map(LoadedGplPlugin::getDescriptor).collect(java.util.stream.Collectors.toList());
   }
 
   public synchronized LoadedGplPlugin getLoaded(String pluginId) {

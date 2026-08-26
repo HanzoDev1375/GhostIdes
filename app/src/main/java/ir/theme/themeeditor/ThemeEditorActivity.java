@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 import ir.hanzodev1375.components.childern.ViewChilder;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.codeeditors.colorrender.ColorPickerBottomSheetDialog;
@@ -52,6 +53,7 @@ import ir.theme.ActivityTheme;
 import ir.theme.EditorTheme;
 import ir.theme.GhostTheme;
 import ir.theme.ThemeManager;
+import ir.theme.ThemeUtils;
 import ir.theme.WidgetTheme;
 
 public class ThemeEditorActivity extends BaseCompat {
@@ -177,9 +179,47 @@ public class ThemeEditorActivity extends BaseCompat {
   private void setupBackgroundBlur() {
     ViewChilder background = findViewById(R.id.backgroundIconThemeEditor);
     View appbar = findViewById(R.id.appbar);
+    TabLayout tabs = findViewById(R.id.tabLayout);
     if (background == null || appbar == null) return;
-    setupBackgroundBlur(background, appbar);
-  }
+    View rootLayout = findViewById(R.id.rootLayout);
+    View recycler = findViewById(R.id.recyclerView);
+    PreferencesUtils setting = new PreferencesUtils(this);
+    boolean hasBg = setting.isShowBackground();
+
+    boolean hasImage = false;
+    if (hasBg) {
+      ThemeUtils themeUtil = new ThemeUtils(new ThemeManager(this));
+      var th = themeUtil.getTheme();
+      hasImage = th != null && th.getWidget() != null
+          && th.getWidget().getImagepath() != null
+          && !th.getWidget().getImagepath().isEmpty();
+    }
+
+    if (rootLayout != null) {
+      rootLayout.setFitsSystemWindows(!hasImage);
+      rootLayout.requestApplyInsets();
+    }
+
+    if (hasImage) {
+      ViewCompat.setOnApplyWindowInsetsListener(appbar, (v, insets) -> {
+        Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+        v.setPadding(v.getPaddingLeft(), bars.top, v.getPaddingRight(), v.getPaddingBottom());
+        return insets;
+      });
+      if (recycler != null) {
+        ViewCompat.setOnApplyWindowInsetsListener(recycler, (v, insets) -> {
+          Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+          v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bars.bottom);
+          return insets;
+        });
+      }
+    } else {
+      ViewCompat.setOnApplyWindowInsetsListener(appbar, null);
+      if (recycler != null) ViewCompat.setOnApplyWindowInsetsListener(recycler, null);
+    }
+
+    setupBackgroundBlur(background, appbar, tabs);
+}
 
   private String readFileToString(File file) {
     try (FileInputStream fis = new FileInputStream(file)) {

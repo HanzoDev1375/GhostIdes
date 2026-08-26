@@ -1,8 +1,10 @@
 package ir.hanzodev1375.ghostide.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -224,6 +226,7 @@ public class FileManagerActivity extends BaseCompat
   private String currentDir;
   private int systemBarsBottomInset = 0;
   private MusicPlayerBottomSheetFragment musicBottomSheet;
+  private boolean pendingAnimation = false;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -243,7 +246,11 @@ public class FileManagerActivity extends BaseCompat
     }
     networkChangeReceiver = new NetworkChangeReceiver(this);
     IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-    this.registerReceiver(networkChangeReceiver, filter);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      this.registerReceiver(networkChangeReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+    } else {
+      this.registerReceiver(networkChangeReceiver, filter);
+    }
     new Handler(Looper.getMainLooper())
         .postDelayed(
             () -> {
@@ -286,7 +293,9 @@ public class FileManagerActivity extends BaseCompat
             this,
             files -> {
               if (files != null && !files.isEmpty()) fileModels = files.get(0);
-              adapter.submitList(new ArrayList<>(files));
+              boolean animate = pendingAnimation;
+              pendingAnimation = false;
+              adapter.submitList(new ArrayList<>(files), animate);
               if (files == null || files.isEmpty()) {
                 bind.emptystates.setVisibility(View.VISIBLE);
                 bind.rvfiles.setVisibility(View.GONE);
@@ -349,6 +358,7 @@ public class FileManagerActivity extends BaseCompat
         (item, pos) -> {
           historyViewModel.addToHistory(item.getPath(), item.getName(), item.isDirectory());
           if (item.isDirectory()) {
+            pendingAnimation = true;
             viewModel.navigateTo(item.getPath());
           } else if (item.getPath().toLowerCase().endsWith(".zip")) {
             enterZipMode(item.getPath());
@@ -419,10 +429,14 @@ public class FileManagerActivity extends BaseCompat
 
     bind.navmodel
         .getAdapter()
-        .setOnItemClickListener((view, nav, pos) -> viewModel.navigateTo(nav.getFilePath()));
+        .setOnItemClickListener((view, nav, pos) -> {
+          pendingAnimation = true;
+          viewModel.navigateTo(nav.getFilePath());
+        });
 
     bind.navmodel.setOnNavigateListener(
         path -> {
+          pendingAnimation = true;
           viewModel.navigateTo(path);
           bind.gitActionButton.setVisibility(isGitRepository(path) ? View.VISIBLE : View.GONE);
         });
@@ -466,6 +480,7 @@ public class FileManagerActivity extends BaseCompat
     setupGitButton();
     observePathForGit();
     initZipBrowserAdapter();
+    
   }
 
   private void initZipBrowserAdapter() {
@@ -1126,8 +1141,7 @@ public class FileManagerActivity extends BaseCompat
                                     @Override
                                     public void onSuccess(String msg1) {
                                       zipAdapter.loadZip(
-                                          currentZipFilePath,
-                                          zipAdapter.getCurrentInternalPath());
+                                          currentZipFilePath, zipAdapter.getCurrentInternalPath());
                                     }
 
                                     @Override
@@ -1351,6 +1365,7 @@ public class FileManagerActivity extends BaseCompat
                   if (path != null
                       && !path.equals("/storage/emulated/0")
                       && !StorageUtils.isStorageRoot(FileManagerActivity.this, path)) {
+                    pendingAnimation = true;
                     viewModel.navigateUp();
                     String currentPath = viewModel.getCurrentPath().getValue();
                     if (currentPath != null) {
@@ -1595,7 +1610,6 @@ public class FileManagerActivity extends BaseCompat
           MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
       bind.headline.setBackground(ShapeUtil.shape(40f, this));
     }
-
     boolean currentGrid = appsetting.getGridMod();
     int currentSpan = appsetting.getGridSpanCount();
     boolean spanChanged =
@@ -1616,6 +1630,7 @@ public class FileManagerActivity extends BaseCompat
           (item, pos) -> {
             historyViewModel.addToHistory(item.getPath(), item.getName(), item.isDirectory());
             if (item.isDirectory()) {
+              pendingAnimation = true;
               viewModel.navigateTo(item.getPath());
             } else if (item.getPath().toLowerCase().endsWith(".zip")) {
               enterZipMode(item.getPath());
@@ -1720,6 +1735,7 @@ public class FileManagerActivity extends BaseCompat
               sheet.setOnHistoryItemSelectedListener(
                   item -> {
                     if (item.isDirectory) {
+                      pendingAnimation = true;
                       viewModel.navigateTo(item.path);
                     } else {
                       setupClick(item.path, item.name);
@@ -1732,6 +1748,7 @@ public class FileManagerActivity extends BaseCompat
               bsheet.setOnBookmarkSelectedListener(
                   item -> {
                     if (item.isDirectory) {
+                      pendingAnimation = true;
                       viewModel.navigateTo(item.path);
                     } else {
                       setupClick(item.path, item.name);
@@ -1838,8 +1855,7 @@ public class FileManagerActivity extends BaseCompat
     }
 
     var registeredScreens =
-        GlobalRegistry.extensions()
-            .extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
+        GlobalRegistry.extensions().extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
 
     var pluginItems =
         installedFiles.stream()
@@ -1866,13 +1882,11 @@ public class FileManagerActivity extends BaseCompat
                     } else {
                       return Optional.of(
                           new PluginPopupAdapter.PluginItem(
-                              manifest.id(),
-                              manifest.name(),
-                              f,
-                              manifest));
+                              manifest.id(), manifest.name(), f, manifest));
                     }
                   } catch (Exception e) {
-                    Log.e("FileManagerActivity", "showPluginPopup: error reading: " + f.getName(), e);
+                    Log.e(
+                        "FileManagerActivity", "showPluginPopup: error reading: " + f.getName(), e);
                     return Optional.<PluginPopupAdapter.PluginItem>empty();
                   }
                 })
@@ -1893,8 +1907,7 @@ public class FileManagerActivity extends BaseCompat
             (view, item, pos) -> {
               if (popupRef[0] != null) popupRef[0].dismiss();
               var allScreens =
-                  GlobalRegistry.extensions()
-                      .extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
+                  GlobalRegistry.extensions().extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
 
               var matchingScreen =
                   allScreens.stream()
@@ -1906,8 +1919,7 @@ public class FileManagerActivity extends BaseCompat
                       .findFirst();
               if (matchingScreen.isPresent()) {
                 startActivity(
-                    PluginScreenActivity.createIntent(
-                        this, matchingScreen.get().getId()));
+                    PluginScreenActivity.createIntent(this, matchingScreen.get().getId()));
                 return;
               }
 
@@ -1925,6 +1937,7 @@ public class FileManagerActivity extends BaseCompat
 
   private void navigateToPath(String path) {
     if (path == null || path.isEmpty()) return;
+    pendingAnimation = true;
     viewModel.navigateTo(path);
     bind.gitActionButton.setVisibility(isGitRepository(path) ? View.VISIBLE : View.GONE);
   }
@@ -1989,9 +2002,7 @@ public class FileManagerActivity extends BaseCompat
           public void onDownload(String remotePath, String fileName) {
             currentDir = viewModel.getCurrentPath().getValue();
             if (currentDir == null || !new File(currentDir).exists()) {
-              currentDir =
-                  Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                      .getAbsolutePath();
+              currentDir = getFilesDir().getAbsolutePath();
             }
             File localFile = new File(currentDir, fileName);
             ftpExecutor.execute(

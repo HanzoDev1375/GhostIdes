@@ -27,8 +27,11 @@ public class PathManager {
   }
 
   public String getLastPath() {
-    String defaultPath = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-    return prefs.getString(KEY_LAST_PATH, defaultPath);
+    String saved = prefs.getString(KEY_LAST_PATH, null);
+    if (saved != null && new java.io.File(saved).exists()) {
+      return saved;
+    }
+    return android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
   }
 
   public void clearLastPath() {

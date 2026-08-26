@@ -21,7 +21,7 @@ public final class DefaultExtensionRegistry implements MutableExtensionRegistry 
               + " does not implement "
               + point.type().getName());
     }
-    if (ownerPluginId == null || ownerPluginId.isBlank()) {
+    if (ownerPluginId == null || ownerPluginId.trim().isEmpty()) {
       throw new IllegalArgumentException("Owner plugin id must not be blank");
     }
     ExtensionRegistration<T> registration =
