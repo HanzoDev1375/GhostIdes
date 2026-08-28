@@ -39,6 +39,8 @@ eventbus = "3.3.1"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
+#glass
+glass = "v2.0.4"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -90,3 +92,4 @@ eventbus = { group = "org.greenrobot", name = "eventbus", version.ref = "eventbu
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+glass = {group = "com.github.QWEA0",name = "Liquid-Glass-Android",version.ref = "glass"}

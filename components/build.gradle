@@ -41,5 +41,5 @@ dependencies {
         exclude group: 'org.bouncycastle'
     }
     implementation 'org.bouncycastle:bcprov-jdk18on:1.78' 
-    implementation("com.github.QWEA0:Liquid-Glass-Android:v2.0.3")
+    implementation(libs.glass)
 }

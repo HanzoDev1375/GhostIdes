@@ -16,6 +16,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
@@ -70,11 +71,10 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> impl
     LogEntry log = filteredList.get(position);
     holder.tvTimestamp.setText(log.getTimestamp());
     holder.tvPriority.setText(log.getPriority());
-    holder.tvTag.setText(highlightText(log.getTag(), lastQuery,holder.tvTag.getContext()));
-    holder.tvMessage.setText(highlightText(log.getMessage(), lastQuery,holder.tvMessage.getContext()));
-
+    holder.tvTag.setText(highlightText(log.getTag(), lastQuery, holder.tvTag.getContext()));
+    holder.tvMessage.setText(
+        highlightText(log.getMessage(), lastQuery, holder.tvMessage.getContext()));
     holder.tvPriority.setTextColor(getPriorityColor(log.getPriority()));
-
     holder.itemView.setOnClickListener(v -> showPopupMenu(v, log));
     holder.bind(position, getItemCount());
   }
@@ -84,7 +84,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> impl
     return filteredList.size();
   }
 
-  private SpannableString highlightText(String text, String query,Context context) {
+  private SpannableString highlightText(String text, String query, Context context) {
     if (query == null || query.isEmpty() || !text.toLowerCase().contains(query.toLowerCase())) {
       return new SpannableString(text);
     }
@@ -96,8 +96,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> impl
       int end = start + query.length();
       spannable.setSpan(
           new ForegroundColorSpan(
-              MaterialColors.getColor(
-                  context, com.google.android.material.R.attr.colorOnPrimary, 0xDCB304)),
+              MaterialColors.getColor(context, R.attr.colorOnPrimary, 0xDCB304)),
           start,
           end,
           Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -230,7 +229,8 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> impl
       tvMessage = itemView.findViewById(R.id.tv_message);
       root = itemView.findViewById(R.id.root);
       root.setCardBackgroundColor(
-          MaterialColors.getColor(root, com.google.android.material.R.attr.colorSurfaceContainer));
+          ColorUtils.setAlphaComponent(
+              MaterialColors.getColor(root, R.attr.colorSurfaceContainer), 128));
     }
   }
 }

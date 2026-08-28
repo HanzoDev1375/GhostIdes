@@ -35,7 +35,6 @@ import com.example.liquidglass.GlassMaterial;
 import com.example.liquidglass.LiquidGlassView;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import ir.ghostide.logcat.BottomSheetLogView;
 import ir.hanzodev1375.components.RenameDialogFragment;
 import ir.hanzodev1375.components.TextInputDialogFragment;
@@ -663,7 +662,8 @@ public class FileManagerActivity extends BaseCompat
                       new ZipOperationManager.ZipInfoCallback() {
                         @Override
                         public void onInfo(ZipInfo info) {
-                          new MaterialAlertDialogBuilder(FileManagerActivity.this)
+                          
+                          new MaterialAlertDialogBuilder   (FileManagerActivity.this)
                               .setTitle(getString(R.string.zip_info))
                               .setMessage(
                                   getString(R.string.zip_info_files, info.fileCount)

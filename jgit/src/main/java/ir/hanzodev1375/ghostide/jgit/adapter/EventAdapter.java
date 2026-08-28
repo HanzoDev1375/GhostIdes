@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
@@ -114,8 +115,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.VH> {
       cardev = v.findViewById(R.id.cardev);
       cardev.setCardBackgroundColor(
           ColorStateList.valueOf(
-              MaterialColors.getColor(
-                  cardev, com.google.android.material.R.attr.colorSurfaceContainer)));
+              ColorUtils.setAlphaComponent(
+                  MaterialColors.getColor(cardev, R.attr.colorSurfaceContainer), 128)));
       cardev.setClickable(true);
     }
   }

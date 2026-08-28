@@ -15,6 +15,7 @@ public class ImageViewAnimator extends AppCompatImageView implements View.OnTouc
 
   private static final float SCALE = 0.88f;
   private static final long DURATION = 120L;
+  
 
   public ImageViewAnimator(Context context) {
     super(context);

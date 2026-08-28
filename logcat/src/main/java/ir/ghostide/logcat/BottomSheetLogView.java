@@ -1,28 +1,37 @@
 package ir.ghostide.logcat;
 
-import android.os.Bundle;
-import android.app.Dialog;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
 import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 
-public class BottomSheetLogView extends BottomSheetDialogFragment {
+/**
+ * Log viewer shown inside a liquid-glass bottom sheet. Extends {@link BaseBlurBottomSheet} so the
+ * sheet is rendered with the LiquidGlass backdrop (respecting PreferencesUtils.isBlurMod()).
+ */
+public class BottomSheetLogView extends BaseBlurBottomSheet {
+  public static final String TAG = "BottomSheetLogView";
   private MaterialLogCatView logview;
-  @Nullable
-  @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
+  public BottomSheetLogView() {}
 
-    return inflater.inflate(R.layout.fragment_logview, container, false);
-  }
   @Override
-  public void onViewCreated(View view, Bundle arg1) {
-    super.onViewCreated(view, arg1);
+  protected void onContentReady(@NonNull ViewGroup contentContainer) {
+    setHasPeekMod(false);
+    View view = getLayoutInflater().inflate(R.layout.fragment_logview, contentContainer, false);
+    contentContainer.addView(view);
     logview = view.findViewById(R.id.logview);
+  }
+
+  @Nullable
+  public MaterialLogCatView getLogView() {
+    return logview;
+  }
+
+  /** Convenience passthrough to reload logs. */
+  public void refreshLogs() {
+    if (logview != null) {
+      logview.refreshLogs();
+    }
   }
 }

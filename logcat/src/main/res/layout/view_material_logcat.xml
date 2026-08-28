@@ -39,6 +39,10 @@
          android:layout_width="wrap_content"
          android:layout_margin="16dp"
          app:fabSize="normal"
+         android:contentDescription="@string/fab_save_logs_desc"
+         android:src="@drawable/ic_save_logs"
+         app:tint="?attr/colorOnPrimaryContainer"
+         app:backgroundTint="?attr/colorPrimaryContainer"
          android:id="@+id/fab_save_logs"
          android:layout_gravity="bottom|end" />
 

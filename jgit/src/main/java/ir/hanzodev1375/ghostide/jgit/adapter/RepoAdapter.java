@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.color.MaterialColors;
@@ -101,8 +102,8 @@ public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.VH> {
       cardrepo = v.findViewById(R.id.cardrepo);
       cardrepo.setCardBackgroundColor(
           ColorStateList.valueOf(
-              MaterialColors.getColor(
-                  cardrepo, com.google.android.material.R.attr.colorSurfaceContainer)));
+              ColorUtils.setAlphaComponent(
+                  MaterialColors.getColor(cardrepo, R.attr.colorSurfaceContainer), 128)));
     }
   }
 }
