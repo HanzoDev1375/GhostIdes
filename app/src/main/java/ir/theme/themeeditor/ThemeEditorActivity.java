@@ -22,6 +22,9 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.ViewCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -190,9 +193,11 @@ public class ThemeEditorActivity extends BaseCompat {
     if (hasBg) {
       ThemeUtils themeUtil = new ThemeUtils(new ThemeManager(this));
       var th = themeUtil.getTheme();
-      hasImage = th != null && th.getWidget() != null
-          && th.getWidget().getImagepath() != null
-          && !th.getWidget().getImagepath().isEmpty();
+      hasImage =
+          th != null
+              && th.getWidget() != null
+              && th.getWidget().getImagepath() != null
+              && !th.getWidget().getImagepath().isEmpty();
     }
 
     if (rootLayout != null) {
@@ -201,17 +206,21 @@ public class ThemeEditorActivity extends BaseCompat {
     }
 
     if (hasImage) {
-      ViewCompat.setOnApplyWindowInsetsListener(appbar, (v, insets) -> {
-        Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-        v.setPadding(v.getPaddingLeft(), bars.top, v.getPaddingRight(), v.getPaddingBottom());
-        return insets;
-      });
+      ViewCompat.setOnApplyWindowInsetsListener(
+          appbar,
+          (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(v.getPaddingLeft(), bars.top, v.getPaddingRight(), v.getPaddingBottom());
+            return insets;
+          });
       if (recycler != null) {
-        ViewCompat.setOnApplyWindowInsetsListener(recycler, (v, insets) -> {
-          Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-          v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bars.bottom);
-          return insets;
-        });
+        ViewCompat.setOnApplyWindowInsetsListener(
+            recycler,
+            (v, insets) -> {
+              Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+              v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bars.bottom);
+              return insets;
+            });
       }
     } else {
       ViewCompat.setOnApplyWindowInsetsListener(appbar, null);
@@ -219,11 +228,11 @@ public class ThemeEditorActivity extends BaseCompat {
     }
 
     setupBackgroundBlur(background, appbar, tabs);
-}
+  }
 
   private String readFileToString(File file) {
-    try (FileInputStream fis = new FileInputStream(file)) {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (var fis = new FileInputStream(file)) {
+      var baos = new ByteArrayOutputStream();
       byte[] buffer = new byte[1024];
       int len;
       while ((len = fis.read(buffer)) != -1) {
@@ -492,7 +501,8 @@ public class ThemeEditorActivity extends BaseCompat {
 
     EditorTheme e = currentTheme.getEditor();
     editorItems.add(
-        new ColorItem("Line Divider", e.getLineDivider(), (t, c) -> t.getEditor().setLineDivider(c)));
+        new ColorItem(
+            "Line Divider", e.getLineDivider(), (t, c) -> t.getEditor().setLineDivider(c)));
     editorItems.add(
         new ColorItem("Text Normal", e.getTextNormal(), (t, c) -> t.getEditor().setTextNormal(c)));
     editorItems.add(

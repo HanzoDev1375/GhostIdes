@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="empty">空的</string>
+  <string name="empty_view_default_title">这里还什么都没有</string>
+  <string name="empty_view_default_description">物品一旦可用就会出现在此处</string>
+  <string name="empty_view_cd_icon">空状态图标</string>
   <string name="dialog_rename">重命名？</string>
   <string name="dialog_rename_massges">重命名项目 %s</string>
   <string name="ftp_connect_title">连接到服务器</string>

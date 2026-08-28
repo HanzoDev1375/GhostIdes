@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="empty">خالی</string>
+  <string name="empty_view_default_title">اینجا هنوز چیزی نیست</string>
+  <string name="empty_view_default_description">موارد پس از در دسترس بودن در اینجا ظاهر می شوند</string>
+  <string name="empty_view_cd_icon">نماد حالت خالی</string>
   <string name="dialog_rename">تغییر نام دهید؟</string>
   <string name="dialog_rename_massges">تغییر نام مورد %s</string>
   <string name="ftp_connect_title">به سرور متصل شوید</string>

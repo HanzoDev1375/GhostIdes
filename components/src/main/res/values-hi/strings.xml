@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="empty">खाली</string>
+  <string name="empty_view_default_title">अभी तक यहां कुछ भी नहीं है</string>
+  <string name="empty_view_default_description">आइटम उपलब्ध होते ही यहां दिखाई देंगे</string>
+  <string name="empty_view_cd_icon">खाली राज्य चिह्न</string>
   <string name="dialog_rename">नाम बदलें?</string>
   <string name="dialog_rename_massges">आइटम %s का नाम बदलें</string>
   <string name="ftp_connect_title">सर्वर से कनेक्ट करें</string>

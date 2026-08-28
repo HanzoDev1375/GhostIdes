@@ -75,7 +75,13 @@ public class ToolbarListAdapter extends RecyclerView.Adapter<ToolbarListAdapter.
               clickListener.onClick(v, model, getBindingAdapterPosition());
             }
           });
-      icon.setVisibility(model.isShowVisblityItem() ? View.VISIBLE : View.GONE);
+      if (model.isShowVisblityItem()) {
+        icon.setEnabled(true);
+        icon.setAlpha(1f);
+      } else {
+        icon.setEnabled(false);
+        icon.setAlpha(0.5f);
+      }
       icon.setOnLongClickListener(
           v -> {
             TooltipCompat.setTooltipText(v, model.getTag());

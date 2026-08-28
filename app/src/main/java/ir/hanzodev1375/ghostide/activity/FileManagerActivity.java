@@ -3,6 +3,8 @@ package ir.hanzodev1375.ghostide.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +31,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.blankj.utilcode.util.ClipboardUtils;
 import com.bumptech.glide.Glide;
+import com.example.liquidglass.GlassMaterial;
+import com.example.liquidglass.LiquidGlassView;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -204,7 +209,8 @@ public class FileManagerActivity extends BaseCompat
               ".exs",
               ".hs",
               ".nim",
-              ".sol"));
+              ".sol",
+              ".ninja")); // فلن برای تست است
   private Set<String> images =
       new HashSet<>(
           Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp", ".avif", ".webp", ".svg"));
@@ -429,10 +435,11 @@ public class FileManagerActivity extends BaseCompat
 
     bind.navmodel
         .getAdapter()
-        .setOnItemClickListener((view, nav, pos) -> {
-          pendingAnimation = true;
-          viewModel.navigateTo(nav.getFilePath());
-        });
+        .setOnItemClickListener(
+            (view, nav, pos) -> {
+              pendingAnimation = true;
+              viewModel.navigateTo(nav.getFilePath());
+            });
 
     bind.navmodel.setOnNavigateListener(
         path -> {
@@ -480,7 +487,6 @@ public class FileManagerActivity extends BaseCompat
     setupGitButton();
     observePathForGit();
     initZipBrowserAdapter();
-    
   }
 
   private void initZipBrowserAdapter() {
@@ -992,7 +998,7 @@ public class FileManagerActivity extends BaseCompat
     btnPaste = selectionPanelBinding.btnPaste;
     btnClose = selectionPanelBinding.btnClose;
     btnSelectall = selectionPanelBinding.btnSelectall;
-    selectionPanelBinding.getRoot().setBackground(ShapeUtil.shapeCustomView(this));
+    applyGlassBackground(selectionPanelBinding.getRoot());
     var selectionMore = selectionPanelBinding.selectionmore;
     btnCopy.setOnClickListener(
         v -> {
@@ -1247,6 +1253,37 @@ public class FileManagerActivity extends BaseCompat
               });
         });
     selectionPanel.setVisibility(View.GONE);
+  }
+
+  private void applyGlassBackground(View panel) {
+    if (!(panel instanceof ViewGroup)) return;
+    ViewGroup container = (ViewGroup) panel;
+    container.setBackground(new ColorDrawable(Color.TRANSPARENT));
+    int padding = (int) (2 * getResources().getDisplayMetrics().density);
+    LiquidGlassView glass = new LiquidGlassView(this);
+    glass.setLayoutParams(
+        new ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    glass.setCornerRadius(10f * getResources().getDisplayMetrics().density);
+    glass.setRefractionHeight(66f * getResources().getDisplayMetrics().density);
+    glass.setBevelWidth(14f * getResources().getDisplayMetrics().density);
+    glass.setMaterial(GlassMaterial.REGULAR);
+    glass.setDispersionStrength(0.12f);
+    glass.setEnableDynamicBackground(true);
+    glass.setEnableSensorHighlight(false);
+    glass.setEnableAdaptiveTint(true);
+    glass.setBackdropSource(bind.backdropContent);
+    LinearLayout inner = new LinearLayout(this);
+    inner.setOrientation(LinearLayout.VERTICAL);
+    inner.setGravity(Gravity.CENTER_VERTICAL);
+    inner.setPadding(padding, padding, padding, padding);
+    while (container.getChildCount() > 0) {
+      View child = container.getChildAt(0);
+      container.removeView(child);
+      inner.addView(child);
+    }
+    glass.addView(inner);
+    container.addView(glass);
   }
 
   private void resetZipClipboard() {

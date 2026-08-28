@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="empty">খালি</string>
+  <string name="empty_view_default_title">এখানে এখনও কিছুই নেই</string>
+  <string name="empty_view_default_description">আইটেম উপলব্ধ একবার এখানে প্রদর্শিত হবে</string>
+  <string name="empty_view_cd_icon">খালি স্টেট আইকন</string>
   <string name="dialog_rename">নাম পরিবর্তন করবেন?</string>
   <string name="dialog_rename_massges">আইটেম %s পুনঃনামকরণ করুন</string>
   <string name="ftp_connect_title">সার্ভারের সাথে সংযোগ করুন</string>

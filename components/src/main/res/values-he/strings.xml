@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="empty">רֵיק</string>
+  <string name="empty_view_default_title">שום דבר כאן עדיין</string>
+  <string name="empty_view_default_description">פריטים יופיעו כאן ברגע שהם יהיו זמינים</string>
+  <string name="empty_view_cd_icon">סמל מדינה ריק</string>
   <string name="dialog_rename">לשנות שם?</string>
   <string name="dialog_rename_massges">שנה את שם הפריט %s</string>
   <string name="ftp_connect_title">התחבר לשרת</string>

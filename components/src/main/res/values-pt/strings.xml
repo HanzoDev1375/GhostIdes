@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="empty">vazio</string>
+  <string name="empty_view_default_title">Nada aqui ainda</string>
+  <string name="empty_view_default_description">Os itens aparecerão aqui assim que estiverem disponíveis</string>
+  <string name="empty_view_cd_icon">Ícone de estado vazio</string>
   <string name="dialog_rename">Renomear?</string>
   <string name="dialog_rename_massges">Renomear item %s</string>
   <string name="ftp_connect_title">Conecte-se ao servidor</string>

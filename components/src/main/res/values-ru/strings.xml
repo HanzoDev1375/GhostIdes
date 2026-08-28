@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="empty">пустой</string>
+  <string name="empty_view_default_title">Здесь пока ничего</string>
+  <string name="empty_view_default_description">Товары появятся здесь, как только они станут доступны.</string>
+  <string name="empty_view_cd_icon">Пустой значок состояния</string>
   <string name="dialog_rename">Переименовать?</string>
   <string name="dialog_rename_massges">Переименовать элемент %s</string>
   <string name="ftp_connect_title">Подключиться к серверу</string>

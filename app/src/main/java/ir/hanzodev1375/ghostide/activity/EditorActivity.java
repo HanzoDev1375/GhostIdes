@@ -647,34 +647,39 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
   }
 
   void stepToolbar() {
+    toolbarModel.clear();
+    toolbarModel.add(new ToolbarModel(R.drawable.ic_git, "git", isGit()));
     toolbarModel.add(new ToolbarModel(R.drawable.ic_split_column, "Item Spilt!"));
     toolbarModel.add(new ToolbarModel(R.drawable.round_account_tree, "file tree"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_search, "search"));
-    toolbarModel.add(new ToolbarModel(R.drawable.ic_fileicon, "git", isGit()));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_undo, "undo"));
     toolbarModel.add(new ToolbarModel(R.drawable.outline_redo, "redo"));
     toolbarModel.add(new ToolbarModel(R.drawable.more_vert, "more"));
     toolbarModel.add(new ToolbarModel(R.drawable.ic_panel, "plugins"));
-    listAdapter =
-        new ToolbarListAdapter(
-            toolbarModel,
-            (view, m, pos) -> {
-              switch (pos) {
-                case 0 -> toggleOrShowSplitPopup(view);
-                case 1 -> stepFileTree();
-                case 2 -> stepSearch();
-                case 3 -> showGitBottomSheet();
-                case 4 -> {
-                  if (getEditor().canUndo()) getEditor().undo();
+    if (listAdapter != null) {
+      listAdapter.notifyDataSetChanged();
+    } else {
+      listAdapter =
+          new ToolbarListAdapter(
+              toolbarModel,
+              (view, m, pos) -> {
+                switch (pos) {
+                  case 0 -> showGitBottomSheet();
+                  case 1 -> stepFileTree();
+                  case 2 -> stepSearch();
+                  case 3 -> toggleOrShowSplitPopup(view);
+                  case 4 -> {
+                    if (getEditor().canUndo()) getEditor().undo();
+                  }
+                  case 5 -> {
+                    if (getEditor().canRedo()) getEditor().redo();
+                  }
+                  case 6 -> setupMenuCalltoAction(view);
+                  case 7 -> showPluginPopup(view);
                 }
-                case 5 -> {
-                  if (getEditor().canRedo()) getEditor().redo();
-                }
-                case 6 -> setupMenuCalltoAction(view);
-                case 7 -> showPluginPopup(view);
-              }
-            },
-            EditorActivity.this);
+              },
+              EditorActivity.this);
+    }
     binding.rvtoolbar.setLayoutManager(
         new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
     binding.rvtoolbar.setAdapter(listAdapter);

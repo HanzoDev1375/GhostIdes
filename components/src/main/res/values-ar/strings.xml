@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="empty">فارغ</string>
+  <string name="empty_view_default_title">لا شيء هنا بعد</string>
+  <string name="empty_view_default_description">سوف تظهر العناصر هنا بمجرد توفرها</string>
+  <string name="empty_view_cd_icon">رمز الحالة الفارغة</string>
   <string name="dialog_rename">إعادة تسمية؟</string>
   <string name="dialog_rename_massges">إعادة تسمية العنصر %s</string>
   <string name="ftp_connect_title">الاتصال بالخادم</string>
