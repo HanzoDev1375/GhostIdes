@@ -227,7 +227,6 @@ public class SettingActivity extends BaseCompat {
     }
   }
 
- 
   private void setupBackgroundBlur() {
     View appbar = findViewById(R.id.appbar);
     View toolbar = findViewById(R.id.toolbar);
@@ -504,6 +503,14 @@ public class SettingActivity extends BaseCompat {
             prefs.isBackgroundZoomMod(),
             0,
             prefs::setBackgroundZoomMod));
+
+    items.add(
+        new SettingItem(
+            getString(R.string.tabcolortitle),
+            getString(R.string.tabcolorsubtitle),
+            prefs.isTabLangColor(),
+            0,
+            prefs::setTabLangColor));
     return items;
   }
 

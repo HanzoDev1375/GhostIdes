@@ -7,7 +7,7 @@
     android:fitsSystemWindows="true"
     android:id="@+id/rootLayout">
 
-    <ir.hanzodev1375.components.childern.ViewChilder
+    <ir.hanzodev1375.components.childern.ViewChilderPreview
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:visibility="gone"

@@ -90,6 +90,9 @@ public class EditorPaneFragment extends Fragment {
             if (binding.paneViewPager.getCurrentItem() != position) {
               binding.paneViewPager.setCurrentItem(position, false);
             }
+            ThemeManager themeManager = new ThemeManager(requireContext());
+            ThemeUtils themeUtils = new ThemeUtils(themeManager);
+            themeUtils.applyTabLayout(binding.paneTab, getCurrentFilePath());
           }
 
           @Override
@@ -107,7 +110,7 @@ public class EditorPaneFragment extends Fragment {
 
     ThemeManager themeManager = new ThemeManager(requireContext());
     ThemeUtils themeUtils = new ThemeUtils(themeManager);
-    themeUtils.applyTabLayout(binding.paneTab);
+    themeUtils.applyTabLayout(binding.paneTab,getCurrentFilePath());
   }
 
   private void showPaneTabMenu(View anchor, int position) {

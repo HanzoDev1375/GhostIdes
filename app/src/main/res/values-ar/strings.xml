@@ -475,4 +475,8 @@
   <string name="theme_edit">تحرير الموضوع الآن</string>
   <string name="theme_apply">تطبيق الموضوع الآن</string>
   <string name="no_plugins">لم يتم تثبيت أي مكونات إضافية</string>
+  <string name="backgroundzoomtitle">تكبير الخلفية</string>
+  <string name="backgroundzoomsubtitle">عند تفعيل هذا الخيار، يتم تفعيل وضع التكبير المتحرك لك في محرر الأكواد مع عرض لوحة المفاتيح....</string>
+  <string name="tabcolortitle">تلوين اللغات</string>
+  <string name="tabcolorsubtitle">قم بتلوين تبويب بكل امتداد باستخدام هذه الميزة</string>
 </resources>

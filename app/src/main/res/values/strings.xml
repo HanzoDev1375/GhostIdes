@@ -479,4 +479,6 @@
     <string name="no_plugins">No plugins installed</string>
     <string name="backgroundzoomtitle">Zoom background</string>
     <string name="backgroundzoomsubtitle">When you enable this option, animated zoom mode is enabled for you in the code editor with the keyboard displayed....</string>
+    <string name="tabcolortitle">Color languages</string>
+    <string name="tabcolorsubtitle">Color a tab with each extension with this feature</string>
 </resources>

@@ -475,4 +475,8 @@
   <string name="theme_edit">立即编辑主题</string>
   <string name="theme_apply">立即应用主题</string>
   <string name="no_plugins">没有安装插件</string>
+  <string name="backgroundzoomtitle">背景缩放</string>
+  <string name="backgroundzoomsubtitle">启用此选项后，代码编辑器中会为您启用动画缩放模式，并显示键盘....</string>
+  <string name="tabcolortitle">语言着色</string>
+  <string name="tabcolorsubtitle">使用此功能可为每个扩展名给标签着色</string>
 </resources>

@@ -475,4 +475,8 @@
   <string name="theme_edit">اکنون طرح زمینه را ویرایش کنید</string>
   <string name="theme_apply">اکنون تم را اعمال کنید</string>
   <string name="no_plugins">هیچ پلاگینی نصب نشده است</string>
+  <string name="backgroundzoomtitle">بزرگ‌نمایی پس‌زمینه</string>
+  <string name="backgroundzoomsubtitle">وقتی این گزینه را فعال کنید، حالت بزرگ‌نمایی متحرک در ویرایشگر کد با نمایش صفحه‌کلید برای شما فعال می‌شود....</string>
+  <string name="tabcolortitle">رنگ‌آمیزی زبان‌ها</string>
+  <string name="tabcolorsubtitle">با این ویژگی هر تب را بر اساس پسوند آن رنگ‌آمیزی کنید</string>
 </resources>

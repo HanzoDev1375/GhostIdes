@@ -475,4 +475,8 @@
   <string name="theme_edit">Editar tema agora</string>
   <string name="theme_apply">Aplicar tema agora</string>
   <string name="no_plugins">Nenhum plug-in instalado</string>
+  <string name="backgroundzoomtitle">Zoom de fundo</string>
+  <string name="backgroundzoomsubtitle">Quando você ativa esta opção, o modo de zoom animado é ativado para você no editor de código com o teclado exibido....</string>
+  <string name="tabcolortitle">Colorir linguagens</string>
+  <string name="tabcolorsubtitle">Colorize uma aba com cada extensão com este recurso</string>
 </resources>

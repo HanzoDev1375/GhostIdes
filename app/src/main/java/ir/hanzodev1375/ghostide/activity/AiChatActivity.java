@@ -20,6 +20,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.liquidglass.GlassMaterial;
+import com.example.liquidglass.LiquidGlassView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -109,6 +111,7 @@ public class AiChatActivity extends BaseCompat {
     rvAttachedFiles = findViewById(R.id.rv_attached_files);
     child = findViewById(R.id.backgroundIconSetting);
     setupBackgroundBlur(child, findViewById(R.id.rootAi),findViewById(R.id.appbar));
+    applyGlassToUi();
     setupProviderDropdown();
     setupChatRecyclerView();
     setupAttachedFilesRecyclerView();
@@ -251,6 +254,29 @@ public class AiChatActivity extends BaseCompat {
 
   private void setupAttachButton() {
     btnAttach.setOnClickListener(v -> openFilePicker());
+  }
+
+  private void applyGlassToUi() {
+    View backdrop = findViewById(R.id.backdropAi);
+    if (backdrop == null) return;
+
+    configureGlass(findViewById(R.id.provider_glass_container), backdrop, 28f, 18f, 6f);
+    configureGlass(findViewById(R.id.input_glass_container), backdrop, 28f, 18f, 6f);
+  }
+
+  private void configureGlass(
+      LiquidGlassView glass, View backdrop, float cornerRadiusDp, float refractionDp, float bevelDp) {
+    if (glass == null) return;
+    float density = getResources().getDisplayMetrics().density;
+    glass.setCornerRadius(cornerRadiusDp * density);
+    glass.setRefractionHeight(refractionDp * density);
+    glass.setBevelWidth(bevelDp * density);
+    glass.setMaterial(GlassMaterial.REGULAR);
+    glass.setDispersionStrength(0.12f);
+    glass.setEnableDynamicBackground(true);
+    glass.setEnableSensorHighlight(false);
+    glass.setEnableAdaptiveTint(true);
+    glass.setBackdropSource(backdrop);
   }
 
   private void openFilePicker() {

@@ -770,4 +770,15 @@ public class PreferencesUtils {
         .putBoolean(Constants.SharedPreferenceKeys.KEY_CONSTZOOM, mod)
         .apply();
   }
+
+  public boolean isTabLangColor() {
+    return getDefaultPreferences().getBoolean(Constants.SharedPreferenceKeys.Key_langColor, false);
+  }
+
+  public void setTabLangColor(boolean mod) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.Key_langColor, mod)
+        .apply();
+  }
 }

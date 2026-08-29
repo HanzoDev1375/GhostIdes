@@ -475,4 +475,8 @@
   <string name="theme_edit">अभी थीम संपादित करें</string>
   <string name="theme_apply">अभी थीम लागू करें</string>
   <string name="no_plugins">कोई प्लगइन्स स्थापित नहीं है</string>
+  <string name="backgroundzoomtitle">बैकग्राउंड ज़ूम</string>
+  <string name="backgroundzoomsubtitle">जब आप इस विकल्प को सक्षम करते हैं, तो कीबोर्ड प्रदर्शित होने के साथ कोड एडिटर में आपके लिए एनिमेटेड ज़ूम मोड सक्षम हो जाता है....</string>
+  <string name="tabcolortitle">भाषाओं को रंग दें</string>
+  <string name="tabcolorsubtitle">इस सुविधा से प्रत्येक एक्सटेंशन के साथ एक टैब रंग दें</string>
 </resources>

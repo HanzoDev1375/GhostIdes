@@ -18,11 +18,13 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
 import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.hanzodev1375.filetreelib.widget.FileTreeView;
+import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.colorscheme.GhostColorScheme;
 import ir.hanzodev1375.ghostide.customui.EditorStatusBar;
 import ir.hanzodev1375.ghostide.customui.GhostIdeEditorSearch;
 import ir.hanzodev1375.ghostide.customui.LayoutSymbolbar;
+import ir.hanzodev1375.ghostide.materialfileicon.core.langcolor.LanguageColors;
 
 public class ThemeUtils {
 
@@ -416,30 +418,39 @@ public class ThemeUtils {
     }
   }
 
-  public void applyTabLayout(TabLayout layout) {
-
+  public void applyTabLayout(TabLayout layout, String path) {
     GhostTheme theme = getTheme();
-
     if (theme == null) {
       return;
     }
-
     if (theme.getWidget() == null) {
       return;
     }
-
     WidgetTheme widget = theme.getWidget();
-
     if (widget.getBackground() != null) {
       layout.setBackgroundColor(parseColor(widget.getBackground()));
     }
-
-    if (widget.getAccent() != null) {
-      layout.setSelectedTabIndicatorColor(parseColor(widget.getAccent()));
+    var appsetting = GhostIdeAppLoader.getInstance().getSetting();
+    if (appsetting.isTabLangColor()) {
+      String ext = null;
+      if (path != null) {
+        String name = path.substring(path.lastIndexOf('/') + 1);
+        int dot = name.lastIndexOf('.');
+        if (dot >= 0 && dot < name.length() - 1) ext = name.substring(dot + 1);
+      }
+      String langColor = LanguageColors.getColorForExtension(ext);
+      if (langColor != null) {
+        layout.setSelectedTabIndicatorColor(parseColor(langColor));
+      } else if (widget.getAccent() != null) {
+        layout.setSelectedTabIndicatorColor(parseColor(widget.getAccent()));
+      }
+    } else {
+      if (widget.getAccent() != null) {
+        layout.setSelectedTabIndicatorColor(parseColor(widget.getAccent()));
+      }
     }
 
     if (widget.getTabSelected() != null && widget.getTabUnselected() != null) {
-
       layout.setTabTextColors(
           parseColor(widget.getTabUnselected()), parseColor(widget.getTabSelected()));
     }

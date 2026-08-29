@@ -475,4 +475,8 @@
   <string name="theme_edit">Изменить тему сейчас</string>
   <string name="theme_apply">Применить тему сейчас</string>
   <string name="no_plugins">Плагины не установлены</string>
+  <string name="backgroundzoomtitle">Масштабирование фона</string>
+  <string name="backgroundzoomsubtitle">Когда вы включите эту опцию, в редакторе кода с отображаемой клавиатурой для вас будет включён режим анимированного масштабирования....</string>
+  <string name="tabcolortitle">Цвет языков</string>
+  <string name="tabcolorsubtitle">Окрашивайте вкладку с каждым расширением с помощью этой функции</string>
 </resources>

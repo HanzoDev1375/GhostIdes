@@ -65,6 +65,7 @@ public class Constants {
     public static final String KRY_TERM = "terminal_fragment";
     public static final String KEY_BLUR = "app_blurmod_allstate";
     public static final String KEY_CONSTZOOM = "app_const_zoommod";
+    public static final String Key_langColor = "editor_tabcolor";
 
     private SharedPreferenceKeys() {
       throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

@@ -136,7 +136,9 @@ public abstract class LspContentImpl {
   public String findInstalledExecutable(Context context) {
     File rootfs = DebianBootstrap.getRootfsDir(context);
     if (rootfs == null || !rootfs.exists()) return null;
+    if (candidatePaths == null) return null;
     for (String candidate : candidatePaths) {
+      if (candidate == null) continue;
       File f = new File(rootfs, candidate.substring(1));
       if (f.exists()) return candidate;
     }

@@ -1,7 +1,10 @@
 package ir.theme.themeeditor;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -13,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 import ir.hanzodev1375.components.childern.ViewChilder;
+import ir.hanzodev1375.components.childern.ViewChilderPreview;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
@@ -78,6 +83,7 @@ public class ThemeEditorActivity extends BaseCompat {
   private ImageItem pendingImageItem;
   private ActivityResultLauncher<String[]> pickImageLauncher;
   private Map<String, String> titleToKeyMap = new HashMap<>();
+  private ViewChilderPreview backgroundView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +103,12 @@ public class ThemeEditorActivity extends BaseCompat {
               saveThemeToFile();
               buildColorItems();
               refreshCurrentTab();
+              if (backgroundView != null) {
+                backgroundView.setVisibility(View.VISIBLE);
+                float blur =
+                    currentTheme.getWidget() != null ? currentTheme.getWidget().getBlursize() : 0f;
+                backgroundView.load(uri.toString(), blur);
+              }
             });
 
     setContentView(R.layout.activity_theme_editor);
@@ -177,10 +189,12 @@ public class ThemeEditorActivity extends BaseCompat {
 
     adapter = new ThemeDetailAdapter(activityItems);
     recyclerView.setAdapter(adapter);
+    applyPreviewStyle();
   }
 
   private void setupBackgroundBlur() {
-    ViewChilder background = findViewById(R.id.backgroundIconThemeEditor);
+    ViewChilderPreview background = findViewById(R.id.backgroundIconThemeEditor);
+    backgroundView = background;
     View appbar = findViewById(R.id.appbar);
     TabLayout tabs = findViewById(R.id.tabLayout);
     if (background == null || appbar == null) return;
@@ -233,6 +247,45 @@ public class ThemeEditorActivity extends BaseCompat {
         findViewById(R.id.rootTheme),
         findViewById(R.id.tabLayout),
         findViewById(R.id.appbar));
+  }
+
+  private void applyPreviewStyle() {
+    if (backgroundView == null || currentTheme == null) return;
+    WidgetTheme wt = currentTheme.getWidget();
+    float corner = getResources().getDisplayMetrics().density * 20f;
+    int fill = Color.TRANSPARENT;
+    int stroke = Color.TRANSPARENT;
+    if (wt != null) {
+      if (wt.getSurface() != null) {
+        try {
+          fill = Color.parseColor(wt.getSurface());
+        } catch (Exception ignored) {
+        }
+      }
+      if (wt.getStroke() != null) {
+        try {
+          stroke = Color.parseColor(wt.getStroke());
+        } catch (Exception ignored) {
+        }
+      }
+    }
+    backgroundView.applyStyle(corner, fill, stroke, 1f);
+  }
+
+  private void animateBackgroundColor(int colorTo) {
+    if (backgroundView == null) return;
+    backgroundView.setVisibility(View.VISIBLE);
+    int colorFrom = Color.TRANSPARENT;
+    if (backgroundView.getBackground() instanceof ColorDrawable) {
+      colorFrom = ((ColorDrawable) backgroundView.getBackground()).getColor();
+    }
+    ValueAnimator animator =
+        ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo & 0xFFFFFFFF);
+    animator.setDuration(400);
+    animator.setInterpolator(new DecelerateInterpolator());
+    animator.addUpdateListener(
+        animation -> backgroundView.setBackgroundColor((int) animation.getAnimatedValue()));
+    animator.start();
   }
 
   private String readFileToString(File file) {
@@ -1082,7 +1135,13 @@ public class ThemeEditorActivity extends BaseCompat {
                   item.currentColor = newHex;
                   saveThemeToFile();
                   notifyItemChanged(holder.getBindingAdapterPosition());
-                  //recreate();
+                  if ("Background".equals(item.title)) {
+                    animateBackgroundColor(newColor);
+                  }
+                  if ("Surface".equals(item.title) || "Stroke".equals(item.title)) {
+                    applyPreviewStyle();
+                  }
+                  // recreate();
                 });
           });
     }
@@ -1139,6 +1198,9 @@ public class ThemeEditorActivity extends BaseCompat {
                       item.currentValue = slider.getValue();
                       saveThemeToFile();
                       notifyItemChanged(holder.getBindingAdapterPosition());
+                      if ("Blur Size".equals(item.title) && backgroundView != null) {
+                        backgroundView.applyBlur(slider.getValue());
+                      }
                     })
                 .setNegativeButton(R.string.cancel, null)
                 .show();

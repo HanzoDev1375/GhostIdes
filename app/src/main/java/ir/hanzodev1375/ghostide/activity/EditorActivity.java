@@ -207,7 +207,6 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     theme = new ThemeUtils(manager);
     theme.applyActivity(this);
     theme.applyFab(binding.fabineditor);
-    theme.applyTabLayout(binding.tab);
     theme.applyView(binding.mainContent);
     theme.applyImageBackground(binding.backgroundicon);
     theme.applyGhostIdeEditorSearch(binding.editorSearch);
@@ -221,6 +220,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     }
     pluginPanelHost = new PluginPanelHost(this, this::getCurrentFilePath);
     stepToolbar();
+    theme.applyTabLayout(binding.tab,getCurrentFilePath());
     setupKeyboardListener();
     setupSymbolBarVisibilityWatcher();
     GitHubClient gitHub = new GitHubClient(this);
@@ -1116,6 +1116,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
               binding.viewPager.setCurrentItem(position, false);
             saveCurrentPosition(position);
             updateLanguageStatus(position);
+            theme.applyTabLayout(binding.tab, getCurrentFilePath());
           }
 
           @Override
@@ -1135,6 +1136,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
             if (tab != null && !tab.isSelected()) tab.select();
             saveCurrentPosition(position);
             updateLanguageStatus(position);
+            theme.applyTabLayout(binding.tab, getCurrentFilePath());
           }
         });
   }
