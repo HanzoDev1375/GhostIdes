@@ -282,7 +282,7 @@
   <string name="translator_error_file_not_found">فایل Strings.xml یافت نشد</string>
   <string name="setting_lineinfopaneltitle">نمایش پانل خط مورد</string>
   <string name="setting_lineinfopanelsubtitle">با این گزینه می توانید پنل انتخاب خط و ستون را انتخاب کنید.</string>
-  <string name="serachdata">Serach File یا Dir</string>
+  <string name="serachdata">جستجو کنید فایل یا پوشه را </string>
   <string name="store">فروشگاه</string>
   <string name="aboutapp">درباره برنامه</string>
   <string name="pref_power_mode">حالت قدرت</string>

@@ -137,7 +137,7 @@ public class ErrorManagerActivity extends BaseCompat {
   }
 
   private void setupBackgroundBlur() {
-    setupBackgroundBlur(bind.backgroundIconError, bind.appbar, bind.errorContent);
+    setupBackgroundBlur(bind.backgroundIconError, bind.appbar, bind.toolbar, bind.errorContent);
   }
 
   private void appendSection(SpannableStringBuilder sb, String text, int color, boolean bold) {

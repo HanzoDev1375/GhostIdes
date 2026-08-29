@@ -594,8 +594,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
 
   private void setupKeyboardListener() {
     View rootView = getWindow().getDecorView();
-    if (binding.backgroundicon.getCurrentPath().endsWith(".mp4")
-        || binding.backgroundicon.getCurrentPath().endsWith(".gif")) {
+    if (settings.isBackgroundZoomMod()) {
       if (keyboardLayoutListener != null) {
         getWindow()
             .getDecorView()

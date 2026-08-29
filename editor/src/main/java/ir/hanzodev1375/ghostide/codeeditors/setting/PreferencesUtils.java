@@ -759,4 +759,15 @@ public class PreferencesUtils {
   public void setDiagnostics(boolean show) {
     getDefaultPreferences().edit().putBoolean("editor_lsp_diagnostics", show).apply();
   }
+
+  public boolean isBackgroundZoomMod() {
+    return getDefaultPreferences().getBoolean(Constants.SharedPreferenceKeys.KEY_CONSTZOOM, false);
+  }
+
+  public void setBackgroundZoomMod(boolean mod) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CONSTZOOM, mod)
+        .apply();
+  }
 }

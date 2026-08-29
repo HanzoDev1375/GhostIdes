@@ -40,10 +40,9 @@ public class StackBlurTransformation extends BitmapTransformation {
     int wm = w - 1;
     int hm = h - 1;
     int div = radius + radius + 1;
-    int divsum = (div >> 1) + 1;
-    int[] dv = new int[256 * divsum];
-    for (int i = 0; i < 256 * divsum; i++) {
-      dv[i] = i / divsum;
+    int[] dv = new int[256 * div];
+    for (int i = 0; i < 256 * div; i++) {
+      dv[i] = i / div;
     }
 
     int[] r = new int[w * h];

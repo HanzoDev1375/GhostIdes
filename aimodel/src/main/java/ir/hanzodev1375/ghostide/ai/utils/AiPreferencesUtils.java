@@ -6,154 +6,206 @@ import android.preference.PreferenceManager;
 
 public class AiPreferencesUtils {
 
-    private final Context context;
+  private final Context context;
 
-    public AiPreferencesUtils(Context context) {
-        this.context = context;
-    }
+  public AiPreferencesUtils(Context context) {
+    this.context = context;
+  }
 
-    private SharedPreferences getPrefs() {
-        return PreferenceManager.getDefaultSharedPreferences(context);
-    }
+  private SharedPreferences getPrefs() {
+    return PreferenceManager.getDefaultSharedPreferences(context);
+  }
 
-    // ========== Claude ==========
-    public String getClaudeApiKey() {
-        return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_CLAUDE_API_KEY, "");
-    }
+  // ========== Claude ==========
+  public String getClaudeApiKey() {
+    return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_CLAUDE_API_KEY, "");
+  }
 
-    public void setClaudeApiKey(String apiKey) {
-        getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_CLAUDE_API_KEY, apiKey).apply();
-    }
+  public void setClaudeApiKey(String apiKey) {
+    getPrefs()
+        .edit()
+        .putString(AiConstants.SharedPreferenceKeys.KEY_AI_CLAUDE_API_KEY, apiKey)
+        .apply();
+  }
 
-    public boolean hasClaudeApiKey() {
-        return !getClaudeApiKey().isEmpty();
-    }
+  public boolean hasClaudeApiKey() {
+    return !getClaudeApiKey().isEmpty();
+  }
 
-    public String getClaudeModel() {
-        return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_CLAUDE_MODEL, AiConstants.DefaultModels.CLAUDE_DEFAULT);
-    }
+  public String getClaudeModel() {
+    return getPrefs()
+        .getString(
+            AiConstants.SharedPreferenceKeys.KEY_AI_CLAUDE_MODEL,
+            AiConstants.DefaultModels.CLAUDE_DEFAULT);
+  }
 
-    public void setClaudeModel(String model) {
-        getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_CLAUDE_MODEL, model).apply();
-    }
+  public void setClaudeModel(String model) {
+    getPrefs()
+        .edit()
+        .putString(AiConstants.SharedPreferenceKeys.KEY_AI_CLAUDE_MODEL, model)
+        .apply();
+  }
 
-    // ========== ChatGPT ==========
-    public String getChatGptApiKey() {
-        return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_CHATGPT_API_KEY, "");
-    }
+  // ========== ChatGPT ==========
+  public String getChatGptApiKey() {
+    return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_CHATGPT_API_KEY, "");
+  }
 
-    public void setChatGptApiKey(String apiKey) {
-        getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_CHATGPT_API_KEY, apiKey).apply();
-    }
+  public void setChatGptApiKey(String apiKey) {
+    getPrefs()
+        .edit()
+        .putString(AiConstants.SharedPreferenceKeys.KEY_AI_CHATGPT_API_KEY, apiKey)
+        .apply();
+  }
 
-    public boolean hasChatGptApiKey() {
-        return !getChatGptApiKey().isEmpty();
-    }
+  public boolean hasChatGptApiKey() {
+    return !getChatGptApiKey().isEmpty();
+  }
 
-    public String getChatGptModel() {
-        return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_CHATGPT_MODEL, AiConstants.DefaultModels.CHATGPT_DEFAULT);
-    }
+  public String getChatGptModel() {
+    return getPrefs()
+        .getString(
+            AiConstants.SharedPreferenceKeys.KEY_AI_CHATGPT_MODEL,
+            AiConstants.DefaultModels.CHATGPT_DEFAULT);
+  }
 
-    public void setChatGptModel(String model) {
-        getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_CHATGPT_MODEL, model).apply();
-    }
+  public void setChatGptModel(String model) {
+    getPrefs()
+        .edit()
+        .putString(AiConstants.SharedPreferenceKeys.KEY_AI_CHATGPT_MODEL, model)
+        .apply();
+  }
 
-    // ========== DeepSeek ==========
-    public String getDeepSeekApiKey() {
-        return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_DEEPSEEK_API_KEY, "");
-    }
+  // ========== DeepSeek ==========
+  public String getDeepSeekApiKey() {
+    return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_DEEPSEEK_API_KEY, "");
+  }
 
-    public void setDeepSeekApiKey(String apiKey) {
-        getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_DEEPSEEK_API_KEY, apiKey).apply();
-    }
+  public void setDeepSeekApiKey(String apiKey) {
+    getPrefs()
+        .edit()
+        .putString(AiConstants.SharedPreferenceKeys.KEY_AI_DEEPSEEK_API_KEY, apiKey)
+        .apply();
+  }
 
-    public boolean hasDeepSeekApiKey() {
-        return !getDeepSeekApiKey().isEmpty();
-    }
+  public boolean hasDeepSeekApiKey() {
+    return !getDeepSeekApiKey().isEmpty();
+  }
 
-    public String getDeepSeekModel() {
-        return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_DEEPSEEK_MODEL, AiConstants.DefaultModels.DEEPSEEK_DEFAULT);
-    }
+  public String getDeepSeekModel() {
+    return getPrefs()
+        .getString(
+            AiConstants.SharedPreferenceKeys.KEY_AI_DEEPSEEK_MODEL,
+            AiConstants.DefaultModels.DEEPSEEK_DEFAULT);
+  }
 
-    public void setDeepSeekModel(String model) {
-        getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_DEEPSEEK_MODEL, model).apply();
-    }
+  public void setDeepSeekModel(String model) {
+    getPrefs()
+        .edit()
+        .putString(AiConstants.SharedPreferenceKeys.KEY_AI_DEEPSEEK_MODEL, model)
+        .apply();
+  }
 
-    // ========== Gemini ==========
-    public String getGeminiApiKey() {
-        return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_GEMINI_API_KEY, "");
-    }
+  // ========== Gemini ==========
+  public String getGeminiApiKey() {
+    return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_GEMINI_API_KEY, "");
+  }
 
-    public void setGeminiApiKey(String apiKey) {
-        getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_GEMINI_API_KEY, apiKey).apply();
-    }
+  public void setGeminiApiKey(String apiKey) {
+    getPrefs()
+        .edit()
+        .putString(AiConstants.SharedPreferenceKeys.KEY_AI_GEMINI_API_KEY, apiKey)
+        .apply();
+  }
 
-    public boolean hasGeminiApiKey() {
-        return !getGeminiApiKey().isEmpty();
-    }
+  public boolean hasGeminiApiKey() {
+    return !getGeminiApiKey().isEmpty();
+  }
 
-    public String getGeminiModel() {
-        return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_GEMINI_MODEL, AiConstants.DefaultModels.GEMINI_DEFAULT);
-    }
+  public String getGeminiModel() {
+    return getPrefs()
+        .getString(
+            AiConstants.SharedPreferenceKeys.KEY_AI_GEMINI_MODEL,
+            AiConstants.DefaultModels.GEMINI_DEFAULT);
+  }
 
-    public void setGeminiModel(String model) {
-        getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_GEMINI_MODEL, model).apply();
-    }
+  public void setGeminiModel(String model) {
+    getPrefs()
+        .edit()
+        .putString(AiConstants.SharedPreferenceKeys.KEY_AI_GEMINI_MODEL, model)
+        .apply();
+  }
 
-    // ========== OpenRouter ==========
-    public String getOpenRouterApiKey() {
-        return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_API_KEY, "");
-    }
+  // ========== OpenRouter ==========
+  public String getOpenRouterApiKey() {
+    return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_API_KEY, "");
+  }
 
-    public void setOpenRouterApiKey(String apiKey) {
-        getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_API_KEY, apiKey).apply();
-    }
+  public void setOpenRouterApiKey(String apiKey) {
+    getPrefs()
+        .edit()
+        .putString(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_API_KEY, apiKey)
+        .apply();
+  }
 
-    public boolean hasOpenRouterApiKey() {
-        return !getOpenRouterApiKey().isEmpty();
-    }
+  public boolean hasOpenRouterApiKey() {
+    return !getOpenRouterApiKey().isEmpty();
+  }
 
-    public String getOpenRouterModel() {
-        return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_MODEL, AiConstants.DefaultModels.OPENROUTER_DEFAULT);
-    }
+  public String getOpenRouterModel() {
+    return getPrefs()
+        .getString(
+            AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_MODEL,
+            AiConstants.DefaultModels.OPENROUTER_DEFAULT);
+  }
 
-    public void setOpenRouterModel(String model) {
-        getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_MODEL, model).apply();
-    }
+  public void setOpenRouterModel(String model) {
+    getPrefs()
+        .edit()
+        .putString(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_MODEL, model)
+        .apply();
+  }
 
-    // ========== Selected Provider ==========
-    public String getSelectedProvider() {
-        return getPrefs().getString(AiConstants.SharedPreferenceKeys.KEY_AI_SELECTED_PROVIDER, AiConstants.AiProvider.CLAUDE);
-    }
+  // ========== Selected Provider ==========
+  public String getSelectedProvider() {
+    return getPrefs()
+        .getString(
+            AiConstants.SharedPreferenceKeys.KEY_AI_SELECTED_PROVIDER,
+            AiConstants.AiProvider.CLAUDE);
+  }
 
-    public void setSelectedProvider(String provider) {
-        getPrefs().edit().putString(AiConstants.SharedPreferenceKeys.KEY_AI_SELECTED_PROVIDER, provider).apply();
-    }
+  public void setSelectedProvider(String provider) {
+    getPrefs()
+        .edit()
+        .putString(AiConstants.SharedPreferenceKeys.KEY_AI_SELECTED_PROVIDER, provider)
+        .apply();
+  }
 
-    public boolean hasApiKeyForProvider(String provider) {
-        switch (provider) {
-            case AiConstants.AiProvider.CLAUDE:
-                return hasClaudeApiKey();
-            case AiConstants.AiProvider.CHATGPT:
-                return hasChatGptApiKey();
-            case AiConstants.AiProvider.DEEPSEEK:
-                return hasDeepSeekApiKey();
-            case AiConstants.AiProvider.GEMINI:
-                return hasGeminiApiKey();
-            case AiConstants.AiProvider.OPENROUTER:
-                return hasOpenRouterApiKey();
-            default:
-                return false;
-        }
+  public boolean hasApiKeyForProvider(String provider) {
+    switch (provider) {
+      case AiConstants.AiProvider.CLAUDE:
+        return hasClaudeApiKey();
+      case AiConstants.AiProvider.CHATGPT:
+        return hasChatGptApiKey();
+      case AiConstants.AiProvider.DEEPSEEK:
+        return hasDeepSeekApiKey();
+      case AiConstants.AiProvider.GEMINI:
+        return hasGeminiApiKey();
+      case AiConstants.AiProvider.OPENROUTER:
+        return hasOpenRouterApiKey();
+      default:
+        return false;
     }
+  }
 
-    public void clearAllApiKeys() {
-        getPrefs().edit()
-                .remove(AiConstants.SharedPreferenceKeys.KEY_AI_CLAUDE_API_KEY)
-                .remove(AiConstants.SharedPreferenceKeys.KEY_AI_CHATGPT_API_KEY)
-                .remove(AiConstants.SharedPreferenceKeys.KEY_AI_DEEPSEEK_API_KEY)
-                .remove(AiConstants.SharedPreferenceKeys.KEY_AI_GEMINI_API_KEY)
-                .remove(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_API_KEY)
-                .apply();
-    }
+  public void clearAllApiKeys() {
+    getPrefs()
+        .edit()
+        .remove(AiConstants.SharedPreferenceKeys.KEY_AI_CLAUDE_API_KEY)
+        .remove(AiConstants.SharedPreferenceKeys.KEY_AI_CHATGPT_API_KEY)
+        .remove(AiConstants.SharedPreferenceKeys.KEY_AI_DEEPSEEK_API_KEY)
+        .remove(AiConstants.SharedPreferenceKeys.KEY_AI_GEMINI_API_KEY)
+        .remove(AiConstants.SharedPreferenceKeys.KEY_AI_OPENROUTER_API_KEY)
+        .apply();
+  }
 }

@@ -49,7 +49,6 @@ import ir.hanzodev1375.components.ui.ProfileView;
 import ir.hanzodev1375.ghostide.adapters.FileManagerAdapter;
 import ir.hanzodev1375.ghostide.adapters.ToolbarAdapter;
 import ir.hanzodev1375.ghostide.adapters.ZipBrowserAdapter;
-import ir.hanzodev1375.ghostide.ai.chat.AiChatActivity;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.ActivityFilemanagerBinding;
 import ir.hanzodev1375.ghostide.databinding.SelectionPanelBinding;
@@ -97,8 +96,6 @@ import ir.hanzodev1375.ghostide.utils.ShortcutHelper;
 import ir.hanzodev1375.ghostide.utils.StorageUtils;
 import ir.hanzodev1375.ghostide.utils.ZipUtil;
 import ir.hanzodev1375.ghostide.utils.zip.ZipOperationManager;
-import ir.theme.ThemeManager;
-import ir.theme.ThemeUtils;
 import ir.theme.themeeditor.ThemeEditorActivity;
 import java.io.File;
 import java.util.List;
@@ -116,7 +113,6 @@ import ir.hanzodev1375.ghostide.R;
 import java.util.Set;
 import ninja.coder.appuploader.main.appupdate.UpadteAppView;
 import net.lingala.zip4j.ZipFile;
-import ir.hanzodev1375.components.store.activitys.StoreActivity;
 import ir.hanzodev1375.ghostide.translator.ui.StringsTranslatorSheet;
 import irhanzodev1375.musicpreview.MusicPlayerBottomSheetFragment;
 
@@ -141,7 +137,6 @@ public class FileManagerActivity extends BaseCompat
   private UpadteAppView app;
   private PreferencesUtils appsetting;
   private ProfileView profileview;
-  private ThemeUtils themeutil;
   private NetworkChangeReceiver networkChangeReceiver;
   private Set<String> itemname =
       new HashSet<>(
@@ -241,13 +236,13 @@ public class FileManagerActivity extends BaseCompat
     setupInsets();
     setupSearchLayoutInsets();
     appsetting = new PreferencesUtils(this);
-    var themeManager = new ThemeManager(this);
-    themeutil = new ThemeUtils(themeManager);
     bind.fab.bindOfAcivity(this);
     if (!appsetting.isShowBackground()) {
       bind.headtop.setBackgroundColor(
           MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
       bind.headline.setBackground(ShapeUtil.shape(40f, this));
+    } else {
+      setupBackgroundBlur(bind.backgroundiconfilemanager, bind.headtop, bind.headline);
     }
     networkChangeReceiver = new NetworkChangeReceiver(this);
     IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -1641,7 +1636,7 @@ public class FileManagerActivity extends BaseCompat
     super.onResume();
     setupHeader();
     if (appsetting.isShowBackground()) {
-      themeutil.setFileManagerBack(bind.headline, bind.headtop, bind.backgroundiconfilemanager);
+      setupBackgroundBlur(bind.backgroundiconfilemanager, bind.headtop, bind.headline);
     } else {
       bind.headtop.setBackgroundColor(
           MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));

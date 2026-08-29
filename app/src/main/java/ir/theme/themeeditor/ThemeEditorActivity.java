@@ -227,7 +227,12 @@ public class ThemeEditorActivity extends BaseCompat {
       if (recycler != null) ViewCompat.setOnApplyWindowInsetsListener(recycler, null);
     }
 
-    setupBackgroundBlur(background, appbar, tabs);
+    setupBackgroundBlur(
+        background,
+        findViewById(R.id.rootLayout),
+        findViewById(R.id.rootTheme),
+        findViewById(R.id.tabLayout),
+        findViewById(R.id.appbar));
   }
 
   private String readFileToString(File file) {
@@ -1077,6 +1082,7 @@ public class ThemeEditorActivity extends BaseCompat {
                   item.currentColor = newHex;
                   saveThemeToFile();
                   notifyItemChanged(holder.getBindingAdapterPosition());
+                  //recreate();
                 });
           });
     }

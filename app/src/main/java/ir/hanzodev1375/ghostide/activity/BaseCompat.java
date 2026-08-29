@@ -18,6 +18,7 @@ import java.util.List;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
 import ir.hanzodev1375.ghostide.utils.LocaleHelper;
+import ir.theme.GhostTheme;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import android.view.View;
@@ -27,8 +28,8 @@ public class BaseCompat extends AppCompatActivity
 
   private PreferencesUtils prefs;
   private Theme lastTheme;
-  AnimationManager animMgr;
-  private  List<BaseCompat> ACTIVITIES = new ArrayList<>();
+  private AnimationManager animMgr;
+  private List<BaseCompat> ACTIVITIES = new ArrayList<>();
 
   @Override
   protected void attachBaseContext(Context newBase) {
@@ -92,25 +93,40 @@ public class BaseCompat extends AppCompatActivity
     }
   }
 
-  protected void setupBackgroundBlur(ViewChilder backgroundView, View... transparentViews) {
-    PreferencesUtils setting = new PreferencesUtils(this);
-    if (!setting.isShowBackground()) return;
-
+  protected void setupBackgroundBlur(ViewChilder backgroundView, View... tintViews) {
+    boolean showBg = new PreferencesUtils(this).isShowBackground();
     ThemeUtils themeUtil = new ThemeUtils(new ThemeManager(this));
-    var theme = themeUtil.getTheme();
-    if (theme == null || theme.getWidget() == null) return;
-    var widget = theme.getWidget();
-    if (widget.getImagepath() == null || widget.getImagepath().isEmpty()) {
-      backgroundView.clear();
+    GhostTheme theme = themeUtil.getTheme();
+    boolean hasImage =
+        theme != null
+            && theme.getWidget() != null
+            && theme.getWidget().getImagepath() != null
+            && !theme.getWidget().getImagepath().isEmpty();
+
+    if (!showBg) {
+      if (backgroundView != null) backgroundView.clear();
       return;
     }
 
     getWindow().setStatusBarColor(Color.TRANSPARENT);
     getWindow().setNavigationBarColor(Color.TRANSPARENT);
-    backgroundView.setVisibility(View.VISIBLE);
-    themeUtil.applyImageBackground(backgroundView);
-    for (View v : transparentViews) {
-      v.setBackgroundColor(Color.TRANSPARENT);
+
+    if (backgroundView != null) {
+      if (hasImage) {
+        backgroundView.setVisibility(View.VISIBLE);
+        themeUtil.applyImageBackground(backgroundView);
+      } else {
+        backgroundView.clear();
+      }
+    }
+
+    if (hasImage && theme.getActivity() != null && theme.getActivity().getBackground() != null) {
+      int bgColor = Color.parseColor(theme.getActivity().getBackground());
+      for (View v : tintViews) {
+        if (v != null && v != backgroundView) {
+          v.setBackgroundColor(bgColor);
+        }
+      }
     }
   }
 
@@ -136,8 +152,9 @@ public class BaseCompat extends AppCompatActivity
       super.startActivity(i);
     }
   }
+
   @NonNull
-  public AnimationManager getAnimationManager(){
+  public AnimationManager getAnimationManager() {
     return animMgr;
   }
 }

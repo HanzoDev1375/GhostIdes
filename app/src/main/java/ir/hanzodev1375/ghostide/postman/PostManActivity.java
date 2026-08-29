@@ -131,6 +131,14 @@ public class PostManActivity extends BaseCompat {
         .transform(new BlurTransformation((int) ids))
         .into(binding.iconBackground);
     binding.getRoot().setBackgroundColor(Color.TRANSPARENT);
+    var theme = themeUtil.getTheme();
+    if (theme != null && theme.getActivity() != null && theme.getActivity().getBackground() != null) {
+      int bg = Color.parseColor(theme.getActivity().getBackground());
+      int tint = androidx.core.graphics.ColorUtils.setAlphaComponent(bg, 128);
+      binding.toolbar.setBackgroundColor(tint);
+      binding.appBarLayout.setBackgroundColor(tint);
+      binding.contentScroll.setBackgroundColor(tint);
+    }
     int cardBackColor = MaterialColors.getColor(this, R.attr.colorSurfaceContainerLow, 0);
     binding.responseEmptyState.setBackgroundTintList(
         ColorStateList.valueOf(

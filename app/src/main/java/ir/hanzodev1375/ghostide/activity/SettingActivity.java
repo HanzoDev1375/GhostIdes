@@ -110,7 +110,8 @@ public class SettingActivity extends BaseCompat {
           ser.setLayoutParams(lp);
           // adjust padding for insets
           NestedScrollView scrollView = findViewById(R.id.scrollView);
-          scrollView.setPadding(0, 0, 0, bottomInset + (int) (80 * getResources().getDisplayMetrics().density));
+          scrollView.setPadding(
+              0, 0, 0, bottomInset + (int) (80 * getResources().getDisplayMetrics().density));
           return insets;
         });
 
@@ -226,16 +227,18 @@ public class SettingActivity extends BaseCompat {
     }
   }
 
-  /**
-   * دقیقاً همون مکانیزمِ FileManagerActivity: اگه "نمایش بک‌گراند" از تنظیمات روشن باشه و تم یه عکس
-   * بک‌گراند ست کرده باشه، همون عکسِ بلورشده رو پشتِ تولبار و لیست تنظیمات نشون میدیم.
-   */
+ 
   private void setupBackgroundBlur() {
     View appbar = findViewById(R.id.appbar);
+    View toolbar = findViewById(R.id.toolbar);
+    View settingRoot = findViewById(R.id.settingRoot);
+    View scrollView = findViewById(R.id.scrollView);
     View settingsContainer = findViewById(R.id.settings_container);
     ViewChilder backgroundIcon = findViewById(R.id.backgroundIconSetting);
-    if (appbar == null || settingsContainer == null || backgroundIcon == null) return;
-    setupBackgroundBlur(backgroundIcon, appbar, settingsContainer);
+    appbar.setBackgroundColor(0);
+    toolbar.setBackgroundColor(0);
+    if (settingsContainer == null || backgroundIcon == null) return;
+    setupBackgroundBlur(backgroundIcon, settingRoot, appbar, scrollView);
   }
 
   private List<SettingItem> getAiItems() {
@@ -494,6 +497,13 @@ public class SettingActivity extends BaseCompat {
             false,
             0,
             null));
+    items.add(
+        new SettingItem(
+            getString(R.string.backgroundzoomtitle),
+            getString(R.string.backgroundzoomsubtitle),
+            prefs.isBackgroundZoomMod(),
+            0,
+            prefs::setBackgroundZoomMod));
     return items;
   }
 

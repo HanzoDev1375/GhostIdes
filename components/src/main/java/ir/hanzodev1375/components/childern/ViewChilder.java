@@ -123,7 +123,7 @@ public class ViewChilder extends FrameLayout {
       case TYPE_IMAGE:
         return new ImageChild(context, path, blurSize);
       case TYPE_GIF:
-        return new GifChild(context, path);
+        return new GifChild(context, path, blurSize);
       case TYPE_VIDEO:
         if (resolved == null) {
           Log.e(TAG, "Video content requires a LifecycleOwner -> " + path);
@@ -149,6 +149,7 @@ public class ViewChilder extends FrameLayout {
       case "jpeg":
       case "webp":
       case "bmp":
+      case "svg":
       case "avif":
         return TYPE_IMAGE;
       case "gif":

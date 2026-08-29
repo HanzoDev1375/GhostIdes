@@ -470,11 +470,13 @@
     <string name="lsp_diagnosticssubtitle"> Show Diagnostics Error War end ect...</string>
     <string name="lsptitles"> Ghost ide Lsp Server</string>
     <string name="icon_atomicghost"> Atom Ghost</string>
-    <string name="icon_neonpurple"> Icon Neon </string>
+    <string name="icon_neonpurple"> Icon Neon</string>
     <string name="icon_devilishpurple">Devilish Purple</string>
-    <string name="icon_blackmagic"> Black Magic </string>
-    <string name="icon_purplewitch">Purple Witch </string>
-    <string name="theme_edit"> Edit Theme Now </string>
-    <string name="theme_apply"> Apply Theme Now </string>
+    <string name="icon_blackmagic"> Black Magic</string>
+    <string name="icon_purplewitch">Purple Witch</string>
+    <string name="theme_edit"> Edit Theme Now</string>
+    <string name="theme_apply"> Apply Theme Now</string>
     <string name="no_plugins">No plugins installed</string>
+    <string name="backgroundzoomtitle">Zoom background</string>
+    <string name="backgroundzoomsubtitle">When you enable this option, animated zoom mode is enabled for you in the code editor with the keyboard displayed....</string>
 </resources>

@@ -21,15 +21,17 @@ public class ImageChild implements IChild {
   public ImageChild(Context context, String path, float blurSize) {
     this.path = path;
     this.imageView = new ImageView(context);
-    this.imageView.setLayoutParams(new ViewGroup.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT,
-        ViewGroup.LayoutParams.MATCH_PARENT));
+    this.imageView.setLayoutParams(
+        new ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     this.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-    RequestBuilder<Drawable> request = Glide.with(imageView).load(path);
-    if (blurSize > 0f) {
-      request = request.transform(new StackBlurTransformation((int) blurSize));
-    }
-    request.into(imageView);
+    if (blurSize == 0f) {
+      Glide.with(context).load(path).into(imageView);
+    } else
+      Glide.with(context)
+          .load(path)
+          .transform(new StackBlurTransformation((int) blurSize))
+          .into(imageView);
   }
 
   @Override

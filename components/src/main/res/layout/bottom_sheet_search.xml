@@ -46,12 +46,6 @@
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="2dp">
 
-                <ImageView
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:src="@drawable/outline_search24"
-                    android:tint="?attr/colorOnSurfaceVariant" />
-
                 <EditText
                     android:id="@+id/etSearch"
                     android:layout_width="0dp"

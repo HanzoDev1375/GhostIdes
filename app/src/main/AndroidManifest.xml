@@ -206,8 +206,8 @@
             android:name=".terminal.activity.TerminalActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name="ir.theme.themeeditor.ThemeEditorActivity" />
-        <activity android:name="ir.hanzodev1375.ghostide.ai.chat.AiChatActivity" />
-        <activity android:name="ir.hanzodev1375.components.store.activitys.StoreActivity" />
+        <activity android:name=".activity.AiChatActivity" />
+        <activity android:name=".activity.StoreActivity" />
 
         <receiver
             android:name="ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver"

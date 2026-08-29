@@ -16,22 +16,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.ghostide.ai.R;
 import ir.hanzodev1375.ghostide.ai.database.ChatRepository;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date; 
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class HistoryBottomSheetFragment extends BottomSheetDialogFragment {
+public class HistoryBottomSheetFragment extends BaseBlurBottomSheet {
 
   private ChatRepository repository;
   private HistoryAdapter adapter;
@@ -63,18 +64,12 @@ public class HistoryBottomSheetFragment extends BottomSheetDialogFragment {
     }
   }
 
-  @Nullable
   @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.bottom_sheet_history_fragment, container, false);
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  protected void onContentReady(@Nullable ViewGroup contentContainer) {
+    View view =
+        LayoutInflater.from(contentContainer.getContext())
+            .inflate(R.layout.bottom_sheet_history_fragment, contentContainer, false);
+    contentContainer.addView(view);
 
     rvHistory = view.findViewById(R.id.rvhistory);
     progressHistory = view.findViewById(R.id.progresshistory);
@@ -210,7 +205,8 @@ public class HistoryBottomSheetFragment extends BottomSheetDialogFragment {
         card = itemView.findViewById(R.id.card);
         card.setCardBackgroundColor(
             ColorStateList.valueOf(
-                MaterialColors.getColor(card, R.attr.colorSurfaceContainerHighest)));
+                ColorUtils.setAlphaComponent(
+                    MaterialColors.getColor(card, R.attr.colorSurfaceContainerHighest), 128)));
       }
     }
   }

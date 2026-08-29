@@ -1,8 +1,6 @@
-package ir.hanzodev1375.ghostide.ai.chat;
+package ir.hanzodev1375.ghostide.activity;
 
 import android.app.Activity;
-import android.app.ActivityOptions;
-import com.google.android.material.transition.platform.MaterialSharedAxis;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,12 +12,10 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,12 +24,16 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
+import ir.hanzodev1375.components.childern.ViewChilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import ir.hanzodev1375.ghostide.ai.R;
+import ir.hanzodev1375.ghostide.R;
+import ir.hanzodev1375.ghostide.ai.chat.AttachedFilesAdapter;
+import ir.hanzodev1375.ghostide.ai.chat.ChatAdapter;
+import ir.hanzodev1375.ghostide.ai.chat.HistoryBottomSheetFragment;
 import ir.hanzodev1375.ghostide.ai.database.ChatRepository;
 import ir.hanzodev1375.ghostide.ai.model.AttachedFile;
 import ir.hanzodev1375.ghostide.ai.model.ChatMessage;
@@ -43,7 +43,7 @@ import ir.hanzodev1375.ghostide.ai.utils.AiConstants;
 import ir.hanzodev1375.ghostide.ai.utils.AiPreferencesUtils;
 import ir.hanzodev1375.ghostide.ai.utils.FileReadUtils;
 
-public class AiChatActivity extends AppCompatActivity {
+public class AiChatActivity extends BaseCompat {
 
   private RecyclerView recyclerView;
   private TextInputEditText etInput;
@@ -51,7 +51,7 @@ public class AiChatActivity extends AppCompatActivity {
   private MaterialButton btnAttach;
   private AutoCompleteTextView actvProvider;
   private RecyclerView rvAttachedFiles;
-
+  private ViewChilder child;
   private ChatAdapter adapter;
   private AttachedFilesAdapter attachedFilesAdapter;
   private final List<ChatMessage> messages = new ArrayList<>();
@@ -73,8 +73,8 @@ public class AiChatActivity extends AppCompatActivity {
     AiConstants.AiProvider.OPENROUTER
   };
   private static final String[] PROVIDER_LABELS = {
-  "Claude (Anthropic)", "ChatGPT (OpenAI)", "DeepSeek", "Gemini (Google)", "OpenRouter"
-};
+    "Claude (Anthropic)", "ChatGPT (OpenAI)", "DeepSeek", "Gemini (Google)", "OpenRouter"
+  };
 
   @NonNull
   private final ActivityResultLauncher<Intent> filePicker =
@@ -88,7 +88,6 @@ public class AiChatActivity extends AppCompatActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    EdgeToEdge.enable(this);
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_ai_chat);
 
@@ -108,7 +107,8 @@ public class AiChatActivity extends AppCompatActivity {
     btnAttach = findViewById(R.id.btn_attach);
     actvProvider = findViewById(R.id.actv_provider);
     rvAttachedFiles = findViewById(R.id.rv_attached_files);
-
+    child = findViewById(R.id.backgroundIconSetting);
+    setupBackgroundBlur(child, findViewById(R.id.rootAi),findViewById(R.id.appbar));
     setupProviderDropdown();
     setupChatRecyclerView();
     setupAttachedFilesRecyclerView();
@@ -497,20 +497,5 @@ public class AiChatActivity extends AppCompatActivity {
   protected void onDestroy() {
     super.onDestroy();
     executor.shutdownNow();
-  }
-
-  @Override
-  public void startActivity(Intent i) {
-    ActivityOptions op = ActivityOptions.makeSceneTransitionAnimation(this);
-    MaterialSharedAxis enter = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
-    enter.setDuration(1000);
-    MaterialSharedAxis exit = new MaterialSharedAxis(MaterialSharedAxis.Z, false);
-    exit.setDuration(1000);
-    MaterialSharedAxis reenter = new MaterialSharedAxis(MaterialSharedAxis.Y, true);
-    reenter.setDuration(1000);
-    getWindow().setExitTransition(exit);
-    getWindow().setEnterTransition(enter);
-    getWindow().setReenterTransition(reenter);
-    super.startActivity(i, op.toBundle());
   }
 }

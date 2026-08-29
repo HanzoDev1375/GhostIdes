@@ -33,7 +33,7 @@ public class HistoryActivity extends BaseCompat {
     super.onCreate(savedInstanceState);
     binding = ActivityHistoryBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
-    setupBackgroundBlur(binding.backgroundIconHistory, binding.toolbar);
+    setupBackgroundBlur(binding.backgroundIconHistory, binding.toolbar, binding.historyRecyclerView);
     UiUtils.fixUi(binding.getRoot());
 
     repository = new AppRepository(this);

@@ -4,23 +4,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
     android:fitsSystemWindows="false">
+    
+    <ir.hanzodev1375.components.childern.ViewChilder
+        android:id="@+id/backgroundIconSetting"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:visibility="visible" />
 
-    <!-- ── AppBar ──────────────────────────────────────────────────────────── -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="0dp"
         android:fitsSystemWindows="true"
-        app:liftOnScroll="true">
+        app:liftOnScroll="false">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar_ai_chat"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
             app:titleTextColor="?attr/colorOnSurface" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -31,6 +35,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:fitsSystemWindows="true"
+        android:id="@+id/rootAi"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <!-- Provider selector -->
@@ -115,12 +120,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!--
-                  ╔══════════════════════════════════════════════╗
-                  ║  Attached-files tray (GONE when empty)       ║
-                  ║  Horizontal RecyclerView – just like Claude  ║
-                  ╚══════════════════════════════════════════════╝
-                -->
+                <!-- ╔══════════════════════════════════════════════╗ ║ Attached-files tray (GONE when empty) ║ ║ Horizontal RecyclerView – just like Claude ║ ╚══════════════════════════════════════════════╝ -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_attached_files"
                     android:layout_width="match_parent"
