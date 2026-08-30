@@ -15,7 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import com.example.liquidglass.GlassMaterial;
-import com.example.liquidglass.LiquidGlassView;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import ir.hanzodev1375.ghostide.R;
 import com.google.android.material.color.MaterialColors;
 import com.skydoves.powermenu.MenuAnimation;
@@ -78,7 +78,7 @@ public class ObjectUtil {
 
     int padding = (int) (8 * activity.getResources().getDisplayMetrics().density);
 
-    LiquidGlassView glassView = new LiquidGlassView(activity);
+    GlassCompat glassView = new GlassCompat(activity);
     glassView.setLayoutParams(
         new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -134,7 +134,7 @@ public class ObjectUtil {
 
     int padding = (int) (8 * activity.getResources().getDisplayMetrics().density);
 
-    LiquidGlassView glassView = new LiquidGlassView(activity);
+    GlassCompat glassView = new GlassCompat(activity);
     glassView.setLayoutParams(
         new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));

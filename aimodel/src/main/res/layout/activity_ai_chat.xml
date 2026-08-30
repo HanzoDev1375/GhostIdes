@@ -45,7 +45,7 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <!-- Provider selector (glass) -->
-    <com.example.liquidglass.LiquidGlassView
+    <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
       android:id="@+id/provider_glass_container"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -95,7 +95,7 @@
 
       </LinearLayout>
 
-    </com.example.liquidglass.LiquidGlassView>
+    </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
     <!-- Chat messages list -->
     <androidx.recyclerview.widget.RecyclerView
@@ -109,7 +109,7 @@
       android:scrollbars="vertical" />
 
     <!-- ── Bottom input area (glass) ──────────────────────────────────── -->
-    <com.example.liquidglass.LiquidGlassView
+    <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
       android:id="@+id/input_glass_container"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -183,7 +183,7 @@
 
       </LinearLayout>
 
-    </com.example.liquidglass.LiquidGlassView>
+    </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
   </LinearLayout>
 

@@ -457,6 +457,8 @@
   <string name="terminal_debian_installed_success">डेबियन स्थापित ✓</string>
   <string name="all_blur">धुंधला मॉड</string>
   <string name="all_blur_subtitle">सभी घटकों को धुंधला करें.</string>
+  <string name="pref_glass_material_color">ग्लास मटेरियल रंग</string>
+  <string name="pref_glass_material_color_desc">कांच की सतहों पर मटेरियल रंग लागू करें</string>
   <string name="webcolor">कलर पिकरवेब दिखाएँ</string>
   <string name="lsp_inlaytitle">जड़ना दिखाएँ</string>
   <string name="lsp_inlaysubtitle">इनले आइटम एडिटर दिखाएँ सभी लैंग काम नहीं करते</string>

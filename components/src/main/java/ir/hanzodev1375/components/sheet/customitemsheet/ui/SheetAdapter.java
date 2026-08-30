@@ -1,11 +1,13 @@
 package ir.hanzodev1375.components.sheet.customitemsheet.ui;
 
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.color.MaterialColors;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.sheet.customitemsheet.callback.OnSheetListener;
 import ir.hanzodev1375.components.sheet.customitemsheet.model.SheetModel;
@@ -24,7 +26,7 @@ public class SheetAdapter extends RecyclerView.Adapter<SheetAdapter.Holder> {
     this.listener = listener;
   }
 
-  public static class Holder extends RecyclerView.ViewHolder {
+  static class Holder extends RecyclerView.ViewHolder {
     private TextView name;
     private ImageView icon;
 
@@ -41,6 +43,8 @@ public class SheetAdapter extends RecyclerView.Adapter<SheetAdapter.Holder> {
       } else {
         icon.setVisibility(View.VISIBLE);
         icon.setImageResource(model.icon());
+        icon.setImageTintList(
+            ColorStateList.valueOf(MaterialColors.getColor(icon, R.attr.colorSecondary)));
       }
     }
   }

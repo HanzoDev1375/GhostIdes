@@ -457,6 +457,8 @@
   <string name="terminal_debian_installed_success">Debian instalado ✓</string>
   <string name="all_blur">Mod de desfoque</string>
   <string name="all_blur_subtitle">Desfoque todos os componentes.</string>
+  <string name="pref_glass_material_color">Cor do vidro material</string>
+  <string name="pref_glass_material_color_desc">Aplicar cor de material às superfícies de vidro</string>
   <string name="webcolor">Mostrar seletor de coresWeb</string>
   <string name="lsp_inlaytitle">Mostrar incrustação</string>
   <string name="lsp_inlaysubtitle">Mostrar editor de itens embutidos nem todos os idiomas funcionam</string>

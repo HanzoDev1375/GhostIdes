@@ -781,4 +781,13 @@ public class PreferencesUtils {
         .putBoolean(Constants.SharedPreferenceKeys.Key_langColor, mod)
         .apply();
   }
+
+  /** note : dont using Constants.SharedPreferenceKeys */
+  public boolean isGlassMaterialColor() {
+    return getDefaultPreferences().getBoolean("m3glassColor", true);
+  }
+
+  public void setGlassMaterialColor(boolean mod) {
+    getDefaultPreferences().edit().putBoolean("m3glassColor", mod).apply();
+  }
 }

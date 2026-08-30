@@ -629,6 +629,16 @@ public class SettingActivity extends BaseCompat {
             prefs.isBlurMod(),
             0,
             prefs::setBlurMod));
+    items.add(
+        new SettingItem(
+            getString(R.string.pref_glass_material_color),
+            getString(R.string.pref_glass_material_color_desc),
+            prefs.isGlassMaterialColor(),
+            0,
+            isChecked -> {
+              prefs.setGlassMaterialColor(isChecked);
+              recreate();
+            }));
 
     return items;
   }

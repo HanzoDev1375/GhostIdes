@@ -457,6 +457,8 @@
   <string name="terminal_debian_installed_success">已安装 Debian ✓</string>
   <string name="all_blur">模糊模式</string>
   <string name="all_blur_subtitle">模糊所有组件。</string>
+  <string name="pref_glass_material_color">玻璃材质颜色</string>
+  <string name="pref_glass_material_color_desc">将材质颜色应用于玻璃表面</string>
   <string name="webcolor">显示颜色选择器Web</string>
   <string name="lsp_inlaytitle">显示镶嵌</string>
   <string name="lsp_inlaysubtitle">显示镶嵌项目编辑器并非所有语言都有效</string>

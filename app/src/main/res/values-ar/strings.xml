@@ -457,6 +457,8 @@
   <string name="terminal_debian_installed_success">تم تثبيت دبيان ✓</string>
   <string name="all_blur">طمس الوضع</string>
   <string name="all_blur_subtitle">طمس جميع المكونات.</string>
+  <string name="pref_glass_material_color">لون زجاج المادة</string>
+  <string name="pref_glass_material_color_desc">تطبيق لون المادة على الأسطح الزجاجية</string>
   <string name="webcolor">إظهار Color PickerWeb</string>
   <string name="lsp_inlaytitle">عرض البطانة</string>
   <string name="lsp_inlaysubtitle">إظهار محرر عنصر البطانة ليس كل اللغة تعمل</string>

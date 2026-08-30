@@ -8,7 +8,7 @@
      android:orientation="horizontal"
      android:id="@+id/floating_root">
 
-    <com.example.liquidglass.LiquidGlassView
+    <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
          android:layout_height="56dp"
          android:layout_width="wrap_content"
          android:visibility="gone"
@@ -27,7 +27,7 @@
              android:layout_width="wrap_content"
              android:id="@+id/floating_recycler_view" />
 
-    </com.example.liquidglass.LiquidGlassView>
+    </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
     <com.example.liquidglass.LiquidGlassFab
          android:layout_height="70dp"

@@ -459,6 +459,8 @@
     <string name="terminal_debian_installed_success">Debian installed ✓</string>
     <string name="all_blur">Blur mod</string>
     <string name="all_blur_subtitle">Blur all components.</string>
+    <string name="pref_glass_material_color">Glass Material Color</string>
+    <string name="pref_glass_material_color_desc">Apply Material color to glass surfaces</string>
     <string name="webcolor"> Show Color PickerWeb</string>
     <string name="lsp_inlaytitle"> Show Inlay</string>
     <string name="lsp_inlaysubtitle"> Show Inlay Item Editor not all lang work</string>

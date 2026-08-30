@@ -59,7 +59,7 @@
                 android:padding="16dp">
 
 
-                <com.example.liquidglass.LiquidGlassView
+                <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
                     android:id="@+id/cardStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -126,7 +126,7 @@
                             app:iconGravity="textStart"
                             android:text="@string/action_send" />
                     </LinearLayout>
-                </com.example.liquidglass.LiquidGlassView>
+                </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/requestTabs"
@@ -366,7 +366,7 @@
         app:behavior_peekHeight="96dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-        <com.example.liquidglass.LiquidGlassView
+        <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
             android:id="@+id/responseSheetGlassView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -555,7 +555,7 @@
                 </LinearLayout>
 
             </LinearLayout>
-        </com.example.liquidglass.LiquidGlassView>
+        </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
     </LinearLayout>
 

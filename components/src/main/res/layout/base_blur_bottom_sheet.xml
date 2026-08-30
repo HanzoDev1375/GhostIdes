@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.example.liquidglass.LiquidGlassView
+    <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
         android:id="@+id/glassView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,6 +24,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-    </com.example.liquidglass.LiquidGlassView>
+    </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
 </FrameLayout>

@@ -20,7 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import com.example.liquidglass.LiquidGlassView;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.hanzodev1375.ghostide.R;
 
 public class AboutActivity extends BaseCompat {
-  private LiquidGlassView cardDisplay, cardMemory, cardStorage, cardDeviceInfo;
+  private GlassCompat cardDisplay, cardMemory, cardStorage, cardDeviceInfo;
   private LinearLayout bodyDeviceInfo, bodyDisplay, bodyMemory, bodyStorage;
   private View arrowDeviceInfo, arrowDisplay, arrowMemory, arrowStorage;
   private boolean expDeviceInfo = true, expDisplay = true, expMemory = true, expStorage = true;
@@ -59,7 +59,7 @@ public class AboutActivity extends BaseCompat {
     animateCardsIn();
   }
 
-  private void setupGlassBackdrop(LiquidGlassView glass) {
+  private void setupGlassBackdrop(GlassCompat glass) {
     glass.setBackdropSource(findViewById(R.id.contentAreaAbout));
     glass.setEnableDynamicBackground(true);
     glass.setEnableChromaticAberration(true);

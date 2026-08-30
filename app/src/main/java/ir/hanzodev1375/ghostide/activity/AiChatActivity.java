@@ -21,8 +21,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.liquidglass.GlassMaterial;
-import com.example.liquidglass.LiquidGlassView;
 import com.google.android.material.button.MaterialButton;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -265,7 +265,7 @@ public class AiChatActivity extends BaseCompat {
   }
 
   private void configureGlass(
-      LiquidGlassView glass, View backdrop, float cornerRadiusDp, float refractionDp, float bevelDp) {
+      GlassCompat glass, View backdrop, float cornerRadiusDp, float refractionDp, float bevelDp) {
     if (glass == null) return;
     float density = getResources().getDisplayMetrics().density;
     glass.setCornerRadius(cornerRadiusDp * density);

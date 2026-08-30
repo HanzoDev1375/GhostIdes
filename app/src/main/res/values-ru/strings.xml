@@ -457,6 +457,8 @@
   <string name="terminal_debian_installed_success">Debian установлен ✓</string>
   <string name="all_blur">Мод размытия</string>
   <string name="all_blur_subtitle">Размытие всех компонентов.</string>
+  <string name="pref_glass_material_color">Цвет стекла Material</string>
+  <string name="pref_glass_material_color_desc">Применять цвет материала к стеклянным поверхностям</string>
   <string name="webcolor">Показать палитру цветовWeb</string>
   <string name="lsp_inlaytitle">Показать инкрустацию</string>
   <string name="lsp_inlaysubtitle">Показывать редактор элементов-вкладышей, не все языки работают</string>

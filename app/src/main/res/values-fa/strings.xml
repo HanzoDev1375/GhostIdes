@@ -457,6 +457,8 @@
   <string name="terminal_debian_installed_success">دبیان نصب شد ✓</string>
   <string name="all_blur">حالت تاری</string>
   <string name="all_blur_subtitle">همه اجزا را تار کنید.</string>
+  <string name="pref_glass_material_color">رنگ شیشه مادی</string>
+  <string name="pref_glass_material_color_desc">اعمال رنگ متریال روی سطوح شیشه‌ای</string>
   <string name="webcolor">نمایش Color PickerWeb</string>
   <string name="lsp_inlaytitle">نمایش Inlay</string>
   <string name="lsp_inlaysubtitle">نمایش ویرایشگر آیتم Inlay نه همه زبانها</string>

@@ -32,8 +32,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.blankj.utilcode.util.ClipboardUtils;
 import com.bumptech.glide.Glide;
 import com.example.liquidglass.GlassMaterial;
-import com.example.liquidglass.LiquidGlassView;
 import com.google.android.material.color.MaterialColors;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.ghostide.logcat.BottomSheetLogView;
 import ir.hanzodev1375.components.RenameDialogFragment;
@@ -115,6 +115,7 @@ import ninja.coder.appuploader.main.appupdate.UpadteAppView;
 import net.lingala.zip4j.ZipFile;
 import ir.hanzodev1375.ghostide.translator.ui.StringsTranslatorSheet;
 import irhanzodev1375.musicpreview.MusicPlayerBottomSheetFragment;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 
 public class FileManagerActivity extends BaseCompat
     implements NetworkChangeReceiver.CallBackNetWork {
@@ -657,8 +658,8 @@ public class FileManagerActivity extends BaseCompat
                       new ZipOperationManager.ZipInfoCallback() {
                         @Override
                         public void onInfo(ZipInfo info) {
-                          
-                          new MaterialAlertDialogBuilder   (FileManagerActivity.this)
+
+                          new MaterialAlertDialogBuilder(FileManagerActivity.this)
                               .setTitle(getString(R.string.zip_info))
                               .setMessage(
                                   getString(R.string.zip_info_files, info.fileCount)
@@ -1255,7 +1256,7 @@ public class FileManagerActivity extends BaseCompat
     ViewGroup container = (ViewGroup) panel;
     container.setBackground(new ColorDrawable(Color.TRANSPARENT));
     int padding = (int) (2 * getResources().getDisplayMetrics().density);
-    LiquidGlassView glass = new LiquidGlassView(this);
+    GlassCompat glass = new GlassCompat(this);
     glass.setLayoutParams(
         new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -1405,7 +1406,7 @@ public class FileManagerActivity extends BaseCompat
                           isGitRepository(currentPath) ? View.VISIBLE : View.GONE);
                     }
                   } else {
-                    new MaterialAlertDialogBuilder(FileManagerActivity.this)
+                    new DialogCompat(FileManagerActivity.this)
                         .setTitle(getString(R.string.dialog_exit_title))
                         .setMessage(getString(R.string.dialog_exit_message))
                         .setNegativeButton(getString(R.string.ok), (c, f) -> finishAffinity())

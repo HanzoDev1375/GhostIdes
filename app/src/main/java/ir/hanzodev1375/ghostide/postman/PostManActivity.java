@@ -25,7 +25,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 
-import com.example.liquidglass.LiquidGlassView;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.activity.SettingActivity;
@@ -219,7 +219,7 @@ public class PostManActivity extends BaseCompat {
   }
 
   private void setupResponseSheet() {
-    LiquidGlassView glass = binding.responseSheetGlassView;
+    GlassCompat glass = binding.responseSheetGlassView;
     glass.setBackdropSource(binding.mainContentContainer);
     glass.setEnableDynamicBackground(true);
     BottomSheetBehavior<LinearLayout> behavior = BottomSheetBehavior.from(binding.responseSheet);

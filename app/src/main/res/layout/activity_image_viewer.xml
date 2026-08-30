@@ -52,7 +52,7 @@
          android:layout_gravity="top"
          android:id="@+id/topBar">
 
-        <com.example.liquidglass.LiquidGlassView
+        <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
              android:layout_height="52dp"
              android:layout_width="52dp"
              app:aberrationIntensity="2"
@@ -80,9 +80,9 @@
 
             </LinearLayout>
 
-        </com.example.liquidglass.LiquidGlassView>
+        </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
-        <com.example.liquidglass.LiquidGlassView
+        <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
              android:layout_height="52dp"
              android:layout_width="52dp"
              app:aberrationIntensity="2"
@@ -102,9 +102,9 @@
                  android:tint="#FFFFFF"
                  android:id="@+id/btnSettings" />
 
-        </com.example.liquidglass.LiquidGlassView>
+        </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
-        <com.example.liquidglass.LiquidGlassView
+        <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
              android:layout_height="52dp"
              android:layout_width="52dp"
              app:aberrationIntensity="2"
@@ -124,14 +124,14 @@
                  android:tint="#FFFFFF"
                  android:id="@+id/btnGallery" />
 
-        </com.example.liquidglass.LiquidGlassView>
+        </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
         <View
              android:layout_height="1dp"
              android:layout_width="0dp"
              android:layout_weight="1" />
 
-        <com.example.liquidglass.LiquidGlassView
+        <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
              android:layout_height="52dp"
              android:layout_width="52dp"
              app:aberrationIntensity="2"
@@ -150,7 +150,7 @@
                  android:tint="#FFFFFF"
                  android:id="@+id/btnNext" />
 
-        </com.example.liquidglass.LiquidGlassView>
+        </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
     </LinearLayout>
 
@@ -163,7 +163,7 @@
          android:layout_gravity="bottom|center_horizontal"
          android:id="@+id/bottomBar">
 
-        <com.example.liquidglass.LiquidGlassView
+        <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
              android:layout_height="52dp"
              android:layout_width="52dp"
              app:aberrationIntensity="2"
@@ -182,9 +182,9 @@
                  android:tint="#FFFFFF"
                  android:id="@+id/btnInfo" />
 
-        </com.example.liquidglass.LiquidGlassView>
+        </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
-        <com.example.liquidglass.LiquidGlassView
+        <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
              android:layout_height="52dp"
              android:layout_width="52dp"
              app:aberrationIntensity="2"
@@ -204,9 +204,9 @@
                  android:tint="#FFFFFF"
                  android:id="@+id/btnRotate" />
 
-        </com.example.liquidglass.LiquidGlassView>
+        </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
-        <com.example.liquidglass.LiquidGlassView
+        <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
              android:layout_height="52dp"
              android:layout_width="52dp"
              app:aberrationIntensity="2"
@@ -226,9 +226,9 @@
                  android:tint="#FFFFFF"
                  android:id="@+id/btnZoom" />
 
-        </com.example.liquidglass.LiquidGlassView>
+        </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
-        <com.example.liquidglass.LiquidGlassView
+        <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
              android:layout_height="52dp"
              android:layout_width="52dp"
              app:aberrationIntensity="2"
@@ -248,9 +248,9 @@
                  android:tint="#FFFFFF"
                  android:id="@+id/btnSave" />
 
-        </com.example.liquidglass.LiquidGlassView>
+        </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
-        <com.example.liquidglass.LiquidGlassView
+        <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
              android:layout_height="52dp"
              android:layout_width="52dp"
              app:aberrationIntensity="2"
@@ -270,7 +270,7 @@
                  android:tint="#FFFFFF"
                  android:id="@+id/btnShare" />
 
-        </com.example.liquidglass.LiquidGlassView>
+        </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
     </LinearLayout>
 

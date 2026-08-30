@@ -28,8 +28,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.palette.graphics.Palette;
 import androidx.viewpager2.widget.ViewPager2;
 import com.blankj.utilcode.util.ToastUtils;
-import com.example.liquidglass.LiquidGlassView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import ir.hanzodev1375.ghostide.R;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
@@ -63,7 +63,7 @@ public class ImageViewerActivity extends BaseCompat {
       btnSave,
       btnShare;
 
-  private void setupGlassBackdrop(LiquidGlassView glass) {
+  private void setupGlassBackdrop(GlassCompat glass) {
     glass.setBackdropSource(bind.contentArea);
     glass.setEnableDynamicBackground(true);
     glass.setEnableChromaticAberration(true);

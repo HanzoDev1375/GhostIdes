@@ -11,8 +11,8 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.example.liquidglass.LiquidGlassView;
 import ir.hanzodev1375.components.R;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import ir.hanzodev1375.components.databinding.BaseBlurBottomSheetBinding;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 
@@ -82,16 +82,10 @@ public class BaseSheet extends BottomSheetDialog {
               if (binding == null) return;
               Activity activity = BlurBackdrop.findActivity(getContext());
               if (activity == null) return;
-
-              // شفاف کردن پس‌زمینه bottom sheet
               bottomSheet.setBackgroundColor(Color.TRANSPARENT);
-
-              // مسیر شیشه‌ای: نمونه‌برداری پس‌زمینه از content view اکتیویتی
-              LiquidGlassView glass = binding.glassView;
+              GlassCompat glass = binding.glassView;
               glass.setBackdropSource(activity.findViewById(android.R.id.content));
               glass.setEnableDynamicBackground(true);
-
-              // رفرش شیشه هنگام drag/ dismiss
               behavior.addBottomSheetCallback(
                   new BottomSheetBehavior.BottomSheetCallback() {
                     @Override

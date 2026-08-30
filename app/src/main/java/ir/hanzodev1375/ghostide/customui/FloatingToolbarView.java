@@ -17,10 +17,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.liquidglass.LiquidGlassFab;
-import com.example.liquidglass.LiquidGlassView;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.shape.ShapeAppearanceModel;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
@@ -38,7 +38,7 @@ public class FloatingToolbarView extends FrameLayout {
 
   private LinearLayout root;
   private LiquidGlassFab fab;
-  private LiquidGlassView cardView;
+  private GlassCompat cardView;
   private RecyclerView recyclerView;
 
   private AnimatorSet currentAnimation;
@@ -83,6 +83,9 @@ public class FloatingToolbarView extends FrameLayout {
     applyOrientation();
     setElevation(0);
     cardView.setElevation(0);
+    if (setting.isGlassMaterialColor()) {
+      fab.setGlassTint(MaterialColors.getColor(fab, R.attr.colorSurface), 0.6f);
+    }
   }
 
   public void bindOfAcivity(Activity v) {
