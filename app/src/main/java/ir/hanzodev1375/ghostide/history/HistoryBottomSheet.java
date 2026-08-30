@@ -5,15 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.utils.MarginItemDecoration;
 
-public class HistoryBottomSheet extends BottomSheetDialogFragment {
+public class HistoryBottomSheet extends BaseBlurBottomSheet {
 
   public static final String TAG = "HistoryBottomSheet";
 
@@ -32,18 +31,11 @@ public class HistoryBottomSheet extends BottomSheetDialogFragment {
     this.listener = listener;
   }
 
-  @Nullable
   @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.bottom_sheet_history, container, false);
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  protected void onContentReady(@NonNull ViewGroup contentContainer) {
+    View view =
+        LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_history, null, false);
+    contentContainer.addView(view);
 
     historyViewModel = new ViewModelProvider(requireActivity()).get(HistoryViewModel.class);
 

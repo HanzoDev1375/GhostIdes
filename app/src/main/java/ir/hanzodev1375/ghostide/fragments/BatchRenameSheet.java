@@ -8,11 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textview.MaterialTextView;
+import ir.hanzodev1375.components.utils.GlassColors;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.enums.FileState;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class BatchRenameSheet extends BottomSheetDialogFragment {
+public class BatchRenameSheet extends BaseBlurBottomSheet {
 
   public static final String TAG = "BatchRenameSheet";
   private static final String ARG_FILES = "files";
@@ -59,18 +60,11 @@ public class BatchRenameSheet extends BottomSheetDialogFragment {
     this.listener = listener;
   }
 
-  @Nullable
   @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.bottom_sheet_batch_rename, container, false);
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  protected void onContentReady(@NonNull ViewGroup contentContainer) {
+    View view =
+        LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_batch_rename, null, false);
+    contentContainer.addView(view);
 
     if (files == null && getArguments() != null) {
       ArrayList<String> paths = getArguments().getStringArrayList("paths");
@@ -89,6 +83,10 @@ public class BatchRenameSheet extends BottomSheetDialogFragment {
     TextInputEditText etFind = view.findViewById(R.id.et_find);
     TextInputEditText etReplace = view.findViewById(R.id.et_replace);
     MaterialTextView tvPreview = view.findViewById(R.id.tv_preview);
+    GlassColors.setBackgroundAlpha(
+        tvPreview,
+        MaterialColors.getColor(tvPreview, com.google.android.material.R.attr.colorSurfaceVariant),
+        150);
     MaterialButton btnPreview = view.findViewById(R.id.btn_preview);
     MaterialButton btnApply = view.findViewById(R.id.btn_apply);
     MaterialButton btnCancel = view.findViewById(R.id.btn_cancel);

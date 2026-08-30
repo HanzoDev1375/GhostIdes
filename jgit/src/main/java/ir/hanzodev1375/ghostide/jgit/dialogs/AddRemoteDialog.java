@@ -6,9 +6,8 @@ import android.view.View;
 import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.hanzodev1375.ghostide.jgit.R;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class AddRemoteDialog extends DialogFragment {
   private OnRemoteAddListener listener;
 
@@ -27,7 +26,7 @@ public class AddRemoteDialog extends DialogFragment {
     EditText etName = view.findViewById(R.id.etRemoteName);
     EditText etUrl = view.findViewById(R.id.etRemoteUrl);
 
-    return new MaterialAlertDialogBuilder(requireActivity())
+    return new DialogCompat(requireActivity())
         .setTitle("Add Remote")
         .setView(view)
         .setPositiveButton(

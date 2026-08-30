@@ -13,13 +13,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.ConflictFile;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class ConflictResolverFragment extends Fragment {
   private GitViewModel viewModel;
   private ConflictAdapter adapter;
@@ -79,7 +78,7 @@ public class ConflictResolverFragment extends Fragment {
       holder.tvPath.setText(cf.getPath());
 
       holder.btnOurs.setOnClickListener(v ->
-          new MaterialAlertDialogBuilder(requireContext())
+          new DialogCompat(requireContext())
               .setTitle("Use Ours")
               .setMessage("Keep your local version of:\n" + cf.getPath() + "?")
               .setPositiveButton("Confirm", (d, w) ->
@@ -87,7 +86,7 @@ public class ConflictResolverFragment extends Fragment {
               .setNegativeButton("Cancel", null).show());
 
       holder.btnTheirs.setOnClickListener(v ->
-          new MaterialAlertDialogBuilder(requireContext())
+          new DialogCompat(requireContext())
               .setTitle("Use Theirs")
               .setMessage("Use incoming version of:\n" + cf.getPath() + "?")
               .setPositiveButton("Confirm", (d, w) ->
@@ -121,7 +120,7 @@ public class ConflictResolverFragment extends Fragment {
     String preview = "─── OURS ───\n" + truncate(cf.getOursContent(), 300)
         + "\n─── THEIRS ───\n" + truncate(cf.getTheirsContent(), 300);
 
-    new MaterialAlertDialogBuilder(requireContext())
+    new DialogCompat(requireContext())
         .setTitle("Manual Resolve: " + cf.getPath())
         .setMessage(preview)
         .setPositiveButton("Use Ours", (d, w) ->

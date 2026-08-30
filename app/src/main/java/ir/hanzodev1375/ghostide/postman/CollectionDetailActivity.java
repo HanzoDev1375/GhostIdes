@@ -7,7 +7,6 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.postman.util.UiUtils;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ import ir.hanzodev1375.ghostide.postman.adapter.SavedRequestAdapter;
 import ir.hanzodev1375.ghostide.postman.data.AppRepository;
 import ir.hanzodev1375.ghostide.databinding.ActivityCollectionDetailBinding;
 import ir.hanzodev1375.ghostide.postman.model.SavedRequest;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class CollectionDetailActivity extends BaseCompat {
 
   private ActivityCollectionDetailBinding binding;
@@ -55,7 +54,7 @@ public class CollectionDetailActivity extends BaseCompat {
 
               @Override
               public void onDeleteClick(SavedRequest request) {
-                new MaterialAlertDialogBuilder(CollectionDetailActivity.this)
+                new DialogCompat(CollectionDetailActivity.this)
                     .setTitle(R.string.dialog_confirm_title)
                     .setMessage(R.string.msg_confirm_delete_saved_request)
                     .setNegativeButton(R.string.action_cancel, null)

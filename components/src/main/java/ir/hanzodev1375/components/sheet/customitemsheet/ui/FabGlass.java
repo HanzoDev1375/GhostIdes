@@ -1,26 +1,26 @@
 package ir.hanzodev1375.components.sheet.customitemsheet.ui;
 
 import android.content.Context;
-import com.example.liquidglass.LiquidGlassView;
-import android.util.AttributeSet;
-import com.google.android.material.color.MaterialColors;
+import com.example.liquidglass.LiquidGlassFab;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.utils.ComponentsPrefs;
+import android.util.AttributeSet;
+import com.google.android.material.color.MaterialColors;
 
-public class GlassCompat extends LiquidGlassView {
+public class FabGlass extends LiquidGlassFab {
   private ComponentsPrefs setting;
 
-  public GlassCompat(Context c) {
+  public FabGlass(Context c) {
     super(c);
     init();
   }
 
-  public GlassCompat(Context c, AttributeSet s) {
+  public FabGlass(Context c, AttributeSet s) {
     super(c, s);
     init();
   }
 
-  public GlassCompat(Context c, AttributeSet s, int defStyle) {
+  public FabGlass(Context c, AttributeSet s, int defStyle) {
     super(c, s, defStyle);
     init();
   }

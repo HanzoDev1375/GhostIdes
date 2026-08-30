@@ -19,7 +19,6 @@ import androidx.transition.Transition;
 import com.google.android.material.transition.MaterialSharedAxis;
 import androidx.transition.TransitionManager;
 import com.google.android.material.color.MaterialColors;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import io.github.rosemoe.sora.event.PublishSearchResultEvent;
 import io.github.rosemoe.sora.widget.EditorSearcher;
 import io.github.rosemoe.sora.widget.CodeEditor;
@@ -30,7 +29,7 @@ import ir.hanzodev1375.components.databinding.DialogRenameBinding;
 import ir.hanzodev1375.ghostide.databinding.LayoutSearcherBinding;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.R;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class GhostIdeEditorSearch extends LinearLayoutCompat {
   private LayoutSearcherBinding binding;
   private Supplier<IdeEditor> editorSupplier;
@@ -399,7 +398,7 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
     var bind = DialogRenameBinding.inflate(LayoutInflater.from(getContext()));
     String dialogTitle = buildDialogTitle();
 
-    new MaterialAlertDialogBuilder(getContext())
+    new DialogCompat(getContext())
         .setTitle(dialogTitle)
         .setView(bind.getRoot())
         .setPositiveButton(

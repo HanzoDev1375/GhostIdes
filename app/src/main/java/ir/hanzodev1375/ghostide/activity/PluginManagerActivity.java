@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.hanzodev1375.components.utils.ParticleItemAnimator;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,7 +34,7 @@ import ir.hanzodev1375.ghostide.plugin.gpl.GplManifestReader;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplPluginLoader;
 import ir.hanzodev1375.ghostide.plugin.gpl.LoadedGplPlugin;
 import ir.hanzodev1375.ghostide.terminal.activity.TerminalActivity;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 /**
  * Lets the user browse to a {@code .gpl} file, install it, search installed plugins, and
  * uninstall them. A plugin here may contribute a {@code PluginScreen}, an {@code
@@ -225,7 +224,7 @@ public class PluginManagerActivity extends BaseCompat {
       }
       combinedCommand.append(action.command());
     }
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(loadedPlugin.getDescriptor().getName())
         .setMessage(message.toString().trim())
         .setPositiveButton(

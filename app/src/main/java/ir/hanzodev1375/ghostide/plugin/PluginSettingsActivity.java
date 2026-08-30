@@ -9,10 +9,9 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.ArrayList;
 import java.util.List;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class PluginSettingsActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +56,7 @@ public class PluginSettingsActivity extends AppCompatActivity {
             v -> {
               View settingsView = p.getSettingsView(context);
               if (settingsView != null) {
-                new MaterialAlertDialogBuilder(context)
+                new DialogCompat(context)
                     .setTitle(p.getName() + " Settings")
                     .setView(settingsView)
                     .setPositiveButton("OK", null)

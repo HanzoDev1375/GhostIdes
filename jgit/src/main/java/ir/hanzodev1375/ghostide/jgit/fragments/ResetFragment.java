@@ -10,12 +10,13 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textview.MaterialTextView;
+import ir.hanzodev1375.components.utils.GlassColors;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.ResetMode;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class ResetFragment extends Fragment {
   private GitViewModel viewModel;
   private int stepsBack = 1;
@@ -36,6 +37,11 @@ public class ResetFragment extends Fragment {
     RadioGroup radioGroup = view.findViewById(R.id.radioGroupReset);
     MaterialButton btnReset = view.findViewById(R.id.btnDoReset);
 
+    GlassColors.setBackgroundAlpha(
+        view.findViewById(R.id.cardResetOptions),
+        MaterialColors.getColor(view, R.attr.colorSurface),
+        120);
+
     btnMinus.setOnClickListener(v -> {
       if (stepsBack > 1) { stepsBack--; tvSteps.setText(String.valueOf(stepsBack)); }
     });
@@ -51,7 +57,7 @@ public class ResetFragment extends Fragment {
       else mode = ResetMode.MIXED;
 
       String modeName = mode.name().substring(0, 1) + mode.name().substring(1).toLowerCase();
-      new MaterialAlertDialogBuilder(requireContext())
+      new DialogCompat(requireContext())
           .setTitle(getString(R.string.reset_confirm_title))
           .setMessage(getString(R.string.reset_confirm_msg, modeName))
           .setPositiveButton(getString(R.string.reset_title), (d, w) ->

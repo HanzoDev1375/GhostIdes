@@ -7,11 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.color.MaterialColors;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
+import ir.hanzodev1375.components.utils.GlassColors;
 import com.google.android.material.snackbar.Snackbar;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.databinding.BottomSheetRenameClassBinding;
@@ -24,8 +24,8 @@ import ir.hanzodev1375.ghostide.refactor.renameclass.ClassScanResult;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-public final class RenameClassBottomSheet extends BottomSheetDialogFragment {
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+public final class RenameClassBottomSheet extends BaseBlurBottomSheet {
 
   public static final String TAG = "RenameClassBottomSheet";
   private static final String ARG_PROJECT_ROOT = "project_root";
@@ -47,19 +47,14 @@ public final class RenameClassBottomSheet extends BottomSheetDialogFragment {
     return sheet;
   }
 
-  @Nullable
   @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    binding = BottomSheetRenameClassBinding.inflate(inflater, container, false);
-    return binding.getRoot();
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  protected void onContentReady(@NonNull ViewGroup contentContainer) {
+    binding = BottomSheetRenameClassBinding.inflate(LayoutInflater.from(requireContext()));
+    contentContainer.addView(binding.getRoot());
+    GlassColors.setBackgroundAlpha(
+        binding.warningCard,
+        MaterialColors.getColor(binding.getRoot(), com.google.android.material.R.attr.colorErrorContainer),
+        140);
     viewModel = new ViewModelProvider(this).get(RenameClassViewModel.class);
 
     Bundle args = getArguments();
@@ -212,7 +207,7 @@ public final class RenameClassBottomSheet extends BottomSheetDialogFragment {
     String message =
         getString(
             R.string.rename_class_confirm_message, viewModel.getOldClassName(), textOf(), count);
-    new MaterialAlertDialogBuilder(requireContext())
+    new DialogCompat(requireContext())
         .setTitle(R.string.rename_class_confirm_title)
         .setMessage(message)
         .setPositiveButton(R.string.rename, (dialog, which) -> viewModel.confirmRename())

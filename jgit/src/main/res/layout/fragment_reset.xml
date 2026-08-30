@@ -14,6 +14,7 @@
         android:layout_marginBottom="16dp" />
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardResetOptions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardElevation="0dp"

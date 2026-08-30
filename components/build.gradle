@@ -30,7 +30,6 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.palette)
     implementation(libs.utilcode)
-    implementation project(":editor")
     implementation project(":materialfileicon")
 
     implementation('com.hierynomus:sshj:0.34.0') {

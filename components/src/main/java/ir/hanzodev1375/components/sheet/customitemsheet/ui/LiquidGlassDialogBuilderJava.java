@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -12,20 +14,23 @@ import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import com.example.liquidglass.GlassMaterial;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
+import com.google.android.material.slider.Slider;
 import ir.hanzodev1375.components.R;
+import ir.hanzodev1375.components.utils.ComponentsPrefs;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Java port of LiquidGlassDialogBuilder — wraps the whole Material dialog panel in a GlassCompat.
  * Same behavior as the Kotlin version: rounded corners, enter/exit animation, cross-window backdrop
- * sampling, adaptive text color. Everything else works exactly like MaterialAlertDialogBuilder.
+ * sampling, adaptive text color. Everything else works exactly like DialogCompat.
  *
  * <p>NOTE: renamed to *Java to avoid clashing with the original Kotlin class — both declare
  * com.example.liquidglass.LiquidGlassDialogBuilder, so having both on the classpath at once won't
@@ -56,6 +61,11 @@ public class LiquidGlassDialogBuilderJava extends MaterialAlertDialogBuilder {
   // to hide background detail
   private static final float DEFAULT_BLUR = 0.6f;
   private static final int OVER_LIGHT_TEXT = 0xDE000000;
+  // Cap the glass card width so it stays compact like a Material dialog instead of filling the
+  // screen
+  private static final float MAX_WIDTH_DP = 380f;
+  private static final float SLIDER_MIN_TINT = 0.1f;
+  private static final float SLIDER_MAX_TINT = 1f;
 
   private final float cornerRadiusDp;
   private final float glassBlurAmount;
@@ -65,6 +75,7 @@ public class LiquidGlassDialogBuilderJava extends MaterialAlertDialogBuilder {
   private GlassCompat glass;
   private AlertDialog alertDialog;
   private GlassConfigurator glassReadyCallback;
+  private boolean showGlassTintSlider;
 
   private int overLightTextColor = OVER_LIGHT_TEXT;
   private int overDarkTextColor = Color.WHITE;
@@ -131,6 +142,17 @@ public class LiquidGlassDialogBuilderJava extends MaterialAlertDialogBuilder {
 
   public LiquidGlassDialogBuilderJava configureGlass(GlassConfigurator callback) {
     this.glassReadyCallback = callback;
+    return this;
+  }
+
+  /** Adds a slider into the dialog that live-adjusts the glass tint (0.1f -> 1f). */
+  public LiquidGlassDialogBuilderJava withGlassTintSlider() {
+    this.showGlassTintSlider = true;
+    return this;
+  }
+
+  public LiquidGlassDialogBuilderJava withGlassTintSlider(boolean enabled) {
+    this.showGlassTintSlider = enabled;
     return this;
   }
 
@@ -229,13 +251,14 @@ public class LiquidGlassDialogBuilderJava extends MaterialAlertDialogBuilder {
     Activity activity = findActivity(getContext());
     glassView.setBackdropSource(
         activity != null ? activity.findViewById(android.R.id.content) : null);
-    glassView.setLayoutParams(originalLp);
+    glassView.setLayoutParams(buildGlassLayoutParams(content, originalLp));
     glassView.setAlpha(animateShow ? 0f : 1f);
     glassView.setScaleX(animateShow ? ENTER_SCALE : 1f);
     glassView.setScaleY(animateShow ? ENTER_SCALE : 1f);
     if (glassReadyCallback != null) {
       glassReadyCallback.configure(glassView);
     }
+    maybeInstallGlassTintSlider(panel, glassView);
 
     glass = glassView;
     // Once detached, stop holding the glass/dialog -- backdropSource is wired to the Activity's
@@ -312,27 +335,129 @@ public class LiquidGlassDialogBuilderJava extends MaterialAlertDialogBuilder {
    * LiquidGlassButton.
    */
   private void applyTextColors(View panel, boolean isOverLight) {
-    int color = isOverLight ? overLightTextColor : overDarkTextColor;
     List<TextView> targets = new ArrayList<>();
     addIfPresent(targets, panel.findViewById(R.id.alertTitle));
     addIfPresent(targets, panel.findViewById(android.R.id.message));
     addIfPresent(targets, panel.findViewById(android.R.id.button1));
     addIfPresent(targets, panel.findViewById(android.R.id.button2));
     addIfPresent(targets, panel.findViewById(android.R.id.button3));
-    targets.get(0).setTextColor(MaterialColors.getColor(targets.get(0), R.attr.colorOnSurface));
-    targets.get(1).setTextColor(MaterialColors.getColor(targets.get(1), R.attr.colorOnSurface));
-    targets.get(2).setTextColor(MaterialColors.getColor(targets.get(2), R.attr.colorOnSurface));
-    targets.get(3).setTextColor(MaterialColors.getColor(targets.get(3), R.attr.colorPrimary));
-    targets.get(4).setTextColor(MaterialColors.getColor(targets.get(4), R.attr.colorPrimaryContainer));
-
-    for (TextView tv : targets) {
-     // tv.setTextColor(color);
+    for (int i = 0; i < targets.size(); i++) {
+      TextView tv = targets.get(i);
+      int color;
+      if (i == 3) {
+        color = MaterialColors.getColor(tv, R.attr.colorPrimary);
+      } else if (i >= 4) {
+        color = MaterialColors.getColor(tv, R.attr.colorPrimaryContainer);
+      } else {
+        color = MaterialColors.getColor(tv, R.attr.colorOnSurface);
+      }
+      tv.setTextColor(color);
       if (isOverLight) {
         tv.setShadowLayer(0f, 0f, 0f, Color.TRANSPARENT);
       } else {
         tv.setShadowLayer(8f, 0f, 2f, Color.BLACK);
       }
     }
+  }
+
+  private FrameLayout.LayoutParams buildGlassLayoutParams(
+      ViewGroup content, ViewGroup.LayoutParams originalLp) {
+    final float density = getContext().getResources().getDisplayMetrics().density;
+    final int maxWidthPx = (int) (MAX_WIDTH_DP * density);
+    final int parentWidth =
+        content.getMeasuredWidth() > 0
+            ? content.getMeasuredWidth()
+            : content.getWidth() > 0 ? content.getWidth() : maxWidthPx;
+    FrameLayout.LayoutParams lp;
+    if (originalLp instanceof ViewGroup.MarginLayoutParams) {
+      ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) originalLp;
+      lp =
+          new FrameLayout.LayoutParams(
+              FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+      lp.setMargins(mlp.leftMargin, mlp.topMargin, mlp.rightMargin, mlp.bottomMargin);
+    } else {
+      lp =
+          new FrameLayout.LayoutParams(
+              FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+    }
+    lp.width = Math.min(maxWidthPx, parentWidth);
+    lp.gravity = Gravity.CENTER;
+    return lp;
+  }
+
+  private void maybeInstallGlassTintSlider(final View panel, final GlassCompat glassView) {
+    if (!showGlassTintSlider) return;
+    final float density = getContext().getResources().getDisplayMetrics().density;
+    final ComponentsPrefs prefs = new ComponentsPrefs(getContext());
+    final float current = clampTint(prefs.getGlassTint());
+
+    final LinearLayout container = new LinearLayout(getContext());
+    container.setOrientation(LinearLayout.VERTICAL);
+    container.setGravity(Gravity.CENTER_HORIZONTAL);
+
+    final TextView label = new TextView(getContext());
+    label.setGravity(Gravity.CENTER);
+    label.setTextColor(MaterialColors.getColor(container, R.attr.colorOnSurface));
+    label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+    label.setText(formatTint(current));
+
+    final Slider slider = new Slider(getContext());
+    slider.setValueFrom(SLIDER_MIN_TINT);
+    slider.setValueTo(SLIDER_MAX_TINT);
+    slider.setStepSize(0.01f);
+    slider.setValue(current);
+    // slider.setLabelBehavior(Slider.L);
+    slider.addOnChangeListener(
+        (s, value, fromUser) -> {
+          label.setText(formatTint(value));
+          if (fromUser) applyGlassTint(glassView, value, prefs);
+        });
+
+    container.addView(label);
+    FrameLayout.LayoutParams sliderLp =
+        new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+    sliderLp.topMargin = (int) (8 * density);
+    container.addView(slider, sliderLp);
+
+    addToPanelAfterMessage(panel, container);
+  }
+
+  private static void addToPanelAfterMessage(View panel, View child) {
+    ViewGroup parent = null;
+    int index = -1;
+    View anchor = panel.findViewById(android.R.id.message);
+    if (anchor != null && anchor.getParent() instanceof ViewGroup) {
+      parent = (ViewGroup) anchor.getParent();
+      index = parent.indexOfChild(anchor) + 1;
+    } else {
+      View buttons = panel.findViewById(R.id.buttonPanel);
+      if (buttons != null && buttons.getParent() instanceof ViewGroup) {
+        parent = (ViewGroup) buttons.getParent();
+        index = parent.indexOfChild(buttons);
+      } else {
+        parent = (ViewGroup) panel;
+        index = parent.getChildCount();
+      }
+    }
+    parent.addView(
+        child,
+        index,
+        new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+  }
+
+  private static float clampTint(float value) {
+    return Math.max(SLIDER_MIN_TINT, Math.min(SLIDER_MAX_TINT, value));
+  }
+
+  private static String formatTint(float value) {
+    return String.format(Locale.US, "Tint: %.2f", value);
+  }
+
+  private static void applyGlassTint(GlassCompat glassView, float value, ComponentsPrefs prefs) {
+    glassView.setGlassTint(MaterialColors.getColor(glassView, R.attr.colorSurface), value);
+    prefs.setGlassTint(value);
   }
 
   private static void addIfPresent(List<TextView> list, TextView view) {

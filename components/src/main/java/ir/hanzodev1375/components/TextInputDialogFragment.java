@@ -9,11 +9,10 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import ir.hanzodev1375.components.utils.SoftInputLifeCycleObserver;
 import java.lang.ref.WeakReference;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class TextInputDialogFragment extends DialogFragment {
 
   private static final String ARG_TITLE = "title";
@@ -59,7 +58,7 @@ public class TextInputDialogFragment extends DialogFragment {
       editText.selectAll();
     }
 
-    return new MaterialAlertDialogBuilder(requireActivity())
+    return new DialogCompat(requireActivity())
         .setTitle(title)
         .setView(view)
         .setPositiveButton(

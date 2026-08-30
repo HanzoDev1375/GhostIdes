@@ -268,6 +268,8 @@
   <string name="pref_show_hidden_files_desc">Exibir arquivos e pastas começando com um ponto (.)</string>
   <string name="pref_show_background">Mostrar plano de fundo</string>
   <string name="pref_show_background_desc">Mostrar imagem de fundo no tema</string>
+  <string name="pref_parallax">Papel de parede em movimento</string>
+  <string name="pref_parallax_desc">O fundo se move com a inclinação do dispositivo</string>
   <string name="pref_openrouter_api_key">Chave de API OpenRouter</string>
   <string name="module_hint_libraries">Bibliotecas (opcional)</string>
   <string name="module_helper_libraries">group:artifact:version — um por linha ou separado por vírgula</string>
@@ -459,6 +461,8 @@
   <string name="all_blur_subtitle">Desfoque todos os componentes.</string>
   <string name="pref_glass_material_color">Cor do vidro material</string>
   <string name="pref_glass_material_color_desc">Aplicar cor de material às superfícies de vidro</string>
+  <string name="pref_glass_tint">Intensidade da cor do vidro</string>
+  <string name="pref_glass_tint_desc">Ajuste a intensidade da cor aplicada às superfícies de vidro</string>
   <string name="webcolor">Mostrar seletor de coresWeb</string>
   <string name="lsp_inlaytitle">Mostrar incrustação</string>
   <string name="lsp_inlaysubtitle">Mostrar editor de itens embutidos nem todos os idiomas funcionam</string>

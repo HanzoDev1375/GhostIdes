@@ -268,6 +268,8 @@
   <string name="pref_show_hidden_files_desc">نمایش فایل ها و پوشه ها که با نقطه شروع می شوند (.)</string>
   <string name="pref_show_background">نمایش پس زمینه</string>
   <string name="pref_show_background_desc">نمایش تصویر پس زمینه در تم</string>
+  <string name="pref_parallax">والپیپر متحرک</string>
+  <string name="pref_parallax_desc">پس زمینه با تکان خوردن گوشی حرکت می‌کند</string>
   <string name="pref_openrouter_api_key">کلید API OpenRouter</string>
   <string name="module_hint_libraries">کتابخانه ها (اختیاری)</string>
   <string name="module_helper_libraries">group:artifact:version - یکی در هر خط یا با کاما از هم جدا شده است</string>
@@ -459,6 +461,8 @@
   <string name="all_blur_subtitle">همه اجزا را تار کنید.</string>
   <string name="pref_glass_material_color">رنگ شیشه مادی</string>
   <string name="pref_glass_material_color_desc">اعمال رنگ متریال روی سطوح شیشه‌ای</string>
+  <string name="pref_glass_tint">شدت رنگ شیشه</string>
+  <string name="pref_glass_tint_desc">میزان شدت رنگی که روی سطوح شیشه‌ای اعمال می‌شود</string>
   <string name="webcolor">نمایش Color PickerWeb</string>
   <string name="lsp_inlaytitle">نمایش Inlay</string>
   <string name="lsp_inlaysubtitle">نمایش ویرایشگر آیتم Inlay نه همه زبانها</string>

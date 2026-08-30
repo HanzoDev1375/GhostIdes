@@ -16,7 +16,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
-import androidx.appcompat.app.AlertDialog;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.databinding.ActivityWebBinding;
@@ -508,7 +508,7 @@ public class WebViewActivity extends BaseCompat {
     android.widget.ScrollView scroll = new android.widget.ScrollView(this);
     scroll.addView(root);
 
-    new AlertDialog.Builder(this)
+    new DialogCompat(this)
         .setTitle("Element Editor — <" + tag + ">")
         .setView(scroll)
         .setPositiveButton(

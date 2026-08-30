@@ -11,14 +11,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import ir.hanzodev1375.components.views.EmptyView;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.adapter.TagAdapter;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.TagInfo;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class TagsFragment extends Fragment {
   private GitViewModel viewModel;
   private TagAdapter adapter;
@@ -48,7 +47,7 @@ public class TagsFragment extends Fragment {
     viewModel.refreshTags();
 
     adapter.setOnTagActionListener(tag ->
-        new MaterialAlertDialogBuilder(requireContext())
+        new DialogCompat(requireContext())
             .setTitle(getString(R.string.tag_delete_confirm_title))
             .setMessage(getString(R.string.tag_delete_confirm_msg, tag.getName()))
             .setPositiveButton(getString(R.string.delete),

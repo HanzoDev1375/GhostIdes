@@ -13,8 +13,6 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -30,7 +28,7 @@ import ir.hanzodev1375.ghostide.jgit.model.GitTab;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class GitBottomSheetFragment extends BaseBlurBottomSheet {
 
   private static final int TAB_CHANGES = 0;
@@ -167,7 +165,7 @@ public class GitBottomSheetFragment extends BaseBlurBottomSheet {
   private void showUserConfigDialog() {
     PreferencesUtils prefsUtils = new PreferencesUtils(requireContext());
 
-    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
+    DialogCompat builder = new DialogCompat(requireContext());
     builder.setTitle("Git User Configuration");
 
     View view = LayoutInflater.from(requireContext()).inflate(R.layout.git_local_config, null);

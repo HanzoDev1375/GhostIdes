@@ -14,23 +14,23 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import ir.hanzodev1375.components.databinding.BaseBlurBottomSheetBinding;
-import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.components.utils.ComponentsPrefs;
 
 public class BaseSheet extends BottomSheetDialog {
 
   private BaseBlurBottomSheetBinding binding;
   private boolean hasPeekMod = false;
-  private final PreferencesUtils app;
+  private final ComponentsPrefs app;
   private boolean contentAdded = false;
 
   public BaseSheet(@NonNull Context context) {
     super(context);
-    app = new PreferencesUtils(context);
+    app = new ComponentsPrefs(context);
   }
 
   public BaseSheet(@NonNull Context context, int style) {
     super(context, style);
-    app = new PreferencesUtils(context);
+    app = new ComponentsPrefs(context);
   }
 
   @Override

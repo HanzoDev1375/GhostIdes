@@ -1,7 +1,5 @@
 package ninja.coder.appuploader.main;
 
-import android.annotation.SuppressLint;
-
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,11 +11,10 @@ import android.util.Log;
 import android.util.TypedValue;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
-
 import java.io.File;
 import java.util.List;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 
 @SuppressWarnings("deprecation")
 public class ApkInstallerCompat {
@@ -40,8 +37,8 @@ public class ApkInstallerCompat {
     progressBar.setPadding(padding, padding, padding, padding);
     progressBar.setIndeterminate(true);
 
-    MaterialAlertDialogBuilder builder =
-        new MaterialAlertDialogBuilder(context)
+    var builder =
+        new DialogCompat(context)
             .setTitle("Installing")
             .setMessage("Please wait...")
             .setCancelable(false)
@@ -59,11 +56,10 @@ public class ApkInstallerCompat {
   }
 
   /**
-   * Must be called from the main/UI thread. All the work below is fast and
-   * non-blocking (no network/disk I/O), so it no longer needs a background
-   * thread - that's what was causing the Looper.prepare() crash: startActivity()
-   * could internally trigger a Handler-based callback (e.g. a system dialog/toast)
-   * on a thread that never had a Looper.
+   * Must be called from the main/UI thread. All the work below is fast and non-blocking (no
+   * network/disk I/O), so it no longer needs a background thread - that's what was causing the
+   * Looper.prepare() crash: startActivity() could internally trigger a Handler-based callback (e.g.
+   * a system dialog/toast) on a thread that never had a Looper.
    */
   public void execute() {
     String result = installInternal();
@@ -137,7 +133,7 @@ public class ApkInstallerCompat {
   }
 
   private void showCustomDialog(String message) {
-    new MaterialAlertDialogBuilder(mContext)
+    new DialogCompat(mContext)
         .setTitle("Installation Error")
         .setMessage(message)
         .setCancelable(false)
@@ -146,8 +142,8 @@ public class ApkInstallerCompat {
   }
 
   private void showPermissionDialog() {
-    MaterialAlertDialogBuilder builder =
-        new MaterialAlertDialogBuilder(mContext)
+    var builder =
+        new DialogCompat(mContext)
             .setTitle("Permission Required")
             .setMessage(
                 "Please grant permission to install packages from Unknown Sources to proceed")
@@ -170,6 +166,7 @@ public class ApkInstallerCompat {
                   }
                 });
     builder.create().show();
+    
   }
 
   private void openSettings() {

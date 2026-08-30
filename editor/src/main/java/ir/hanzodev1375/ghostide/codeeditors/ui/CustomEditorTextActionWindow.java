@@ -12,7 +12,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.TooltipCompat;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 import io.github.rosemoe.sora.event.ColorSchemeUpdateEvent;
 import io.github.rosemoe.sora.event.HandleStateChangeEvent;
 import io.github.rosemoe.sora.event.InterceptTarget;
@@ -532,7 +532,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       input.setText(selected);
       input.setSelection(0, selected.length());
     }
-    new MaterialAlertDialogBuilder(editor.getContext())
+    new DialogCompat(editor.getContext())
         .setTitle(R.string.lsp_rename_dialog_title)
         .setView(input)
         .setPositiveButton(
@@ -713,7 +713,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       Either<Command, CodeAction> item = actions.get(i);
       labels[i] = item.isRight() ? item.getRight().getTitle() : item.getLeft().getTitle();
     }
-    new MaterialAlertDialogBuilder(editor.getContext())
+    new DialogCompat(editor.getContext())
         .setTitle(R.string.code_action)
         .setItems(labels, (dialog, which) -> applyCodeAction(actions.get(which), uri))
         .show();
@@ -876,7 +876,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       int line = location.getRange() != null ? location.getRange().getStart().getLine() + 1 : 0;
       labels[i] = name + "  :  " + line;
     }
-    new MaterialAlertDialogBuilder(editor.getContext())
+    new DialogCompat(editor.getContext())
         .setTitle(R.string.lsp_result_dialog_title)
         .setItems(
             labels,

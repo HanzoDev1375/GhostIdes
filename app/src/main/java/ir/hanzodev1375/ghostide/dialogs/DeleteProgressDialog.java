@@ -5,11 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.mvvm.viewmodel.FileViewModel;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class DeleteProgressDialog {
 
   private final AlertDialog dialog;
@@ -25,7 +24,7 @@ public class DeleteProgressDialog {
     progressBar = view.findViewById(R.id.progressBar);
 
     dialog =
-        new MaterialAlertDialogBuilder(context)
+        new DialogCompat(context)
             .setView(view)
             .setNeutralButton("HIDE", (d, w) -> d.dismiss())
             .setCancelable(false)

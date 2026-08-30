@@ -268,6 +268,8 @@
   <string name="pref_show_hidden_files_desc">Отображать файлы и папки, начинающиеся с точки (.)</string>
   <string name="pref_show_background">Показать фон</string>
   <string name="pref_show_background_desc">Показать фоновое изображение в теме</string>
+  <string name="pref_parallax">Движущиеся обои</string>
+  <string name="pref_parallax_desc">Фон двигается при наклоне устройства</string>
   <string name="pref_openrouter_api_key">API-ключ OpenRouter</string>
   <string name="module_hint_libraries">Библиотеки (необязательно)</string>
   <string name="module_helper_libraries">группа:артефакт:версия — по одному в строке или через запятую</string>
@@ -459,6 +461,8 @@
   <string name="all_blur_subtitle">Размытие всех компонентов.</string>
   <string name="pref_glass_material_color">Цвет стекла Material</string>
   <string name="pref_glass_material_color_desc">Применять цвет материала к стеклянным поверхностям</string>
+  <string name="pref_glass_tint">Интенсивность тонировки стекла</string>
+  <string name="pref_glass_tint_desc">Настройка силы цвета, применяемого к стеклянным поверхностям</string>
   <string name="webcolor">Показать палитру цветовWeb</string>
   <string name="lsp_inlaytitle">Показать инкрустацию</string>
   <string name="lsp_inlaysubtitle">Показывать редактор элементов-вкладышей, не все языки работают</string>

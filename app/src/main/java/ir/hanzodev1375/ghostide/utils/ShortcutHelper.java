@@ -12,7 +12,6 @@ import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import ir.hanzodev1375.ghostide.materialfileicon.core.JsonFileIconHelper;
 import com.caverock.androidsvg.SVG;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.activity.FileManagerActivity;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
@@ -21,6 +20,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 /**
  * code by ghost
  */
@@ -32,7 +32,7 @@ public class ShortcutHelper {
   public static void showShortcutDialog(Activity activity, FileManagerModel model) {
     if (model == null) return;
 
-    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+    DialogCompat builder = new DialogCompat(activity);
     builder.setTitle(R.string.shortcut_dialog_title);
     builder.setMessage(activity.getString(R.string.shortcut_dialog_message, model.getName()));
     builder.setPositiveButton(R.string.yes, (dialog, which) -> createShortcut(activity, model));

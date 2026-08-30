@@ -5,10 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import com.blankj.utilcode.util.ThreadUtils;
 import com.blankj.utilcode.util.ThreadUtils.SimpleTask;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.color.MaterialColors;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
+import ir.hanzodev1375.components.utils.GlassColors;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.databinding.BottomSheetFilePropertiesBinding;
 import ir.hanzodev1375.ghostide.databinding.ItemPropsRowBinding;
@@ -26,7 +27,7 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class FilePropertiesSheet extends BottomSheetDialogFragment {
+public class FilePropertiesSheet extends BaseBlurBottomSheet {
 
   public static final String TAG = "FilePropertiesSheet";
 
@@ -59,19 +60,10 @@ public class FilePropertiesSheet extends BottomSheetDialogFragment {
     return sheet;
   }
 
-  @Nullable
   @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    binding = BottomSheetFilePropertiesBinding.inflate(inflater, container, false);
-    return binding.getRoot();
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  protected void onContentReady(@NonNull ViewGroup contentContainer) {
+    binding = BottomSheetFilePropertiesBinding.inflate(LayoutInflater.from(requireContext()));
+    contentContainer.addView(binding.getRoot());
 
     String[] paths = requireArguments().getStringArray(KEY_PATHS);
     String[] names = requireArguments().getStringArray(KEY_NAMES);
@@ -83,6 +75,13 @@ public class FilePropertiesSheet extends BottomSheetDialogFragment {
     }
 
     binding.btnClose.setOnClickListener(v -> dismiss());
+
+    int cardBg =
+        MaterialColors.getColor(binding.getRoot(), com.google.android.material.R.attr.colorSurfaceContainerHigh);
+    for (int cardId : new int[] {R.id.card_single, R.id.card_system, R.id.card_analysis, R.id.card_multi}) {
+      View card = binding.getRoot().findViewById(cardId);
+      if (card != null) GlassColors.setBackgroundAlpha(card, cardBg, 150);
+    }
 
     if (paths.length == 1) {
       bindSingle(paths[0], names[0], modified[0]);

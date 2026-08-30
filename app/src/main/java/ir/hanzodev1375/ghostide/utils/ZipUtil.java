@@ -12,7 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -32,7 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.activity.FileManagerActivity;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class ZipUtil {
 
   private static final ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -83,7 +82,7 @@ public class ZipUtil {
     tvDetails = view.findViewById(R.id.tvZipDetails);
     progressBar.setMax(100);
     progressDialog =
-        new MaterialAlertDialogBuilder(context)
+        new DialogCompat(context)
             .setTitle(R.string.creating_zip)
             .setView(view)
             .setCancelable(false)
@@ -249,8 +248,8 @@ public class ZipUtil {
     }
     etName.setText(defaultName);
 
-    MaterialAlertDialogBuilder builder =
-        new MaterialAlertDialogBuilder(context)
+    DialogCompat builder =
+        new DialogCompat(context)
             .setTitle(R.string.create_zip_title)
             .setView(dialogView)
             .setPositiveButton(R.string.create, null)

@@ -14,14 +14,14 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import ir.hanzodev1375.components.databinding.BaseBlurBottomSheetBinding;
-import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.components.utils.ComponentsPrefs;
 
 /** root has LinearLayout pls adding call contentContainer.addView(#View,ViewGroup.LayoutParam) */
 public abstract class BaseBlurBottomSheet extends BottomSheetDialogFragment {
 
   protected BaseBlurBottomSheetBinding binding;
   private boolean hasPeekMod = false;
-  private PreferencesUtils app;
+  private ComponentsPrefs app;
 
   @Nullable
   @Override
@@ -37,7 +37,7 @@ public abstract class BaseBlurBottomSheet extends BottomSheetDialogFragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     View root = binding.getRoot();
-    app = new PreferencesUtils(requireContext());
+    app = new ComponentsPrefs(requireContext());
     float cornerRadius = getResources().getDimension(R.dimen.bottom_sheet_corner_radius);
     requireDialog().getWindow().setStatusBarColor(Color.TRANSPARENT);
     requireDialog().getWindow().setNavigationBarColor(Color.TRANSPARENT);

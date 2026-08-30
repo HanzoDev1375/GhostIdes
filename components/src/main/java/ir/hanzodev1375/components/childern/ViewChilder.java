@@ -2,14 +2,19 @@ package ir.hanzodev1375.components.childern;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.FrameLayout;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
+
+import ir.hanzodev1375.components.utils.ComponentsPrefs;
 
 import java.util.Locale;
 
@@ -33,12 +38,29 @@ public class ViewChilder extends FrameLayout {
   private String currentPath;
   private float currentBlur = Float.NaN;
 
+  private WallpaperParallaxEffect parallaxEffect;
+  private boolean parallaxPrefEnabled;
+  private boolean parallaxRunning;
+
+  private final SharedPreferences.OnSharedPreferenceChangeListener parallaxPrefListener =
+      (prefs, key) -> {
+        if (ComponentsPrefs.KEY_PARALLAX.equals(key)) {
+          setParallaxPrefEnabled(prefs.getBoolean(ComponentsPrefs.KEY_PARALLAX, true));
+        }
+      };
+
   public ViewChilder(@NonNull Context context) {
     super(context);
+    initParallax();
   }
 
   public ViewChilder(@NonNull Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
+    initParallax();
+  }
+
+  private void initParallax() {
+    parallaxPrefEnabled = new ComponentsPrefs(getContext()).isParallaxEnabled();
   }
 
   public void load(@Nullable String path) {
@@ -79,16 +101,114 @@ public class ViewChilder extends FrameLayout {
     currentPath = path;
     currentBlur = blurSize;
     addView(current.view());
+    startParallax();
   }
 
   public void clear() {
     clearCurrent();
     setVisibility(INVISIBLE);
+    stopParallax();
   }
 
   @Nullable
   public IChild current() {
     return current;
+  }
+
+  @Override
+  protected void onAttachedToWindow() {
+    super.onAttachedToWindow();
+    SharedPreferences prefs =
+        PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
+    prefs.registerOnSharedPreferenceChangeListener(parallaxPrefListener);
+    startParallax();
+  }
+
+  @Override
+  protected void onDetachedFromWindow() {
+    super.onDetachedFromWindow();
+    SharedPreferences prefs =
+        PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
+    prefs.unregisterOnSharedPreferenceChangeListener(parallaxPrefListener);
+    stopParallax();
+  }
+
+  @Override
+  protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    super.onSizeChanged(w, h, oldw, oldh);
+    if (parallaxRunning && current != null) {
+      applyParallaxTransform(current.view());
+    }
+  }
+
+  /**
+   * Toggle-state came from the settings screen: re-evaluate immediately so the motion effect
+   * turns on/off at that very moment (like Telegram), without needing a restart.
+   */
+  private void setParallaxPrefEnabled(boolean enabled) {
+    parallaxPrefEnabled = enabled;
+    if (enabled) {
+      startParallax();
+    } else {
+      stopParallax();
+    }
+  }
+
+  /** Only runs when the user enabled it AND a background is actually loaded. */
+  private void startParallax() {
+    if (!parallaxPrefEnabled || parallaxRunning) return;
+    if (current == null || getVisibility() != VISIBLE || !isAttachedToWindow()) return;
+    if (parallaxEffect == null) {
+      parallaxEffect = new WallpaperParallaxEffect(getContext());
+      parallaxEffect.setCallback(this::applyParallaxOffset);
+    }
+    parallaxRunning = true;
+    if (getWidth() > 0 && getHeight() > 0) {
+      applyParallaxTransform(current.view());
+    } else {
+      post(
+          () -> {
+            if (parallaxRunning && current != null) {
+              applyParallaxTransform(current.view());
+            }
+          });
+    }
+    parallaxEffect.setEnabled(true);
+  }
+
+  private void stopParallax() {
+    parallaxRunning = false;
+    if (parallaxEffect != null) {
+      parallaxEffect.setEnabled(false);
+    }
+    if (current != null) {
+      resetParallaxTransform(current.view());
+    }
+  }
+
+  private void applyParallaxOffset(int offsetX, int offsetY) {
+    if (!parallaxRunning || current == null || parallaxEffect == null) return;
+    View bg = current.view();
+    applyParallaxTransform(bg);
+    bg.setTranslationX(offsetX);
+    bg.setTranslationY(offsetY);
+  }
+
+  private void applyParallaxTransform(View bg) {
+    int w = Math.max(getWidth(), 1);
+    int h = Math.max(getHeight(), 1);
+    float scale = parallaxEffect.getScale(w, h);
+    bg.setPivotX(w / 2f);
+    bg.setPivotY(h / 2f);
+    bg.setScaleX(scale);
+    bg.setScaleY(scale);
+  }
+
+  private void resetParallaxTransform(View bg) {
+    bg.setScaleX(1f);
+    bg.setScaleY(1f);
+    bg.setTranslationX(0f);
+    bg.setTranslationY(0f);
   }
 
   private boolean isShowing(@Nullable String path, float blurSize) {

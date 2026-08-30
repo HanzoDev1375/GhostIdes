@@ -24,6 +24,7 @@ android {
 }
 
 dependencies {
+    implementation project(":components")
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.gson)

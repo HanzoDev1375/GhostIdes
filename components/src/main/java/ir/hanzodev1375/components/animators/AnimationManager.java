@@ -7,12 +7,12 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.util.Log;
-import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.components.utils.ComponentsPrefs;
 
 public class AnimationManager {
 
   private static AnimationManager instance;
-  private final PreferencesUtils prefs;
+  private final ComponentsPrefs prefs;
   private int currentBatteryLevel = 100;
   private boolean receiverRegistered = false;
 
@@ -29,7 +29,7 @@ public class AnimationManager {
       };
 
   private AnimationManager(Context context) {
-    prefs = new PreferencesUtils(context.getApplicationContext());
+    prefs = new ComponentsPrefs(context.getApplicationContext());
     Intent batteryStatus =
         context
             .getApplicationContext()

@@ -8,10 +8,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
@@ -27,7 +26,7 @@ import java.util.concurrent.Executors;
 
 import ir.hanzodev1375.components.R;
 
-public class FtpConnectSheet extends BottomSheetDialogFragment {
+public class FtpConnectSheet extends BaseBlurBottomSheet {
 
   public static final String TAG = "FtpConnectSheet";
 
@@ -53,18 +52,10 @@ public class FtpConnectSheet extends BottomSheetDialogFragment {
     return new FtpConnectSheet();
   }
 
-  @Nullable
   @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.bottom_sheet_ftp_connect, container, false);
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  protected void onContentReady(@NonNull ViewGroup contentContainer) {
+    View view = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_ftp_connect, null, false);
+    contentContainer.addView(view);
 
     etHost = view.findViewById(R.id.etHost);
     etPort = view.findViewById(R.id.etPort);

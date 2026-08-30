@@ -7,10 +7,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.postman.util.UiUtils;
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ import ir.hanzodev1375.ghostide.postman.adapter.HistoryAdapter;
 import ir.hanzodev1375.ghostide.postman.data.AppRepository;
 import ir.hanzodev1375.ghostide.databinding.ActivityHistoryBinding;
 import ir.hanzodev1375.ghostide.postman.model.HistoryItem;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class HistoryActivity extends BaseCompat {
 
   private ActivityHistoryBinding binding;
@@ -53,7 +52,7 @@ public class HistoryActivity extends BaseCompat {
 
               @Override
               public void onDeleteClick(HistoryItem item) {
-                new MaterialAlertDialogBuilder(HistoryActivity.this)
+                new DialogCompat(HistoryActivity.this)
                     .setTitle(R.string.dialog_confirm_title)
                     .setMessage(R.string.msg_confirm_delete_history_item)
                     .setNegativeButton(R.string.action_cancel, null)
@@ -86,7 +85,7 @@ public class HistoryActivity extends BaseCompat {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     if (item.getItemId() == R.id.action_clear_all) {
-      new AlertDialog.Builder(this)
+      new DialogCompat(this)
           .setTitle(R.string.dialog_confirm_title)
           .setMessage(R.string.msg_confirm_clear_history)
           .setNegativeButton(R.string.action_cancel, null)

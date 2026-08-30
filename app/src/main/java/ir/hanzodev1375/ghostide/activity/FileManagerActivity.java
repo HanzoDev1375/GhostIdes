@@ -34,7 +34,6 @@ import com.bumptech.glide.Glide;
 import com.example.liquidglass.GlassMaterial;
 import com.google.android.material.color.MaterialColors;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.ghostide.logcat.BottomSheetLogView;
 import ir.hanzodev1375.components.RenameDialogFragment;
 import ir.hanzodev1375.components.TextInputDialogFragment;
@@ -530,7 +529,7 @@ public class FileManagerActivity extends BaseCompat
                 ZipOperationManager zipOp = new ZipOperationManager();
                 String destDefault = new File(currentZipFilePath).getParent();
                 switch (index) {
-                  case 0 -> new MaterialAlertDialogBuilder(FileManagerActivity.this)
+                  case 0 -> new DialogCompat(FileManagerActivity.this)
                       .setTitle(getString(R.string.removed))
                       .setMessage(getString(R.string.removedmassges, item.getName()))
                       .setPositiveButton(
@@ -622,7 +621,7 @@ public class FileManagerActivity extends BaseCompat
                               .show();
                         }
                       });
-                  case 3 -> new MaterialAlertDialogBuilder(FileManagerActivity.this)
+                  case 3 -> new DialogCompat(FileManagerActivity.this)
                       .setTitle(getString(R.string.zip_extract_to))
                       .setMessage(getString(R.string.zip_extract_dest, destDefault))
                       .setPositiveButton(
@@ -659,7 +658,7 @@ public class FileManagerActivity extends BaseCompat
                         @Override
                         public void onInfo(ZipInfo info) {
 
-                          new MaterialAlertDialogBuilder(FileManagerActivity.this)
+                          new DialogCompat(FileManagerActivity.this)
                               .setTitle(getString(R.string.zip_info))
                               .setMessage(
                                   getString(R.string.zip_info_files, info.fileCount)
@@ -1055,7 +1054,7 @@ public class FileManagerActivity extends BaseCompat
             if (selected.isEmpty()) return;
             List<String> entryPaths = new ArrayList<>();
             for (ZipEntryModel e : selected) entryPaths.add(e.getEntryPath());
-            new MaterialAlertDialogBuilder(this)
+            new DialogCompat(this)
                 .setTitle(getString(R.string.removed))
                 .setMessage(getString(R.string.removedmassges, selected.size()))
                 .setPositiveButton(
@@ -1092,7 +1091,7 @@ public class FileManagerActivity extends BaseCompat
           }
           List<FileManagerModel> selected = adapter.getSelectedItems();
           if (!selected.isEmpty()) {
-            new MaterialAlertDialogBuilder(this)
+            new DialogCompat(this)
                 .setTitle(getString(R.string.removed))
                 .setMessage(getString(R.string.removedmassges, selected.size()))
                 .setPositiveButton(
@@ -1569,7 +1568,7 @@ public class FileManagerActivity extends BaseCompat
   }
 
   void removedItem(FileManagerModel model) {
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(getString(R.string.removed))
         .setMessage(getString(R.string.removedmassges, model.getName() + "?"))
         .setPositiveButton(getString(R.string.ok), (d, w) -> viewModel.deleteFile(model))
@@ -1615,7 +1614,7 @@ public class FileManagerActivity extends BaseCompat
           if (gitHub.isLoggedIn()) {
             GitHubProfileSheet.newInstance().show(getSupportFragmentManager(), "github_profile");
           } else {
-            new MaterialAlertDialogBuilder(v.getContext())
+            new DialogCompat(v.getContext())
                 .setTitle(getString(R.string.github_tokenerrortitle))
                 .setMessage(getString(R.string.github_tokenerrormsg))
                 .setPositiveButton(

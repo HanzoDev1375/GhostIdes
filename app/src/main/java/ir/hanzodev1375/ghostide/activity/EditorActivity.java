@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.sidesheet.SideSheetDialog;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -99,7 +98,7 @@ import ir.hanzodev1375.ghostide.refactor.rename.FileRenameNotifier;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class EditorActivity extends BaseCompat implements FileRenameNotifier.Listener {
 
   private ActivityEditorBinding binding;
@@ -179,6 +178,8 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     setContentView(binding.getRoot());
     prefs = getSharedPreferences("editor", MODE_PRIVATE);
     settings = new PreferencesUtils(this);
+    ThemeManager manager = new ThemeManager(this);
+    theme = new ThemeUtils(manager);
     EventBus.getDefault().register(this);
     setupViewPager();
     setupTabLayout();
@@ -203,8 +204,6 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     codeRunnerHostRegistration =
         GlobalRegistry.services()
             .register(IdeHostServices.CODE_RUNNER_HOST, new CodeRunnerHostAdapter(this));
-    ThemeManager manager = new ThemeManager(this);
-    theme = new ThemeUtils(manager);
     theme.applyActivity(this);
     theme.applyFab(binding.fabineditor);
     theme.applyView(binding.mainContent);
@@ -238,7 +237,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
           if (gitHub.isLoggedIn()) {
             GitHubProfileSheet.newInstance().show(getSupportFragmentManager(), "github_profile");
           } else {
-            new MaterialAlertDialogBuilder(v.getContext())
+            new DialogCompat(v.getContext())
                 .setTitle(getString(R.string.github_tokenerrortitle))
                 .setMessage(getString(R.string.github_tokenerrormsg))
                 .setPositiveButton(

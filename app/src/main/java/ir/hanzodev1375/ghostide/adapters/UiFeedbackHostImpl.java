@@ -10,11 +10,9 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import ir.hanzodev1375.ghostide.ide.ui.api.UiFeedbackHost;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 /**
  * App-wide {@link UiFeedbackHost}. Tracks the resumed activity through lifecycle callbacks so
  * dialogs always attach to something visible; toasts only need the application context. Dialog
@@ -49,7 +47,7 @@ public final class UiFeedbackHostImpl implements UiFeedbackHost, Application.Act
           if (prefill != null) input.setText(prefill);
           int pad = (int) (16 * activity.getResources().getDisplayMetrics().density);
           input.setPadding(pad, pad, pad, pad);
-          new MaterialAlertDialogBuilder(activity)
+          new DialogCompat(activity)
               .setTitle(title)
               .setView(input)
               .setPositiveButton(
@@ -69,7 +67,7 @@ public final class UiFeedbackHostImpl implements UiFeedbackHost, Application.Act
             callback.onResult(false);
             return;
           }
-          new MaterialAlertDialogBuilder(activity)
+          new DialogCompat(activity)
               .setTitle(title)
               .setMessage(message)
               .setPositiveButton(android.R.string.ok, (d, w) -> callback.onResult(true))

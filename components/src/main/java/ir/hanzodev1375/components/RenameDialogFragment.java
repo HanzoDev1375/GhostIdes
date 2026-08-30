@@ -10,12 +10,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import ir.hanzodev1375.components.utils.AndroidUtils;
 import ir.hanzodev1375.components.utils.SoftInputLifeCycleObserver;
 import java.lang.ref.WeakReference;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class RenameDialogFragment extends DialogFragment {
   public static final String TAG = RenameDialogFragment.class.getSimpleName();
 
@@ -55,7 +54,7 @@ public class RenameDialogFragment extends DialogFragment {
         mEditText.selectAll();
       }
     }
-    return new MaterialAlertDialogBuilder(requireActivity())
+    return new DialogCompat(requireActivity())
         .setTitle(requireActivity().getString(R.string.dialog_rename, " ?"))
         .setMessage(requireActivity().getString(R.string.dialog_rename_massges,name +"?"))
         .setView(mDialogView)

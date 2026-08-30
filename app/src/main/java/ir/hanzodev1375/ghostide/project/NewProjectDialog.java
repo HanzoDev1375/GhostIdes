@@ -5,11 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import ir.hanzodev1375.ghostide.R;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class NewProjectDialog {
 
   public interface OnProjectCreated {
@@ -39,7 +38,7 @@ public class NewProjectDialog {
     view.findViewById(R.id.chipHtml).performClick();
 
     dialog =
-        new MaterialAlertDialogBuilder(context)
+        new DialogCompat(context)
             .setTitle(R.string.project_new_title)
             .setView(view)
             .setPositiveButton(R.string.project_create, null)
@@ -90,7 +89,7 @@ public class NewProjectDialog {
 
                               @Override
                               public void onError(String message) {
-                                new MaterialAlertDialogBuilder(context)
+                                new DialogCompat(context)
                                     .setTitle(R.string.project_error_title)
                                     .setMessage(message)
                                     .setPositiveButton(R.string.ok, null)

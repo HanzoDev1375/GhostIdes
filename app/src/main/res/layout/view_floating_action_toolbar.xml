@@ -29,7 +29,7 @@
 
     </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
 
-    <com.example.liquidglass.LiquidGlassFab
+    <ir.hanzodev1375.components.sheet.customitemsheet.ui.FabGlass
          android:layout_height="70dp"
          android:layout_width="70dp"
          android:src="@drawable/add"

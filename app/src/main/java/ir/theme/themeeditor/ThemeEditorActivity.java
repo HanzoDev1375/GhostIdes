@@ -32,7 +32,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.tabs.TabLayout;
 import com.blankj.utilcode.util.FileIOUtils;
@@ -63,7 +62,7 @@ import ir.theme.GhostTheme;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import ir.theme.WidgetTheme;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class ThemeEditorActivity extends BaseCompat {
 
   public static final String EXTRA_THEME_PATH = "theme_path";
@@ -1188,7 +1187,7 @@ public class ThemeEditorActivity extends BaseCompat {
             valueText.setText(String.valueOf((int) slider.getValue()));
             slider.addOnChangeListener(
                 (s, val, fromUser) -> valueText.setText(String.valueOf((int) val)));
-            new MaterialAlertDialogBuilder(ThemeEditorActivity.this)
+            new DialogCompat(ThemeEditorActivity.this)
                 .setTitle(item.title)
                 .setView(dialogView)
                 .setPositiveButton(

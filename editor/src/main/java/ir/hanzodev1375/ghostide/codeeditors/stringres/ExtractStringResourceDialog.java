@@ -7,7 +7,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 import com.google.android.material.textfield.TextInputEditText;
 
 import ir.hanzodev1375.ghostide.codeeditors.R;
@@ -34,7 +34,7 @@ public final class ExtractStringResourceDialog {
     nameInput.setText(suggestedName);
     valueInput.setText(initialValue);
 
-    new MaterialAlertDialogBuilder(context)
+    new DialogCompat(context)
         .setTitle(R.string.extract_string_dialog_title)
         .setView(view)
         .setPositiveButton(

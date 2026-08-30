@@ -8,13 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.R;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class NewModuleDialog {
 
   public interface OnModuleCreated {
@@ -85,7 +84,7 @@ public class NewModuleDialog {
         });
 
     var dialog =
-        new MaterialAlertDialogBuilder(context)
+        new DialogCompat(context)
             .setTitle(R.string.module_new_title)
             .setView(view)
             .setPositiveButton(R.string.module_create, null)
@@ -127,7 +126,7 @@ public class NewModuleDialog {
                     dialog.dismiss();
 
                     var progress =
-                        new MaterialAlertDialogBuilder(context)
+                        new DialogCompat(context)
                             .setMessage(R.string.module_creating)
                             .setCancelable(false)
                             .create();
@@ -150,7 +149,7 @@ public class NewModuleDialog {
                           @Override
                           public void onError(String message) {
                             progress.dismiss();
-                            new MaterialAlertDialogBuilder(context)
+                            new DialogCompat(context)
                                 .setTitle(R.string.module_error_title)
                                 .setMessage(message)
                                 .setPositiveButton(R.string.ok, null)

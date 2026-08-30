@@ -28,7 +28,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
 import com.google.android.material.color.MaterialColors;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.termux.terminal.TerminalSession;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
@@ -50,7 +49,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class TerminalActivity extends BaseCompat
     implements GhostTerminalViewClient.KeyModifierState, TerminalSessionService.SessionListener {
 
@@ -490,7 +489,7 @@ public class TerminalActivity extends BaseCompat
   }
 
   private void confirmAndRemoveDebian() {
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(getString(R.string.terminal_remove_debian))
         .setMessage(getString(R.string.terminal_confirm_remove_debian_message))
         .setPositiveButton(
@@ -524,7 +523,7 @@ public class TerminalActivity extends BaseCompat
     layout.addView(installProgressBar);
 
     installDialog =
-        new MaterialAlertDialogBuilder(this)
+        new DialogCompat(this)
             .setTitle(getString(R.string.terminal_install_debian))
             .setView(layout)
             .setCancelable(false)

@@ -7,9 +7,8 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.hanzodev1375.ghostide.R;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 /**
  * Builder for the "pick a launcher icon" dialog, mirroring ThemeChooserDialogBuilder's shape.
  *
@@ -20,7 +19,7 @@ import ir.hanzodev1375.ghostide.R;
 public class AppIconChooserDialogBuilder {
 
   private final Context context;
-  private MaterialAlertDialogBuilder builder;
+  private DialogCompat builder;
   private AppIconAdapter iconAdapter;
 
   public AppIconChooserDialogBuilder(Context context) {
@@ -36,7 +35,8 @@ public class AppIconChooserDialogBuilder {
     recyclerView.setLayoutManager(new GridLayoutManager(context, 3));
     recyclerView.setAdapter(iconAdapter);
 
-    builder = new MaterialAlertDialogBuilder(context).setView(dialogView);
+    builder = new DialogCompat(context).setView(dialogView);
+    
   }
 
   public AppIconChooserDialogBuilder setTitle(@StringRes int res) {

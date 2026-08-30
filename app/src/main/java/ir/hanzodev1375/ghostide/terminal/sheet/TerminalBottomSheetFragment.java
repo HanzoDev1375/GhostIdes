@@ -20,7 +20,6 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.google.android.material.color.MaterialColors;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.termux.terminal.TerminalSession;
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.ghostide.R;
@@ -41,7 +40,7 @@ import ir.hanzodev1375.ghostide.terminal.adapters.TerminalTabAdapter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
     implements GhostTerminalViewClient.KeyModifierState {
 
@@ -436,7 +435,7 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
     layout.addView(installProgressBar);
 
     installDialog =
-        new MaterialAlertDialogBuilder(requireContext())
+        new DialogCompat(requireContext())
             .setTitle(getString(R.string.terminal_install_debian))
             .setView(layout)
             .setCancelable(false)

@@ -1,6 +1,5 @@
 package ir.hanzodev1375.ghostide.jgit.fragments;
 
-import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -9,16 +8,14 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.diff.GitDiffViewer;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.CommitInfo;
 
-public class CommitDiffBottomSheetFragment extends BottomSheetDialogFragment {
+public class CommitDiffBottomSheetFragment extends BaseBlurBottomSheet {
 
   private static final String ARG_HASH = "commit_hash";
   private static final String ARG_SHORT_HASH = "commit_short_hash";
@@ -44,19 +41,14 @@ public class CommitDiffBottomSheetFragment extends BottomSheetDialogFragment {
     return fragment;
   }
 
-  @Nullable
   @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.bottom_sheet_commit_diff, container, false);
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  protected void onContentReady(@NonNull ViewGroup contentContainer) {
     viewModel = new ViewModelProvider(requireActivity()).get(GitViewModel.class);
+
+    View view =
+        LayoutInflater.from(requireContext())
+            .inflate(R.layout.bottom_sheet_commit_diff, contentContainer, false);
+    contentContainer.addView(view);
 
     diffViewer = view.findViewById(R.id.diffViewer);
     progressBar = view.findViewById(R.id.progressBar);
@@ -77,21 +69,6 @@ public class CommitDiffBottomSheetFragment extends BottomSheetDialogFragment {
       diffViewer.setVisibility(View.GONE);
       emptyText.setVisibility(View.GONE);
       viewModel.loadCommitDiff(hash);
-    }
-  }
-
-  @Override
-  public void onStart() {
-    super.onStart();
-    Dialog dialog = getDialog();
-    if (dialog == null) {
-      return;
-    }
-    View bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-    if (bottomSheet != null) {
-      BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
-      behavior.setSkipCollapsed(true);
-      behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
   }
 

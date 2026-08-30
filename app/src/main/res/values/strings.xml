@@ -270,6 +270,8 @@
     <string name="pref_show_hidden_files_desc">Display files and folders starting with a dot (.)</string>
     <string name="pref_show_background">Show Background</string>
     <string name="pref_show_background_desc">Show background image in theme</string>
+    <string name="pref_parallax">Moving Wallpaper</string>
+    <string name="pref_parallax_desc">Background moves with device tilt</string>
     <string name="pref_openrouter_api_key">OpenRouter API Key</string>
     <string name="module_hint_libraries">Libraries (optional)</string>
     <string name="module_helper_libraries">group:artifact:version — one per line or comma-separated</string>
@@ -461,6 +463,8 @@
     <string name="all_blur_subtitle">Blur all components.</string>
     <string name="pref_glass_material_color">Glass Material Color</string>
     <string name="pref_glass_material_color_desc">Apply Material color to glass surfaces</string>
+    <string name="pref_glass_tint">Glass tint intensity</string>
+    <string name="pref_glass_tint_desc">Adjust the strength of the color applied to glass surfaces</string>
     <string name="webcolor"> Show Color PickerWeb</string>
     <string name="lsp_inlaytitle"> Show Inlay</string>
     <string name="lsp_inlaysubtitle"> Show Inlay Item Editor not all lang work</string>

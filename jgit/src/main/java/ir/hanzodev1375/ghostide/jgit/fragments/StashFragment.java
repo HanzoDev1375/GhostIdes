@@ -11,13 +11,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.hanzodev1375.components.views.EmptyView;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.adapter.StashAdapter;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.StashInfo;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class StashFragment extends Fragment {
   private GitViewModel viewModel;
   private StashAdapter adapter;
@@ -44,7 +43,7 @@ public class StashFragment extends Fragment {
     adapter.setOnStashActionListener(new StashAdapter.OnStashActionListener() {
       @Override
       public void onPop(StashInfo stash) {
-        new MaterialAlertDialogBuilder(requireContext())
+        new DialogCompat(requireContext())
             .setTitle("Pop Stash")
             .setMessage("Apply stash@{" + stash.getIndex() + "} and remove it?")
             .setPositiveButton("Pop", (d, w) -> viewModel.stashPop(stash.getIndex()))
@@ -58,7 +57,7 @@ public class StashFragment extends Fragment {
 
       @Override
       public void onDrop(StashInfo stash) {
-        new MaterialAlertDialogBuilder(requireContext())
+        new DialogCompat(requireContext())
             .setTitle("Drop Stash")
             .setMessage("Delete stash@{" + stash.getIndex() + "}? This cannot be undone.")
             .setPositiveButton("Drop", (d, w) -> viewModel.stashDrop(stash.getIndex()))

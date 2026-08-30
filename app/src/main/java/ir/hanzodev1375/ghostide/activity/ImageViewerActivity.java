@@ -28,7 +28,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.palette.graphics.Palette;
 import androidx.viewpager2.widget.ViewPager2;
 import com.blankj.utilcode.util.ToastUtils;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import ir.hanzodev1375.ghostide.R;
 import com.bumptech.glide.Glide;
@@ -41,7 +40,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import jp.wasabeef.blurry.Blurry;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class ImageViewerActivity extends BaseCompat {
 
   public static final String EXTRA_IMAGE_URIS = "extra_image_uris";
@@ -328,7 +327,7 @@ public class ImageViewerActivity extends BaseCompat {
       getString(R.string.wallpaper_option_both)
     };
 
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(R.string.wallpaper_dialog_title)
         .setItems(
             options,

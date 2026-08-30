@@ -6,10 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
 import java.io.File;
@@ -24,7 +22,7 @@ import ir.hanzodev1375.ghostide.translator.model.StringEntry;
 import ir.hanzodev1375.ghostide.translator.util.StringsXmlParser;
 import ir.hanzodev1375.ghostide.translator.viewmodel.TranslatorViewModel;
 
-public class StringsTranslatorSheet extends BottomSheetDialogFragment {
+public class StringsTranslatorSheet extends BaseBlurBottomSheet {
   public static final String TAG = "StringsTranslatorSheet";
   private static final String ARG_ROOT = "root_path";
   private BottomSheetTranslatorBinding binding;
@@ -41,20 +39,10 @@ public class StringsTranslatorSheet extends BottomSheetDialogFragment {
     return sheet;
   }
 
-  @Nullable
   @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    binding = BottomSheetTranslatorBinding.inflate(inflater, container, false);
-    return binding.getRoot();
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-    expandSheet();
+  protected void onContentReady(@NonNull ViewGroup contentContainer) {
+    binding = BottomSheetTranslatorBinding.inflate(LayoutInflater.from(requireContext()));
+    contentContainer.addView(binding.getRoot());
     viewModel = new ViewModelProvider(this).get(TranslatorViewModel.class);
     setupButtons();
     observeViewModel();
@@ -93,15 +81,6 @@ public class StringsTranslatorSheet extends BottomSheetDialogFragment {
       }
     } catch (Exception ignored) {
       // If the source can't be parsed yet, chips will just show with no badge.
-    }
-  }
-
-  private void expandSheet() {
-    View bs = requireDialog().findViewById(com.google.android.material.R.id.design_bottom_sheet);
-    if (bs != null) {
-      BottomSheetBehavior<View> b = BottomSheetBehavior.from(bs);
-      b.setState(BottomSheetBehavior.STATE_EXPANDED);
-      b.setSkipCollapsed(true);
     }
   }
 

@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.hanzodev1375.components.views.EmptyView;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.adapter.RemoteAdapter;
@@ -18,7 +17,7 @@ import ir.hanzodev1375.ghostide.jgit.dialogs.AddRemoteDialog;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.RemoteInfo;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class RemotesFragment extends Fragment {
   private GitViewModel viewModel;
   private RemoteAdapter adapter;
@@ -47,7 +46,7 @@ public class RemotesFragment extends Fragment {
         new RemoteAdapter.OnRemoteActionListener() {
           @Override
           public void onRemove(RemoteInfo remote) {
-            new MaterialAlertDialogBuilder(requireContext())
+            new DialogCompat(requireContext())
                 .setTitle("Remove Remote")
                 .setMessage("Remove '" + remote.getName() + "'?")
                 .setPositiveButton("Remove", (d, w) -> viewModel.removeRemote(remote.getName()))
@@ -108,7 +107,7 @@ public class RemotesFragment extends Fragment {
   }
 
   private void showConflictDialog(String errorMessage) {
-    new MaterialAlertDialogBuilder(requireContext())
+    new DialogCompat(requireContext())
         .setTitle("⚠️ Merge Conflict")
         .setMessage(
             "Conflicts were detected while pulling.\n\n"
@@ -145,7 +144,7 @@ public class RemotesFragment extends Fragment {
 
   private void performPush(RemoteInfo remote) {
     if (viewModel.changedFiles.getValue() != null && !viewModel.changedFiles.getValue().isEmpty()) {
-      new MaterialAlertDialogBuilder(requireContext())
+      new DialogCompat(requireContext())
           .setTitle("Uncommitted changes")
           .setMessage("You have uncommitted changes. Please commit them before pushing.")
           .setPositiveButton("OK", null)
@@ -171,7 +170,7 @@ public class RemotesFragment extends Fragment {
 
   private void performPull(RemoteInfo remote) {
     if (viewModel.changedFiles.getValue() != null && !viewModel.changedFiles.getValue().isEmpty()) {
-      new MaterialAlertDialogBuilder(requireContext())
+      new DialogCompat(requireContext())
           .setTitle("Uncommitted changes")
           .setMessage("You have uncommitted changes. Pull may cause conflicts. Continue anyway?")
           .setPositiveButton("Continue", (d, w) -> doPull(remote))

@@ -268,6 +268,8 @@
   <string name="pref_show_hidden_files_desc">बिंदु (.) से शुरू होने वाली फ़ाइलें और फ़ोल्डर प्रदर्शित करें</string>
   <string name="pref_show_background">पृष्ठभूमि दिखाएँ</string>
   <string name="pref_show_background_desc">थीम में पृष्ठभूमि छवि दिखाएँ</string>
+  <string name="pref_parallax">चलती वॉलपेपर</string>
+  <string name="pref_parallax_desc">डिवाइस झुकाने पर पृष्ठभूमि हिलती है</string>
   <string name="pref_openrouter_api_key">ओपनराउटर एपीआई कुंजी</string>
   <string name="module_hint_libraries">पुस्तकालय (वैकल्पिक)</string>
   <string name="module_helper_libraries">समूह: विरूपण साक्ष्य: संस्करण - प्रति पंक्ति एक या अल्पविराम से अलग किया गया</string>
@@ -459,6 +461,8 @@
   <string name="all_blur_subtitle">सभी घटकों को धुंधला करें.</string>
   <string name="pref_glass_material_color">ग्लास मटेरियल रंग</string>
   <string name="pref_glass_material_color_desc">कांच की सतहों पर मटेरियल रंग लागू करें</string>
+  <string name="pref_glass_tint">कांच की रंग तीव्रता</string>
+  <string name="pref_glass_tint_desc">कांच की सतहों पर लागू रंग की ताकत समायोजित करें</string>
   <string name="webcolor">कलर पिकरवेब दिखाएँ</string>
   <string name="lsp_inlaytitle">जड़ना दिखाएँ</string>
   <string name="lsp_inlaysubtitle">इनले आइटम एडिटर दिखाएँ सभी लैंग काम नहीं करते</string>

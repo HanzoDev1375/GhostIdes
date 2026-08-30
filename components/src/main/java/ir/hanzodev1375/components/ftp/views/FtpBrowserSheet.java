@@ -18,11 +18,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
+import ir.hanzodev1375.components.utils.GlassColors;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.color.MaterialColors;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.skydoves.powermenu.MenuAnimation;
 import com.skydoves.powermenu.PowerMenu;
@@ -39,8 +39,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import ir.hanzodev1375.components.R;
-
-public class FtpBrowserSheet extends BottomSheetDialogFragment {
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+public class FtpBrowserSheet extends BaseBlurBottomSheet {
 
   public static final String TAG = "FtpBrowserSheet";
 
@@ -95,21 +95,17 @@ public class FtpBrowserSheet extends BottomSheetDialogFragment {
     return dialog;
   }
 
-  @Nullable
   @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.bottom_sheet_ftp_browser, container, false);
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  protected void onContentReady(@NonNull ViewGroup contentContainer) {
+    View view = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_ftp_browser, null, false);
+    contentContainer.addView(view);
 
     MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
     tvPath = view.findViewById(R.id.tvPath);
+    GlassColors.setBackgroundAlpha(
+        (View) tvPath.getParent(),
+        MaterialColors.getColor(tvPath, R.attr.colorSurfaceVariant),
+        150);
     progressBar = view.findViewById(R.id.progressBar);
     rvFiles = view.findViewById(R.id.rvFiles);
     llEmpty = view.findViewById(R.id.llEmpty);
@@ -223,7 +219,7 @@ public class FtpBrowserSheet extends BottomSheetDialogFragment {
   }
 
   private void confirmDelete(FtpEntry entry) {
-    new MaterialAlertDialogBuilder(requireContext())
+    new DialogCompat(requireContext())
         .setTitle(getString(R.string.ftp_menu_delete))
         .setMessage(getString(R.string.ftp_delete_confirm, entry.getName()))
         .setPositiveButton(
@@ -269,7 +265,7 @@ public class FtpBrowserSheet extends BottomSheetDialogFragment {
     et.setText(entry.getName());
     et.setSelectAllOnFocus(true);
 
-    new MaterialAlertDialogBuilder(requireContext())
+    new DialogCompat(requireContext())
         .setTitle(getString(R.string.ftp_menu_rename))
         .setView(et)
         .setPositiveButton(

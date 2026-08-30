@@ -268,6 +268,8 @@
   <string name="pref_show_hidden_files_desc">عرض الملفات والمجلدات التي تبدأ بالنقطة (.)</string>
   <string name="pref_show_background">إظهار الخلفية</string>
   <string name="pref_show_background_desc">إظهار صورة الخلفية في الموضوع</string>
+  <string name="pref_parallax">خلفية متحركة</string>
+  <string name="pref_parallax_desc">تتحرك الخلفية عند إمالة الجهاز</string>
   <string name="pref_openrouter_api_key">مفتاح واجهة برمجة تطبيقات OpenRouter</string>
   <string name="module_hint_libraries">المكتبات (اختياري)</string>
   <string name="module_helper_libraries">المجموعة: قطعة أثرية: الإصدار - واحد في كل سطر أو مفصولة بفاصلة</string>
@@ -459,6 +461,8 @@
   <string name="all_blur_subtitle">طمس جميع المكونات.</string>
   <string name="pref_glass_material_color">لون زجاج المادة</string>
   <string name="pref_glass_material_color_desc">تطبيق لون المادة على الأسطح الزجاجية</string>
+  <string name="pref_glass_tint">شدة تلوين الزجاج</string>
+  <string name="pref_glass_tint_desc">اضبط قوة اللون المطبق على الأسطح الزجاجية</string>
   <string name="webcolor">إظهار Color PickerWeb</string>
   <string name="lsp_inlaytitle">عرض البطانة</string>
   <string name="lsp_inlaysubtitle">إظهار محرر عنصر البطانة ليس كل اللغة تعمل</string>

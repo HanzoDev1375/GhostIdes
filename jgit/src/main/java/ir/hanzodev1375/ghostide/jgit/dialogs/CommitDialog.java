@@ -10,12 +10,11 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.jgit.R;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class CommitDialog extends DialogFragment {
 
   private EditText etMessage, etAuthor, etEmail;
@@ -87,7 +86,7 @@ public class CommitDialog extends DialogFragment {
           });
     }
 
-    return new MaterialAlertDialogBuilder(requireActivity())
+    return new DialogCompat(requireActivity())
         .setTitle("Commit Changes")
         .setView(view)
         .setPositiveButton(

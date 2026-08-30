@@ -6,7 +6,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textview.MaterialTextView;
+import ir.hanzodev1375.components.utils.GlassColors;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,6 +42,10 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     TagInfo tag = tags.get(position);
+    GlassColors.setBackgroundAlpha(
+        holder.itemView,
+        MaterialColors.getColor(holder.itemView, R.attr.colorSurface),
+        150);
     holder.tvName.setText(tag.getName());
     holder.tvHash.setText(tag.getHash()
         + (tag.getTimestamp() > 0

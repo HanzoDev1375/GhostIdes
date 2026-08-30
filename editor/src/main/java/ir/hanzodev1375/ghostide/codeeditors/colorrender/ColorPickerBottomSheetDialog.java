@@ -8,10 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import androidx.annotation.NonNull;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
+import ir.hanzodev1375.components.sheet.BaseSheet;
 import ir.hanzodev1375.ghostide.codeeditors.R;
 
 public class ColorPickerBottomSheetDialog {
@@ -26,7 +26,7 @@ public class ColorPickerBottomSheetDialog {
   public static void show(
       @NonNull Context context, int initialColor, @NonNull OnColorPickedListener listener) {
 
-    var dialog = new BottomSheetDialog(context);
+    var dialog = new BaseSheet(context);
     View view = LayoutInflater.from(context).inflate(R.layout.color_picker_bottom_sheet, null);
     ColorSpectrumView spectrum = view.findViewById(R.id.colorSpectrum);
     HueSliderView hueBar = view.findViewById(R.id.hueSliderView);

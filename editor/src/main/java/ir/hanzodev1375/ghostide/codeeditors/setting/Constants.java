@@ -64,6 +64,7 @@ public class Constants {
         "pref_code_editor_power_mode_effect";
     public static final String KRY_TERM = "terminal_fragment";
     public static final String KEY_BLUR = "app_blurmod_allstate";
+    public static final String KEY_PARALLAX = "app_parallax";
     public static final String KEY_CONSTZOOM = "app_const_zoommod";
     public static final String Key_langColor = "editor_tabcolor";
 

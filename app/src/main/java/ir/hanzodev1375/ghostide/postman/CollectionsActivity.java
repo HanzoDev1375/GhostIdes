@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.textfield.TextInputEditText;
@@ -55,7 +55,7 @@ public class CollectionsActivity extends BaseCompat {
 
               @Override
               public void onDeleteClick(RequestCollection collection) {
-                new AlertDialog.Builder(CollectionsActivity.this)
+                new DialogCompat(CollectionsActivity.this)
                     .setTitle(R.string.dialog_confirm_title)
                     .setMessage(R.string.msg_confirm_delete_collection)
                     .setNegativeButton(R.string.action_cancel, null)
@@ -105,7 +105,7 @@ public class CollectionsActivity extends BaseCompat {
     int pad = (int) (20 * getResources().getDisplayMetrics().density);
     input.setPadding(pad, pad, pad, pad);
 
-    new AlertDialog.Builder(this)
+    new DialogCompat(this)
         .setTitle(R.string.dialog_new_collection_title)
         .setView(input)
         .setNegativeButton(R.string.action_cancel, null)

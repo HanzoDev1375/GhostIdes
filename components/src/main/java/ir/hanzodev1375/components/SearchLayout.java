@@ -21,7 +21,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.transition.platform.MaterialSharedAxis;
-import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.components.utils.ComponentsPrefs;
 
 @MainThread
 public class SearchLayout extends FrameLayout {
@@ -31,7 +31,7 @@ public class SearchLayout extends FrameLayout {
   private ImageView searchIcon;
   private OnSearchListener onSearchListener;
   private OnTextChangedListener onTextChangedListener;
-  PreferencesUtils setting;
+  ComponentsPrefs setting;
 
   public SearchLayout(@NonNull Context context) {
     super(context);
@@ -44,7 +44,7 @@ public class SearchLayout extends FrameLayout {
   }
 
   private void init(Context context) {
-    setting = new PreferencesUtils(context);
+    setting = new ComponentsPrefs(context);
     LayoutInflater.from(context).inflate(R.layout.search_layout, this, true);
 
     View rootView = findViewById(R.id.rootView);

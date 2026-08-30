@@ -268,6 +268,8 @@
   <string name="pref_show_hidden_files_desc">显示以点 (.) 开头的文件和文件夹</string>
   <string name="pref_show_background">显示背景</string>
   <string name="pref_show_background_desc">在主题中显示背景图片</string>
+  <string name="pref_parallax">动态壁纸</string>
+  <string name="pref_parallax_desc">背景随设备倾斜而动</string>
   <string name="pref_openrouter_api_key">OpenRouter API 密钥</string>
   <string name="module_hint_libraries">图书馆（可选）</string>
   <string name="module_helper_libraries">group:artifact:version — 每行一个或以逗号分隔</string>
@@ -459,6 +461,8 @@
   <string name="all_blur_subtitle">模糊所有组件。</string>
   <string name="pref_glass_material_color">玻璃材质颜色</string>
   <string name="pref_glass_material_color_desc">将材质颜色应用于玻璃表面</string>
+  <string name="pref_glass_tint">玻璃色调强度</string>
+  <string name="pref_glass_tint_desc">调整应用于玻璃表面的颜色强度</string>
   <string name="webcolor">显示颜色选择器Web</string>
   <string name="lsp_inlaytitle">显示镶嵌</string>
   <string name="lsp_inlaysubtitle">显示镶嵌项目编辑器并非所有语言都有效</string>

@@ -7,7 +7,6 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import com.blankj.utilcode.util.AppUtils;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
@@ -24,7 +23,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class UpadteAppView {
   private Context context;
   private String TAG = getClass().getName();
@@ -103,7 +102,7 @@ public class UpadteAppView {
   private void showUpdateDialog() {
     if (context == null) return;
 
-    MaterialAlertDialogBuilder di = new MaterialAlertDialogBuilder(context);
+    DialogCompat di = new DialogCompat(context);
     di.setTitle(MarkwonHelper.toCharSequence(context, model.getTitle()));
     di.setMessage(MarkwonHelper.toCharSequence(context, model.getMassges()));
     di.setCancelable(false);

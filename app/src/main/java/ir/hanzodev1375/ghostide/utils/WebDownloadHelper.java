@@ -11,13 +11,12 @@ import ir.hanzodev1375.ghostide.R;
 import androidx.appcompat.app.AlertDialog;
 import com.downloader.PRDownloader;
 import com.downloader.OnDownloadListener;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
 import java.util.Locale;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public final class WebDownloadHelper {
 
   private static final String DEFAULT_SUBDIR = "Download/GhostIDE";
@@ -79,7 +78,7 @@ public final class WebDownloadHelper {
       tvSize.setVisibility(View.VISIBLE);
     }
 
-    new MaterialAlertDialogBuilder(activity)
+    new DialogCompat(activity)
         .setTitle("Download")
         .setView(view)
         .setPositiveButton(
@@ -101,7 +100,7 @@ public final class WebDownloadHelper {
     final TextView tvProgress = view.findViewById(R.id.tvProgress);
 
     final AlertDialog progressDialog =
-        new MaterialAlertDialogBuilder(activity)
+        new DialogCompat(activity)
             .setTitle(fileName)
             .setView(view)
             .setCancelable(false)

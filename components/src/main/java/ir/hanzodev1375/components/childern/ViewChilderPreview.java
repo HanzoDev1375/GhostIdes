@@ -15,8 +15,8 @@ import androidx.annotation.Nullable;
  * matching the rest of the themed UI (every corner in the app is rounded and stroked).
  *
  * <p>The rounding is applied by clipping the drawing in {@link #dispatchDraw(Canvas)} and by
- * drawing a rounded stroke in {@link #onDraw(Canvas)}, so this works with any media child
- * (image / gif / video) regardless of its own background.
+ * drawing a rounded stroke in {@link #onDraw(Canvas)}, so this works with any media child (image /
+ * gif / video) regardless of its own background.
  *
  * <p>Unlike the plain {@link ViewChilder}, this container also exposes {@link #applyBlur(float)}
  * which re-applies the currently shown media with a new blur size on the fly, so the background
@@ -64,8 +64,7 @@ public class ViewChilderPreview extends ViewChilder {
     super.onSizeChanged(w, h, oldw, oldh);
     if (cornerRadius > 0f && w > 0 && h > 0) {
       clipPath = new Path();
-      clipPath.addRoundRect(
-          new RectF(0, 0, w, h), cornerRadius, cornerRadius, Path.Direction.CW);
+      clipPath.addRoundRect(new RectF(0, 0, w, h), cornerRadius, cornerRadius, Path.Direction.CW);
     } else {
       clipPath = null;
     }

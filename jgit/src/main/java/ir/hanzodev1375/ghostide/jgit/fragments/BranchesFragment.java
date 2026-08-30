@@ -15,7 +15,7 @@ import ir.hanzodev1375.components.views.EmptyView;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.adapter.BranchAdapter;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class BranchesFragment extends Fragment {
   private GitViewModel viewModel;
   private BranchAdapter adapter;
@@ -51,7 +51,7 @@ public class BranchesFragment extends Fragment {
 
           @Override
           public void onDelete(String branchName) {
-            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            new DialogCompat(requireContext())
                 .setTitle("Delete Branch")
                 .setMessage("Delete branch '" + branchName + "'?")
                 .setPositiveButton("Delete", (d, w) -> viewModel.deleteBranch(branchName))
@@ -61,7 +61,7 @@ public class BranchesFragment extends Fragment {
           @Override
           public void onMerge(String branchName) {
             String current = viewModel.currentBranch.getValue();
-            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            new DialogCompat(requireContext())
                 .setTitle("Merge Branch")
                 .setMessage("Merge '" + branchName + "' into '" + current + "'?")
                 .setPositiveButton("Merge", (d, w) -> viewModel.mergeBranch(branchName))
@@ -71,7 +71,7 @@ public class BranchesFragment extends Fragment {
           @Override
           public void onRebase(String branchName) {
             String current = viewModel.currentBranch.getValue();
-            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            new DialogCompat(requireContext())
                 .setTitle("Rebase")
                 .setMessage("Rebase '" + current + "' onto '" + branchName + "'?\n\nThis rewrites commit history.")
                 .setPositiveButton("Rebase", (d, w) -> viewModel.rebaseBranch(branchName))

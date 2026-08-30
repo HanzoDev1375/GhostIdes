@@ -56,6 +56,14 @@ public class PreferencesUtils {
     return getDefaultPreferences().getBoolean(Constants.SharedPreferenceKeys.KEY_BLUR, true);
   }
 
+  public boolean isParallaxEnabled() {
+    return getDefaultPreferences().getBoolean(Constants.SharedPreferenceKeys.KEY_PARALLAX, true);
+  }
+
+  public void setParallaxEnabled(boolean mod) {
+    getDefaultPreferences().edit().putBoolean(Constants.SharedPreferenceKeys.KEY_PARALLAX, mod).apply();
+  }
+
   public void setGitLocalUserName(String name) {
     getDefaultPreferences()
         .edit()
@@ -789,5 +797,14 @@ public class PreferencesUtils {
 
   public void setGlassMaterialColor(boolean mod) {
     getDefaultPreferences().edit().putBoolean("m3glassColor", mod).apply();
+  }
+
+  /** note : dont using Constants.SharedPreferenceKeys */
+  public float getGlassTint() {
+    return getDefaultPreferences().getFloat("m3glassTint", 0.6f);
+  }
+
+  public void setGlassTint(float value) {
+    getDefaultPreferences().edit().putFloat("m3glassTint", value).apply();
   }
 }

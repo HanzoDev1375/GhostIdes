@@ -8,16 +8,15 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.Arrays;
 import java.util.List;
 import ir.hanzodev1375.ghostide.R;
 import java.util.stream.Collectors;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class ThemeChooserDialogBuilder {
 
   private final Context context;
-  private MaterialAlertDialogBuilder builder;
+  private DialogCompat builder;
   private ColorAdapter colorAdapter;
   private final List<Theme> themes = Arrays.asList(Theme.values());
 
@@ -40,7 +39,7 @@ public class ThemeChooserDialogBuilder {
     recyclerView.setLayoutManager(new GridLayoutManager(context, 4));
     recyclerView.setAdapter(colorAdapter);
 
-    builder = new MaterialAlertDialogBuilder(context).setView(dialogView);
+    builder = new DialogCompat(context).setView(dialogView);
   }
 
   public ThemeChooserDialogBuilder setTitle(@StringRes int res) {

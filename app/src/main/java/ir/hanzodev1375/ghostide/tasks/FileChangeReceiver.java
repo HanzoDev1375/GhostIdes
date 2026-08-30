@@ -1,6 +1,5 @@
 package ir.hanzodev1375.ghostide.tasks;
 
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,10 +12,8 @@ import ir.hanzodev1375.ghostide.R;
 
 import androidx.annotation.Nullable;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import java.lang.ref.WeakReference;
-
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 public class FileChangeReceiver extends BroadcastReceiver {
   private static FileObserver fileObserver;
   private static String currentFilePath;
@@ -81,7 +78,6 @@ public class FileChangeReceiver extends BroadcastReceiver {
     fileObserver.startWatching();
   }
 
-
   public static void notifyInternalWrite() {
     suppressNextEvent = true;
   }
@@ -96,7 +92,7 @@ public class FileChangeReceiver extends BroadcastReceiver {
 
     isDialogShowing = true;
 
-    new MaterialAlertDialogBuilder(activity)
+    new DialogCompat(activity)
         .setTitle("File Changed")
         .setMessage(
             "The file "

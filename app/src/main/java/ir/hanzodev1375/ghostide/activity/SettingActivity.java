@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.blankj.utilcode.util.ThreadUtils;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
@@ -47,6 +46,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 
 public class SettingActivity extends BaseCompat {
 
@@ -589,8 +589,15 @@ public class SettingActivity extends BaseCompat {
             0,
             isChecked -> {
               prefs.setShowBackground(isChecked);
-              recreate();
+              setupBackgroundBlur();
             }));
+    items.add(
+        new SettingItem(
+            getString(R.string.pref_parallax),
+            getString(R.string.pref_parallax_desc),
+            prefs.isParallaxEnabled(),
+            0,
+            prefs::setParallaxEnabled));
     items.add(
         new SettingItem(
             getString(R.string.pref_animation_battery_threshold),
@@ -639,7 +646,6 @@ public class SettingActivity extends BaseCompat {
               prefs.setGlassMaterialColor(isChecked);
               recreate();
             }));
-
     return items;
   }
 
@@ -678,7 +684,7 @@ public class SettingActivity extends BaseCompat {
 
   private void showLanguageDialog() {
     int checkedIndex = LocaleHelper.getSavedLanguageIndex(this);
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(R.string.pref_language)
         .setSingleChoiceItems(
             LocaleHelper.LANGUAGE_NAMES,
@@ -708,7 +714,7 @@ public class SettingActivity extends BaseCompat {
     int current = prefs.getCodeEditorTabSize();
     int checked = 0;
     for (int i = 0; i < sizes.length; i++) if (sizes[i] == current) checked = i;
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(R.string.pref_tab_size)
         .setSingleChoiceItems(
             labels,
@@ -739,7 +745,7 @@ public class SettingActivity extends BaseCompat {
       }
     }
 
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(R.string.pref_grid_title)
         .setSingleChoiceItems(
             label,
@@ -763,7 +769,7 @@ public class SettingActivity extends BaseCompat {
     };
     int checked = ((int) current) - 1;
     if (checked < 0) checked = 1;
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(R.string.pref_line_height)
         .setSingleChoiceItems(
             labels,
@@ -788,7 +794,7 @@ public class SettingActivity extends BaseCompat {
     slider.addOnChangeListener(
         (s, val, fromUser) ->
             valueText.setText(String.format(getString(R.string.cursor_blink_ms), (int) val)));
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(R.string.pref_cursor_blink_period)
         .setView(view)
         .setPositiveButton(
@@ -808,7 +814,7 @@ public class SettingActivity extends BaseCompat {
         break;
       }
     }
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(R.string.pref_translate_target_lang)
         .setSingleChoiceItems(
             names,
@@ -838,7 +844,7 @@ public class SettingActivity extends BaseCompat {
     };
     int checked = 0;
     for (int i = 0; i < sizes.length; i++) if (Integer.parseInt(sizes[i]) == current) checked = i;
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(R.string.pref_buffer_size)
         .setSingleChoiceItems(
             labels,
@@ -846,7 +852,7 @@ public class SettingActivity extends BaseCompat {
             (d, which) -> {
               prefs.setBufferSize(sizes[which]);
               d.dismiss();
-              new MaterialAlertDialogBuilder(this)
+              new DialogCompat(this)
                   .setTitle(R.string.restart_required)
                   .setMessage(R.string.restart_message)
                   .setPositiveButton(
@@ -900,7 +906,7 @@ public class SettingActivity extends BaseCompat {
     TextInputLayout input = v.findViewById(R.id.editor);
     input.setHint("/sdcard/GhostIDE/themes/draks.gth");
     input.getEditText().setText(!prefs.getAppThemeFile().isEmpty() ? prefs.getAppThemeFile() : "");
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(getString(R.string.theme_load_title))
         .setMessage(getString(R.string.theme_load_message))
         .setView(v)
@@ -951,7 +957,7 @@ public class SettingActivity extends BaseCompat {
 
   private void showGitHubAccountDialog() {
     if (prefs.isGitHubLoggedIn()) {
-      new MaterialAlertDialogBuilder(this)
+      new DialogCompat(this)
           .setTitle(getString(R.string.github_account))
           .setMessage(getString(R.string.github_account_logged_in, prefs.getGitHubUsername()))
           .setPositiveButton(getString(R.string.ok), null)
@@ -1033,7 +1039,7 @@ public class SettingActivity extends BaseCompat {
       }
     }
 
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(R.string.ai_provider)
         .setSingleChoiceItems(
             providers,
@@ -1174,7 +1180,7 @@ public class SettingActivity extends BaseCompat {
         break;
       }
     }
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(R.string.pref_font)
         .setSingleChoiceItems(
             fontNames,
@@ -1256,7 +1262,7 @@ public class SettingActivity extends BaseCompat {
         break;
       }
     }
-    new MaterialAlertDialogBuilder(this)
+    new DialogCompat(this)
         .setTitle(R.string.pref_power_mode_effect)
         .setSingleChoiceItems(
             names,
