@@ -60,6 +60,7 @@ import ir.theme.ActivityTheme;
 import ir.theme.EditorTheme;
 import ir.theme.GhostTheme;
 import ir.theme.ThemeManager;
+import ir.theme.ThemeMediaPath;
 import ir.theme.ThemeUtils;
 import ir.theme.WidgetTheme;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
@@ -98,7 +99,8 @@ public class ThemeEditorActivity extends BaseCompat {
                     .takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
               } catch (Exception ignored) {
               }
-              pendingImageItem.updater.update(currentTheme, uri.toString());
+              String storedPath = ThemeMediaPath.fromPickedUri(this, currentThemePath, uri, null);
+              pendingImageItem.updater.update(currentTheme, storedPath);
               saveThemeToFile();
               buildColorItems();
               refreshCurrentTab();
@@ -106,7 +108,8 @@ public class ThemeEditorActivity extends BaseCompat {
                 backgroundView.setVisibility(View.VISIBLE);
                 float blur =
                     currentTheme.getWidget() != null ? currentTheme.getWidget().getBlursize() : 0f;
-                backgroundView.load(uri.toString(), blur);
+                String loadPath = ThemeMediaPath.resolve(currentThemePath, storedPath);
+                backgroundView.load(loadPath != null ? loadPath : storedPath, blur);
               }
             });
 
@@ -535,7 +538,8 @@ public class ThemeEditorActivity extends BaseCompat {
               .fromJson(
                   new GsonBuilder().setPrettyPrinting().create().toJson(currentTheme),
                   GhostTheme.class);
-      ThemePreviewBottomSheet bottomSheet = ThemePreviewBottomSheet.newInstance(themeCopy);
+      ThemePreviewBottomSheet bottomSheet =
+          ThemePreviewBottomSheet.newInstance(themeCopy, currentThemePath);
       bottomSheet.show(getSupportFragmentManager(), "preview_theme");
       return true;
     }

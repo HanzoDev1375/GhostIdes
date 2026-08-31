@@ -1,221 +1,221 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    android:backgroundTint="?colorSurfaceContainer"
-    android:id="@+id/coordinator">
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     android:layout_height="match_parent"
+     android:layout_width="match_parent"
+     android:backgroundTint="?colorSurfaceContainer"
+     android:id="@+id/coordinator">
 
     <FrameLayout
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:id="@+id/backdropContent">
+         android:layout_height="match_parent"
+         android:layout_width="match_parent"
+         android:id="@+id/backdropContent">
 
         <ir.hanzodev1375.components.childern.ViewChilder
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:visibility="visible"
-            android:id="@+id/backgroundiconfilemanager" />
+             android:layout_height="match_parent"
+             android:layout_width="match_parent"
+             android:visibility="visible"
+             android:id="@+id/backgroundiconfilemanager" />
 
-        <LinearLayout
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:orientation="vertical">
+        <FrameLayout
+             android:layout_height="match_parent"
+             android:layout_width="match_parent">
 
             <LinearLayout
-                android:layout_height="150dp"
-                android:layout_width="match_parent"
-                android:background="?colorSurfaceContainer"
-                android:gravity="center"
-                android:paddingVertical="20dp"
-                android:orientation="vertical"
-                android:paddingHorizontal="8dp"
-                android:id="@+id/headtop">
+                 android:layout_height="150dp"
+                 android:layout_width="match_parent"
+                 android:background="?colorSurfaceContainer"
+                 android:gravity="center"
+                 android:paddingVertical="20dp"
+                 android:orientation="vertical"
+                 android:paddingHorizontal="8dp"
+                 android:id="@+id/headtop">
 
                 <LinearLayout
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:layout_marginEnd="8dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="8dp">
+                     android:layout_height="wrap_content"
+                     android:layout_width="match_parent"
+                     android:layout_marginEnd="8dp"
+                     android:gravity="center_vertical"
+                     android:orientation="horizontal"
+                     android:layout_marginStart="8dp">
 
                     <ir.hanzodev1375.components.views.SegmentedAvatarView
-                        android:layout_height="40dp"
-                        android:layout_width="40dp"
-                        android:src="@drawable/user"
-                        app:ringWidth="2dp"
-                        app:ringPadding="3dp"
-                        app:segmentCount="8"
-                        app:gapAngle="14"
-                        android:layout_marginStart="8dp"
-                        android:id="@+id/userAvatar" />
+                         android:layout_height="40dp"
+                         android:layout_width="40dp"
+                         android:src="@drawable/user"
+                         app:segmentCount="8"
+                         app:ringPadding="3dp"
+                         android:layout_marginStart="8dp"
+                         app:ringWidth="2dp"
+                         app:gapAngle="14"
+                         android:id="@+id/userAvatar" />
 
                     <TextView
-                        android:layout_height="wrap_content"
-                        android:layout_width="0dp"
-                        android:textSize="16sp"
-                        android:layout_marginStart="12dp"
-                        android:layout_weight="1"
-                        android:textStyle="bold"
-                        android:id="@+id/userNameText" />
+                         android:layout_height="wrap_content"
+                         android:layout_width="0dp"
+                         android:textSize="16sp"
+                         android:layout_marginStart="12dp"
+                         android:layout_weight="1"
+                         android:textStyle="bold"
+                         android:id="@+id/userNameText" />
 
                     <ImageButton
-                        android:layout_height="40dp"
-                        android:layout_width="40dp"
-                        android:visibility="visible"
-                        android:contentDescription="@string/goto_dir"
-                        android:layout_marginEnd="8dp"
-                        android:src="@drawable/ic_git"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:tint="?colorOnSurface"
-                        android:id="@+id/gitActionButton" />
+                         android:layout_height="40dp"
+                         android:layout_width="40dp"
+                         android:visibility="visible"
+                         android:contentDescription="@string/goto_dir"
+                         android:layout_marginEnd="8dp"
+                         android:src="@drawable/ic_git"
+                         android:background="?attr/selectableItemBackgroundBorderless"
+                         android:tint="?colorOnSurface"
+                         android:id="@+id/gitActionButton" />
 
                     <ImageButton
-                        android:layout_height="40dp"
-                        android:layout_width="40dp"
-                        android:src="@drawable/ic_ai_robot"
-                        android:layout_marginEnd="8dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:tint="?colorOnSurface"
-                        android:id="@+id/buttonAi" />
+                         android:layout_height="40dp"
+                         android:layout_width="40dp"
+                         android:src="@drawable/ic_ai_robot"
+                         android:layout_marginEnd="8dp"
+                         android:background="?attr/selectableItemBackgroundBorderless"
+                         android:tint="?colorOnSurface"
+                         android:id="@+id/buttonAi" />
 
                     <ImageButton
-                        android:layout_height="40dp"
-                        android:layout_width="40dp"
-                        android:src="@drawable/ic_panel"
-                        android:layout_marginEnd="8dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:tint="?colorOnSurface"
-                        android:id="@+id/buttonPlugins" />
+                         android:layout_height="40dp"
+                         android:layout_width="40dp"
+                         android:src="@drawable/ic_panel"
+                         android:layout_marginEnd="8dp"
+                         android:background="?attr/selectableItemBackgroundBorderless"
+                         android:tint="?colorOnSurface"
+                         android:id="@+id/buttonPlugins" />
 
                     <ImageButton
-                        android:layout_height="40dp"
-                        android:layout_width="40dp"
-                        android:src="@drawable/more_vert"
-                        android:layout_marginEnd="8dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:tint="?colorOnSurface"
-                        android:id="@+id/btnSettings" />
+                         android:layout_height="40dp"
+                         android:layout_width="40dp"
+                         android:src="@drawable/more_vert"
+                         android:layout_marginEnd="8dp"
+                         android:background="?attr/selectableItemBackgroundBorderless"
+                         android:tint="?colorOnSurface"
+                         android:id="@+id/btnSettings" />
 
                 </LinearLayout>
 
             </LinearLayout>
 
             <LinearLayout
-                android:layout_height="match_parent"
-                android:layout_width="match_parent"
-                android:padding="8dp"
-                android:orientation="vertical"
-                android:clipToOutline="true"
-                android:id="@+id/headline">
+                 android:layout_height="match_parent"
+                 android:layout_width="match_parent"
+                 android:padding="8dp"
+                 android:orientation="vertical"
+                 android:clipToOutline="true"
+                 android:layout_marginTop="125dp"
+                 android:id="@+id/headline">
 
                 <LinearLayout
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:id="@+id/navRow">
+                     android:layout_height="wrap_content"
+                     android:layout_width="match_parent"
+                     android:gravity="center_vertical"
+                     android:orientation="horizontal"
+                     android:id="@+id/navRow">
 
                     <ir.hanzodev1375.ghostide.customui.NavModelPanel
-                        android:layout_height="wrap_content"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_marginStart="5dp"
-                        android:id="@+id/navmodel" />
+                         android:layout_height="wrap_content"
+                         android:layout_width="0dp"
+                         android:layout_marginStart="5dp"
+                         android:layout_weight="1"
+                         android:id="@+id/navmodel" />
 
                     <ImageButton
-                        android:layout_height="36dp"
-                        android:layout_width="36dp"
-                        android:contentDescription="@string/goto_dir"
-                        android:src="@drawable/ic_edit"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:tint="?colorOnSurface"
-                        android:layout_marginEnd="4dp"
-                        android:id="@+id/btnGoToDir" />
+                         android:layout_height="36dp"
+                         android:layout_width="36dp"
+                         android:contentDescription="@string/goto_dir"
+                         android:src="@drawable/ic_edit"
+                         android:layout_marginEnd="4dp"
+                         android:background="?attr/selectableItemBackgroundBorderless"
+                         android:tint="?colorOnSurface"
+                         android:id="@+id/btnGoToDir" />
 
                 </LinearLayout>
 
                 <FrameLayout
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
-                    android:layout_marginTop="5dp">
+                     android:layout_height="match_parent"
+                     android:layout_width="match_parent"
+                     android:layout_marginTop="5dp">
 
                     <androidx.recyclerview.widget.RecyclerView
-                        android:layout_height="match_parent"
-                        android:layout_width="match_parent"
-                        android:clipToPadding="false"
-                        android:id="@+id/rvfiles" />
+                         android:layout_height="match_parent"
+                         android:layout_width="match_parent"
+                         android:clipToPadding="false"
+                         android:id="@+id/rvfiles" />
 
                     <ir.hanzodev1375.ghostide.customui.EmptyState
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:visibility="gone"
-                        android:id="@+id/emptystates"
-                        android:layout_gravity="center" />
+                         android:layout_height="wrap_content"
+                         android:layout_width="wrap_content"
+                         android:visibility="gone"
+                         android:id="@+id/emptystates"
+                         android:layout_gravity="center" />
 
                     <com.google.android.material.progressindicator.CircularProgressIndicator
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:indeterminate="true"
-                        android:layout_gravity="center"
-                        android:id="@+id/loadingprogass" />
+                         android:layout_height="wrap_content"
+                         android:layout_width="wrap_content"
+                         android:indeterminate="true"
+                         android:layout_gravity="center"
+                         android:id="@+id/loadingprogass" />
 
                 </FrameLayout>
 
             </LinearLayout>
 
-        </LinearLayout>
+        </FrameLayout>
 
     </FrameLayout>
 
     <irhanzodev1375.musicpreview.MusicView
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:visibility="gone"
-        android:layout_marginBottom="15dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:id="@+id/musicPreview"
-        android:layout_gravity="bottom" />
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:visibility="gone"
+         android:layout_marginBottom="15dp"
+         android:layout_marginLeft="8dp"
+         android:layout_marginRight="8dp"
+         android:layout_marginTop="8dp"
+         android:id="@+id/musicPreview"
+         android:layout_gravity="bottom" />
 
     <ir.hanzodev1375.ghostide.customui.FloatingToolbarView
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="16dp"
-        android:id="@+id/fab"
-        android:layout_gravity="bottom|right" />
+         android:layout_height="wrap_content"
+         android:layout_width="wrap_content"
+         android:layout_marginBottom="30dp"
+         android:layout_marginLeft="16dp"
+         android:layout_marginRight="16dp"
+         android:layout_marginTop="16dp"
+         android:id="@+id/fab"
+         android:layout_gravity="bottom|right" />
 
     <include
-        layout="@layout/selection_panel"
-        android:layout_marginBottom="16dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_gravity="bottom"
-        android:id="@+id/selectionPanel" />
+         layout="@layout/selection_panel"
+         android:layout_marginBottom="16dp"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_marginLeft="8dp"
+         android:layout_marginRight="8dp"
+         android:layout_gravity="bottom"
+         android:id="@+id/selectionPanel" />
 
     <ir.hanzodev1375.components.SearchLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:layout_marginBottom="0dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:id="@+id/ser"
-        android:layout_gravity="bottom|center_horizontal" />
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:layout_marginBottom="0dp"
+         android:layout_marginEnd="8dp"
+         android:layout_marginStart="8dp"
+         android:id="@+id/ser"
+         android:layout_gravity="bottom|center_horizontal" />
 
     <ninja.coder.appuploader.main.ViewDownloder
-        android:layout_height="70dp"
-        android:layout_width="match_parent"
-        android:layout_marginBottom="6dp"
-        android:visibility="gone"
-        android:layout_gravity="bottom"
-        android:id="@+id/downloader" />
+         android:layout_height="70dp"
+         android:layout_width="match_parent"
+         android:layout_marginBottom="6dp"
+         android:visibility="gone"
+         android:layout_gravity="bottom"
+         android:id="@+id/downloader" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

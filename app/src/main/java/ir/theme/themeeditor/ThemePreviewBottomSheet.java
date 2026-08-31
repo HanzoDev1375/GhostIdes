@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,23 +25,29 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
 import ir.hanzodev1375.components.childern.ViewChilder;
+import ir.theme.ActivityTheme;
 import ir.theme.EditorTheme;
 import ir.theme.GhostTheme;
+import ir.theme.ThemeMediaPath;
+import ir.theme.WidgetTheme;
 
 public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
 
   private static final String ARG_THEME_JSON = "theme_json";
+  private static final String ARG_THEME_PATH = "theme_path";
 
   private IdeEditor editorPreview;
   private TabLayout tabLayout;
   private ViewChilder backgroundMedia;
   private GhostTheme currentTheme;
   private FloatingActionButton fabClose;
+  private String themeFilePath;
 
-  public static ThemePreviewBottomSheet newInstance(GhostTheme theme) {
+  public static ThemePreviewBottomSheet newInstance(GhostTheme theme, String themeFilePath) {
     ThemePreviewBottomSheet fragment = new ThemePreviewBottomSheet();
     Bundle args = new Bundle();
     args.putString(ARG_THEME_JSON, new Gson().toJson(theme));
+    args.putString(ARG_THEME_PATH, themeFilePath);
     fragment.setArguments(args);
     return fragment;
   }
@@ -50,6 +57,7 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
     super.onCreate(savedInstanceState);
     if (getArguments() != null) {
       String json = getArguments().getString(ARG_THEME_JSON);
+      themeFilePath = getArguments().getString(ARG_THEME_PATH);
       currentTheme = new Gson().fromJson(json, GhostTheme.class);
     }
     if (currentTheme == null) {
@@ -97,28 +105,29 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
     EditorTheme t = currentTheme.getEditor();
     var scheme = editorPreview.getColorScheme();
     var widget = currentTheme.getWidget();
-    backgroundMedia.setBackgroundColor(parseColor(widget.getBackground()));
-    if (widget.getBackground() != null) {
-      tabLayout.setBackgroundColor(parseColor(widget.getBackground()));
-    }
+    if (widget != null) {
+      if (widget.getBackground() != null) {
+        tabLayout.setBackgroundColor(parseColor(widget.getBackground()));
+      }
 
-    if (widget.getAccent() != null) {
-      tabLayout.setSelectedTabIndicatorColor(parseColor(widget.getAccent()));
-    }
+      if (widget.getAccent() != null) {
+        tabLayout.setSelectedTabIndicatorColor(parseColor(widget.getAccent()));
+      }
 
-    if (widget.getTabSelected() != null && widget.getTabUnselected() != null) {
+      if (widget.getTabSelected() != null && widget.getTabUnselected() != null) {
 
-      tabLayout.setTabTextColors(
-          parseColor(widget.getTabUnselected()), parseColor(widget.getTabSelected()));
-    }
+        tabLayout.setTabTextColors(
+            parseColor(widget.getTabUnselected()), parseColor(widget.getTabSelected()));
+      }
 
-    if (widget.getFabBackground() != null) {
-      fabClose.setBackgroundTintList(ColorStateList.valueOf(parseColor(widget.getFabBackground())));
-    }
+      if (widget.getFabBackground() != null) {
+        fabClose.setBackgroundTintList(
+            ColorStateList.valueOf(parseColor(widget.getFabBackground())));
+      }
 
-    if (widget.getFabIcon() != null) {
-
-      fabClose.setColorFilter(parseColor(widget.getFabIcon()));
+      if (widget.getFabIcon() != null) {
+        fabClose.setColorFilter(parseColor(widget.getFabIcon()));
+      }
     }
     scheme.setColor(GhostColorScheme.LINE_DIVIDER, parseColor(t.getLineDivider()));
     scheme.setColor(GhostColorScheme.LINE_NUMBER, parseColor(t.getLineNumber()));
@@ -258,20 +267,44 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
     scheme.setColor(GhostColorScheme.MINIMAP_VIEWPORT, parseColor(t.getMinimapViewport()));
     scheme.setColor(
         GhostColorScheme.MINIMAP_VIEWPORT_BORDER, parseColor(t.getMinimapViewportBorder()));
-
-
+    scheme.setColor(GhostColorScheme.BRACKET1, parseColor(t.getBracketlevelmatch1()));
+    scheme.setColor(GhostColorScheme.BRACKET2, parseColor(t.getBracketlevelmatch2()));
+    scheme.setColor(GhostColorScheme.BRACKET3, parseColor(t.getBracketlevelmatch3()));
+    scheme.setColor(GhostColorScheme.BRACKET4, parseColor(t.getBracketlevelmatch4()));
+    scheme.setColor(GhostColorScheme.BRACKET5, parseColor(t.getBracketlevelmatch5()));
+    scheme.setColor(GhostColorScheme.BRACKET6, parseColor(t.getBracketlevelmatch6()));
   }
 
   private void applyBackgroundImage() {
-    String imagePath =
-        (currentTheme.getWidget() != null) ? currentTheme.getWidget().getImagepath() : null;
-    getView().setBackgroundColor(Color.parseColor(currentTheme.getActivity().getBackground()));
-    if (imagePath != null && !imagePath.isEmpty()) {
-      backgroundMedia.setVisibility(View.VISIBLE);
-      backgroundMedia.load(imagePath, currentTheme.getWidget().getBlursize());
-    } else {
-      backgroundMedia.clear();
-      backgroundMedia.setVisibility(View.GONE);
+    WidgetTheme widget = currentTheme.getWidget();
+    ActivityTheme activity = currentTheme.getActivity();
+    String imagePath = widget != null ? widget.getImagepath() : null;
+
+    int bgColor = Color.WHITE;
+    if (activity != null && activity.getBackground() != null) {
+      bgColor = parseColor(activity.getBackground());
+    }
+    View root = getView();
+    if (root != null) {
+      root.setBackgroundColor(bgColor);
+    }
+
+    boolean hasImage = imagePath != null && !imagePath.isEmpty();
+    if (backgroundMedia != null) {
+      backgroundMedia.setVisibility(hasImage ? View.VISIBLE : View.GONE);
+      if (hasImage) {
+        String loadPath = ThemeMediaPath.resolve(themeFilePath, imagePath);
+        float blur = widget.getBlursize();
+        backgroundMedia.load(loadPath != null ? loadPath : imagePath, blur);
+      } else {
+        backgroundMedia.clear();
+      }
+    }
+
+    Window window = requireDialog().getWindow();
+    if (window != null) {
+      window.setStatusBarColor(Color.TRANSPARENT);
+      window.setNavigationBarColor(Color.TRANSPARENT);
     }
   }
 

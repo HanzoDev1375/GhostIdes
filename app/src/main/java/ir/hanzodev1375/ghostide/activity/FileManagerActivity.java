@@ -237,12 +237,12 @@ public class FileManagerActivity extends BaseCompat
     setupSearchLayoutInsets();
     appsetting = new PreferencesUtils(this);
     bind.fab.bindOfAcivity(this);
-    if (!appsetting.isShowBackground()) {
+    if (appsetting.isShowBackground()) {
+      setupBackgroundBlur(bind.backgroundiconfilemanager, bind.headtop, bind.headline);
+    } else {
       bind.headtop.setBackgroundColor(
           MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
-      bind.headline.setBackground(ShapeUtil.shape(40f, this));
-    } else {
-      setupBackgroundBlur(bind.backgroundiconfilemanager, bind.headtop, bind.headline);
+          bind.headline.setBackground(ShapeUtil.shape(40f, this));
     }
     networkChangeReceiver = new NetworkChangeReceiver(this);
     IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -1640,8 +1640,9 @@ public class FileManagerActivity extends BaseCompat
     } else {
       bind.headtop.setBackgroundColor(
           MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
-      bind.headline.setBackground(ShapeUtil.shape(40f, this));
+          bind.headline.setBackground(ShapeUtil.shape(40f, this));
     }
+    
     boolean currentGrid = appsetting.getGridMod();
     int currentSpan = appsetting.getGridSpanCount();
     boolean spanChanged =

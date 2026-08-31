@@ -3,6 +3,7 @@ package ir.hanzodev1375.ghostide.utils;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.view.View;
 import com.google.android.material.color.MaterialColors;
@@ -51,23 +52,25 @@ public class ShapeUtil {
     return new RippleDrawable(rippleColor, drawable, null);
   }
 
-  public static Drawable shape(float topRadius, Context context) {
-    float r = dpToPx(context, topRadius);
-    ShapeAppearanceModel model =
-        ShapeAppearanceModel.builder()
-            .setTopLeftCornerSize(r)
-            .setTopRightCornerSize(r)
-            .setBottomLeftCornerSize(0)
-            .setBottomRightCornerSize(0)
-            .build();
-
-    MaterialShapeDrawable drawable = new MaterialShapeDrawable(model);
-    drawable.setFillColor(ColorStateList.valueOf(getSurfaceColor(context)));
-    drawable.setElevation(0);
+  public static Drawable shape(float topRadiusDp, Context context) {
+    float r = dpToPx(context, topRadiusDp);
+    var bg = new GradientDrawable();
+    bg.setColor(getSurfaceColor(context));
+    bg.setCornerRadii(
+        new float[] {
+          r,
+          r, // بالا-چپ
+          r, 
+          r, // بالا-راست
+          0,
+          0, // پایین-راست
+          0,
+          0 // پایین-چپ
+        });
     PreferencesUtils appsetting = new PreferencesUtils(context);
-    drawable.setAlpha(appsetting.isShowBackground() ? 128 : 255);
+    bg.setAlpha(appsetting.isShowBackground() ? 128 : 255);
     ColorStateList rippleColor = ColorStateList.valueOf(getRippleColor(context));
-    return new RippleDrawable(rippleColor, drawable, null);
+    return new RippleDrawable(rippleColor, bg, null);
   }
 
   private static MaterialShapeDrawable createShapeDrawable(

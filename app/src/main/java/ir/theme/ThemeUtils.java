@@ -47,12 +47,16 @@ public class ThemeUtils {
     if (w == null) {
       return;
     }
-    String path = w.getImagepath();
+    String path = resolveImagePath(w.getImagepath());
     if (path != null && !path.isEmpty()) {
       v.load(path, w.getBlursize());
     } else {
       v.clear();
     }
+  }
+
+  public String resolveImagePath(String storedPath) {
+    return ThemeMediaPath.resolve(manager.getThemeFilePath(), storedPath);
   }
 
   public void applyView(View v) {
@@ -109,7 +113,7 @@ public class ThemeUtils {
       return;
     }
     if (w.getImagepath() != null && !w.getImagepath().isEmpty()) {
-      ic.load(w.getImagepath(), w.getBlursize());
+      ic.load(resolveImagePath(w.getImagepath()), w.getBlursize());
     } else {
       ic.clear();
     }

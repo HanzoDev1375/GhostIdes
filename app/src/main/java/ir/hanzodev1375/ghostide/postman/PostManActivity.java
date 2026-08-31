@@ -123,11 +123,12 @@ public class PostManActivity extends BaseCompat {
     if (!setting.isShowBackground()) {
       return;
     }
+    String loadPath = themeUtil.resolveImagePath(getImagePath);
     binding.iconBackground.setVisibility(View.VISIBLE);
     getWindow().setStatusBarColor(Color.TRANSPARENT);
     getWindow().setNavigationBarColor(Color.TRANSPARENT);
     Glide.with(this)
-        .load(getImagePath)
+        .load(loadPath != null ? loadPath : getImagePath)
         .transform(new BlurTransformation((int) ids))
         .into(binding.iconBackground);
     binding.getRoot().setBackgroundColor(Color.TRANSPARENT);

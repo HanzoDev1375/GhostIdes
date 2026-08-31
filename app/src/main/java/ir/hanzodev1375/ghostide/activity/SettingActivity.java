@@ -23,6 +23,7 @@ import ir.hanzodev1375.components.SearchLayout;
 import ir.hanzodev1375.components.TextInputDialogFragment;
 import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.hanzodev1375.components.sheet.SliderSheet;
+import ir.hanzodev1375.components.utils.ComponentsPrefs;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.adapters.SettingsAdapter;
 import ir.hanzodev1375.ghostide.ai.utils.AiConstants;
@@ -46,6 +47,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 
 public class SettingActivity extends BaseCompat {
@@ -196,8 +198,9 @@ public class SettingActivity extends BaseCompat {
           else if (position == 3) showLoadThemeDialog();
           else if (position == 4) showGitHubAccountDialog();
           else if (position == 5) showLanguageDialog();
-          else if (position == 9) showAnimationThresholdDialog();
-          else if (position == 10) showGridConunt();
+          else if (position == 10) showAnimationThresholdDialog();
+          else if (position == 11) showGridConunt();
+          else if (position == 16) showGlassTintDialog();
         });
 
     aiAdapter.setOnItemClickListener(
@@ -646,6 +649,17 @@ public class SettingActivity extends BaseCompat {
               prefs.setGlassMaterialColor(isChecked);
               recreate();
             }));
+    items.add(
+        new SettingItem(
+            getString(R.string.pref_glass_tint),
+            getString(R.string.pref_glass_tint_desc)
+                + "\n"
+                + String.format(
+                    getString(R.string.current_value),
+                    String.format(Locale.US, "%.2f", getGlassTint())),
+            false,
+            0,
+            null));
     return items;
   }
 
@@ -1230,7 +1244,7 @@ public class SettingActivity extends BaseCompat {
         v -> {
           prefs.setAnimationBatteryThreshold((int) slider.getValue());
           appAdapter.updateItem(
-              8,
+              10,
               new SettingItem(
                   getString(R.string.pref_animation_battery_threshold),
                   getString(R.string.pref_animation_battery_threshold_desc)
@@ -1238,6 +1252,48 @@ public class SettingActivity extends BaseCompat {
                       + String.format(
                           getString(R.string.current_value),
                           prefs.getAnimationBatteryThreshold() + "%"),
+                  false,
+                  0,
+                  null));
+          slidersheet.dismiss();
+        },
+        R.string.ok);
+    slidersheet.setButtonNo(
+        v -> {
+          slidersheet.dismiss();
+        },
+        R.string.no);
+    slidersheet.show();
+  }
+
+  private float getGlassTint() {
+    return new ComponentsPrefs(this).getGlassTint();
+  }
+
+  private void showGlassTintDialog() {
+    var slidersheet = new SliderSheet(this);
+    ComponentsPrefs componentsPrefs = new ComponentsPrefs(this);
+    float current = componentsPrefs.getGlassTint();
+    var slider = slidersheet.getSlider();
+    slider.setValueFrom(0.1f);
+    slider.setValueTo(1f);
+    slider.setStepSize(0.01f);
+    slider.setValue(current);
+    slidersheet.setLable(String.format(Locale.US, "Tint: %.2f", current));
+    slider.addOnChangeListener(
+        (s, value, fromUser) -> slidersheet.setLable(String.format(Locale.US, "Tint: %.2f", value)));
+    slidersheet.setButtonOk(
+        v -> {
+          componentsPrefs.setGlassTint(slider.getValue());
+          appAdapter.updateItem(
+              16,
+              new SettingItem(
+                  getString(R.string.pref_glass_tint),
+                  getString(R.string.pref_glass_tint_desc)
+                      + "\n"
+                      + String.format(
+                          getString(R.string.current_value),
+                          String.format(Locale.US, "%.2f", slider.getValue())),
                   false,
                   0,
                   null));

@@ -33,6 +33,11 @@ public class ThemeManager {
     this.gson = new Gson();
   }
 
+  /** Returns the absolute path of the currently active theme file, or null/empty when none. */
+  public String getThemeFilePath() {
+    return new PreferencesUtils(context).getAppThemeFile();
+  }
+
   public void saveTheme(GhostTheme theme) {
     String json = gson.toJson(theme);
     preferences.edit().putString(ConstKeys.THEME, json).apply();
