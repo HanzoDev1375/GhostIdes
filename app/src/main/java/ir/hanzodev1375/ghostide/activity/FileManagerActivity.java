@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -238,11 +239,12 @@ public class FileManagerActivity extends BaseCompat
     appsetting = new PreferencesUtils(this);
     bind.fab.bindOfAcivity(this);
     if (appsetting.isShowBackground()) {
-      setupBackgroundBlur(bind.backgroundiconfilemanager, bind.headtop, bind.headline);
+      bind.headtop.setBackgroundColor(0);
+      setupBackgroundBlur(bind.backgroundiconfilemanager, bind.headline);
     } else {
       bind.headtop.setBackgroundColor(
           MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
-          bind.headline.setBackground(ShapeUtil.shape(40f, this));
+      bind.headline.setBackground(ShapeUtil.shape(40f, this));
     }
     networkChangeReceiver = new NetworkChangeReceiver(this);
     IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -355,7 +357,7 @@ public class FileManagerActivity extends BaseCompat
             });
 
     adapter.setOnItemClickListener(
-        (item, pos) -> {
+        (item, view, pos) -> {
           historyViewModel.addToHistory(item.getPath(), item.getName(), item.isDirectory());
           if (item.isDirectory()) {
             pendingAnimation = true;
@@ -363,7 +365,7 @@ public class FileManagerActivity extends BaseCompat
           } else if (item.getPath().toLowerCase().endsWith(".zip")) {
             enterZipMode(item.getPath());
           } else {
-            setupClick(item.getPath(), item.getName());
+            setupClick(item.getPath(), item.getName(), view);
           }
           String currentPath = viewModel.getCurrentPath().getValue();
           if (currentPath != null) {
@@ -451,13 +453,13 @@ public class FileManagerActivity extends BaseCompat
           @Override
           public void onSelectionChanged(int count) {
             if (count == 0 && pendingClipboard.isEmpty() && zipClipboard.isEmpty()) {
-              if (selectionPanel != null) selectionPanel.setVisibility(View.GONE);
+              hideSelectionPanel();
             } else if (count > 0) {
-              selectionPanel.setVisibility(View.VISIBLE);
+              showSelectionPanel();
               selectionCount.setText(getString(R.string.selected_items_count, count));
             } else if (count == 0 && !pendingClipboard.isEmpty()) {
               selectionCount.setText("0");
-              selectionPanel.setVisibility(View.VISIBLE);
+              showSelectionPanel();
             }
           }
 
@@ -467,13 +469,17 @@ public class FileManagerActivity extends BaseCompat
           @Override
           public void onSelectionModeEnded() {
             if (pendingClipboard.isEmpty() && selectionPanel != null) {
-              selectionPanel.setVisibility(View.GONE);
+              hideSelectionPanel();
             }
           }
         });
 
     bind.buttonAi.setOnClickListener(
-        v -> startActivity(new Intent(getApplicationContext(), AiChatActivity.class)));
+        v ->
+            startActivityWithSharedElement(
+                new Intent(getApplicationContext(), AiChatActivity.class),
+                v,
+                ObjectUtil.TRANSITION_AI_CHAT));
 
     bind.buttonPlugins.setOnClickListener(this::showPluginPopup);
 
@@ -701,13 +707,13 @@ public class FileManagerActivity extends BaseCompat
           @Override
           public void onSelectionChanged(int count) {
             if (count == 0 && pendingClipboard.isEmpty() && zipClipboard.isEmpty()) {
-              if (selectionPanel != null) selectionPanel.setVisibility(View.GONE);
+              hideSelectionPanel();
             } else if (count > 0) {
-              selectionPanel.setVisibility(View.VISIBLE);
+              showSelectionPanel();
               selectionCount.setText(getString(R.string.selected_items_count, count));
             } else if (count == 0 && !pendingClipboard.isEmpty()) {
               selectionCount.setText("0");
-              selectionPanel.setVisibility(View.VISIBLE);
+              showSelectionPanel();
             }
           }
 
@@ -725,7 +731,7 @@ public class FileManagerActivity extends BaseCompat
     bind.rvfiles.setAdapter(zipAdapter);
     zipAdapter.setupSelectionTracker(bind.rvfiles);
     zipAdapter.loadZip(zipFilePath, "");
-    bind.fab.setVisibility(View.GONE);
+    setFabVisible(false);
     bind.gitActionButton.setVisibility(View.GONE);
     // bind.navmodel.setVisibility(View.GONE);
   }
@@ -738,7 +744,7 @@ public class FileManagerActivity extends BaseCompat
     bind.rvfiles.setAdapter(adapter);
     adapter.setupSelectionTracker(bind.rvfiles);
     viewModel.loadFiles(viewModel.getCurrentPath().getValue());
-    bind.fab.setVisibility(View.VISIBLE);
+    setFabVisible(true);
     // bind.navmodel.setVisibility(View.VISIBLE);
     String currentPath = viewModel.getCurrentPath().getValue();
     if (currentPath != null) {
@@ -761,7 +767,7 @@ public class FileManagerActivity extends BaseCompat
                         Toast.makeText(
                                 FileManagerActivity.this, "File Has Encrypted", Toast.LENGTH_LONG)
                             .show();
-                      } else setupClick(outFile.getAbsolutePath(), entry.getName());
+                      } else setupClick(outFile.getAbsolutePath(), entry.getName(), null);
                     });
               } catch (Exception e) {
                 runOnUiThread(
@@ -814,13 +820,22 @@ public class FileManagerActivity extends BaseCompat
   }
 
   public void setupClick(String path, String name) {
+    setupClick(path, name, null);
+  }
+
+  public void setupClick(String path, String name, View sourceItemView) {
     int lastDot = name.lastIndexOf(".");
     String extension = (lastDot > 0) ? name.substring(lastDot).toLowerCase() : "";
     if (itemname.contains(extension)) {
       Intent intent = new Intent(FileManagerActivity.this, EditorActivity.class);
       intent.putExtra("file_path", path);
       intent.putExtra("file_name", name);
-      startActivity(intent);
+      View sharedView = sourceItemView;
+      if (sharedView != null) {
+        sharedView = sourceItemView.findViewById(R.id.listcard);
+        if (sharedView == null) sharedView = sourceItemView;
+      }
+      startActivityWithSharedElement(intent, sharedView, ObjectUtil.TRANSITION_EDITOR);
     } else if (path.endsWith(".gth")) {
       var sheets = new CustomItemSheet(FileManagerActivity.this);
       sheets.add(getString(R.string.theme_edit), R.drawable.ic_edit);
@@ -832,7 +847,12 @@ public class FileManagerActivity extends BaseCompat
                 sheets.dismiss();
                 Intent i = new Intent(FileManagerActivity.this, ThemeEditorActivity.class);
                 i.putExtra(ThemeEditorActivity.EXTRA_THEME_PATH, path);
-                startActivity(i);
+                View sharedView = sourceItemView;
+                if (sharedView != null) {
+                  sharedView = sourceItemView.findViewById(R.id.listcard);
+                  if (sharedView == null) sharedView = sourceItemView;
+                }
+                startActivityWithSharedElement(i, sharedView, ObjectUtil.TRANSITION_THEME);
               }
               case 1 -> {
                 appsetting.setAppThemeFile(path);
@@ -866,7 +886,12 @@ public class FileManagerActivity extends BaseCompat
         Intent setImage = new Intent(FileManagerActivity.this, ImageViewerActivity.class);
         setImage.putStringArrayListExtra(ImageViewerActivity.EXTRA_IMAGE_URIS, imagePaths);
         setImage.putExtra(ImageViewerActivity.EXTRA_CURRENT_INDEX, currentIndex);
-        startActivity(setImage);
+        View sharedView = sourceItemView;
+        if (sharedView != null) {
+          sharedView = sourceItemView.findViewById(R.id.ivIcon);
+          if (sharedView == null) sharedView = sourceItemView;
+        }
+        startActivityWithSharedElement(setImage, sharedView, ObjectUtil.TRANSITION_IMAGE);
       } else {
         Toast.makeText(this, "No image found", Toast.LENGTH_SHORT).show();
       }
@@ -983,6 +1008,67 @@ public class FileManagerActivity extends BaseCompat
         });
   }
 
+  private void showSelectionPanel() {
+    if (selectionPanel == null) return;
+    selectionPanel.setAlpha(0f);
+    selectionPanel.setTranslationY(selectionPanel.getHeight() + dp(48));
+    selectionPanel.setVisibility(View.VISIBLE);
+    selectionPanel
+        .animate()
+        .alpha(1f)
+        .translationY(0f)
+        .setDuration(220)
+        .setInterpolator(new DecelerateInterpolator(1.5f))
+        .start();
+  }
+
+  private void hideSelectionPanel() {
+    if (selectionPanel == null) return;
+    View panel = selectionPanel;
+    panel
+        .animate()
+        .alpha(0f)
+        .translationY(panel.getHeight() + dp(48))
+        .setDuration(160)
+        .setInterpolator(new DecelerateInterpolator(1.5f))
+        .withEndAction(() -> panel.setVisibility(View.GONE))
+        .start();
+  }
+
+  private int dp(float value) {
+    return (int) (value * getResources().getDisplayMetrics().density);
+  }
+
+  private void setFabVisible(boolean visible) {
+    if (bind.fab == null) return;
+    if (visible) {
+      if (bind.fab.getVisibility() == View.VISIBLE) return;
+      bind.fab.setScaleX(0.8f);
+      bind.fab.setScaleY(0.8f);
+      bind.fab.setAlpha(0f);
+      bind.fab.setVisibility(View.VISIBLE);
+      bind.fab
+          .animate()
+          .alpha(1f)
+          .scaleX(1f)
+          .scaleY(1f)
+          .setDuration(200)
+          .setInterpolator(new DecelerateInterpolator(1.5f))
+          .start();
+    } else {
+      if (bind.fab.getVisibility() != View.VISIBLE) return;
+      bind.fab
+          .animate()
+          .alpha(0f)
+          .scaleX(0.8f)
+          .scaleY(0.8f)
+          .setDuration(160)
+          .setInterpolator(new DecelerateInterpolator(1.5f))
+          .withEndAction(() -> bind.fab.setVisibility(View.GONE))
+          .start();
+    }
+  }
+
   private void setupSelectionPanel() {
     selectionPanelBinding = bind.selectionPanel;
     selectionPanel = selectionPanelBinding.getRoot();
@@ -1006,7 +1092,7 @@ public class FileManagerActivity extends BaseCompat
               zipAdapter.clearSelection();
               btnPaste.setColorFilter(0xff00ff00);
               selectionCount.setText("0");
-              selectionPanel.setVisibility(View.VISIBLE);
+              showSelectionPanel();
             }
             return;
           }
@@ -1016,7 +1102,7 @@ public class FileManagerActivity extends BaseCompat
             isCutOperation = false;
             adapter.clearSelection();
             btnPaste.setColorFilter(0xff00ff00);
-            selectionPanel.setVisibility(View.VISIBLE);
+            showSelectionPanel();
             selectionCount.setText("0");
           }
         });
@@ -1032,7 +1118,7 @@ public class FileManagerActivity extends BaseCompat
               zipAdapter.clearSelection();
               btnPaste.setColorFilter(0xff00ff00);
               selectionCount.setText("0");
-              selectionPanel.setVisibility(View.VISIBLE);
+              showSelectionPanel();
             }
             return;
           }
@@ -1042,7 +1128,7 @@ public class FileManagerActivity extends BaseCompat
             isCutOperation = true;
             adapter.clearSelection();
             btnPaste.setColorFilter(0xff00ff00);
-            selectionPanel.setVisibility(View.VISIBLE);
+            showSelectionPanel();
             selectionCount.setText("0");
           }
         });
@@ -1180,7 +1266,7 @@ public class FileManagerActivity extends BaseCompat
                   pendingClipboard.clear();
                   btnPaste.clearColorFilter();
                   adapter.clearSelection();
-                  selectionPanel.setVisibility(View.GONE);
+                  hideSelectionPanel();
                   adapter.notifyDataSetChanged();
                   if (!success) Toast.makeText(this, "Paste failed", Toast.LENGTH_SHORT).show();
                 });
@@ -1197,7 +1283,7 @@ public class FileManagerActivity extends BaseCompat
           selectionCount.setText(
               getString(R.string.selected_items_count, adapter.getSelectedItems().size()));
           if (selectionPanel.getVisibility() != View.VISIBLE) {
-            selectionPanel.setVisibility(View.VISIBLE);
+            showSelectionPanel();
           }
         });
 
@@ -1208,7 +1294,7 @@ public class FileManagerActivity extends BaseCompat
           zipAdapter.clearSelection();
           resetZipClipboard();
           btnPaste.clearColorFilter();
-          selectionPanel.setVisibility(View.GONE);
+          hideSelectionPanel();
         });
     selectionMore.setOnClickListener(
         v -> {
@@ -1636,13 +1722,14 @@ public class FileManagerActivity extends BaseCompat
     super.onResume();
     setupHeader();
     if (appsetting.isShowBackground()) {
+      bind.headtop.setBackgroundColor(0);
       setupBackgroundBlur(bind.backgroundiconfilemanager, bind.headtop, bind.headline);
     } else {
       bind.headtop.setBackgroundColor(
           MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
-          bind.headline.setBackground(ShapeUtil.shape(40f, this));
+      bind.headline.setBackground(ShapeUtil.shape(40f, this));
     }
-    
+
     boolean currentGrid = appsetting.getGridMod();
     int currentSpan = appsetting.getGridSpanCount();
     boolean spanChanged =
@@ -1660,7 +1747,7 @@ public class FileManagerActivity extends BaseCompat
       adapter.setupSelectionTracker(bind.rvfiles);
 
       adapter.setOnItemClickListener(
-          (item, pos) -> {
+          (item, pos, f) -> {
             historyViewModel.addToHistory(item.getPath(), item.getName(), item.isDirectory());
             if (item.isDirectory()) {
               pendingAnimation = true;
@@ -1687,13 +1774,13 @@ public class FileManagerActivity extends BaseCompat
             @Override
             public void onSelectionChanged(int count) {
               if (count == 0 && pendingClipboard.isEmpty() && zipClipboard.isEmpty()) {
-                if (selectionPanel != null) selectionPanel.setVisibility(View.GONE);
+                hideSelectionPanel();
               } else if (count > 0) {
-                selectionPanel.setVisibility(View.VISIBLE);
+                showSelectionPanel();
                 selectionCount.setText(getString(R.string.selected_items_count, count));
               } else if (count == 0 && !pendingClipboard.isEmpty()) {
                 selectionCount.setText("0");
-                selectionPanel.setVisibility(View.VISIBLE);
+                showSelectionPanel();
               }
             }
 
@@ -1703,7 +1790,7 @@ public class FileManagerActivity extends BaseCompat
             @Override
             public void onSelectionModeEnded() {
               if (pendingClipboard.isEmpty() && selectionPanel != null) {
-                selectionPanel.setVisibility(View.GONE);
+                hideSelectionPanel();
               }
             }
           });
@@ -1750,10 +1837,10 @@ public class FileManagerActivity extends BaseCompat
             case 1 -> {
               if (!bind.ser.isShow()) {
                 bind.ser.show();
-                bind.fab.setVisibility(View.GONE);
+                setFabVisible(false);
               } else {
                 bind.ser.hide();
-                bind.fab.setVisibility(View.VISIBLE);
+                setFabVisible(true);
               }
             }
             case 2 -> {
@@ -1771,7 +1858,7 @@ public class FileManagerActivity extends BaseCompat
                       pendingAnimation = true;
                       viewModel.navigateTo(item.path);
                     } else {
-                      setupClick(item.path, item.name);
+                      setupClick(item.path, item.name, null);
                     }
                   });
               sheet.show(getSupportFragmentManager(), HistoryBottomSheet.TAG);
@@ -1784,7 +1871,7 @@ public class FileManagerActivity extends BaseCompat
                       pendingAnimation = true;
                       viewModel.navigateTo(item.path);
                     } else {
-                      setupClick(item.path, item.name);
+                      setupClick(item.path, item.name, null);
                     }
                   });
               bsheet.show(getSupportFragmentManager(), BookmarkBottomSheet.TAG);
@@ -1813,7 +1900,7 @@ public class FileManagerActivity extends BaseCompat
         new OnLineClickListener() {
           @Override
           public void onLineClick(String filePath, int lineNumber) {
-            setupClick(filePath, new File(filePath).getName());
+            setupClick(filePath, new File(filePath).getName(), null);
           }
 
           @Override
@@ -1821,7 +1908,7 @@ public class FileManagerActivity extends BaseCompat
             if (new File(result.getFilePath()).isDirectory()) {
               viewModel.navigateTo(result.getFilePath());
             } else {
-              setupClick(result.getFilePath(), result.getFileName());
+              setupClick(result.getFilePath(), result.getFileName(), null);
             }
           }
         });

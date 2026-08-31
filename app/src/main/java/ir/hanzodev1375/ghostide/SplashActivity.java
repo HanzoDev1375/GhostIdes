@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.activity.FileManagerActivity;
+import ir.hanzodev1375.ghostide.utils.ObjectUtil;
 import ir.hanzodev1375.ghostide.utils.PermissionUtils;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -51,7 +52,9 @@ public class SplashActivity extends BaseCompat {
   private void startFileManager() {
     if (started) return;
     started = true;
-    startActivity(new Intent(this, FileManagerActivity.class));
+    ImageView logo = findViewById(R.id.logo);
+    Intent intent = new Intent(this, FileManagerActivity.class);
+    startActivityWithSharedElement(intent, logo, ObjectUtil.TRANSITION_LOGO);
     finish();
   }
 

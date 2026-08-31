@@ -452,7 +452,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     for (int i = 0; i < tabsList.size(); i++) {
       if (tabsList.get(i).getFilePath().equals(filePath)) {
         final int pos = i;
-        binding.viewPager.setCurrentItem(pos, false);
+        switchToTab(pos);
         return;
       }
     }
@@ -543,7 +543,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     if (!file.exists()) return;
     for (int i = 0; i < tabsList.size(); i++) {
       if (tabsList.get(i).getFilePath().equals(filePath)) {
-        binding.viewPager.setCurrentItem(i);
+        switchToTab(i);
         return;
       }
     }
@@ -663,9 +663,9 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
               (view, m, pos) -> {
                 switch (pos) {
                   case 0 -> showGitBottomSheet();
-                  case 1 -> stepFileTree();
-                  case 2 -> stepSearch();
-                  case 3 -> toggleOrShowSplitPopup(view);
+                  case 1 -> toggleOrShowSplitPopup(view);
+                  case 2 -> stepFileTree();
+                  case 3 -> stepSearch();
                   case 4 -> {
                     if (getEditor().canUndo()) getEditor().undo();
                   }
@@ -678,9 +678,19 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
               },
               EditorActivity.this);
     }
+    if (binding.rvtoolbar.getVisibility() != View.VISIBLE) {
+      binding.rvtoolbar.setVisibility(View.VISIBLE);
+    }
     binding.rvtoolbar.setLayoutManager(
         new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
     binding.rvtoolbar.setAdapter(listAdapter);
+    if (listAdapter != null) listAdapter.notifyDataSetChanged();
+    // بعد از اینکه لِی‌اوت کامل شد یکبار رفرش می‌کنیم تا آیتم‌ها حتماً render بشن
+    binding.rvtoolbar.post(
+        () -> {
+          if (listAdapter != null) listAdapter.notifyDataSetChanged();
+          binding.rvtoolbar.requestLayout();
+        });
   }
 
   private void openPluginPanelAt(int pos) {
@@ -1089,6 +1099,9 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     adapter = new EditorPagerAdapter(this, new ArrayList<>());
     binding.viewPager.setAdapter(adapter);
     binding.viewPager.setUserInputEnabled(false);
+    // محدودیت آفلاین صفحات را حذف می‌کنیم تا همه‌ی تب‌ها / ادیتورها همیشه live بمونن و هنگام
+    // جابه‌جایی بین تب‌ها محتوا درست و به‌موقع رندر بشه (باگِ نمایش/آپدیت تب)
+    binding.viewPager.setOffscreenPageLimit(RecyclerView.NO_POSITION);
   }
 
   private void setupTabLayout() {
@@ -1163,7 +1176,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
       savedPosition = 0;
     }
     if (!tabsList.isEmpty() && savedPosition >= 0 && savedPosition < tabsList.size()) {
-      binding.viewPager.setCurrentItem(savedPosition, false);
+      switchToTab(savedPosition);
       binding.tab.setScrollPosition(savedPosition, 0f, true);
     }
     binding.splitPaneRoot.initialize(this, paneActionListener);
@@ -1175,6 +1188,23 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     prefs.edit().putString(KEY_POSITION, String.valueOf(position)).apply();
   }
 
+  /** جابه‌جایی بین تب‌ها رو روی صف اصلی ترتیب می‌ده تا ViewPager2 اول لیست جدید رو apply کنه و
+   * بعد صفحه‌ی دلخواه رو نشون بده؛ مانع از رندرِ خالی / آپدیتِ غلطِ تب موقع بازکردن یا بستن سریع تب می‌شه. */
+  private void switchToTab(int position) {
+    if (adapter == null || adapter.getItemCount() == 0) return;
+    int safe = Math.max(0, Math.min(position, adapter.getItemCount() - 1));
+    binding.viewPager.post(
+        () -> {
+          if (adapter == null || adapter.getItemCount() == 0) return;
+          int s = Math.max(0, Math.min(safe, adapter.getItemCount() - 1));
+          binding.viewPager.setCurrentItem(s, false);
+          saveCurrentPosition(s);
+          updateLanguageStatus(s);
+          TabLayout.Tab layoutTab = binding.tab.getTabAt(s);
+          if (layoutTab != null && !layoutTab.isSelected()) layoutTab.select();
+        });
+  }
+
   private void saveTabs() {
     String json = gson.toJson(tabsList);
     prefs.edit().putString(KEY_TABS, json).apply();
@@ -1183,7 +1213,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
   private void openFile(String path, String name) {
     for (int i = 0; i < tabsList.size(); i++) {
       if (tabsList.get(i).getFilePath().equals(path)) {
-        binding.viewPager.setCurrentItem(i);
+        switchToTab(i);
         return;
       }
     }
@@ -1192,7 +1222,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     if (binding.splitPaneRoot != null) binding.splitPaneRoot.notifyTabsChanged(tabsList);
     saveTabs();
     int newPos = tabsList.size() - 1;
-    binding.viewPager.setCurrentItem(newPos);
+    switchToTab(newPos);
     saveCurrentPosition(newPos);
     updateLanguageStatus(newPos);
     String ext = "";
@@ -1321,8 +1351,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
         return;
       }
       int newPos = Math.min(position, tabsList.size() - 1);
-      binding.viewPager.setCurrentItem(newPos);
-      saveCurrentPosition(newPos);
+      switchToTab(newPos);
     }
   }
 
@@ -1340,8 +1369,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
 
     if (binding.splitPaneRoot != null) binding.splitPaneRoot.notifyTabsChanged(tabsList);
     saveTabs();
-    binding.viewPager.setCurrentItem(0);
-    saveCurrentPosition(0);
+    switchToTab(0);
   }
 
   private void closeAllTabs() {
@@ -1356,8 +1384,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     saveTabs();
     if (tabsList.isEmpty()) finish();
     else {
-      binding.viewPager.setCurrentItem(0);
-      saveCurrentPosition(0);
+      switchToTab(0);
     }
   }
 

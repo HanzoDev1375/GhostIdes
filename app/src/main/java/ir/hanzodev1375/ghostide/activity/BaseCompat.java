@@ -48,6 +48,13 @@ public class BaseCompat extends AppCompatActivity
     getWindow().setNavigationBarColor(Color.TRANSPARENT);
     getWindow().setStatusBarColor(Color.TRANSPARENT);
     animMgr = AnimationManager.getInstance(this);
+    if (animMgr.areAnimationsEnabled()) {
+      MaterialSharedAxis enter = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
+      enter.setDuration(350);
+      getWindow().setEnterTransition(enter);
+    } else {
+      getWindow().setEnterTransition(null);
+    }
   }
 
   @Override
@@ -136,11 +143,11 @@ public class BaseCompat extends AppCompatActivity
     if (animMgr.areAnimationsEnabled()) {
       ActivityOptions op = ActivityOptions.makeSceneTransitionAnimation(this);
       MaterialSharedAxis enter = new MaterialSharedAxis(MaterialSharedAxis.Z, true);
-      enter.setDuration(1000);
+      enter.setDuration(350);
       MaterialSharedAxis exit = new MaterialSharedAxis(MaterialSharedAxis.Z, false);
-      exit.setDuration(1000);
+      exit.setDuration(350);
       MaterialSharedAxis reenter = new MaterialSharedAxis(MaterialSharedAxis.Y, true);
-      reenter.setDuration(1000);
+      reenter.setDuration(350);
       getWindow().setExitTransition(exit);
       getWindow().setEnterTransition(enter);
       getWindow().setReenterTransition(reenter);
@@ -156,5 +163,29 @@ public class BaseCompat extends AppCompatActivity
   @NonNull
   public AnimationManager getAnimationManager() {
     return animMgr;
+  }
+
+  /**
+   * شروع یک اکتیویتی با Shared Element Transition. هر دو ویو (مبدا و مقصد) باید transitionName
+   * یکسان داشته باشند.
+   */
+  protected void startActivityWithSharedElement(
+      Intent intent, View sharedView, String transitionName) {
+    if (sharedView == null || transitionName == null) {
+      startActivity(intent);
+      return;
+    }
+    sharedView.setTransitionName(transitionName);
+    if (animMgr.areAnimationsEnabled()) {
+      ActivityOptions op =
+          ActivityOptions.makeSceneTransitionAnimation(this, sharedView, transitionName);
+      MaterialSharedAxis exit = new MaterialSharedAxis(MaterialSharedAxis.Z, false);
+      exit.setDuration(350);
+      getWindow().setExitTransition(exit);
+      super.startActivity(intent, op.toBundle());
+    } else {
+      getWindow().setExitTransition(null);
+      super.startActivity(intent);
+    }
   }
 }

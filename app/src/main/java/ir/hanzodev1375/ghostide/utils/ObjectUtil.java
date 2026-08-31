@@ -26,6 +26,13 @@ import ir.theme.ThemeUtils;
 import java.util.List;
 
 public class ObjectUtil {
+
+  public static final String TRANSITION_EDITOR = "ghost_transition_editor";
+  public static final String TRANSITION_IMAGE = "ghost_transition_image";
+  public static final String TRANSITION_AI_CHAT = "ghost_transition_ai_chat";
+  public static final String TRANSITION_THEME = "ghost_transition_theme";
+  public static final String TRANSITION_LOGO = "ghost_transition_logo";
+
   public static void showFixPos(PowerMenu menu, View view) {
     int[] location = new int[2];
     view.getLocationOnScreen(location);

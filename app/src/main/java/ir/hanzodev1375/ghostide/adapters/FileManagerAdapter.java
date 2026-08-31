@@ -54,9 +54,6 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
   private List<FileManagerModel> items = new ArrayList<>();
   private List<FileManagerModel> itemsFull = new ArrayList<>();
   private String searchQuery = "";
-  // متن پیدا شده با یه پس‌زمینه‌ی روشن + متن تیره هایلایت میشه (مثل یه ماژیک هایلایتر)؛
-  // این‌جوری چه تم روشن چه تیره باشه، همیشه قابل‌خوندنه (به جای یه رنگ ثابت که فقط روی
-  // بک‌گراند‌های خاص دیده میشه).
   private static final int HIGHLIGHT_TEXT_COLOR = Color.BLACK;
   private static final int HIGHLIGHT_BACKGROUND_COLOR = Color.parseColor("#FFE0B2");
   private Context context;
@@ -69,10 +66,6 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
   private final Map<Long, Integer> idToPosition = new HashMap<>();
   private PreferencesUtils setting;
   private boolean isGrid = false;
-
-  // انیمیشن ورود ردیف‌ها: فقط توی "برست" اول بایند (لود یه لیست جدید) فعاله؛ به محض
-  // اینکه ۵۰۰ms بایندی اتفاق نیفته خودش خاموش میشه، و به محض اینکه کاربر شروع به درگ/اسکرول
-  // کنه فوراً (بدون تاخیر) قطع میشه؛ پس در حین اسکرول هیچ‌وقت پخش/ری‌پلی نمیشه.
   private boolean isAnimating = false;
   private int animationStartOffset = 0;
   private final Handler stopAnimationHandler = new Handler(Looper.getMainLooper());
@@ -91,7 +84,7 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
       };
 
   public interface OnItemClickListener {
-    void onItemClick(FileManagerModel item, int position);
+    void onItemClick(FileManagerModel item, View view, int position);
   }
 
   public interface OnMoreClickListener {
@@ -510,7 +503,7 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
               }
             } else {
               if (itemClickListener != null) {
-                itemClickListener.onItemClick(items.get(pos), pos);
+                itemClickListener.onItemClick(items.get(pos), itemView, pos);
               }
             }
           });

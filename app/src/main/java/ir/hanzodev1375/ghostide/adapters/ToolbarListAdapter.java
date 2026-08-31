@@ -1,6 +1,7 @@
 package ir.hanzodev1375.ghostide.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,10 +9,9 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.color.MaterialColors;
 import ir.hanzodev1375.ghostide.interfaces.OnItemClickListener;
 import ir.hanzodev1375.ghostide.models.ToolbarModel;
-import ir.theme.ThemeManager;
-import ir.theme.ThemeUtils;
 import java.util.List;
 
 public class ToolbarListAdapter extends RecyclerView.Adapter<ToolbarListAdapter.VH> {
@@ -37,11 +37,12 @@ public class ToolbarListAdapter extends RecyclerView.Adapter<ToolbarListAdapter.
     int marginInPx = (int) (3 * density + 0.5f);
     RecyclerView.LayoutParams lp =
         new RecyclerView.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
     lp.setMargins(marginInPx, 0, marginInPx, 0);
     imageView.setLayoutParams(lp);
 
     imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+    imageView.setPadding((int) (2 * density + 0.5f), 0, (int) (2 * density + 0.5f), 0);
     return new VH(imageView);
   }
 
@@ -65,9 +66,12 @@ public class ToolbarListAdapter extends RecyclerView.Adapter<ToolbarListAdapter.
     }
 
     public void bind(ToolbarModel model, OnItemClickListener<ToolbarModel> clickListener) {
-      ThemeManager manager = new ThemeManager(context);
-      ThemeUtils theme = new ThemeUtils(manager);
-      theme.applyImageView(icon);
+      int tint =
+          MaterialColors.getColor(
+              context,
+              com.google.android.material.R.attr.colorOnSurface,
+              Color.parseColor("#8A000000"));
+      icon.setColorFilter(tint);
       icon.setImageResource(model.getIcon());
       icon.setOnClickListener(
           v -> {
