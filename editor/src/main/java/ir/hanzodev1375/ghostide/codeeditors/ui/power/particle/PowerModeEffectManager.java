@@ -306,8 +306,16 @@ public class PowerModeEffectManager {
     int line = cursor.getLeftLine();
     int column = cursor.getLeftColumn();
 
-    float x = editor.getCharOffsetX(line, column);
-    float y = editor.getCharOffsetY(line, column) - editor.getRowHeight() * 0.5f;
+    // Store particles in document-absolute coordinates so they stay glued to the text
+    // regardless of the current scroll offset. getCharOffsetX/Y are already viewport
+    // relative (they subtract the scroll offset), so we add the offset back to get the
+    // absolute position; drawEffects() subtracts it again because the canvas is in
+    // viewport space. Custom effects, however, track screen-space positions internally
+    // (and are shifted on scroll), so they keep the raw viewport coordinates.
+    float screenX = editor.getCharOffsetX(line, column);
+    float screenY = editor.getCharOffsetY(line, column) - editor.getRowHeight() * 0.5f;
+    float x = screenX + editor.getOffsetX();
+    float y = screenY + editor.getOffsetY();
 
     switch (currentEffect) {
       case PARTICLE:
@@ -358,7 +366,7 @@ public class PowerModeEffectManager {
           List<CustomEffect> effects = customEffectManager.getAllEffects();
           if (!effects.isEmpty()) {
             for (CustomEffect effect : effects) {
-              customEffectManager.spawnEffect(effect.getName(), x, y, effectIntensity);
+              customEffectManager.spawnEffect(effect.getName(), screenX, screenY, effectIntensity);
             }
           }
         }
@@ -380,6 +388,15 @@ public class PowerModeEffectManager {
     lastUpdateTime = currentTime;
 
     customEffectManager.drawEffects(canvas);
+
+    // Particles are stored in document-absolute coordinates; translate the canvas to
+    // viewport space (current scroll offset) so they line up with the text and cursor.
+    float ox = -editor.getOffsetX();
+    float oy = -editor.getOffsetY();
+    if (ox != 0f || oy != 0f) {
+      canvas.save();
+      canvas.translate(ox, oy);
+    }
     Iterator<Particle> iterator = particles.iterator();
     while (iterator.hasNext()) {
       Particle p = iterator.next();
@@ -390,6 +407,9 @@ public class PowerModeEffectManager {
         p.draw(canvas, particlePaint);
       }
     }
+    if (ox != 0f || oy != 0f) {
+      canvas.restore();
+    }
 
     if (!particles.isEmpty() || customEffectManager.hasActiveEffects()) {
       editor.postInvalidate();
@@ -397,33 +417,24 @@ public class PowerModeEffectManager {
   }
 
   /**
-   * Re-anchors every live particle to the text when the editor scrolls. Particle
-   * x/y are captured in screen space at spawn time (see spawnEffectAtCursor), so
-   * once the editor scrolls — auto-scrolling to keep the cursor visible, a user
-   * drag/fling, text selection, or pinch-zoom — those stored positions go stale
-   * and the effect drifts away from the cursor.
-   * <p>
-   * Call this directly from a ScrollEvent subscription, passing the event's own
-   * getStartX/Y() and getEndX/Y() through unchanged. Those two pairs already give
-   * the exact before/after offset for this scroll, so the shift here is exact —
-   * there's no need (and no safe way) to reconstruct it by polling
-   * editor.getOffsetX()/getOffsetY() on some other schedule, since it isn't
-   * guaranteed to reflect the post-scroll value at the moment the event fires.
+   * Called from a ScrollEvent subscription, passing the event's own start/end offsets.
+   *
+   * <p>The built-in {@link Particle} instances live in document-absolute coordinates and are
+   * offset to viewport space internally in {@link #drawEffects}, so they stay glued to the text and
+   * cursor automatically and must NOT be shifted here (that would double-apply the scroll). Only the
+   * custom effects (which track screen-space positions) need to be shifted.
    */
   public void onEditorScrolled(int startX, int startY, int endX, int endY) {
     float scrollDx = startX - endX;
     float scrollDy = startY - endY;
-    if (scrollDx == 0f && scrollDy == 0f) return;
-
-    for (Particle p : particles) {
-      p.setX(p.getX() + scrollDx);
-      p.setY(p.getY() + scrollDy);
-    }
     customEffectManager.shiftActiveParticles(scrollDx, scrollDy);
   }
 
   public void clearEffects() {
     particles.clear();
+    if (customEffectManager != null) {
+      customEffectManager.clearEffects();
+    }
   }
 
   private void spawnParticles(float x, float y) {
@@ -581,7 +592,7 @@ public class PowerModeEffectManager {
       particles.add(new RainParticle(x, y, dx, dy, color, length, thickness));
     }
 
-    spawnRainSplash(x, editor.getHeight());
+    spawnRainSplash(x, editor.getHeight() + editor.getOffsetY());
   }
 
   private void spawnRainSplash(float x, float groundLevel) {

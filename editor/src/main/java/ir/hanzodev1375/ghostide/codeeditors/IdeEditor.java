@@ -13,6 +13,7 @@ import ir.hanzodev1375.ghostide.codeeditors.ui.CustomEditorTextActionWindow;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.event.ScrollEvent;
 import io.github.rosemoe.sora.graphics.inlayHint.GhostTextInlayHintRenderer;
+import io.github.rosemoe.sora.lang.Language;
 import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintsContainer;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import io.github.rosemoe.sora.lsp.editor.LspEditorStatus;
@@ -24,6 +25,8 @@ import ir.hanzodev1375.ghostide.codeeditors.colorrender.WebColorIde;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.LspRouter;
 import ir.hanzodev1375.ghostide.codeeditors.preview.ImagePreviewIde;
 import ir.hanzodev1375.ghostide.codeeditors.preview.url.OnLinkClickEventListener;
+import ir.hanzodev1375.ghostide.codeeditors.dependencychecker.GradleDependencyCheckerIde;
+import ir.hanzodev1375.ghostide.codeeditors.dependencychecker.TomlDependencyCheckerIde;
 import ir.hanzodev1375.ghostide.codeeditors.preview.url.UrlPreviewIde;
 import ir.hanzodev1375.ghostide.codeeditors.preview.xmlattr.XmlAttrPreviewIde;
 import ir.hanzodev1375.ghostide.codeeditors.setting.Constants;
@@ -51,6 +54,8 @@ public class IdeEditor extends CodeEditor
   private UrlPreviewIde urlPreviewIde;
   private StringResourceExtractorIde stringresourceextractoride;
   private XmlAttrPreviewIde xmlAttrPreviewIde;
+  private GradleDependencyCheckerIde gradleDependencyCheckerIde;
+  private TomlDependencyCheckerIde tomlDependencyCheckerIde;
   private String currentFilePath;
   private volatile LspEditor lspEditor;
   @Nullable private GhostLspStatusListener lspStatusListener;
@@ -82,6 +87,10 @@ public class IdeEditor extends CodeEditor
     stringresourceextractoride.attach();
     xmlAttrPreviewIde = new XmlAttrPreviewIde(this);
     xmlAttrPreviewIde.attach();
+    gradleDependencyCheckerIde = new GradleDependencyCheckerIde(this);
+    gradleDependencyCheckerIde.attach();
+    tomlDependencyCheckerIde = new TomlDependencyCheckerIde(this);
+    tomlDependencyCheckerIde.attach();
 
     editorAutoCompletion.setAdapter(new CustomEditorCompletionAdapter());
     replaceComponent(EditorAutoCompletion.class, editorAutoCompletion);
@@ -135,6 +144,17 @@ public class IdeEditor extends CodeEditor
     setDisableSoftKbdIfHardKbdAvailable(true);
   }
 
+  @Override
+  public void setEditorLanguage(@Nullable Language lang) {
+    super.setEditorLanguage(lang);
+    if (gradleDependencyCheckerIde != null) {
+      gradleDependencyCheckerIde.refreshHighlights();
+    }
+    if (tomlDependencyCheckerIde != null) {
+      tomlDependencyCheckerIde.refreshHighlights();
+    }
+  }
+
   public void setOnLinkClick(OnLinkClickEventListener call) {
     urlPreviewIde.setEvent(call);
   }
@@ -153,6 +173,12 @@ public class IdeEditor extends CodeEditor
     }
     if (stringresourceextractoride != null) {
       stringresourceextractoride.setCurrentFilePath(htmlFilePath);
+    }
+    if (gradleDependencyCheckerIde != null) {
+      gradleDependencyCheckerIde.setFilePath(htmlFilePath);
+    }
+    if (tomlDependencyCheckerIde != null) {
+      tomlDependencyCheckerIde.setFilePath(htmlFilePath);
     }
   }
 

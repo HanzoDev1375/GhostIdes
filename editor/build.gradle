@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.jsoup)
     implementation(libs.eventbus)
     implementation(libs.powermenu) //for Animator
+    implementation(libs.okhttp)
     implementation(libs.markwon.core)
     implementation(libs.markwon.ext.strikethrough)
     implementation(libs.markwon.linkify)

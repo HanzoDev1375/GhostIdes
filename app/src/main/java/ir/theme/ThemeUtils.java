@@ -355,6 +355,8 @@ public class ThemeUtils {
     scheme.setColor(GhostColorScheme.BRACKET4, parseColor(t.getBracketlevelmatch4()));
     scheme.setColor(GhostColorScheme.BRACKET5, parseColor(t.getBracketlevelmatch5()));
     scheme.setColor(GhostColorScheme.BRACKET6, parseColor(t.getBracketlevelmatch6()));
+    scheme.setColor(GhostColorScheme.DEPENDENCY_UPDATE_AVAILABLE, parseColor("#FFC107"));
+    scheme.setColor(GhostColorScheme.DEPENDENCY_UPDATE_AVAILABLE_BG, parseColor("#33FFC107"));
   }
 
   public void applyTextView(TextView textView) {

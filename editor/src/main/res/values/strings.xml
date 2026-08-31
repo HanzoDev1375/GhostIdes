@@ -128,4 +128,10 @@
     name="lsp_cancel">Cancel</string>
   <string
     name="lsp_translate_error_prefix">Error:</string>
+  <string name="dependency_checking">Checking for a newer version…</string>
+  <string name="dependency_check_failed">Couldn\'t find a newer version</string>
+  <string name="dependency_current_version">\uD83D\uDD17 Current version: %s</string>
+  <string name="dependency_new_version">\u2B06 New version: %s</string>
+  <string name="dependency_update">Update</string>
+  <string name="dependency_up_to_date">Up to date \u2714</string>
 </resources>

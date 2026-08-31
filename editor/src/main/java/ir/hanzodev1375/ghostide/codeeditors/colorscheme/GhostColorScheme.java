@@ -16,6 +16,8 @@ public class GhostColorScheme extends EditorColorScheme {
   public static final int BRACKET4 = ++endColor;
   public static final int BRACKET5 = ++endColor;
   public static final int BRACKET6 = ++endColor;
+  public static final int DEPENDENCY_UPDATE_AVAILABLE = ++endColor;
+  public static final int DEPENDENCY_UPDATE_AVAILABLE_BG = ++endColor;
 
   @Override
   public void applyDefault() {
@@ -32,6 +34,8 @@ public class GhostColorScheme extends EditorColorScheme {
     setColor(BRACKET4, Color.parseColor("#FF6200"));
     setColor(BRACKET5, Color.parseColor("#FF64F5"));
     setColor(BRACKET6, Color.parseColor("#64FFD0"));
+    setColor(DEPENDENCY_UPDATE_AVAILABLE, Color.parseColor("#FFC107"));
+    setColor(DEPENDENCY_UPDATE_AVAILABLE_BG, Color.parseColor("#33FFC107"));
   }
 
   @Override
