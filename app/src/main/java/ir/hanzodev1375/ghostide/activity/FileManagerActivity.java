@@ -243,7 +243,7 @@ public class FileManagerActivity extends BaseCompat
     if (appsetting.isShowBackground()) {
       bind.headtop.setBackgroundColor(0);
       bind.headline.setBackgroundColor(0);
-      setupBackgroundBlur(bind.backgroundiconfilemanager,bind.getRoot());
+      setupBackgroundBlur(bind.backgroundiconfilemanager,bind.backgroundiconfilemanager);
     } else {
       bind.headtop.setBackgroundColor(
           MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
@@ -1727,7 +1727,7 @@ public class FileManagerActivity extends BaseCompat
     if (appsetting.isShowBackground()) {
       bind.headtop.setBackgroundColor(0);
       bind.headline.setBackgroundColor(0);
-      setupBackgroundBlur(bind.backgroundiconfilemanager,bind.getRoot());
+      setupBackgroundBlur(bind.backgroundiconfilemanager,bind.backgroundiconfilemanager);
     } else {
       bind.headtop.setBackgroundColor(
           MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));

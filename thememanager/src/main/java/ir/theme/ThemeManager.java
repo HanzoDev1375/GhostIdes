@@ -2,14 +2,14 @@ package ir.theme;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import com.blankj.utilcode.util.FileIOUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
-import ir.hanzodev1375.ghostide.utils.ConstKeys;
-import ir.hanzodev1375.ghostide.utils.FileUtil;
+import ir.theme.internal.ThemeConstKeys;
+import ir.theme.internal.ThemePrefsHelper;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 
@@ -18,35 +18,32 @@ public class ThemeManager {
   private final SharedPreferences preferences;
   private final Gson gson;
   private final Context context;
+  private final ThemePrefsHelper prefsHelper;
 
-  // Single-entry cache for the merged theme JSON. Keyed by the source identity
-  // (file path + timestamp + size, or prefs content hash) so any edit to the
-  // theme file invalidates it automatically. Prevents re-reading the file and
-  // re-parsing JSON (3 parses per call before) on every activity create/resume.
   private static final Object CACHE_LOCK = new Object();
   private static String cacheKey;
   private static String cachedMergedJson;
 
   public ThemeManager(Context context) {
     this.context = context;
-    this.preferences = context.getSharedPreferences(ConstKeys.PREFS_NAME, Context.MODE_PRIVATE);
+    this.preferences =
+        context.getSharedPreferences(ThemeConstKeys.PREFS_NAME, Context.MODE_PRIVATE);
     this.gson = new Gson();
+    this.prefsHelper = new ThemePrefsHelper(context);
   }
 
-  /** Returns the absolute path of the currently active theme file, or null/empty when none. */
   public String getThemeFilePath() {
-    return new PreferencesUtils(context).getAppThemeFile();
+    return prefsHelper.getAppThemeFile();
   }
 
   public void saveTheme(GhostTheme theme) {
     String json = gson.toJson(theme);
-    preferences.edit().putString(ConstKeys.THEME, json).apply();
+    prefsHelper.putThemeJson(json);
     invalidateCache();
   }
 
   public GhostTheme getTheme() {
-    PreferencesUtils prefsUtils = new PreferencesUtils(context);
-    String themeFile = prefsUtils.getAppThemeFile();
+    String themeFile = prefsHelper.getAppThemeFile();
 
     if (!TextUtils.isEmpty(themeFile)) {
       File file = new File(themeFile);
@@ -56,7 +53,10 @@ public class ThemeManager {
           String merged = peekCache(key);
           if (merged == null) {
             merged =
-                mergeWithDefault(new String(FileUtil.readBytesCompat(file), StandardCharsets.UTF_8));
+                mergeWithDefault(
+                    new String(
+                        ir.theme.internal.ThemeFileUtil.readBytesCompat(file),
+                        StandardCharsets.UTF_8));
             putCache(key, merged);
           }
           GhostTheme theme = gson.fromJson(merged, GhostTheme.class);
@@ -66,10 +66,10 @@ public class ThemeManager {
         } catch (Exception ignored) {
         }
       }
-      prefsUtils.setAppThemeFile("");
+      prefsHelper.setAppThemeFile("");
     }
 
-    String json = preferences.getString(ConstKeys.THEME, null);
+    String json = prefsHelper.getThemeJson();
     if (json == null || json.isEmpty()) {
       json = getDefaultThemeJson();
     }
@@ -113,10 +113,9 @@ public class ThemeManager {
 
   public void setThemeFromFile(String filePath) {
     invalidateCache();
-    PreferencesUtils prefsUtils = new PreferencesUtils(context);
     if (filePath == null || filePath.trim().isEmpty()) {
-      prefsUtils.setAppThemeFile("");
-      preferences.edit().putString(ConstKeys.THEME, getDefaultThemeJson()).apply();
+      prefsHelper.setAppThemeFile("");
+      prefsHelper.putThemeJson(getDefaultThemeJson());
       return;
     }
 
@@ -127,15 +126,15 @@ public class ThemeManager {
         String merged = mergeWithDefault(json);
         GhostTheme theme = gson.fromJson(merged, GhostTheme.class);
         if (theme != null) {
-          prefsUtils.setAppThemeFile(filePath);
-          preferences.edit().putString(ConstKeys.THEME, merged).apply();
+          prefsHelper.setAppThemeFile(filePath);
+          prefsHelper.putThemeJson(merged);
           return;
         }
       } catch (Exception ignored) {
       }
     }
-    prefsUtils.setAppThemeFile("");
-    preferences.edit().putString(ConstKeys.THEME, getDefaultThemeJson()).apply();
+    prefsHelper.setAppThemeFile("");
+    prefsHelper.putThemeJson(getDefaultThemeJson());
   }
 
   private String mergeWithDefault(String loadedJson) {
@@ -281,7 +280,7 @@ public class ThemeManager {
 
   public void resetToDefault() {
     invalidateCache();
-    preferences.edit().remove(ConstKeys.THEME).apply();
-    new PreferencesUtils(context).setAppThemeFile("");
+    prefsHelper.removeThemeJson();
+    prefsHelper.setAppThemeFile("");
   }
 }

@@ -4,9 +4,7 @@ plugins {
 
 android {
     namespace 'ir.theme'
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk 36
 
     defaultConfig {
         minSdk 21
@@ -25,6 +23,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.gson)
     implementation(libs.glide)
-    implementation project(":editor")
-    
+    implementation(libs.utilcode)
+    api(libs.other.sora.editor.code)
 }
