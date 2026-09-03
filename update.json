@@ -1,7 +1,7 @@
 {
-  "title": "Ghost IDE 1.1.4",
-  "massges": "## Ghost Idea\r\n\r\n- Fixed reported bugs\r\n- The program worked well\r\n- Added Ghost Text (available in settings)\r\n- Support Android project (requires Gradle and Android SDK installation)\r\n- Fixed cpp compilation error\r\n- Added Lsp settings\r\n- Fixed sheet blur button size error\r\n- Added multiple program icons\r\n- Added plugins",
-  "version": "1.1.4",
-  "link": "https://github.com/HanzoDev1375/GhostIdes/releases/download/1.1.4/app-release.apk",
+  "title": "Ghost IDE 1.1.5beta1",
+  "massges": "## Ghostide\r\n\r\n\r\n- Fixed reported errors,\r\n- improved UI and LSPs\r\n- several other features introduced in the main version.",
+  "version": "1.1.5beta1",
+  "link": "https://github.com/HanzoDev1375/GhostIdes/releases/download/1.1.5beta1/app-release.apk",
   "appname": "Ghost IDE"
 }
