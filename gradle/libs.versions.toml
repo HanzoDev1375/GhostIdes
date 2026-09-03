@@ -40,7 +40,7 @@ junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 #glass
-glass = "v2.0.5"
+glass = "2.0.8"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

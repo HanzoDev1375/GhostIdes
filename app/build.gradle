@@ -22,18 +22,12 @@ android {
         minSdk 30
         targetSdk 36
         versionCode 5
-        versionName '1.1.4' 
+        versionName '1.1.5beta1' 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
     buildTypes {
-        /*
-        debug {
-            signingConfig signingConfigs.release
-            minifyEnabled false
-        }
-        */
-
+        
         release {
             signingConfig signingConfigs.release
             minifyEnabled false
@@ -62,9 +56,7 @@ android {
     }
 }
 
-// ==================== حل مشکل تکراری androidsvg ====================
 configurations.all {
-    // روش جایگزین: همه وابستگی‌های com.caverock را به یک نسخه خاص نگاشت کن
     resolutionStrategy {
         eachDependency { details ->
             if (details.requested.group == 'com.caverock') {

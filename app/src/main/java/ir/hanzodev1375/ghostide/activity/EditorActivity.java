@@ -99,6 +99,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+
 public class EditorActivity extends BaseCompat implements FileRenameNotifier.Listener {
 
   private ActivityEditorBinding binding;
@@ -127,12 +128,8 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
   private PreferencesUtils settings;
   private int lastSplitRows = 1, lastSplitCols = 2;
   private EditorPaneFragment activePane = null;
-
   private static final long LSP_STATUS_POLL_INTERVAL_MS = 1500;
-
-  /** تعداد خط و حجم فایل رو می‌خونه. برای فایل‌های خیلی بزرگ از شمردن خط صرف‌نظر می‌کنیم. */
   private static final long STATS_MAX_SCAN_BYTES = 8L * 1024 * 1024;
-
   private final Handler lspStatusHandler = new Handler(Looper.getMainLooper());
   private BreadcrumbAdapter breadcrumbAdapter;
   private Disposable editorHostRegistration;
@@ -218,7 +215,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     }
     pluginPanelHost = new PluginPanelHost(this, this::getCurrentFilePath);
     stepToolbar();
-    theme.applyTabLayout(binding.tab,getCurrentFilePath());
+    theme.applyTabLayout(binding.tab, getCurrentFilePath());
     setupKeyboardListener();
     GitHubClient gitHub = new GitHubClient(this);
     if (gitHub.isLoggedIn()) {
@@ -444,8 +441,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
       if (tabsList.get(i).getFilePath().equals(filePath)) {
         final int pos = i;
         switchToTab(pos);
-        binding.viewPager.post(
-            () -> jumpFragmentToLocation(pos, line, column));
+        binding.viewPager.post(() -> jumpFragmentToLocation(pos, line, column));
         return;
       }
     }
@@ -459,9 +455,8 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     if (adapter == null || position < 0 || position >= tabsList.size()) return;
     Fragment fragment = adapter.getFragmentAtPosition(position, this);
     if (fragment instanceof EditorFragment) {
-      String fragPath = fragment.getArguments() != null
-          ? fragment.getArguments().getString("file_path")
-          : null;
+      String fragPath =
+          fragment.getArguments() != null ? fragment.getArguments().getString("file_path") : null;
       if (fragPath != null && fragPath.equals(tabsList.get(position).getFilePath())) {
         ((EditorFragment) fragment).jumpToLocation(line, column);
       }
@@ -602,29 +597,21 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
 
   private void setupKeyboardListener() {
     View rootView = getWindow().getDecorView();
-    if (settings.isBackgroundZoomMod()) {
-      // در حالت زومِ پس‌زمینه، باز/بسته‌شدن کیبورد و نماد‌بار مدیریت نمی‌شه؛ فقط استاتوس‌بار نمایش داده می‌شه.
-      if (keyboardLayoutListener != null) {
-        getWindow()
-            .getDecorView()
-            .getViewTreeObserver()
-            .removeOnGlobalLayoutListener(keyboardLayoutListener);
-        keyboardLayoutListener = null;
-      }
-      binding.symbolBarContainer.hide();
-      binding.editorStatusBar.setVisibility(View.VISIBLE);
-    } else {
-      keyboardLayoutListener =
-          () -> {
-            Rect r = new Rect();
-            rootView.getWindowVisibleDisplayFrame(r);
-            int screenHeight = rootView.getRootView().getHeight();
-            int keypadHeight = screenHeight - r.bottom;
-            if (binding.editorSearch.isShowing) {
-              binding.symbolBarContainer.hide();
-              binding.editorStatusBar.setVisibility(View.GONE);
-              return;
-            }
+
+    binding.symbolBarContainer.hide();
+    binding.editorStatusBar.setVisibility(View.VISIBLE);
+    keyboardLayoutListener =
+        () -> {
+          Rect r = new Rect();
+          rootView.getWindowVisibleDisplayFrame(r);
+          int screenHeight = rootView.getRootView().getHeight();
+          int keypadHeight = screenHeight - r.bottom;
+          if (binding.editorSearch.isShowing) {
+            binding.symbolBarContainer.hide();
+            binding.editorStatusBar.setVisibility(View.GONE);
+            return;
+          }
+          if (!settings.isBackgroundZoomMod()) {
             if (keypadHeight > screenHeight * 0.15) {
               binding.backgroundicon.animate().scaleX(1.5f).scaleY(1.5f).setDuration(1000).start();
               binding.symbolBarContainer.show();
@@ -637,9 +624,17 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
               // کیبورد بسته‌ست؛ استاتوس‌بار نمایش داده و نماد‌بار مخفی می‌شه
               binding.editorStatusBar.setVisibility(View.VISIBLE);
             }
-          };
-      rootView.getViewTreeObserver().addOnGlobalLayoutListener(keyboardLayoutListener);
-    }
+          }
+          if (keypadHeight > screenHeight * 0.15) {
+            binding.symbolBarContainer.show();
+            binding.editorStatusBar.setVisibility(View.GONE);
+          } else {
+            isShowSys = false;
+            binding.symbolBarContainer.hide();
+            binding.editorStatusBar.setVisibility(View.VISIBLE);
+          }
+        };
+    rootView.getViewTreeObserver().addOnGlobalLayoutListener(keyboardLayoutListener);
   }
 
   void stepToolbar() {
@@ -683,7 +678,6 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
         new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
     binding.rvtoolbar.setAdapter(listAdapter);
     if (listAdapter != null) listAdapter.notifyDataSetChanged();
-    // بعد از اینکه لِی‌اوت کامل شد یکبار رفرش می‌کنیم تا آیتم‌ها حتماً render بشن
     binding.rvtoolbar.post(
         () -> {
           if (listAdapter != null) listAdapter.notifyDataSetChanged();
@@ -877,7 +871,8 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
   private void showGitBottomSheet() {
     String repoPath = findGitRepositoryPath();
     if (repoPath == null) {
-      GhostToast.makeText(this, "هیچ مخزن گیتی در مسیر فایل جاری یافت نشد", GhostToast.LENGTH_LONG).show();
+      GhostToast.makeText(this, "هیچ مخزن گیتی در مسیر فایل جاری یافت نشد", GhostToast.LENGTH_LONG)
+          .show();
       return;
     }
     GitBottomSheetFragment bottomSheet = GitBottomSheetFragment.newInstance(repoPath);
@@ -1187,8 +1182,11 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     prefs.edit().putString(KEY_POSITION, String.valueOf(position)).apply();
   }
 
-  /** جابه‌جایی بین تب‌ها رو روی صف اصلی ترتیب می‌ده تا ViewPager2 اول لیست جدید رو apply کنه و
-   * بعد صفحه‌ی دلخواه رو نشون بده؛ مانع از رندرِ خالی / آپدیتِ غلطِ تب موقع بازکردن یا بستن سریع تب می‌شه. */
+  /**
+   * جابه‌جایی بین تب‌ها رو روی صف اصلی ترتیب می‌ده تا ViewPager2 اول لیست جدید رو apply کنه و بعد
+   * صفحه‌ی دلخواه رو نشون بده؛ مانع از رندرِ خالی / آپدیتِ غلطِ تب موقع بازکردن یا بستن سریع تب
+   * می‌شه.
+   */
   private void switchToTab(int position) {
     if (adapter == null || adapter.getItemCount() == 0) return;
     int safe = Math.max(0, Math.min(position, adapter.getItemCount() - 1));
@@ -1495,24 +1493,28 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
         savedCount++;
       }
     }
-    GhostToast.makeText(this, savedCount + getString(R.string.editorac_savefile), GhostToast.LENGTH_SHORT)
+    GhostToast.makeText(
+            this, savedCount + getString(R.string.editorac_savefile), GhostToast.LENGTH_SHORT)
         .show();
     refreshGitStatus();
   }
 
   private void saveCurrentTab() {
     if (binding.viewPager == null || adapter == null || adapter.getItemCount() == 0) {
-      GhostToast.makeText(this, getString(R.string.editorac_notopenfile), GhostToast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, getString(R.string.editorac_notopenfile), GhostToast.LENGTH_SHORT)
+          .show();
       return;
     }
     int currentPos = binding.viewPager.getCurrentItem();
     Fragment currentFragment = adapter.getFragmentAtPosition(currentPos, this);
     if (currentFragment instanceof EditorFragment) {
       ((EditorFragment) currentFragment).saveCurrentFile();
-      GhostToast.makeText(this, getString(R.string.editorac_wassaved), GhostToast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, getString(R.string.editorac_wassaved), GhostToast.LENGTH_SHORT)
+          .show();
       refreshGitStatus();
     } else {
-      GhostToast.makeText(this, getString(R.string.editorac_errorfargment), GhostToast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, getString(R.string.editorac_errorfargment), GhostToast.LENGTH_SHORT)
+          .show();
     }
   }
 

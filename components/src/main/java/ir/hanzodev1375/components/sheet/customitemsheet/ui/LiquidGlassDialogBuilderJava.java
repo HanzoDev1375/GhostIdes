@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,18 +13,14 @@ import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import com.example.liquidglass.GlassMaterial;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.slider.Slider;
 import ir.hanzodev1375.components.R;
-import ir.hanzodev1375.components.utils.ComponentsPrefs;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Java port of LiquidGlassDialogBuilder — wraps the whole Material dialog panel in a GlassCompat.
@@ -258,8 +253,6 @@ public class LiquidGlassDialogBuilderJava extends MaterialAlertDialogBuilder {
     if (glassReadyCallback != null) {
       glassReadyCallback.configure(glassView);
     }
-    maybeInstallGlassTintSlider(panel, glassView);
-
     glass = glassView;
     // Once detached, stop holding the glass/dialog -- backdropSource is wired to the Activity's
     // content view
@@ -349,14 +342,9 @@ public class LiquidGlassDialogBuilderJava extends MaterialAlertDialogBuilder {
       } else if (i >= 4) {
         color = MaterialColors.getColor(tv, R.attr.colorOnSurface);
       } else {
-        color = MaterialColors.getColor(tv, R.attr.colorOnPrimary);
+        color = MaterialColors.getColor(tv, R.attr.colorError);
       }
       tv.setTextColor(color);
-      if (isOverLight) {
-        tv.setShadowLayer(0f, 0f, 0f, Color.TRANSPARENT);
-      } else {
-        tv.setShadowLayer(9f, 0f, 4f, MaterialColors.getColor(tv,R.attr.colorSurfaceContainerLow));
-      }
     }
   }
 
@@ -383,81 +371,6 @@ public class LiquidGlassDialogBuilderJava extends MaterialAlertDialogBuilder {
     lp.width = Math.min(maxWidthPx, parentWidth);
     lp.gravity = Gravity.CENTER;
     return lp;
-  }
-
-  private void maybeInstallGlassTintSlider(final View panel, final GlassCompat glassView) {
-    if (!showGlassTintSlider) return;
-    final float density = getContext().getResources().getDisplayMetrics().density;
-    final ComponentsPrefs prefs = new ComponentsPrefs(getContext());
-    final float current = clampTint(prefs.getGlassTint());
-
-    final LinearLayout container = new LinearLayout(getContext());
-    container.setOrientation(LinearLayout.VERTICAL);
-    container.setGravity(Gravity.CENTER_HORIZONTAL);
-
-    final TextView label = new TextView(getContext());
-    label.setGravity(Gravity.CENTER);
-    label.setTextColor(MaterialColors.getColor(container, R.attr.colorOnSurface));
-    label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
-    label.setText(formatTint(current));
-
-    final Slider slider = new Slider(getContext());
-    slider.setValueFrom(SLIDER_MIN_TINT);
-    slider.setValueTo(SLIDER_MAX_TINT);
-    slider.setStepSize(0.01f);
-    slider.setValue(current);
-    // slider.setLabelBehavior(Slider.L);
-    slider.addOnChangeListener(
-        (s, value, fromUser) -> {
-          label.setText(formatTint(value));
-          if (fromUser) applyGlassTint(glassView, value, prefs);
-        });
-
-    container.addView(label);
-    FrameLayout.LayoutParams sliderLp =
-        new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-    sliderLp.topMargin = (int) (8 * density);
-    container.addView(slider, sliderLp);
-
-    addToPanelAfterMessage(panel, container);
-  }
-
-  private static void addToPanelAfterMessage(View panel, View child) {
-    ViewGroup parent = null;
-    int index = -1;
-    View anchor = panel.findViewById(android.R.id.message);
-    if (anchor != null && anchor.getParent() instanceof ViewGroup) {
-      parent = (ViewGroup) anchor.getParent();
-      index = parent.indexOfChild(anchor) + 1;
-    } else {
-      View buttons = panel.findViewById(R.id.buttonPanel);
-      if (buttons != null && buttons.getParent() instanceof ViewGroup) {
-        parent = (ViewGroup) buttons.getParent();
-        index = parent.indexOfChild(buttons);
-      } else {
-        parent = (ViewGroup) panel;
-        index = parent.getChildCount();
-      }
-    }
-    parent.addView(
-        child,
-        index,
-        new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
-  }
-
-  private static float clampTint(float value) {
-    return Math.max(SLIDER_MIN_TINT, Math.min(SLIDER_MAX_TINT, value));
-  }
-
-  private static String formatTint(float value) {
-    return String.format(Locale.US, "Tint: %.2f", value);
-  }
-
-  private static void applyGlassTint(GlassCompat glassView, float value, ComponentsPrefs prefs) {
-    glassView.setGlassTint(MaterialColors.getColor(glassView, R.attr.colorSurface), value);
-    prefs.setGlassTint(value);
   }
 
   private static void addIfPresent(List<TextView> list, TextView view) {

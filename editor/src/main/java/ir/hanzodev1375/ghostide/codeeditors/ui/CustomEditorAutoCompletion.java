@@ -477,7 +477,7 @@ public class CustomEditorAutoCompletion extends EditorAutoCompletion {
     if (text.indexOf('$') < 0) {
       return text;
     }
-    return text.replaceAll("\\$\\{[^}]*}", "").replaceAll("\\$\\d+", "");
+    return text.replaceAll("\\$\\{[^}]*\\}", "").replaceAll("\\$\\d+", "");
   }
 
   private void clearGhostText() {

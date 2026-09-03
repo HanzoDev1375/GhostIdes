@@ -2,6 +2,9 @@ package ir.hanzodev1375.components.views;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -18,7 +21,7 @@ public final class GhostToast {
 
   private static Context context;
   private static Toast t;
-  private static boolean showicon = false;
+  private static boolean showicon = true;
   private static int iconres = 0;
 
   private GhostToast() {}
@@ -44,11 +47,20 @@ public final class GhostToast {
     glass.setBackdropSource(v.findViewById(R.id.toastbackdrop));
 
     textView.setText(text);
+
     if (iconres != 0) {
       icon.setImageResource(iconres);
       icon.setVisibility(View.VISIBLE);
     } else if (showicon) {
-      icon.setVisibility(View.VISIBLE);
+      try {
+        PackageManager pm = context.getPackageManager();
+        ApplicationInfo appInfo = context.getApplicationInfo();
+        Drawable appIcon = appInfo.loadIcon(pm);
+        icon.setImageDrawable(appIcon);
+        icon.setVisibility(View.VISIBLE);
+      } catch (Exception e) {
+        icon.setVisibility(View.GONE);
+      }
     } else {
       icon.setVisibility(View.GONE);
     }
@@ -59,15 +71,18 @@ public final class GhostToast {
     return new GhostToast();
   }
 
-  public static GhostToast makeText(Context ignored, CharSequence text) {
+  public static GhostToast makeText(Context ctx, CharSequence text) {
+    if (ctx != null) context = ctx.getApplicationContext();
     return makeText(text, LENGTH_SHORT);
   }
 
-  public static GhostToast makeText(Context ignored, CharSequence text, int duration) {
+  public static GhostToast makeText(Context ctx, CharSequence text, int duration) {
+    if (ctx != null) context = ctx.getApplicationContext();
     return makeText(text, duration);
   }
 
-  public static GhostToast makeText(Context ignored, @StringRes int text, int duration) {
+  public static GhostToast makeText(Context ctx, @StringRes int text, int duration) {
+    if (ctx != null) context = ctx.getApplicationContext();
     return makeText(context.getString(text), duration);
   }
 
