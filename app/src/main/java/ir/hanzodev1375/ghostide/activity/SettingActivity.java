@@ -5,7 +5,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.os.LocaleListCompat;
@@ -929,22 +929,22 @@ public class SettingActivity extends BaseCompat {
             (dialog, which) -> {
               String path = input.getEditText().getText().toString().trim();
               if (path.isEmpty()) {
-                Toast.makeText(this, getString(R.string.theme_load_empty_path), Toast.LENGTH_SHORT)
+                GhostToast.makeText(this, getString(R.string.theme_load_empty_path), GhostToast.LENGTH_SHORT)
                     .show();
                 return;
               }
               if (!path.endsWith(".gth")) {
-                Toast.makeText(
-                        this, getString(R.string.theme_load_invalid_extension), Toast.LENGTH_SHORT)
+                GhostToast.makeText(
+                        this, getString(R.string.theme_load_invalid_extension), GhostToast.LENGTH_SHORT)
                     .show();
                 return;
               }
               File file = new File(path);
               if (!file.exists()) {
-                Toast.makeText(
+                GhostToast.makeText(
                         this,
                         String.format(getString(R.string.theme_load_file_not_found), path),
-                        Toast.LENGTH_SHORT)
+                        GhostToast.LENGTH_SHORT)
                     .show();
                 return;
               }
@@ -954,13 +954,13 @@ public class SettingActivity extends BaseCompat {
                 if (theme == null) throw new Exception("Invalid theme format");
                 new ThemeManager(this).saveTheme(theme);
                 prefs.setAppThemeFile(path);
-                Toast.makeText(this, getString(R.string.theme_load_success), Toast.LENGTH_LONG)
+                GhostToast.makeText(this, getString(R.string.theme_load_success), GhostToast.LENGTH_LONG)
                     .show();
               } catch (Exception e) {
-                Toast.makeText(
+                GhostToast.makeText(
                         this,
                         String.format(getString(R.string.theme_load_error), e.getMessage()),
-                        Toast.LENGTH_SHORT)
+                        GhostToast.LENGTH_SHORT)
                     .show();
               }
             })
@@ -979,7 +979,7 @@ public class SettingActivity extends BaseCompat {
               getString(R.string.github_logout),
               (d, w) -> {
                 new GitHubClient(this).logout();
-                Toast.makeText(this, getString(R.string.github_logout_success), Toast.LENGTH_SHORT)
+                GhostToast.makeText(this, getString(R.string.github_logout_success), GhostToast.LENGTH_SHORT)
                     .show();
                 appAdapter.updateItem(
                     3,
@@ -1004,10 +1004,10 @@ public class SettingActivity extends BaseCompat {
                             public void onSuccess(String name, String username, String avatarUrl) {
                               runOnUiThread(
                                   () -> {
-                                    Toast.makeText(
+                                    GhostToast.makeText(
                                             SettingActivity.this,
                                             getString(R.string.github_welcome, name),
-                                            Toast.LENGTH_SHORT)
+                                            GhostToast.LENGTH_SHORT)
                                         .show();
                                     appAdapter.updateItem(
                                         3,
@@ -1024,10 +1024,10 @@ public class SettingActivity extends BaseCompat {
                             public void onFailure(String errorMessage) {
                               runOnUiThread(
                                   () ->
-                                      Toast.makeText(
+                                      GhostToast.makeText(
                                               SettingActivity.this,
                                               errorMessage,
-                                              Toast.LENGTH_SHORT)
+                                              GhostToast.LENGTH_SHORT)
                                           .show());
                             }
                           }))
@@ -1128,7 +1128,7 @@ public class SettingActivity extends BaseCompat {
                     aiPrefs.setOpenRouterApiKey("");
                     break;
                 }
-                Toast.makeText(this, R.string.key_cleared, Toast.LENGTH_SHORT).show();
+                GhostToast.makeText(this, R.string.key_cleared, GhostToast.LENGTH_SHORT).show();
                 SettingItem item = adapter.getItemAtPosition(position);
                 if (item != null) {
                   item.setDescription(getString(R.string.not_set));
@@ -1152,7 +1152,7 @@ public class SettingActivity extends BaseCompat {
                     aiPrefs.setOpenRouterApiKey(text);
                     break;
                 }
-                Toast.makeText(this, R.string.key_saved, Toast.LENGTH_SHORT).show();
+                GhostToast.makeText(this, R.string.key_saved, GhostToast.LENGTH_SHORT).show();
                 SettingItem item = adapter.getItemAtPosition(position);
                 if (item != null) {
                   item.setDescription("*********");

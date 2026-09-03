@@ -276,6 +276,8 @@
     <string name="module_hint_libraries">Libraries (optional)</string>
     <string name="module_helper_libraries">group:artifact:version — one per line or comma-separated</string>
     <string name="module_error_lib_format">Invalid format: \"%s\" — use group:artifact:version</string>
+    <string name="module_dependencies_title">Add to existing modules</string>
+    <string name="module_dependencies_helper">Pick which modules should depend on the new one</string>
     <string name="translator_title">Translation strings.xml</string>
     <string name="translator_select_all">All</string>
     <string name="translator_deselect_all">None</string>

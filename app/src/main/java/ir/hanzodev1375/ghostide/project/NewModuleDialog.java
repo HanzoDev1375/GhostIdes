@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
@@ -43,6 +45,16 @@ public class NewModuleDialog {
 
     TextInputLayout tilLibs = view.findViewById(R.id.tilLibraries);
     TextInputEditText etLibs = view.findViewById(R.id.etLibraries);
+    ChipGroup chipGroupModules = view.findViewById(R.id.chipGroupModules);
+
+    List<String> existingModules = ModuleScanner.scanModules(projectRootPath);
+    for (String moduleName : existingModules) {
+      Chip chip = new Chip(context);
+      chip.setText(moduleName);
+      chip.setCheckable(true);
+      chip.setChecked(false);
+      chipGroupModules.addView(chip);
+    }
 
     tvRoot.setText(context.getString(R.string.module_project_root, projectRootPath));
 
@@ -125,6 +137,14 @@ public class NewModuleDialog {
 
                     dialog.dismiss();
 
+                    List<String> selectedModules = new ArrayList<>();
+                    for (int i = 0; i < chipGroupModules.getChildCount(); i++) {
+                      View child = chipGroupModules.getChildAt(i);
+                      if (child instanceof Chip && ((Chip) child).isChecked()) {
+                        selectedModules.add(((Chip) child).getText().toString());
+                      }
+                    }
+
                     var progress =
                         new DialogCompat(context)
                             .setMessage(R.string.module_creating)
@@ -135,6 +155,7 @@ public class NewModuleDialog {
                     mod = new ModuleCreator(context);
                     mod.setDslType(box.isChecked() ? DslType.KOTLIN : DslType.GROOVY);
                     mod.setLibraries(libraries);
+                    mod.setSelectedModules(selectedModules);
                     mod.create(
                         projectRootPath,
                         name,

@@ -30,8 +30,9 @@ public class CollectionDetailActivity extends BaseCompat {
     super.onCreate(savedInstanceState);
     binding = ActivityCollectionDetailBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
-    setupBackgroundBlur(binding.backgroundIconCollectionDetail, binding.toolbar, binding.requestsRecyclerView);
-    UiUtils.fixUi(binding.getRoot());
+    setupBackgroundBlur(binding.backgroundIconCollectionDetail, binding.appBarLayout, binding.contentFrame);
+    UiUtils.tintContentForBackground(this, binding.appBarLayout, binding.contentFrame);
+    UiUtils.fixUi(binding.appBarLayout, binding.contentFrame);
     collectionId = getIntent().getLongExtra(CollectionsActivity.EXTRA_COLLECTION_ID, 0);
     String collectionName = getIntent().getStringExtra(CollectionsActivity.EXTRA_COLLECTION_NAME);
     binding.toolbar.setTitle(

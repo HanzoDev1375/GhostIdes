@@ -2,8 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_projects"
-        android:title="Projects"
-        android:icon="@drawable/bg_shape"
-        
-        />
+        android:icon="@drawable/ic_outline_project"
+        android:title="@string/store_tab_projects" />
+    <item
+        android:id="@+id/menu_themes"
+        android:icon="@drawable/ic_outline_palette"
+        android:title="@string/store_tab_themes" />
+    <item
+        android:id="@+id/menu_fonts"
+        android:icon="@drawable/ic_outline_font"
+        android:title="@string/store_tab_fonts" />
+    <item
+        android:id="@+id/menu_plugins"
+        android:icon="@drawable/ic_outline_extension"
+        android:title="@string/store_tab_plugins" />
+    <item
+        android:id="@+id/menu_icons"
+        android:icon="@drawable/ic_outline_grid"
+        android:title="@string/store_tab_icons" />
 </menu>

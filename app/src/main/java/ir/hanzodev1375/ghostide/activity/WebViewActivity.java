@@ -14,7 +14,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.activity.OnBackPressedCallback;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
@@ -251,7 +251,7 @@ public class WebViewActivity extends BaseCompat {
 
   private void showEruda(String panel) {
     if (!isErudaReady) {
-      Toast.makeText(this, "Loading...", Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, "Loading...", GhostToast.LENGTH_SHORT).show();
       return;
     }
     String js =
@@ -420,7 +420,7 @@ public class WebViewActivity extends BaseCompat {
   private void activatePicker() {
     isPickerActive = true;
     b.btnPickElement.setText("✕ Cancel");
-    Toast.makeText(this, "Tap any element", Toast.LENGTH_SHORT).show();
+    GhostToast.makeText(this, "Tap any element", GhostToast.LENGTH_SHORT).show();
 
     String js =
         "(function() {"
@@ -688,11 +688,11 @@ public class WebViewActivity extends BaseCompat {
 
     if (id == R.id.back) {
       if (b.webView.canGoBack()) b.webView.goBack();
-      else Toast.makeText(this, "Can't go back", Toast.LENGTH_SHORT).show();
+      else GhostToast.makeText(this, "Can't go back", GhostToast.LENGTH_SHORT).show();
 
     } else if (id == R.id.forward) {
       if (b.webView.canGoForward()) b.webView.goForward();
-      else Toast.makeText(this, "Can't go forward", Toast.LENGTH_SHORT).show();
+      else GhostToast.makeText(this, "Can't go forward", GhostToast.LENGTH_SHORT).show();
 
     } else if (id == R.id.refresh) {
       b.webView.reload();

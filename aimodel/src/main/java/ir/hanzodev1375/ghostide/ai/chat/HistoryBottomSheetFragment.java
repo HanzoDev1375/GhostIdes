@@ -13,7 +13,7 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
@@ -91,11 +91,11 @@ public class HistoryBottomSheetFragment extends BaseBlurBottomSheet {
           if (!selectedIds.isEmpty() && listener != null) {
             listener.onDeleteChats(selectedIds);
             loadChatsAsync();
-            Toast.makeText(
-                    getContext(), "Deleted " + selectedIds.size() + " chats", Toast.LENGTH_SHORT)
+            GhostToast.makeText(
+                    getContext(), "Deleted " + selectedIds.size() + " chats", GhostToast.LENGTH_SHORT)
                 .show();
           } else {
-            Toast.makeText(getContext(), "No chat selected", Toast.LENGTH_SHORT).show();
+            GhostToast.makeText(getContext(), "No chat selected", GhostToast.LENGTH_SHORT).show();
           }
         });
 
@@ -118,7 +118,7 @@ public class HistoryBottomSheetFragment extends BaseBlurBottomSheet {
             mainHandler.post(
                 () -> {
                   progressHistory.setVisibility(View.GONE);
-                  Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT)
+                  GhostToast.makeText(getContext(), "Error: " + e.getMessage(), GhostToast.LENGTH_SHORT)
                       .show();
                 });
           }

@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -76,7 +76,7 @@ public class RemotesFragment extends Fragment {
         getViewLifecycleOwner(),
         result -> {
           if (result != null)
-            Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
+            GhostToast.makeText(getContext(), result.getMessage(), GhostToast.LENGTH_SHORT).show();
         });
 
     viewModel.pushPullResult.observe(
@@ -86,7 +86,7 @@ public class RemotesFragment extends Fragment {
             if (!result.isSuccess() && isConflictError(result.getMessage())) {
               showConflictDialog(result.getMessage());
             } else {
-              Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_LONG).show();
+              GhostToast.makeText(getContext(), result.getMessage(), GhostToast.LENGTH_LONG).show();
             }
             if (result.isSuccess()
                 && ("pull".equals(result.getOperation())
@@ -132,12 +132,12 @@ public class RemotesFragment extends Fragment {
   private void performFetch(RemoteInfo remote) {
     String token = gitHubClient.getToken();
     if (token == null || token.isEmpty()) {
-      Toast.makeText(
-              getContext(), "GitHub token not found. Please login first.", Toast.LENGTH_SHORT)
+      GhostToast.makeText(
+              getContext(), "GitHub token not found. Please login first.", GhostToast.LENGTH_SHORT)
           .show();
       return;
     }
-    Toast.makeText(getContext(), "Fetching from " + remote.getName() + "...", Toast.LENGTH_SHORT)
+    GhostToast.makeText(getContext(), "Fetching from " + remote.getName() + "...", GhostToast.LENGTH_SHORT)
         .show();
     viewModel.fetch(remote.getName(), "oauth2", token);
   }
@@ -154,14 +154,14 @@ public class RemotesFragment extends Fragment {
 
     String branch = viewModel.currentBranch.getValue();
     if (branch == null || branch.isEmpty()) {
-      Toast.makeText(getContext(), "Could not get current branch", Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(getContext(), "Could not get current branch", GhostToast.LENGTH_SHORT).show();
       return;
     }
 
     String token = gitHubClient.getToken();
     if (token == null || token.isEmpty()) {
-      Toast.makeText(
-              getContext(), "GitHub token not found. Please login first.", Toast.LENGTH_SHORT)
+      GhostToast.makeText(
+              getContext(), "GitHub token not found. Please login first.", GhostToast.LENGTH_SHORT)
           .show();
       return;
     }
@@ -184,8 +184,8 @@ public class RemotesFragment extends Fragment {
   private void doPull(RemoteInfo remote) {
     String token = gitHubClient.getToken();
     if (token == null || token.isEmpty()) {
-      Toast.makeText(
-              getContext(), "GitHub token not found. Please login first.", Toast.LENGTH_SHORT)
+      GhostToast.makeText(
+              getContext(), "GitHub token not found. Please login first.", GhostToast.LENGTH_SHORT)
           .show();
       return;
     }

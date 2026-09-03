@@ -27,4 +27,5 @@ dependencies {
     implementation(libs.glide)
     implementation project(":components")
     implementation(libs.glass)
+    implementation project(':thememanager')
 }

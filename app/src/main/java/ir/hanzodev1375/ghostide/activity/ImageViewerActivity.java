@@ -18,7 +18,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.Insets;
@@ -27,7 +27,7 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.palette.graphics.Palette;
 import androidx.viewpager2.widget.ViewPager2;
-import com.blankj.utilcode.util.ToastUtils;
+import ir.hanzodev1375.components.views.GhostToast;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import ir.hanzodev1375.ghostide.R;
 import com.bumptech.glide.Glide;
@@ -125,7 +125,7 @@ public class ImageViewerActivity extends BaseCompat {
     }
 
     if (uriList.isEmpty()) {
-      Toast.makeText(this, "No image to show", Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, "No image to show", GhostToast.LENGTH_SHORT).show();
       finish();
       return;
     }
@@ -149,16 +149,16 @@ public class ImageViewerActivity extends BaseCompat {
         });
 
     btnSettings.setOnClickListener(
-        v -> Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show());
+        v -> GhostToast.makeText(this, "Settings", GhostToast.LENGTH_SHORT).show());
     btnNext.setOnClickListener(
         v -> {
           finish();
         });
     btnInfo.setOnClickListener(v -> showImageInfo());
     btnRotate.setOnClickListener(
-        v -> Toast.makeText(this, "Rotate not implemented", Toast.LENGTH_SHORT).show());
+        v -> GhostToast.makeText(this, "Rotate not implemented", GhostToast.LENGTH_SHORT).show());
     btnZoom.setOnClickListener(
-        v -> Toast.makeText(this, "Zoom not implemented", Toast.LENGTH_SHORT).show());
+        v -> GhostToast.makeText(this, "Zoom not implemented", GhostToast.LENGTH_SHORT).show());
     btnSave.setOnClickListener(
         v -> {
           try {
@@ -270,8 +270,8 @@ public class ImageViewerActivity extends BaseCompat {
   private void showImageInfo() {
     if (uriList.isEmpty()) return;
     //    Uri uri = uriList.get(viewPager.getCurrentItem());
-    //    Toast.makeText(this, "URI: " + uri.toString(), Toast.LENGTH_LONG).show();
-    ToastUtils.showLong("Share not work...");
+    //    GhostToast.makeText(this, "URI: " + uri.toString(), GhostToast.LENGTH_LONG).show();
+    GhostToast.makeText("Share not work...").show();
   }
 
   private void saveCurrentImage() {
@@ -297,15 +297,15 @@ public class ImageViewerActivity extends BaseCompat {
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 90, oss);
                   }
                   runOnUiThread(
-                      () -> Toast.makeText(this, "Saved to Gallery", Toast.LENGTH_SHORT).show());
+                      () -> GhostToast.makeText(this, "Saved to Gallery", GhostToast.LENGTH_SHORT).show());
                 } else {
                   runOnUiThread(
-                      () -> Toast.makeText(this, "Save failed", Toast.LENGTH_SHORT).show());
+                      () -> GhostToast.makeText(this, "Save failed", GhostToast.LENGTH_SHORT).show());
                 }
               } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(
-                    () -> Toast.makeText(this, "Error saving", Toast.LENGTH_SHORT).show());
+                    () -> GhostToast.makeText(this, "Error saving", GhostToast.LENGTH_SHORT).show());
               }
             })
         .start();
@@ -363,13 +363,13 @@ public class ImageViewerActivity extends BaseCompat {
 
                 runOnUiThread(
                     () ->
-                        Toast.makeText(this, R.string.wallpaper_set_success, Toast.LENGTH_SHORT)
+                        GhostToast.makeText(this, R.string.wallpaper_set_success, GhostToast.LENGTH_SHORT)
                             .show());
               } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(
                     () ->
-                        Toast.makeText(this, R.string.wallpaper_set_failed, Toast.LENGTH_SHORT)
+                        GhostToast.makeText(this, R.string.wallpaper_set_failed, GhostToast.LENGTH_SHORT)
                             .show());
               }
             })

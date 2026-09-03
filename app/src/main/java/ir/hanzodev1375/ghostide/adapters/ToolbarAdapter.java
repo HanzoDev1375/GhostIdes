@@ -8,7 +8,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.blankj.utilcode.util.ToastUtils;
+import ir.hanzodev1375.components.views.GhostToast;
 import com.google.android.material.color.MaterialColors;
 import java.util.List;
 
@@ -52,7 +52,7 @@ public class ToolbarAdapter extends RecyclerView.Adapter<ToolbarAdapter.Holder> 
         });
         holder.image.setOnLongClickListener(
         v -> {
-          ToastUtils.showLong("Long");
+          GhostToast.makeText("Long").show();
           return true;
         });
    // holder.image.setVisibility(icons.get(position).isShowVisblityItem() ? View.VISIBLE : View.GONE);

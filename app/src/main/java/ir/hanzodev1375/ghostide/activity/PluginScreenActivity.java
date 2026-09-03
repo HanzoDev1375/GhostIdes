@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class PluginScreenActivity extends BaseCompat {
     String screenId = getIntent().getStringExtra(EXTRA_SCREEN_ID);
     PluginScreen screen = findScreen(screenId);
     if (screen == null) {
-      Toast.makeText(this, "Plugin screen not found: " + screenId, Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, "Plugin screen not found: " + screenId, GhostToast.LENGTH_SHORT).show();
       finish();
       return;
     }

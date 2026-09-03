@@ -32,7 +32,7 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -353,7 +353,7 @@ public class WebViewBottomSheetFragment extends BottomSheetDialogFragment {
     ClipData clip = ClipData.newPlainText("link", pageUrl);
     if (clipboard != null) {
       clipboard.setPrimaryClip(clip);
-      Toast.makeText(context, getString(R.string.web_sheet_link_copied), Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(context, getString(R.string.web_sheet_link_copied), GhostToast.LENGTH_SHORT).show();
     }
   }
 

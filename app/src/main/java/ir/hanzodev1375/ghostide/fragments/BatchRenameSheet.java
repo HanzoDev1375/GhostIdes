@@ -6,7 +6,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.NonNull;
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import com.google.android.material.button.MaterialButton;
@@ -131,7 +131,7 @@ public class BatchRenameSheet extends BaseBlurBottomSheet {
           boolean useRegex = switchRegex.isChecked();
 
           if (pattern.isEmpty()) {
-            Toast.makeText(requireContext(), "Pattern cannot be empty", Toast.LENGTH_SHORT).show();
+            GhostToast.makeText(requireContext(), "Pattern cannot be empty", GhostToast.LENGTH_SHORT).show();
             return;
           }
 
@@ -243,10 +243,10 @@ public class BatchRenameSheet extends BaseBlurBottomSheet {
       getActivity()
           .runOnUiThread(
               () ->
-                  Toast.makeText(
+                  GhostToast.makeText(
                           requireContext(),
                           finalSuccess + " item(s) renamed successfully",
-                          Toast.LENGTH_SHORT)
+                          GhostToast.LENGTH_SHORT)
                       .show());
     }
   }

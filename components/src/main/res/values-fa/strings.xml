@@ -1,6 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="store_tab_projects">پروژه‌ها</string>
+  <string name="store_tab_themes">تم‌ها</string>
+  <string name="store_tab_fonts">فونت‌ها</string>
+  <string name="store_tab_plugins">پلاگین‌ها</string>
+  <string name="store_tab_icons">ایکون‌ها</string>
+  <string name="store_title">فروشگاه</string>
+  <string name="store_section_title">بخش</string>
+  <string name="store_no_items">هنوز موردی در این‌جا نیست</string>
+  <string name="store_no_items_themes">اقلام تم در این‌جا نمایش داده می‌شوند</string>
+  <string name="store_no_items_fonts">اقلام فونت در این‌جا نمایش داده می‌شوند</string>
+  <string name="store_no_items_plugins">اقلام پلاگین در این‌جا نمایش داده می‌شوند</string>
+
+  <string name="google_fonts_api_key"></string>
+  <string name="fonts_search_hint">جستجوی فونت…</string>
+  <string name="fonts_search_empty">فونتی پیدا نشد</string>
+  <string name="fonts_download">دانلود</string>
+  <string name="fonts_downloading">در حال دانلود…</string>
+  <string name="fonts_downloaded">دانلود شد</string>
+  <string name="fonts_download_failed">دانلود ناموفق بود</string>
+  <string name="fonts_download_folder">ذخیره شد در ghostide/fonts</string>
+  <string name="fonts_error_no_key">برای استفاده از این بخش کلید API گوگل را اضافه کنید</string>
+  <string name="fonts_error_network">خطای شبکه: %s</string>
+  <string name="fonts_error_http">خطای سرور: کد %s</string>
+  <string name="fonts_error_parse">خطای تجزیه: %s</string>
   <string name="empty">خالی</string>
+
+  <string name="icons_search_hint">جستجوی ایکون…</string>
+  <string name="icons_search_empty">ایکونی پیدا نشد</string>
+  <string name="icons_style_label">نوع</string>
+  <string name="icons_style_filled">ساده</string>
+  <string name="icons_style_outlined">خطی</string>
+  <string name="icons_style_round">گرد</string>
+  <string name="icons_style_sharp">تیز</string>
+  <string name="icons_style_two_tone">دورنگ</string>
+  <string name="icons_download">دانلود</string>
+  <string name="icons_downloading">در حال دانلود…</string>
+  <string name="icons_downloaded">دانلود شد</string>
+  <string name="icons_download_failed">دانلود ناموفق بود</string>
+  <string name="icons_download_folder">ذخیره شد در ghostide/icons</string>
+  <string name="icons_error_no_key">مشخصات ایکون‌ها بارگذاری نشد</string>
+  <string name="icons_error_network">خطای شبکه: %s</string>
+  <string name="icons_error_http">خطای سرور: کد %s</string>
+  <string name="icons_error_parse">خطای تجزیه: %s</string>
+  <string name="icons_unsupported">در این نوع موجود نیست</string>
   <string name="empty_view_default_title">اینجا هنوز چیزی نیست</string>
   <string name="empty_view_default_description">موارد پس از در دسترس بودن در اینجا ظاهر می شوند</string>
   <string name="empty_view_cd_icon">نماد حالت خالی</string>

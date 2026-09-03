@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -76,7 +76,7 @@ public class MaterialLogCatView extends LinearLayout {
   private void saveLogsToFile() {
     String allLogs = adapter.getAllFilteredMessages();
     if (allLogs.isEmpty()) {
-      Toast.makeText(getContext(), "No logs to save", Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(getContext(), "No logs to save", GhostToast.LENGTH_SHORT).show();
       return;
     }
     try {
@@ -96,13 +96,13 @@ public class MaterialLogCatView extends LinearLayout {
       writer.close();
       fos.close();
 
-      Toast.makeText(
+      GhostToast.makeText(
               getContext(),
               "Logs saved to " + logFile.getAbsolutePath(),
-              Toast.LENGTH_LONG)
+              GhostToast.LENGTH_LONG)
           .show();
     } catch (Exception e) {
-      Toast.makeText(getContext(), "Save error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(getContext(), "Save error: " + e.getMessage(), GhostToast.LENGTH_SHORT).show();
       e.printStackTrace();
     }
   }

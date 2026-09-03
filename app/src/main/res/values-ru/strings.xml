@@ -274,6 +274,8 @@
   <string name="module_hint_libraries">Библиотеки (необязательно)</string>
   <string name="module_helper_libraries">группа:артефакт:версия — по одному в строке или через запятую</string>
   <string name="module_error_lib_format">Неверный формат: \&quot;%s\&quot; — используйте группу:артефакт:версия.</string>
+  <string name="module_dependencies_title">Добавить в существующие модули</string>
+  <string name="module_dependencies_helper">Выберите, какие модули должны зависеть от нового</string>
   <string name="translator_title">Перевод strings.xml</string>
   <string name="translator_select_all">Все</string>
   <string name="translator_deselect_all">Никто</string>

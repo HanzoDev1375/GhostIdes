@@ -21,7 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -126,6 +126,7 @@ public class FileManagerActivity extends BaseCompat
   private FileManagerAdapter adapter;
   private ZipBrowserAdapter zipAdapter;
   private View selectionPanel;
+  private boolean selectionPanelShowing = false;
   private TextView selectionCount;
   private ImageView btnCopy, btnCut, btnDelete, btnPaste, btnClose, btnSelectall;
   private boolean isCutOperation = false;
@@ -236,11 +237,13 @@ public class FileManagerActivity extends BaseCompat
     setContentView(bind.getRoot());
     setupInsets();
     setupSearchLayoutInsets();
+    
     appsetting = new PreferencesUtils(this);
     bind.fab.bindOfAcivity(this);
     if (appsetting.isShowBackground()) {
       bind.headtop.setBackgroundColor(0);
-      setupBackgroundBlur(bind.backgroundiconfilemanager, bind.headline);
+      bind.headline.setBackgroundColor(0);
+      setupBackgroundBlur(bind.backgroundiconfilemanager,bind.getRoot());
     } else {
       bind.headtop.setBackgroundColor(
           MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
@@ -408,10 +411,10 @@ public class FileManagerActivity extends BaseCompat
                                     runOnUiThread(
                                         () -> {
                                           viewModel.loadFiles(currentDir);
-                                          Toast.makeText(
+                                          GhostToast.makeText(
                                                   FileManagerActivity.this,
                                                   getString(R.string.project_created_toast),
-                                                  Toast.LENGTH_SHORT)
+                                                  GhostToast.LENGTH_SHORT)
                                               .show();
                                         }))
                             .show();
@@ -506,7 +509,7 @@ public class FileManagerActivity extends BaseCompat
           @Override
           public void onLoadError(String message) {
             bind.loadingprogass.setVisibility(View.GONE);
-            Toast.makeText(FileManagerActivity.this, "خطا: " + message, Toast.LENGTH_SHORT).show();
+            GhostToast.makeText(FileManagerActivity.this, "خطا: " + message, GhostToast.LENGTH_SHORT).show();
             exitZipMode();
           }
         });
@@ -547,10 +550,10 @@ public class FileManagerActivity extends BaseCompat
                                   new ZipOperationManager.Callback() {
                                     @Override
                                     public void onSuccess(String msg) {
-                                      Toast.makeText(
+                                      GhostToast.makeText(
                                               FileManagerActivity.this,
                                               getString(R.string.zip_deleted_ok),
-                                              Toast.LENGTH_SHORT)
+                                              GhostToast.LENGTH_SHORT)
                                           .show();
                                       zipAdapter.loadZip(
                                           currentZipFilePath, zipAdapter.getCurrentInternalPath());
@@ -558,10 +561,10 @@ public class FileManagerActivity extends BaseCompat
 
                                     @Override
                                     public void onError(String err) {
-                                      Toast.makeText(
+                                      GhostToast.makeText(
                                               FileManagerActivity.this,
                                               getString(R.string.zip_error_prefix, err),
-                                              Toast.LENGTH_SHORT)
+                                              GhostToast.LENGTH_SHORT)
                                           .show();
                                     }
                                   }))
@@ -583,10 +586,10 @@ public class FileManagerActivity extends BaseCompat
                                   new ZipOperationManager.Callback() {
                                     @Override
                                     public void onSuccess(String msg) {
-                                      Toast.makeText(
+                                      GhostToast.makeText(
                                               FileManagerActivity.this,
                                               getString(R.string.zip_renamed_ok),
-                                              Toast.LENGTH_SHORT)
+                                              GhostToast.LENGTH_SHORT)
                                           .show();
                                       zipAdapter.loadZip(
                                           currentZipFilePath, zipAdapter.getCurrentInternalPath());
@@ -594,10 +597,10 @@ public class FileManagerActivity extends BaseCompat
 
                                     @Override
                                     public void onError(String err) {
-                                      Toast.makeText(
+                                      GhostToast.makeText(
                                               FileManagerActivity.this,
                                               getString(R.string.zip_error_prefix, err),
-                                              Toast.LENGTH_SHORT)
+                                              GhostToast.LENGTH_SHORT)
                                           .show();
                                     }
                                   });
@@ -611,19 +614,19 @@ public class FileManagerActivity extends BaseCompat
                       new ZipOperationManager.Callback() {
                         @Override
                         public void onSuccess(String msg) {
-                          Toast.makeText(
+                          GhostToast.makeText(
                                   FileManagerActivity.this,
                                   getString(R.string.zip_extracted_ok),
-                                  Toast.LENGTH_SHORT)
+                                  GhostToast.LENGTH_SHORT)
                               .show();
                         }
 
                         @Override
                         public void onError(String err) {
-                          Toast.makeText(
+                          GhostToast.makeText(
                                   FileManagerActivity.this,
                                   getString(R.string.zip_error_prefix, err),
-                                  Toast.LENGTH_SHORT)
+                                  GhostToast.LENGTH_SHORT)
                               .show();
                         }
                       });
@@ -640,19 +643,19 @@ public class FileManagerActivity extends BaseCompat
                                   new ZipOperationManager.Callback() {
                                     @Override
                                     public void onSuccess(String msg) {
-                                      Toast.makeText(
+                                      GhostToast.makeText(
                                               FileManagerActivity.this,
                                               getString(R.string.zip_extracted_ok),
-                                              Toast.LENGTH_SHORT)
+                                              GhostToast.LENGTH_SHORT)
                                           .show();
                                     }
 
                                     @Override
                                     public void onError(String err) {
-                                      Toast.makeText(
+                                      GhostToast.makeText(
                                               FileManagerActivity.this,
                                               getString(R.string.zip_error_prefix, err),
-                                              Toast.LENGTH_SHORT)
+                                              GhostToast.LENGTH_SHORT)
                                           .show();
                                     }
                                   }))
@@ -692,10 +695,10 @@ public class FileManagerActivity extends BaseCompat
 
                         @Override
                         public void onError(String err) {
-                          Toast.makeText(
+                          GhostToast.makeText(
                                   FileManagerActivity.this,
                                   getString(R.string.zip_error_prefix, err),
-                                  Toast.LENGTH_SHORT)
+                                  GhostToast.LENGTH_SHORT)
                               .show();
                         }
                       });
@@ -764,16 +767,16 @@ public class FileManagerActivity extends BaseCompat
                 runOnUiThread(
                     () -> {
                       if (entry.isEncrypted()) {
-                        Toast.makeText(
-                                FileManagerActivity.this, "File Has Encrypted", Toast.LENGTH_LONG)
+                        GhostToast.makeText(
+                                FileManagerActivity.this, "File Has Encrypted", GhostToast.LENGTH_LONG)
                             .show();
                       } else setupClick(outFile.getAbsolutePath(), entry.getName(), null);
                     });
               } catch (Exception e) {
                 runOnUiThread(
                     () ->
-                        Toast.makeText(
-                                FileManagerActivity.this, "Error to UnZip", Toast.LENGTH_SHORT)
+                        GhostToast.makeText(
+                                FileManagerActivity.this, "Error to UnZip", GhostToast.LENGTH_SHORT)
                             .show());
               }
             })
@@ -830,12 +833,7 @@ public class FileManagerActivity extends BaseCompat
       Intent intent = new Intent(FileManagerActivity.this, EditorActivity.class);
       intent.putExtra("file_path", path);
       intent.putExtra("file_name", name);
-      View sharedView = sourceItemView;
-      if (sharedView != null) {
-        sharedView = sourceItemView.findViewById(R.id.listcard);
-        if (sharedView == null) sharedView = sourceItemView;
-      }
-      startActivityWithSharedElement(intent, sharedView, ObjectUtil.TRANSITION_EDITOR);
+      startActivity(intent);
     } else if (path.endsWith(".gth")) {
       var sheets = new CustomItemSheet(FileManagerActivity.this);
       sheets.add(getString(R.string.theme_edit), R.drawable.ic_edit);
@@ -893,14 +891,14 @@ public class FileManagerActivity extends BaseCompat
         }
         startActivityWithSharedElement(setImage, sharedView, ObjectUtil.TRANSITION_IMAGE);
       } else {
-        Toast.makeText(this, "No image found", Toast.LENGTH_SHORT).show();
+        GhostToast.makeText(this, "No image found", GhostToast.LENGTH_SHORT).show();
       }
     } else if (audio.contains(extension)) {
       showMusicPreview(path);
     } else if (extension.equals(".apk")) {
       installApk(path);
     } else {
-      Toast.makeText(this, getString(R.string.error_file_format_not_supported), Toast.LENGTH_SHORT)
+      GhostToast.makeText(this, getString(R.string.error_file_format_not_supported), GhostToast.LENGTH_SHORT)
           .show();
     }
   }
@@ -910,7 +908,7 @@ public class FileManagerActivity extends BaseCompat
         v -> {
           String repoPath = findGitRepositoryPath();
           if (repoPath == null) {
-            Toast.makeText(this, "Git dir not found", Toast.LENGTH_LONG).show();
+            GhostToast.makeText(this, "Git dir not found", GhostToast.LENGTH_LONG).show();
             return;
           }
           GitBottomSheetFragment.newInstance(repoPath)
@@ -1009,7 +1007,8 @@ public class FileManagerActivity extends BaseCompat
   }
 
   private void showSelectionPanel() {
-    if (selectionPanel == null) return;
+    if (selectionPanel == null || selectionPanelShowing) return;
+    selectionPanelShowing = true;
     selectionPanel.setAlpha(0f);
     selectionPanel.setTranslationY(selectionPanel.getHeight() + dp(48));
     selectionPanel.setVisibility(View.VISIBLE);
@@ -1023,7 +1022,8 @@ public class FileManagerActivity extends BaseCompat
   }
 
   private void hideSelectionPanel() {
-    if (selectionPanel == null) return;
+    if (selectionPanel == null || !selectionPanelShowing) return;
+    selectionPanelShowing = false;
     View panel = selectionPanel;
     panel
         .animate()
@@ -1031,7 +1031,10 @@ public class FileManagerActivity extends BaseCompat
         .translationY(panel.getHeight() + dp(48))
         .setDuration(160)
         .setInterpolator(new DecelerateInterpolator(1.5f))
-        .withEndAction(() -> panel.setVisibility(View.GONE))
+        .withEndAction(
+            () -> {
+              if (!selectionPanelShowing) panel.setVisibility(View.GONE);
+            })
         .start();
   }
 
@@ -1153,10 +1156,10 @@ public class FileManagerActivity extends BaseCompat
                                 new ZipOperationManager.Callback() {
                                   @Override
                                   public void onSuccess(String msg) {
-                                    Toast.makeText(
+                                    GhostToast.makeText(
                                             FileManagerActivity.this,
                                             getString(R.string.zip_deleted_ok),
-                                            Toast.LENGTH_SHORT)
+                                            GhostToast.LENGTH_SHORT)
                                         .show();
                                     zipAdapter.loadZip(
                                         currentZipFilePath, zipAdapter.getCurrentInternalPath());
@@ -1164,10 +1167,10 @@ public class FileManagerActivity extends BaseCompat
 
                                   @Override
                                   public void onError(String err) {
-                                    Toast.makeText(
+                                    GhostToast.makeText(
                                             FileManagerActivity.this,
                                             getString(R.string.zip_error_prefix, err),
-                                            Toast.LENGTH_SHORT)
+                                            GhostToast.LENGTH_SHORT)
                                         .show();
                                   }
                                 }))
@@ -1212,10 +1215,10 @@ public class FileManagerActivity extends BaseCompat
 
                       @Override
                       public void onSuccess(String msg) {
-                        Toast.makeText(
+                        GhostToast.makeText(
                                 FileManagerActivity.this,
                                 getString(R.string.zip_extracted_ok),
-                                Toast.LENGTH_SHORT)
+                                GhostToast.LENGTH_SHORT)
                             .show();
                         zipAdapter.clearSelection();
                         resetZipClipboard();
@@ -1233,10 +1236,10 @@ public class FileManagerActivity extends BaseCompat
 
                                     @Override
                                     public void onError(String err) {
-                                      Toast.makeText(
+                                      GhostToast.makeText(
                                               FileManagerActivity.this,
                                               getString(R.string.zip_error_prefix, err),
-                                              Toast.LENGTH_SHORT)
+                                              GhostToast.LENGTH_SHORT)
                                           .show();
                                     }
                                   });
@@ -1245,10 +1248,10 @@ public class FileManagerActivity extends BaseCompat
 
                       @Override
                       public void onError(String err) {
-                        Toast.makeText(
+                        GhostToast.makeText(
                                 FileManagerActivity.this,
                                 getString(R.string.zip_error_prefix, err),
-                                Toast.LENGTH_SHORT)
+                                GhostToast.LENGTH_SHORT)
                             .show();
                       }
                     });
@@ -1268,7 +1271,7 @@ public class FileManagerActivity extends BaseCompat
                   adapter.clearSelection();
                   hideSelectionPanel();
                   adapter.notifyDataSetChanged();
-                  if (!success) Toast.makeText(this, "Paste failed", Toast.LENGTH_SHORT).show();
+                  if (!success) GhostToast.makeText(this, "Paste failed", GhostToast.LENGTH_SHORT).show();
                 });
           }
         });
@@ -1538,18 +1541,18 @@ public class FileManagerActivity extends BaseCompat
                       isNowBookmarked ->
                           runOnUiThread(
                               () ->
-                                  Toast.makeText(
+                                  GhostToast.makeText(
                                           FileManagerActivity.this,
                                           isNowBookmarked
                                               ? getString(R.string.bookmark_added)
                                               : getString(R.string.bookmark_removed),
-                                          Toast.LENGTH_SHORT)
+                                          GhostToast.LENGTH_SHORT)
                                       .show()));
                   case 4 -> ShortcutHelper.showShortcutDialog(this, filemodel);
                   case 5 -> {
                     ClipboardUtils.copyText(filemodel.getPath());
-                    Toast.makeText(
-                            FileManagerActivity.this, filemodel.getPath(), Toast.LENGTH_SHORT)
+                    GhostToast.makeText(
+                            FileManagerActivity.this, filemodel.getPath(), GhostToast.LENGTH_SHORT)
                         .show();
                   }
                   case 6 -> {
@@ -1723,7 +1726,8 @@ public class FileManagerActivity extends BaseCompat
     setupHeader();
     if (appsetting.isShowBackground()) {
       bind.headtop.setBackgroundColor(0);
-      setupBackgroundBlur(bind.backgroundiconfilemanager, bind.headtop, bind.headline);
+      bind.headline.setBackgroundColor(0);
+      setupBackgroundBlur(bind.backgroundiconfilemanager,bind.getRoot());
     } else {
       bind.headtop.setBackgroundColor(
           MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
@@ -1945,7 +1949,7 @@ public class FileManagerActivity extends BaseCompat
               if (sd != null) {
                 navigateToPath(sd.path);
               } else {
-                Toast.makeText(this, R.string.sd_card_not_found, Toast.LENGTH_SHORT).show();
+                GhostToast.makeText(this, R.string.sd_card_not_found, GhostToast.LENGTH_SHORT).show();
               }
             }
             case 3 -> navigateToPath(getCacheDir().getAbsolutePath());
@@ -1957,7 +1961,7 @@ public class FileManagerActivity extends BaseCompat
     var installedFiles = GplInstalledPlugins.listInstalled(this);
 
     if (installedFiles.isEmpty()) {
-      Toast.makeText(this, R.string.no_plugins, Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, R.string.no_plugins, GhostToast.LENGTH_SHORT).show();
       return;
     }
 
@@ -2015,7 +2019,7 @@ public class FileManagerActivity extends BaseCompat
             .toList();
 
     if (pluginItems.isEmpty()) {
-      Toast.makeText(this, R.string.no_plugins, Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, R.string.no_plugins, GhostToast.LENGTH_SHORT).show();
       return;
     }
 
@@ -2043,10 +2047,10 @@ public class FileManagerActivity extends BaseCompat
                 return;
               }
 
-              Toast.makeText(
+              GhostToast.makeText(
                       this,
                       getString(R.string.plugin_manager_installed_toast, item.name()),
-                      Toast.LENGTH_SHORT)
+                      GhostToast.LENGTH_SHORT)
                   .show();
             }));
 
@@ -2101,16 +2105,16 @@ public class FileManagerActivity extends BaseCompat
     if (sdCard != null) {
       viewModel.navigateTo(sdCard.path);
       bind.gitActionButton.setVisibility(isGitRepository(sdCard.path) ? View.VISIBLE : View.GONE);
-      Toast.makeText(
+      GhostToast.makeText(
               this,
               getString(
                   R.string.sd_card_space_info,
                   sdCard.getFreeFormatted(),
                   sdCard.getTotalFormatted()),
-              Toast.LENGTH_SHORT)
+              GhostToast.LENGTH_SHORT)
           .show();
     } else {
-      Toast.makeText(this, R.string.sd_card_not_found, Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, R.string.sd_card_not_found, GhostToast.LENGTH_SHORT).show();
     }
   }
 
@@ -2131,20 +2135,20 @@ public class FileManagerActivity extends BaseCompat
                     client.download(remotePath, localFile.getAbsolutePath());
                     runOnUiThread(
                         () -> {
-                          Toast.makeText(
+                          GhostToast.makeText(
                                   FileManagerActivity.this,
                                   R.string.ftp_download_success,
-                                  Toast.LENGTH_LONG)
+                                  GhostToast.LENGTH_LONG)
                               .show();
                           viewModel.loadFiles(currentDir);
                         });
                   } catch (Exception e) {
                     runOnUiThread(
                         () -> {
-                          Toast.makeText(
+                          GhostToast.makeText(
                                   FileManagerActivity.this,
                                   R.string.ftp_download_error + ": " + e.getMessage(),
-                                  Toast.LENGTH_LONG)
+                                  GhostToast.LENGTH_LONG)
                               .show();
                         });
                   }
@@ -2162,8 +2166,8 @@ public class FileManagerActivity extends BaseCompat
             @Override
             public void onResult(String output) {
               boolean ok = output.toLowerCase().contains("success");
-              Toast.makeText(
-                      FileManagerActivity.this, ok ? "installsuccess" : output, Toast.LENGTH_LONG)
+              GhostToast.makeText(
+                      FileManagerActivity.this, ok ? "installsuccess" : output, GhostToast.LENGTH_LONG)
                   .show();
             }
 
@@ -2174,7 +2178,7 @@ public class FileManagerActivity extends BaseCompat
           });
     } else if (ShizukuManager.isAvailable()) {
       ShizukuManager.requestPermission();
-      Toast.makeText(this, "Error", Toast.LENGTH_LONG).show();
+      GhostToast.makeText(this, "Error", GhostToast.LENGTH_LONG).show();
     } else {
       installApkNormal(path);
     }

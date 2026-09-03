@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     android:layout_height="wrap_content"
+     android:layout_width="match_parent">
+
+    <FrameLayout
+         android:layout_height="wrap_content"
+         android:layout_width="match_parent"
+         android:id="@+id/toastbackdrop">
+
+        <com.example.liquidglass.LiquidGlassView
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:id="@+id/glasstoast">
+
+            <LinearLayout
+                 android:layout_height="wrap_content"
+                 android:layout_width="match_parent"
+                 android:gravity="center_vertical"
+                 android:orientation="horizontal">
+
+                <TextView
+                     android:layout_height="wrap_content"
+                     android:layout_width="wrap_content"
+                     android:layout_marginEnd="4dp"
+                     android:padding="4dp"
+                     android:layout_marginStart="4dp"
+                     android:layout_weight="1"
+                     android:id="@+id/texttoast" />
+
+                <ImageView
+                     android:layout_height="40dp"
+                     android:layout_width="40dp"
+                     android:scaleType="centerInside"
+                     android:id="@+id/icontoast" />
+
+            </LinearLayout>
+
+        </com.example.liquidglass.LiquidGlassView>
+
+    </FrameLayout>
+
+</FrameLayout>

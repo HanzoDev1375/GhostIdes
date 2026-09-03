@@ -11,7 +11,7 @@ import android.view.View;
 
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.core.util.Supplier;
@@ -162,7 +162,7 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
   }
 
   private void showToast(String message) {
-    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    GhostToast.makeText(getContext(), message, GhostToast.LENGTH_SHORT).show();
   }
 
   public void bindEditor(@Nullable Supplier<IdeEditor> supplier) {

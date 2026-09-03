@@ -10,7 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -212,8 +212,8 @@ public class AiChatActivity extends BaseCompat {
           String selected = PROVIDERS[position];
           prefs.setSelectedProvider(selected);
           if (!prefs.hasApiKeyForProvider(selected)) {
-            Toast.makeText(
-                    this, "API key not set. Go to Settings → AI Settings.", Toast.LENGTH_LONG)
+            GhostToast.makeText(
+                    this, "API key not set. Go to Settings → AI Settings.", GhostToast.LENGTH_LONG)
                 .show();
           }
           refreshClient();
@@ -330,8 +330,8 @@ public class AiChatActivity extends BaseCompat {
             if (isFinishing() || isDestroyed()) return;
             runOnUiThread(
                 () ->
-                    Toast.makeText(
-                            this, "Could not read file: " + e.getMessage(), Toast.LENGTH_SHORT)
+                    GhostToast.makeText(
+                            this, "Could not read file: " + e.getMessage(), GhostToast.LENGTH_SHORT)
                         .show());
           }
         });
@@ -363,7 +363,7 @@ public class AiChatActivity extends BaseCompat {
 
     String provider = prefs.getSelectedProvider();
     if (!prefs.hasApiKeyForProvider(provider)) {
-      Toast.makeText(this, "Please set the API key in Settings → AI Settings.", Toast.LENGTH_LONG)
+      GhostToast.makeText(this, "Please set the API key in Settings → AI Settings.", GhostToast.LENGTH_LONG)
           .show();
       return;
     }
@@ -485,7 +485,7 @@ public class AiChatActivity extends BaseCompat {
       }
       currentChatId = -1;
       if (getSupportActionBar() != null) getSupportActionBar().setTitle("Ghost AI");
-      Toast.makeText(this, "Chat cleared", Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, "Chat cleared", GhostToast.LENGTH_SHORT).show();
       return true;
     } else if (item.getItemId() == R.id.action_history) {
       HistoryBottomSheetFragment bottomSheet = new HistoryBottomSheetFragment();

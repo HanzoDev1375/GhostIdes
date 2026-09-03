@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.blankj.utilcode.util.ClipboardUtils;
-import com.blankj.utilcode.util.ToastUtils;
+import ir.hanzodev1375.components.views.GhostToast;
 import ir.hanzodev1375.components.colors.model.ColorItem;
 import ir.hanzodev1375.components.R;
 import java.util.ArrayList;
@@ -100,7 +100,7 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ColorViewHol
       View.OnClickListener copyAction =
           v -> {
             ClipboardUtils.copyText(item.getHex());
-            ToastUtils.showShort("Copy it: " + item.getHex());
+            GhostToast.makeText("Copy it: " + item.getHex()).show();
           };
       copyButton.setOnClickListener(copyAction);
       itemView.setOnClickListener(copyAction);

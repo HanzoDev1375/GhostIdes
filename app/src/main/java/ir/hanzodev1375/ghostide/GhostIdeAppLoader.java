@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Process;
 import android.util.Log;
 import com.downloader.PRDownloader;
+import ir.hanzodev1375.components.views.GhostToast;
 import ir.hanzodev1375.ghostide.adapters.UiFeedbackHostImpl;
 import ir.hanzodev1375.ghostide.activity.ErrorManagerActivity;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.ProotProcessLauncherImpl;
@@ -51,6 +52,7 @@ public class GhostIdeAppLoader extends Application {
     ThemeEngine.applyToActivities(this);
     var themeManager = new ThemeManager(this);
     theme = new ThemeUtils(themeManager);
+    GhostToast.bindOfApp(this);
     PRDownloader.initialize(getApplicationContext());
     GlobalRegistry.services()
         .register(IdeHostServices.PROOT_PROCESS_LAUNCHER, new ProotProcessLauncherImpl(this));

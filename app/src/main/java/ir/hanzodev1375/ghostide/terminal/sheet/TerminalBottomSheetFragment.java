@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
@@ -370,12 +370,12 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
 
   private void showNewSessionMenu(View anchor) {
     if (!DebianBootstrap.isInstalled(requireContext())) {
-      Toast.makeText(
+      GhostToast.makeText(
               requireContext(),
               getString(
                   R.string.terminal_debian_rootfs_not_found_fallback,
                   DebianBootstrap.getRootfsDir(requireContext()).getAbsolutePath()),
-              Toast.LENGTH_LONG)
+              GhostToast.LENGTH_LONG)
           .show();
       addNewSession();
       return;
@@ -443,10 +443,10 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
                 getString(R.string.terminal_action_cancel),
                 (dialog, which) -> {
                   DebianInstaller.cancelInstall();
-                  Toast.makeText(
+                  GhostToast.makeText(
                           requireContext(),
                           getString(R.string.terminal_install_cancelled),
-                          Toast.LENGTH_SHORT)
+                          GhostToast.LENGTH_SHORT)
                       .show();
                 })
             .create();
@@ -489,10 +489,10 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
                 .runOnUiThread(
                     () -> {
                       if (installDialog != null) installDialog.dismiss();
-                      Toast.makeText(
+                      GhostToast.makeText(
                               requireContext(),
                               getString(R.string.terminal_debian_installed_success),
-                              Toast.LENGTH_LONG)
+                              GhostToast.LENGTH_LONG)
                           .show();
                       terminalBinding.terminalView.setVisibility(View.VISIBLE);
                       createInitialSession();
@@ -506,7 +506,7 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
                 .runOnUiThread(
                     () -> {
                       if (installDialog != null) installDialog.dismiss();
-                      Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+                      GhostToast.makeText(requireContext(), message, GhostToast.LENGTH_LONG).show();
                     });
           }
         };

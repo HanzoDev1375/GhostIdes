@@ -86,6 +86,9 @@ public class EditorFragment extends Fragment {
   private PagedEditSession pagedSession;
   private int pageIndex = -1;
   private LspViewModel lspViewModel;
+  private boolean readOnly;
+  private int pendingLine = -1;
+  private int pendingColumn = -1;
   private static final int DIAGNOSTICS_COLOR_OK = Color.parseColor("#4CAF50");
   private static final int DIAGNOSTICS_COLOR_ERROR = Color.parseColor("#F44336");
   private final Handler breadcrumbHandler = new Handler(Looper.getMainLooper());
@@ -93,9 +96,14 @@ public class EditorFragment extends Fragment {
   private final Runnable breadcrumbRefreshRunnable = this::refreshBreadcrumbs;
 
   public static EditorFragment newInstance(String path) {
+    return newInstance(path, false);
+  }
+
+  public static EditorFragment newInstance(String path, boolean readOnly) {
     EditorFragment f = new EditorFragment();
     Bundle args = new Bundle();
     args.putString("file_path", path);
+    args.putBoolean("read_only", readOnly);
     f.setArguments(args);
     return f;
   }
@@ -111,6 +119,7 @@ public class EditorFragment extends Fragment {
   public void onViewCreated(View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     filePath = getArguments().getString("file_path");
+    readOnly = getArguments().getBoolean("read_only", false);
     viewModel = new ViewModelProvider(this).get(EditorViewModel.class);
     lspViewModel = new ViewModelProvider(this).get(LspViewModel.class);
     editor = binding.editor;
@@ -148,6 +157,7 @@ public class EditorFragment extends Fragment {
               b.putString("path", filePath);
               if (content != null) editor.setText(content, b);
               updateKnownModifiedTime();
+              applyPendingJump();
             });
 
     if (filePath != null) {
@@ -161,6 +171,8 @@ public class EditorFragment extends Fragment {
 
     Language lang = LanguageManager.resolve(getContext(), filePath);
     if (lang != null) editor.setEditorLanguage(lang);
+
+    applyReadOnly();
 
     if (LspRouter.isSupportedFile(filePath)) {
       File targetFile = new File(filePath);
@@ -401,6 +413,7 @@ public class EditorFragment extends Fragment {
   }
 
   public void saveCurrentFile() {
+    if (readOnly) return;
     if (pagedSession != null) {
       saveCurrentPagedFile();
       return;
@@ -479,6 +492,43 @@ public class EditorFragment extends Fragment {
 
   public IdeEditor getEditor() {
     return editor;
+  }
+
+  private void applyReadOnly() {
+    if (editor == null) return;
+    if (readOnly) {
+      editor.setEditable(false);
+    }
+  }
+
+  /**
+   * از side یه درخواست پرش به location میاد (مثلاً go-to-definition/reference). اگه محتوا هنوز
+   * لود نشده باشه ذخیره‌اش می‌کنیم و بعد از لودِ محتوا در {@link #applyPendingJump()} اجراش می‌کنیم.
+   */
+  public void jumpToLocation(int line, int column) {
+    if (editor == null || editor.getText().length() == 0) {
+      pendingLine = line;
+      pendingColumn = column;
+      return;
+    }
+    doJump(line, column);
+  }
+
+  private void applyPendingJump() {
+    if (pendingLine >= 0) {
+      int line = pendingLine;
+      int column = pendingColumn;
+      pendingLine = -1;
+      pendingColumn = -1;
+      doJump(line, column);
+    }
+  }
+
+  private void doJump(int line, int column) {
+    if (editor == null) return;
+    int maxLine = editor.getLineCount() - 1;
+    int targetLine = Math.max(0, Math.min(line, maxLine));
+    editor.setSelection(targetLine, Math.max(0, column));
   }
 
   public void scheduleBreadcrumbRefresh() {

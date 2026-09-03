@@ -27,6 +27,7 @@ import io.github.rosemoe.sora.widget.component.EditorTextActionWindow;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.R;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.AndroidClasspathResolver;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.codeeditors.ui.model.OpenFileLocationEvent;
 import ir.hanzodev1375.ghostide.codeeditors.util.TranslateTask;
@@ -954,7 +955,10 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
   private String uriToFilePath(String uri) {
     try {
       String path = URI.create(uri).getPath();
-      return path != null ? new File(path).getAbsolutePath() : null;
+      if (path == null) return null;
+      // LSP داخل proot با ریشهی rootfs اجرا میشه؛ مسیر locationش guest هست و باید به مسیر
+      // host روی اندروید نگاشت بشه، وگرنه فایل پیدا نمیشه و ادیتور خالی باز میشه.
+      return AndroidClasspathResolver.toHostPath(editor.getContext(), path);
     } catch (Exception e) {
       return null;
     }

@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.EditText;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 
 import androidx.annotation.Nullable;
 
@@ -27,10 +27,10 @@ public final class UiFeedbackHostImpl implements UiFeedbackHost, Application.Act
   public void toast(String message, boolean longDuration) {
     runOnMain(
         () ->
-            Toast.makeText(
+            GhostToast.makeText(
                     GhostIdeAppLoader.getContext(),
                     message,
-                    longDuration ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT)
+                    longDuration ? GhostToast.LENGTH_LONG : GhostToast.LENGTH_SHORT)
                 .show());
   }
 

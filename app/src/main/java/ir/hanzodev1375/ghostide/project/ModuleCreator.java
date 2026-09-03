@@ -20,6 +20,7 @@ public class ModuleCreator {
   private final Context context;
   private final Handler mainHandler = new Handler(Looper.getMainLooper());
   private List<LibraryManager.Library> libraries = Collections.emptyList();
+  private List<String> selectedModules = Collections.emptyList();
 
   public interface OnModuleResult {
     void onSuccess(String modulePath);
@@ -37,6 +38,10 @@ public class ModuleCreator {
 
   public void setLibraries(List<LibraryManager.Library> libraries) {
     this.libraries = libraries != null ? libraries : Collections.emptyList();
+  }
+
+  public void setSelectedModules(List<String> selectedModules) {
+    this.selectedModules = selectedModules != null ? selectedModules : Collections.emptyList();
   }
 
   public void create(
@@ -103,6 +108,10 @@ public class ModuleCreator {
 
     if (!libraries.isEmpty()) {
       LibraryManager.addLibraries(root, moduleDir, useKts, libraries);
+    }
+
+    if (!selectedModules.isEmpty()) {
+      addModuleDependencies(root, moduleName, useKts, selectedModules);
     }
 
     return moduleDir.getAbsolutePath();
@@ -314,6 +323,30 @@ public class ModuleCreator {
 
     writeRaw(insertIntoDependencies(current, dep), appGradle);
     return true;
+  }
+
+  private void addModuleDependencies(
+      File root, String newModuleName, boolean newModuleUseKts, List<String> modules)
+      throws IOException {
+    String newDep;
+    if (newModuleUseKts) {
+      newDep = "    implementation(project(\":" + newModuleName + "\"))";
+    } else {
+      newDep = "    implementation project(':" + newModuleName + "')";
+    }
+    String checkStr = "project(\":" + newModuleName + "\")";
+    String checkStr2 = "project(':" + newModuleName + "')";
+
+    for (String mod : modules) {
+      File buildFile = new File(root, mod + "/build.gradle.kts");
+      if (!buildFile.exists()) buildFile = new File(root, mod + "/build.gradle");
+      if (!buildFile.exists()) continue;
+
+      String content = readFile(buildFile);
+      if (content.contains(checkStr) || content.contains(checkStr2)) continue;
+
+      writeRaw(insertIntoDependencies(content, newDep), buildFile);
+    }
   }
 
   private String insertIntoDependencies(String content, String dep) {

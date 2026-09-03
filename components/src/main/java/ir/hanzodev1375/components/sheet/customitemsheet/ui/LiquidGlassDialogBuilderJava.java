@@ -345,17 +345,17 @@ public class LiquidGlassDialogBuilderJava extends MaterialAlertDialogBuilder {
       TextView tv = targets.get(i);
       int color;
       if (i == 3) {
-        color = MaterialColors.getColor(tv, R.attr.colorPrimary);
-      } else if (i >= 4) {
-        color = MaterialColors.getColor(tv, R.attr.colorPrimaryContainer);
-      } else {
         color = MaterialColors.getColor(tv, R.attr.colorOnSurface);
+      } else if (i >= 4) {
+        color = MaterialColors.getColor(tv, R.attr.colorOnSurface);
+      } else {
+        color = MaterialColors.getColor(tv, R.attr.colorOnPrimary);
       }
       tv.setTextColor(color);
       if (isOverLight) {
         tv.setShadowLayer(0f, 0f, 0f, Color.TRANSPARENT);
       } else {
-        tv.setShadowLayer(8f, 0f, 2f, Color.BLACK);
+        tv.setShadowLayer(9f, 0f, 4f, MaterialColors.getColor(tv,R.attr.colorSurfaceContainerLow));
       }
     }
   }

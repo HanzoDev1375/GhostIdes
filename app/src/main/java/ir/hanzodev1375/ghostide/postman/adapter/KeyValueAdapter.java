@@ -1,18 +1,13 @@
 package ir.hanzodev1375.ghostide.postman.adapter;
 
-import android.graphics.drawable.GradientDrawable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-
+import ir.hanzodev1375.ghostide.R;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
-import ir.theme.ThemeManager;
-import ir.theme.ThemeUtils;
 import java.util.List;
-
 import ir.hanzodev1375.ghostide.databinding.ItemKeyValueBinding;
 import ir.hanzodev1375.ghostide.postman.model.KeyValueItem;
 import ir.hanzodev1375.ghostide.postman.util.SimpleTextWatcher;
@@ -96,18 +91,20 @@ public class KeyValueAdapter extends RecyclerView.Adapter<KeyValueAdapter.ViewHo
     void bind(KeyValueItem item) {
       if (keyWatcher != null) binding.keyInput.removeTextChangedListener(keyWatcher);
       if (valueWatcher != null) binding.valueInput.removeTextChangedListener(valueWatcher);
-      var themeManager = new ThemeManager(GhostIdeAppLoader.getContext());
-      var themeUtil = new ThemeUtils(themeManager);
-      var weget = themeManager.getTheme().getWidget();
-      var setting = GhostIdeAppLoader.getInstance().getSetting();
-      if(!setting.isShowBackground()) {
-      	return;
-      }
-      //بعدا کامل میکنمش
 
       binding.keyInput.setText(item.getKey());
       binding.valueInput.setText(item.getValue());
       binding.enabledCheckbox.setChecked(item.isEnabled());
+
+      var setting = GhostIdeAppLoader.getInstance().getSetting();
+      if (setting.isShowBackground()) {
+        binding.keyInput.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+        binding.valueInput.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+      } else {
+        binding.keyInput.setBackgroundResource(R.drawable.bg_input_row);
+        binding.valueInput.setBackgroundResource(R.drawable.bg_input_row);
+      }
+      
 
       keyWatcher =
           new SimpleTextWatcher(

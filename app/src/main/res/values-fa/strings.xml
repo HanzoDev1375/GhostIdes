@@ -274,6 +274,8 @@
   <string name="module_hint_libraries">کتابخانه ها (اختیاری)</string>
   <string name="module_helper_libraries">group:artifact:version - یکی در هر خط یا با کاما از هم جدا شده است</string>
   <string name="module_error_lib_format">قالب نامعتبر: \&quot;%s\&quot; — از group:artifact:version استفاده کنید</string>
+  <string name="module_dependencies_title">افزودن به ماژول‌های موجود</string>
+  <string name="module_dependencies_helper">انتخاب کنید کدام ماژول‌ها به ماژول جدید وابسته باشند</string>
   <string name="translator_title">ترجمه strings.xml</string>
   <string name="translator_select_all">همه</string>
   <string name="translator_deselect_all">هیچ کدام</string>

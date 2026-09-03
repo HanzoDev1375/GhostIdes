@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
@@ -78,7 +78,7 @@ public class GitBottomSheetFragment extends BaseBlurBottomSheet {
         msg -> {
           progressBar.setVisibility(msg != null ? View.VISIBLE : View.GONE);
           if (msg != null) {
-            Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+            GhostToast.makeText(getContext(), msg, GhostToast.LENGTH_SHORT).show();
           }
         });
 
@@ -115,7 +115,7 @@ public class GitBottomSheetFragment extends BaseBlurBottomSheet {
       }
       isInitialized = true;
     } else if (repoPath == null || repoPath.isEmpty()) {
-      Toast.makeText(getContext(), "مسیر مخزن تنظیم نشده است!", Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(getContext(), "مسیر مخزن تنظیم نشده است!", GhostToast.LENGTH_SHORT).show();
       dismiss();
     }
   }
@@ -182,13 +182,13 @@ public class GitBottomSheetFragment extends BaseBlurBottomSheet {
           String name = etName.getText().toString().trim();
           String email = etEmail.getText().toString().trim();
           if (name.isEmpty() || email.isEmpty()) {
-            Toast.makeText(getContext(), "Name and email required", Toast.LENGTH_SHORT).show();
+            GhostToast.makeText(getContext(), "Name and email required", GhostToast.LENGTH_SHORT).show();
             return;
           }
           prefsUtils.setGitLocalUserName(name);
           prefsUtils.setGitLocalUserEmail(email);
           viewModel.setUserConfig(name, email);
-          Toast.makeText(getContext(), "Saved", Toast.LENGTH_SHORT).show();
+          GhostToast.makeText(getContext(), "Saved", GhostToast.LENGTH_SHORT).show();
         });
     builder.setNegativeButton("Cancel", null);
     builder.show();

@@ -16,7 +16,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -268,12 +268,12 @@ public class TerminalActivity extends BaseCompat
 
   private void showNewSessionMenu(View anchor) {
     if (!DebianBootstrap.isInstalled(this)) {
-      Toast.makeText(
+      GhostToast.makeText(
               this,
               getString(
                   R.string.terminal_debian_rootfs_not_found_fallback,
                   DebianBootstrap.getRootfsDir(this).getAbsolutePath()),
-              Toast.LENGTH_LONG)
+              GhostToast.LENGTH_LONG)
           .show();
       addNewSession();
       return;
@@ -498,8 +498,8 @@ public class TerminalActivity extends BaseCompat
                   DebianBootstrap.uninstall(
                       this,
                       () -> {
-                        Toast.makeText(
-                                this, getString(R.string.terminal_debian_removed), Toast.LENGTH_SHORT)
+                        GhostToast.makeText(
+                                this, getString(R.string.terminal_debian_removed), GhostToast.LENGTH_SHORT)
                             .show();
                       }))
         .setNegativeButton(getString(R.string.terminal_action_cancel), null)
@@ -531,8 +531,8 @@ public class TerminalActivity extends BaseCompat
                 getString(R.string.terminal_action_cancel),
                 (dialog, which) -> {
                   DebianInstaller.cancelInstall();
-                  Toast.makeText(
-                          this, getString(R.string.terminal_install_cancelled), Toast.LENGTH_SHORT)
+                  GhostToast.makeText(
+                          this, getString(R.string.terminal_install_cancelled), GhostToast.LENGTH_SHORT)
                       .show();
                 })
             .create();
@@ -569,10 +569,10 @@ public class TerminalActivity extends BaseCompat
             runOnUiThread(
                 () -> {
                   if (installDialog != null) installDialog.dismiss();
-                  Toast.makeText(
+                  GhostToast.makeText(
                           TerminalActivity.this,
                           getString(R.string.terminal_debian_installed_success),
-                          Toast.LENGTH_LONG)
+                          GhostToast.LENGTH_LONG)
                       .show();
                   b.terminalView.setVisibility(View.VISIBLE);
                   bindServiceAndStart();
@@ -584,7 +584,7 @@ public class TerminalActivity extends BaseCompat
             runOnUiThread(
                 () -> {
                   if (installDialog != null) installDialog.dismiss();
-                  Toast.makeText(TerminalActivity.this, message, Toast.LENGTH_LONG).show();
+                  GhostToast.makeText(TerminalActivity.this, message, GhostToast.LENGTH_LONG).show();
                 });
           }
         };

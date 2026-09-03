@@ -7,7 +7,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import io.github.rosemoe.sora.event.ScrollEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,11 +33,11 @@ import ir.hanzodev1375.ghostide.codeeditors.preview.EditorPopUp;
  * Base class for the "new dependency version" checker.
  *
  * <p>Every declaration in the opened file is looked up online in the background. Only the version
- * token of dependencies that actually have a newer release is highlighted (with a subtle background,
- * like Android Studio); nothing is painted before a real update is confirmed. Tapping such a token
- * pops up a small window that shows the newest version and offers to update the text in place.
- * Subclasses only need to tell whether a file/language is theirs and how to collect the checkable
- * dependency tokens per line.
+ * token of dependencies that actually have a newer release is highlighted (with a subtle
+ * background, like Android Studio); nothing is painted before a real update is confirmed. Tapping
+ * such a token pops up a small window that shows the newest version and offers to update the text
+ * in place. Subclasses only need to tell whether a file/language is theirs and how to collect the
+ * checkable dependency tokens per line.
  */
 public abstract class DependencyCheckerIde {
 
@@ -53,7 +55,6 @@ public abstract class DependencyCheckerIde {
 
   private long lastProcessTime = 0;
   private String lastCoordinates = "";
-  private int lastMatchLine = -1;
   private EditorPopupWindow activePopup;
 
   protected DependencyCheckerIde(CodeEditor editor) {
@@ -137,7 +138,7 @@ public abstract class DependencyCheckerIde {
         });
 
     editor.subscribeEvent(
-        io.github.rosemoe.sora.event.ScrollEvent.class,
+        ScrollEvent.class,
         (event, unsubscribe) -> {
           if (isMyLanguage()) {
             refreshHighlights();
@@ -149,9 +150,9 @@ public abstract class DependencyCheckerIde {
    * Collects every dependency of the opened file whose newest version is already known (from a
    * previous online check) and highlights only the version token of those that have an update.
    *
-   * <p>For each line it first registers the dependency so its online version can be looked up in the
-   * background. Tokens that have a known update are highlighted (background only). Everything else
-   * stays untouched, so nothing is highlighted before a real update is found online.
+   * <p>For each line it first registers the dependency so its online version can be looked up in
+   * the background. Tokens that have a known update are highlighted (background only). Everything
+   * else stays untouched, so nothing is highlighted before a real update is found online.
    */
   public void refreshHighlights() {
     if (!isMyLanguage()) {
@@ -170,7 +171,10 @@ public abstract class DependencyCheckerIde {
       List<DependencyMatch> deps = new ArrayList<>();
       collectLineHighlights(line, lineText, deps);
       for (DependencyMatch d : deps) {
-        if (d.versionStart() >= d.versionEnd()) continue;
+        if (d.version() == null || d.version().isEmpty()) continue;
+        // Catalog references carry versionLine = -1 because the version token lives in another
+        // file (libs.versions.toml); the fullStart/fullEnd span still lets us highlight the ref.
+        if (d.versionLine() >= 0 && d.versionStart() >= d.versionEnd()) continue;
 
         String coords = d.coordinates();
         String newest = updateCache.get(coords);
@@ -250,6 +254,9 @@ public abstract class DependencyCheckerIde {
     root.addView(titleLine(R.string.dependency_current_version, current));
     if (hasUpdate) {
       root.addView(infoLine(R.string.dependency_new_version, newest));
+      if (match.versionLine() < 0) {
+        root.addView(infoLine(R.string.dependency_update_catalog_hint));
+      }
       root.addView(buildUpdateButton(match, newest));
     } else {
       root.addView(infoLine(R.string.dependency_up_to_date));
@@ -285,10 +292,20 @@ public abstract class DependencyCheckerIde {
   // ── Apply update: replace version token in the document ─────────────────
 
   protected final void applyUpdate(DependencyMatch match, String newVersion) {
-    int line = lastMatchLine;
-    if (line < 0) {
-      line = editor.getCursor().left().getLine();
+    if (match.versionLine() < 0) {
+      if (applyCatalogUpdate(match, newVersion)) {
+        Toast.makeText(
+                editor.getContext(), R.string.dependency_update_catalog_done, Toast.LENGTH_SHORT)
+            .show();
+      } else {
+        Toast.makeText(
+                editor.getContext(), R.string.dependency_update_catalog_failed, Toast.LENGTH_SHORT)
+            .show();
+      }
+      dismissPopup();
+      return;
     }
+    int line = match.versionLine();
     try {
       int startOffset = editor.getText().getIndexer().getCharIndex(line, match.versionStart());
       int endOffset = editor.getText().getIndexer().getCharIndex(line, match.versionEnd());
@@ -305,6 +322,16 @@ public abstract class DependencyCheckerIde {
     } catch (Exception ignored) {
     }
     dismissPopup();
+  }
+
+  /**
+   * Encodes the new version wherever the declared version of a catalog reference ({@code
+   * versionLine() < 0}) actually lives. The base implementation does nothing; subclasses that
+   * resolve such references against an external file (e.g. libs.versions.toml) override this to
+   * persist the update there. Returns true when the update was applied.
+   */
+  protected boolean applyCatalogUpdate(DependencyMatch match, String newVersion) {
+    return false;
   }
 
   // ── Event handling ───────────────────────────────────────────────────────
@@ -328,7 +355,6 @@ public abstract class DependencyCheckerIde {
       return;
     }
     lastCoordinates = coords;
-    lastMatchLine = event.getLeft().getLine();
 
     String cached = updateCache.get(coords);
     if (cached != null && !cached.isEmpty()) {

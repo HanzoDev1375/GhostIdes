@@ -8,7 +8,7 @@ import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import ir.hanzodev1375.components.utils.ParticleItemAnimator;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -141,10 +141,10 @@ public class PluginManagerActivity extends BaseCompat {
           plugins.add(new InstalledPluginInfo(file, manifest, loader.isLoaded(manifest.id())));
         } catch (IOException | ReflectiveOperationException | RuntimeException e) {
           Log.e(TAG, "Failed to load " + file, e);
-          Toast.makeText(
+          GhostToast.makeText(
                   this,
                   getString(R.string.plugin_manager_install_error, file.getName()),
-                  Toast.LENGTH_SHORT)
+                  GhostToast.LENGTH_SHORT)
               .show();
         }
       }
@@ -156,10 +156,10 @@ public class PluginManagerActivity extends BaseCompat {
   private void onUninstall(InstalledPluginInfo plugin) {
     loader.unload(plugin.manifest().id());
     if (plugin.file().delete()) {
-      Toast.makeText(
+      GhostToast.makeText(
               this,
               getString(R.string.plugin_manager_uninstalled_toast, plugin.manifest().name()),
-              Toast.LENGTH_SHORT)
+              GhostToast.LENGTH_SHORT)
           .show();
     }
     refreshList();
@@ -171,7 +171,7 @@ public class PluginManagerActivity extends BaseCompat {
     }
     String displayName = queryDisplayName(uri);
     if (displayName != null && !displayName.toLowerCase(Locale.ROOT).endsWith(GPL_EXTENSION)) {
-      Toast.makeText(this, R.string.plugin_manager_not_gpl_file, Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, R.string.plugin_manager_not_gpl_file, GhostToast.LENGTH_SHORT).show();
       return;
     }
 
@@ -189,22 +189,22 @@ public class PluginManagerActivity extends BaseCompat {
       }
       cleanupOnFailure = installedFile;
       LoadedGplPlugin loadedPlugin = loader.load(installedFile);
-      Toast.makeText(
+      GhostToast.makeText(
               this,
               getString(R.string.plugin_manager_installed_toast, manifest.name()),
-              Toast.LENGTH_SHORT)
+              GhostToast.LENGTH_SHORT)
           .show();
       refreshList();
       showSetupActionsIfAny(loadedPlugin);
     } catch (IOException | ReflectiveOperationException | RuntimeException e) {
       Log.e(TAG, "Failed to install " + uri, e);
       cleanupOnFailure.delete();
-      Toast.makeText(
+      GhostToast.makeText(
               this,
               getString(
                   R.string.plugin_manager_install_error,
                   e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()),
-              Toast.LENGTH_LONG)
+              GhostToast.LENGTH_LONG)
           .show();
     }
   }

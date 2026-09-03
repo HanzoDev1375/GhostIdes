@@ -67,4 +67,7 @@
   <string name="dependency_new_version">\u2B06 نسخه جدید: %s</string>
   <string name="dependency_update">آپدیت کن</string>
   <string name="dependency_up_to_date">بروز هستی \u2714</string>
+  <string name="dependency_update_catalog_hint">نسخه توی libs.versions.toml تعریف شده — آپدیت همونجا نوشته میشه</string>
+  <string name="dependency_update_catalog_done">libs.versions.toml آپدیت شد</string>
+  <string name="dependency_update_catalog_failed">libs.versions.toml قابل آپدیت نبود</string>
 </resources>

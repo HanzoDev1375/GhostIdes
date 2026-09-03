@@ -28,4 +28,5 @@ dependencies {
     implementation(libs.jgit)
     implementation project(path: ":editor")
     implementation project(path: ":components")
+    implementation project(':thememanager')
 }

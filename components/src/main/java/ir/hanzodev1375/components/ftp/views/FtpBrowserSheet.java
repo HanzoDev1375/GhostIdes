@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -162,10 +162,10 @@ public class FtpBrowserSheet extends BaseBlurBottomSheet {
                     () -> {
                       if (!isAdded()) return;
                       showProgress(false);
-                      Toast.makeText(
+                      GhostToast.makeText(
                               requireContext(),
                               getString(R.string.ftp_error_list, e.getMessage()),
-                              Toast.LENGTH_SHORT)
+                              GhostToast.LENGTH_SHORT)
                           .show();
                     });
           }
@@ -246,10 +246,10 @@ public class FtpBrowserSheet extends BaseBlurBottomSheet {
                                 () -> {
                                   if (!isAdded()) return;
                                   showProgress(false);
-                                  Toast.makeText(
+                                  GhostToast.makeText(
                                           requireContext(),
                                           getString(R.string.ftp_error_delete, e.getMessage()),
-                                          Toast.LENGTH_SHORT)
+                                          GhostToast.LENGTH_SHORT)
                                       .show();
                                 });
                       }
@@ -296,10 +296,10 @@ public class FtpBrowserSheet extends BaseBlurBottomSheet {
                                 () -> {
                                   if (!isAdded()) return;
                                   showProgress(false);
-                                  Toast.makeText(
+                                  GhostToast.makeText(
                                           requireContext(),
                                           getString(R.string.ftp_error_rename, e.getMessage()),
-                                          Toast.LENGTH_SHORT)
+                                          GhostToast.LENGTH_SHORT)
                                       .show();
                                 });
                       }

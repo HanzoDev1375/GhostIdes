@@ -137,7 +137,6 @@ public class IdeEditor extends CodeEditor
 
   @SuppressWarnings({"Deprecated", "all"})
   void editorBinder() {
-    setLigatureEnabled(true);
     setHighlightCurrentLine(false);
     ensureSelectionVisible();
     setRenderFunctionCharacters(true);

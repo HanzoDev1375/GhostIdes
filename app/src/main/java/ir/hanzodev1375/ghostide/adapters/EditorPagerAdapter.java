@@ -28,7 +28,8 @@ public class EditorPagerAdapter extends FragmentStateAdapter {
   @NonNull
   @Override
   public Fragment createFragment(int position) {
-    return EditorFragment.newInstance(tabs.get(position).getFilePath());
+    TabModel tab = tabs.get(position);
+    return EditorFragment.newInstance(tab.getFilePath(), tab.isReadOnly());
   }
 
   @Override

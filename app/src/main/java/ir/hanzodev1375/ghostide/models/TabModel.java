@@ -3,13 +3,19 @@ package ir.hanzodev1375.ghostide.models;
 public class TabModel {
   private String filePath, fileName;
   private boolean pinned;
+  private boolean readOnly;
   private transient boolean hasStar;
   private transient boolean hasError;
 
   public TabModel(String path, String name) {
+    this(path, name, false);
+  }
+
+  public TabModel(String path, String name, boolean readOnly) {
     this.filePath = path;
     this.fileName = name;
     this.pinned = false;
+    this.readOnly = readOnly;
   }
 
   public String getFilePath() {
@@ -31,6 +37,14 @@ public class TabModel {
 
   public void setPinned(boolean pinned) {
     this.pinned = pinned;
+  }
+
+  public boolean isReadOnly() {
+    return readOnly;
+  }
+
+  public void setReadOnly(boolean readOnly) {
+    this.readOnly = readOnly;
   }
 
   public boolean getHasStar() {

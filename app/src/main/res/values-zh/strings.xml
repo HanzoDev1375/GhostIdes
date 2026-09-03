@@ -274,6 +274,8 @@
   <string name="module_hint_libraries">图书馆（可选）</string>
   <string name="module_helper_libraries">group:artifact:version — 每行一个或以逗号分隔</string>
   <string name="module_error_lib_format">格式无效：\&quot;%s\&quot; — 使用组：工件：版本</string>
+  <string name="module_dependencies_title">添加到现有模块</string>
+  <string name="module_dependencies_helper">选择哪些模块应依赖新模块</string>
   <string name="translator_title">翻译字符串.xml</string>
   <string name="translator_select_all">全部</string>
   <string name="translator_deselect_all">没有任何</string>

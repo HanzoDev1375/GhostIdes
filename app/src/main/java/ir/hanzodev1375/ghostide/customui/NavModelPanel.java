@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -94,18 +94,18 @@ public class NavModelPanel extends RecyclerView {
     if (trimmed.isEmpty()) return;
     File file = new File(trimmed);
     if (!file.exists()) {
-      Toast.makeText(
+      GhostToast.makeText(
               getContext(),
               getContext().getString(R.string.goto_dir_not_found, trimmed),
-              Toast.LENGTH_SHORT)
+              GhostToast.LENGTH_SHORT)
           .show();
       return;
     }
     if (!file.isDirectory()) {
-      Toast.makeText(
+      GhostToast.makeText(
               getContext(),
               getContext().getString(R.string.goto_dir_not_directory, trimmed),
-              Toast.LENGTH_SHORT)
+              GhostToast.LENGTH_SHORT)
           .show();
       return;
     }

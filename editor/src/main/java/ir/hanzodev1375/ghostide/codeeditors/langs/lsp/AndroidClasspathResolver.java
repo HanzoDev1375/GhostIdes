@@ -615,6 +615,26 @@ public final class AndroidClasspathResolver {
     return jar.getAbsolutePath();
   }
 
+  /**
+   * مسیر یه location که LSP داخل proot برمیگردونه رو به مسیر host روی اندروید نگاشت میکنه.
+   *
+   * <p>LSP با «-r rootfs» اجرا میشه، پس ریشهی «/» براش همون rootfs هست و مسیرهایی مثل
+   * «/root/MyProject/src/foo.java» که برمیگردونه در واقع روی host یعنی
+   * «rootfs/root/MyProject/src/foo.java» هستن. اگه بدون تبدیل مستقیم به File بدهیم، فایل روی
+   * دستگاه پیدا نمیشه و ادیتور خالی باز میشه — دقیقاً همون باگِ «فایل باز میشه ولی محتوا خونده
+   * نمیشه» موقع go-to-definition/reference. مسیرهایی که بیرون rootfs bind شدن (مثل /storage/emulated/0)
+   * عیناً به همون مسیر دیده میشن، پس دستنخورده برمیگردن.
+   */
+  public static String toHostPath(Context context, String guestPath) {
+    if (guestPath == null) return null;
+    File rootfs = DebianBootstrap.getRootfsDir(context);
+    if (rootfs != null && rootfs.isDirectory()) {
+      File viaRoot = new File(rootfs, guestPath);
+      if (viaRoot.exists()) return viaRoot.getAbsolutePath();
+    }
+    return guestPath;
+  }
+
   /** jarها رو با جداکنندهی کلاسپث لینوکس (":") به هم میچسبونه، برای استفاده تو دستور شل. */
   public static String joinClasspath(List<File> jars) {
     StringBuilder sb = new StringBuilder();

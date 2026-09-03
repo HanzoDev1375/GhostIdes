@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -85,14 +85,14 @@ public class BranchesFragment extends Fragment {
             v -> {
               String name = etNewBranch.getText().toString().trim();
               if (!name.isEmpty()) viewModel.createBranch(name);
-              else Toast.makeText(getContext(), "Enter branch name", Toast.LENGTH_SHORT).show();
+              else GhostToast.makeText(getContext(), "Enter branch name", GhostToast.LENGTH_SHORT).show();
             });
 
     viewModel.operationResult.observe(
         getViewLifecycleOwner(),
         result -> {
           if (result != null)
-            Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
+            GhostToast.makeText(getContext(), result.getMessage(), GhostToast.LENGTH_SHORT).show();
         });
   }
 }

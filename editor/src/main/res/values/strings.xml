@@ -134,4 +134,7 @@
   <string name="dependency_new_version">\u2B06 New version: %s</string>
   <string name="dependency_update">Update</string>
   <string name="dependency_up_to_date">Up to date \u2714</string>
+  <string name="dependency_update_catalog_hint">Version is defined in libs.versions.toml — the update will be written there</string>
+  <string name="dependency_update_catalog_done">libs.versions.toml updated</string>
+  <string name="dependency_update_catalog_failed">Couldn\'t update libs.versions.toml</string>
 </resources>

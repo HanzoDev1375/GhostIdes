@@ -274,6 +274,8 @@
   <string name="module_hint_libraries">المكتبات (اختياري)</string>
   <string name="module_helper_libraries">المجموعة: قطعة أثرية: الإصدار - واحد في كل سطر أو مفصولة بفاصلة</string>
   <string name="module_error_lib_format">تنسيق غير صالح: \&quot;%s\&quot; — استخدم المجموعة:artifact:version</string>
+  <string name="module_dependencies_title">إضافة إلى الوحدات الموجودة</string>
+  <string name="module_dependencies_helper">اختر الوحدات التي يجب أن تعتمد على الوحدة الجديدة</string>
   <string name="translator_title">سلاسل الترجمة.xml</string>
   <string name="translator_select_all">الجميع</string>
   <string name="translator_deselect_all">لا أحد</string>

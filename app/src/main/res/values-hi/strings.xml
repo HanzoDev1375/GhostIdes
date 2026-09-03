@@ -274,6 +274,8 @@
   <string name="module_hint_libraries">पुस्तकालय (वैकल्पिक)</string>
   <string name="module_helper_libraries">समूह: विरूपण साक्ष्य: संस्करण - प्रति पंक्ति एक या अल्पविराम से अलग किया गया</string>
   <string name="module_error_lib_format">अमान्य प्रारूप: \&quot;%s\&quot; - समूह: विरूपण साक्ष्य: संस्करण का उपयोग करें</string>
+  <string name="module_dependencies_title">मौजूदा मॉड्यूल में जोड़ें</string>
+  <string name="module_dependencies_helper">चुनें कि कौन से मॉड्यूल नए मॉड्यूल पर निर्भर हों</string>
   <string name="translator_title">अनुवाद strings.xml</string>
   <string name="translator_select_all">सभी</string>
   <string name="translator_deselect_all">कोई नहीं</string>

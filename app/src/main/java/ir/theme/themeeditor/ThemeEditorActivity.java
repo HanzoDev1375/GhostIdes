@@ -19,7 +19,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -121,21 +121,21 @@ public class ThemeEditorActivity extends BaseCompat {
 
     currentThemePath = getIntent().getStringExtra(EXTRA_THEME_PATH);
     if (currentThemePath == null || currentThemePath.isEmpty()) {
-      Toast.makeText(this, "No theme file path", Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, "No theme file path", GhostToast.LENGTH_SHORT).show();
       finish();
       return;
     }
 
     File file = new File(currentThemePath);
     if (!file.exists()) {
-      Toast.makeText(this, "File not found", Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, "File not found", GhostToast.LENGTH_SHORT).show();
       finish();
       return;
     }
 
     String json = readFileToString(file);
     if (json == null || json.isEmpty()) {
-      Toast.makeText(this, "Failed to read file", Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, "Failed to read file", GhostToast.LENGTH_SHORT).show();
       finish();
       return;
     }
@@ -147,7 +147,7 @@ public class ThemeEditorActivity extends BaseCompat {
       if (currentTheme.getEditor() == null) currentTheme.setEditor(new EditorTheme());
       if (currentTheme.getWidget() == null) currentTheme.setWidget(new WidgetTheme());
     } catch (Exception e) {
-      Toast.makeText(this, "Invalid theme", Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(this, "Invalid theme", GhostToast.LENGTH_SHORT).show();
       finish();
       return;
     }
@@ -451,7 +451,7 @@ public class ThemeEditorActivity extends BaseCompat {
     buildColorItems();
     refreshCurrentTab();
     clearSearch();
-    Toast.makeText(this, "Reset to default", Toast.LENGTH_SHORT).show();
+    GhostToast.makeText(this, "Reset to default", GhostToast.LENGTH_SHORT).show();
   }
 
   private void filter(String query) {

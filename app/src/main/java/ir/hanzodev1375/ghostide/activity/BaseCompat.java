@@ -165,10 +165,6 @@ public class BaseCompat extends AppCompatActivity
     return animMgr;
   }
 
-  /**
-   * شروع یک اکتیویتی با Shared Element Transition. هر دو ویو (مبدا و مقصد) باید transitionName
-   * یکسان داشته باشند.
-   */
   protected void startActivityWithSharedElement(
       Intent intent, View sharedView, String transitionName) {
     if (sharedView == null || transitionName == null) {

@@ -2,13 +2,18 @@ package ir.hanzodev1375.ghostide.postman.util;
 
 import android.content.Context;
 
+import android.graphics.Color;
 import android.view.View;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
 
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import ir.hanzodev1375.ghostide.R;
+import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.theme.ThemeManager;
+import ir.theme.ThemeUtils;
 
 /** Small shared helpers for turning HTTP methods / status codes into the right accent color. */
 public class UiUtils {
@@ -77,5 +82,29 @@ public class UiUtils {
           v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), nav.bottom);
           return insets;
         });
+  }
+
+  /**
+   * وقتی حالت بک‌گراند فعال باشد، رنگ بک‌گراند تم را با شفافیت ۱۲۸ (الفا) روی ویوهای محتوا اعمال
+   * می‌کند تا تصویر پس‌زمینه پشت آن‌ها دیده شود. باید بعد از setupBackgroundBlur صدا زده شود.
+   */
+  public static void tintContentForBackground(Context context, View... views) {
+    if (!new PreferencesUtils(context).isShowBackground()) {
+      return;
+    }
+    ThemeUtils themeUtil = new ThemeUtils(new ThemeManager(context));
+    var theme = themeUtil.getTheme();
+    if (theme == null
+        || theme.getActivity() == null
+        || theme.getActivity().getBackground() == null) {
+      return;
+    }
+    int bg = Color.parseColor(theme.getActivity().getBackground());
+    int tint = ColorUtils.setAlphaComponent(bg, 128);
+    for (View v : views) {
+      if (v != null) {
+        v.setBackgroundColor(tint);
+      }
+    }
   }
 }

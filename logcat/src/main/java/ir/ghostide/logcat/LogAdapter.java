@@ -14,7 +14,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
@@ -129,7 +129,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> impl
                       + ": "
                       + log.getMessage();
               clipboard.setPrimaryClip(ClipData.newPlainText("log", fullLog));
-              Toast.makeText(anchor.getContext(), "Copied", Toast.LENGTH_SHORT).show();
+              GhostToast.makeText(anchor.getContext(), "Copied", GhostToast.LENGTH_SHORT).show();
               break;
             case "Share Log":
               fullLog =
@@ -147,19 +147,19 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> impl
               break;
             case "Copy Tag":
               clipboard.setPrimaryClip(ClipData.newPlainText("tag", log.getTag()));
-              Toast.makeText(anchor.getContext(), "Tag copied", Toast.LENGTH_SHORT).show();
+              GhostToast.makeText(anchor.getContext(), "Tag copied", GhostToast.LENGTH_SHORT).show();
               break;
             case "Copy Message":
               clipboard.setPrimaryClip(ClipData.newPlainText("message", log.getMessage()));
-              Toast.makeText(anchor.getContext(), "Message copied", Toast.LENGTH_SHORT).show();
+              GhostToast.makeText(anchor.getContext(), "Message copied", GhostToast.LENGTH_SHORT).show();
               break;
             case "Copy All Messages":
               String all = getAllFilteredMessages();
               clipboard.setPrimaryClip(ClipData.newPlainText("all_logs", all));
-              Toast.makeText(
+              GhostToast.makeText(
                       anchor.getContext(),
                       "All messages copied (" + filteredList.size() + " lines)",
-                      Toast.LENGTH_LONG)
+                      GhostToast.LENGTH_LONG)
                   .show();
               break;
           }

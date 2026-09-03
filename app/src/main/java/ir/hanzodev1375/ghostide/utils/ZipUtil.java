@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -167,10 +167,10 @@ public class ZipUtil {
             mainHandler.post(
                 () -> {
                   dismissProgressDialog();
-                  Toast.makeText(
+                  GhostToast.makeText(
                           context,
                           context.getString(R.string.zip_error) + e.getMessage(),
-                          Toast.LENGTH_LONG)
+                          GhostToast.LENGTH_LONG)
                       .show();
                 });
           }
@@ -213,7 +213,7 @@ public class ZipUtil {
 
   public static void showZipDialog(Context context, List<File> selectedFiles) {
     if (selectedFiles == null || selectedFiles.isEmpty()) {
-      Toast.makeText(context, R.string.no_items_selected, Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(context, R.string.no_items_selected, GhostToast.LENGTH_SHORT).show();
       return;
     }
 
@@ -275,7 +275,7 @@ public class ZipUtil {
                   password,
                   context,
                   () -> {
-                    Toast.makeText(context, R.string.zip_created_success, Toast.LENGTH_LONG).show();
+                    GhostToast.makeText(context, R.string.zip_created_success, GhostToast.LENGTH_LONG).show();
                   },
                   getSelectedCompressionLevel(zipspinner));
             });

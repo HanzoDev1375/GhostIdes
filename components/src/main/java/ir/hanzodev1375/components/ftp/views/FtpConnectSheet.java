@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
@@ -164,10 +164,10 @@ public class FtpConnectSheet extends BaseBlurBottomSheet {
                       if (!isAdded()) return;
                       btnConnect.setEnabled(true);
                       btnConnect.setText(R.string.ftp_btn_connect);
-                      Toast.makeText(
+                      GhostToast.makeText(
                               requireContext(),
                               getString(R.string.ftp_error_connect, e.getMessage()),
-                              Toast.LENGTH_LONG)
+                              GhostToast.LENGTH_LONG)
                           .show();
                     });
           }

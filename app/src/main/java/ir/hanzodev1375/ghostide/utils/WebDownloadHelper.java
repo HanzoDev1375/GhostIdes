@@ -6,7 +6,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 import ir.hanzodev1375.ghostide.R;
 import androidx.appcompat.app.AlertDialog;
 import com.downloader.PRDownloader;
@@ -33,12 +33,12 @@ public final class WebDownloadHelper {
     if (activity == null || activity.isFinishing() || TextUtils.isEmpty(url)) return;
 
     if (url.startsWith("blob:") || url.startsWith("data:")) {
-      Toast.makeText(activity, "This link type can't be downloaded", Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(activity, "This link type can't be downloaded", GhostToast.LENGTH_SHORT).show();
       return;
     }
 
     if (!PermissionUtils.hasManageStoragePermission(activity)) {
-      Toast.makeText(activity, "Grant storage access, then try again", Toast.LENGTH_LONG).show();
+      GhostToast.makeText(activity, "Grant storage access, then try again", GhostToast.LENGTH_LONG).show();
       PermissionUtils.requestManageStoragePermission(activity);
       return;
     }
@@ -55,7 +55,7 @@ public final class WebDownloadHelper {
 
     File dir = targetDir();
     if (!dir.exists() && !dir.mkdirs()) {
-      Toast.makeText(activity, "Can't create download folder", Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(activity, "Can't create download folder", GhostToast.LENGTH_SHORT).show();
       return;
     }
 
@@ -158,10 +158,10 @@ public final class WebDownloadHelper {
                   public void onDownloadComplete() {
                     if (!activity.isFinishing() && progressDialog.isShowing())
                       progressDialog.dismiss();
-                    Toast.makeText(
+                    GhostToast.makeText(
                             activity,
                             "Saved: " + new File(dir, fileName).getAbsolutePath(),
-                            Toast.LENGTH_LONG)
+                            GhostToast.LENGTH_LONG)
                         .show();
                   }
 
@@ -174,7 +174,7 @@ public final class WebDownloadHelper {
                         error != null && error.getServerErrorMessage() != null
                             ? error.getServerErrorMessage()
                             : "unknown";
-                    Toast.makeText(activity, "Download failed: " + detail, Toast.LENGTH_LONG)
+                    GhostToast.makeText(activity, "Download failed: " + detail, GhostToast.LENGTH_LONG)
                         .show();
                   }
                 });

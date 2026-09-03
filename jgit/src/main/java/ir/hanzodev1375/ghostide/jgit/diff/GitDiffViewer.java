@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.util.*;
 import android.view.*;
 import android.widget.*;
+import ir.hanzodev1375.components.views.GhostToast;
 import java.util.*;
 import java.util.concurrent.*;
 import android.text.*;
@@ -404,7 +405,7 @@ public class GitDiffViewer extends View {
     selectionEndLine = diffLines.size() - 1;
     selectionEndChar = diffLines.get(selectionEndLine).getText().length();
     invalidate();
-    Toast.makeText(getContext(), "همه متن انتخاب شد", Toast.LENGTH_SHORT).show();
+    GhostToast.makeText(getContext(), "همه متن انتخاب شد", GhostToast.LENGTH_SHORT).show();
   }
 
   private void copySelection() {
@@ -413,7 +414,7 @@ public class GitDiffViewer extends View {
       ClipboardManager clipboard =
           (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
       clipboard.setPrimaryClip(ClipData.newPlainText("diff_text", selectedText));
-      Toast.makeText(getContext(), "کپی شد", Toast.LENGTH_SHORT).show();
+      GhostToast.makeText(getContext(), "کپی شد", GhostToast.LENGTH_SHORT).show();
     }
     clearSelection();
   }

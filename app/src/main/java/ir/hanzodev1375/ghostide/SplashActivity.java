@@ -9,7 +9,7 @@ import ir.hanzodev1375.ghostide.utils.ObjectUtil;
 import ir.hanzodev1375.ghostide.utils.PermissionUtils;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import android.widget.Toast;
+import ir.hanzodev1375.components.views.GhostToast;
 
 public class SplashActivity extends BaseCompat {
 
@@ -27,7 +27,7 @@ public class SplashActivity extends BaseCompat {
             result -> {
               if (PermissionUtils.hasManageStoragePermission(this)) startFileManager();
               else {
-                Toast.makeText(this, "برای مدیریت فایل به مجوز نیاز است", Toast.LENGTH_LONG).show();
+                GhostToast.makeText(this, "برای مدیریت فایل به مجوز نیاز است", GhostToast.LENGTH_LONG).show();
                 finish();
               }
             });

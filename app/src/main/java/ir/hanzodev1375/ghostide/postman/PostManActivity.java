@@ -4,7 +4,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,21 +17,15 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
-import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.activity.SettingActivity;
 
-import ir.hanzodev1375.ghostide.utils.BlurTransformation;
-import ir.theme.ThemeManager;
-import ir.theme.ThemeUtils;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.R;
@@ -84,6 +77,9 @@ public class PostManActivity extends BaseCompat {
     setSupportActionBar(binding.toolbar);
     UiUtils.fixUi(binding.appBarLayout, binding.contentScroll);
     UiUtils.fixBottomBar(binding.responseSheet);
+    setupBackgroundBlur(
+        binding.backgroundIconPostman, binding.appBarLayout, binding.contentScroll);
+    UiUtils.tintContentForBackground(this, binding.appBarLayout, binding.contentScroll);
     repository = new AppRepository(this);
     prefs = new PrefsManager(this);
     setupMethodAndContentTypeDropdowns();
@@ -92,7 +88,6 @@ public class PostManActivity extends BaseCompat {
     setupBodyTypeToggle();
     setupResponseSheet();
     setupSendButton();
-    stepBackground();
   }
 
   private void setupMethodAndContentTypeDropdowns() {
@@ -111,39 +106,6 @@ public class PostManActivity extends BaseCompat {
             getResources().getStringArray(R.array.content_types));
     binding.contentTypeDropdown.setAdapter(contentTypeAdapter);
     binding.contentTypeDropdown.setText("application/json", false);
-  }
-
-  void stepBackground() {
-    var setting = GhostIdeAppLoader.getInstance().getSetting();
-    var themeManager = new ThemeManager(this);
-    var themeUtil = new ThemeUtils(themeManager);
-    var weget = themeUtil.getTheme().getWidget();
-    float ids = weget.getBlursize();
-    var getImagePath = weget.getImagepath();
-    if (!setting.isShowBackground()) {
-      return;
-    }
-    String loadPath = themeUtil.resolveImagePath(getImagePath);
-    binding.iconBackground.setVisibility(View.VISIBLE);
-    getWindow().setStatusBarColor(Color.TRANSPARENT);
-    getWindow().setNavigationBarColor(Color.TRANSPARENT);
-    Glide.with(this)
-        .load(loadPath != null ? loadPath : getImagePath)
-        .transform(new BlurTransformation((int) ids))
-        .into(binding.iconBackground);
-    binding.getRoot().setBackgroundColor(Color.TRANSPARENT);
-    var theme = themeUtil.getTheme();
-    if (theme != null && theme.getActivity() != null && theme.getActivity().getBackground() != null) {
-      int bg = Color.parseColor(theme.getActivity().getBackground());
-      int tint = androidx.core.graphics.ColorUtils.setAlphaComponent(bg, 128);
-      binding.toolbar.setBackgroundColor(tint);
-      binding.appBarLayout.setBackgroundColor(tint);
-      binding.contentScroll.setBackgroundColor(tint);
-    }
-    int cardBackColor = MaterialColors.getColor(this, R.attr.colorSurfaceContainerLow, 0);
-    binding.responseEmptyState.setBackgroundTintList(
-        ColorStateList.valueOf(
-            androidx.core.graphics.ColorUtils.setAlphaComponent(cardBackColor, 128)));
   }
 
   private void setupRecyclerViews() {
