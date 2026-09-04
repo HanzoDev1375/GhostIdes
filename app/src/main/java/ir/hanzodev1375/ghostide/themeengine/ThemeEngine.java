@@ -68,32 +68,14 @@ public class ThemeEngine {
 
     prefs.edit().putInt(THEME_MODE, themeMode).apply();
 
-    switch (themeMode) {
-      case ThemeMode.LIGHT:
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        break;
-
-      case ThemeMode.DARK:
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        break;
-
-      default:
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-        break;
-    }
+    // The app is fully driven by the JSON theme. The base XML theme always stays dark so that a
+    // light system/day mode never bleaches the UI. Only a light JSON theme (chosen by the user)
+    // switches the app to a light look via M3Theme colors.
+    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
   }
 
   private int getNightMode() {
-    switch (getThemeMode()) {
-      case ThemeMode.LIGHT:
-        return AppCompatDelegate.MODE_NIGHT_NO;
-
-      case ThemeMode.DARK:
-        return AppCompatDelegate.MODE_NIGHT_YES;
-
-      default:
-        return AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
-    }
+    return AppCompatDelegate.MODE_NIGHT_YES;
   }
 
   /** مهم: همیشه تم انتخابی کاربر را برگردان. */

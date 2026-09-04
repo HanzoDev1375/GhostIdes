@@ -208,6 +208,10 @@
         <activity android:name="ir.theme.themeeditor.ThemeEditorActivity" />
         <activity android:name=".activity.AiChatActivity" />
         <activity android:name=".activity.StoreActivity" />
+        <activity
+            android:name=".plugin.PluginSettingsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <receiver
             android:name="ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver"

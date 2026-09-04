@@ -33,7 +33,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.blankj.utilcode.util.ClipboardUtils;
 import com.bumptech.glide.Glide;
 import com.example.liquidglass.GlassMaterial;
-import ir.theme.M3Theme;import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
+import ir.theme.M3Theme;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import ir.ghostide.logcat.BottomSheetLogView;
 import ir.hanzodev1375.components.RenameDialogFragment;
 import ir.hanzodev1375.components.TextInputDialogFragment;
@@ -237,27 +238,26 @@ public class FileManagerActivity extends BaseCompat
     setContentView(bind.getRoot());
     setupInsets();
     setupSearchLayoutInsets();
-    
+
     appsetting = new PreferencesUtils(this);
     bind.fab.bindOfAcivity(this);
     Integer headtopColor = M3Theme.surfaceContainerHigh();
     Integer headlineColor = M3Theme.surfaceContainer();
+    M3Theme.imageB(
+        bind.btnGoToDir, bind.btnGoToDir, bind.buttonAi, bind.buttonPlugins, bind.btnSettings);
+    M3Theme.textView(bind.userNameText);
     if (appsetting.isShowBackground()) {
       bind.headtop.setBackgroundColor(0);
       bind.headline.setBackgroundColor(0);
       setupBackgroundBlur(bind.backgroundiconfilemanager, bind.contentContainer);
     } else {
       bind.headtop.setBackgroundColor(
-          headtopColor != null
-              ? headtopColor
-              : fallback(M3Theme.surfaceContainer(), 0));
+          headtopColor != null ? headtopColor : fallback(M3Theme.surfaceContainer(), 0));
       bind.headline.setBackground(
           ShapeUtil.shape(
               40f,
               this,
-              headlineColor != null
-                  ? headlineColor
-                  : fallback(M3Theme.surfaceContainer(), 0)));
+              headlineColor != null ? headlineColor : fallback(M3Theme.surfaceContainer(), 0)));
     }
     networkChangeReceiver = new NetworkChangeReceiver(this);
     IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -519,7 +519,9 @@ public class FileManagerActivity extends BaseCompat
           @Override
           public void onLoadError(String message) {
             bind.loadingprogass.setVisibility(View.GONE);
-            GhostToast.makeText(FileManagerActivity.this, "خطا: " + message, GhostToast.LENGTH_SHORT).show();
+            GhostToast.makeText(
+                    FileManagerActivity.this, "خطا: " + message, GhostToast.LENGTH_SHORT)
+                .show();
             exitZipMode();
           }
         });
@@ -778,7 +780,9 @@ public class FileManagerActivity extends BaseCompat
                     () -> {
                       if (entry.isEncrypted()) {
                         GhostToast.makeText(
-                                FileManagerActivity.this, "File Has Encrypted", GhostToast.LENGTH_LONG)
+                                FileManagerActivity.this,
+                                "File Has Encrypted",
+                                GhostToast.LENGTH_LONG)
                             .show();
                       } else setupClick(outFile.getAbsolutePath(), entry.getName(), null);
                     });
@@ -908,7 +912,8 @@ public class FileManagerActivity extends BaseCompat
     } else if (extension.equals(".apk")) {
       installApk(path);
     } else {
-      GhostToast.makeText(this, getString(R.string.error_file_format_not_supported), GhostToast.LENGTH_SHORT)
+      GhostToast.makeText(
+              this, getString(R.string.error_file_format_not_supported), GhostToast.LENGTH_SHORT)
           .show();
     }
   }
@@ -1281,7 +1286,8 @@ public class FileManagerActivity extends BaseCompat
                   adapter.clearSelection();
                   hideSelectionPanel();
                   adapter.notifyDataSetChanged();
-                  if (!success) GhostToast.makeText(this, "Paste failed", GhostToast.LENGTH_SHORT).show();
+                  if (!success)
+                    GhostToast.makeText(this, "Paste failed", GhostToast.LENGTH_SHORT).show();
                 });
           }
         });
@@ -1741,8 +1747,7 @@ public class FileManagerActivity extends BaseCompat
       bind.headline.setBackgroundColor(0);
       setupBackgroundBlur(bind.backgroundiconfilemanager, bind.contentContainer);
     } else {
-      bind.headtop.setBackgroundColor(
-          fallback(M3Theme.surfaceContainer(), 0));
+      bind.headtop.setBackgroundColor(fallback(M3Theme.surfaceContainer(), 0));
       bind.headline.setBackground(ShapeUtil.shape(40f, this));
     }
 
@@ -1961,7 +1966,8 @@ public class FileManagerActivity extends BaseCompat
               if (sd != null) {
                 navigateToPath(sd.path);
               } else {
-                GhostToast.makeText(this, R.string.sd_card_not_found, GhostToast.LENGTH_SHORT).show();
+                GhostToast.makeText(this, R.string.sd_card_not_found, GhostToast.LENGTH_SHORT)
+                    .show();
               }
             }
             case 3 -> navigateToPath(getCacheDir().getAbsolutePath());
@@ -2179,7 +2185,9 @@ public class FileManagerActivity extends BaseCompat
             public void onResult(String output) {
               boolean ok = output.toLowerCase().contains("success");
               GhostToast.makeText(
-                      FileManagerActivity.this, ok ? "installsuccess" : output, GhostToast.LENGTH_LONG)
+                      FileManagerActivity.this,
+                      ok ? "installsuccess" : output,
+                      GhostToast.LENGTH_LONG)
                   .show();
             }
 

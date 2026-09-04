@@ -12,9 +12,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.graphics.drawable.Drawable;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -25,6 +27,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -219,6 +222,23 @@ public class TerminalActivity extends BaseCompat
     if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     b.toolbar.setNavigationOnClickListener(v -> finish());
     b.btnMoreMenu.setOnClickListener(this::showMoreMenu);
+    styleToolbarChrome();
+  }
+
+  private void styleToolbarChrome() {
+    Integer onSurface = M3Theme.onSurface();
+    if (onSurface == null) return;
+    b.toolbar.setTitleTextColor(onSurface);
+    b.toolbar.setSubtitleTextColor(onSurface);
+    b.toolbar.setNavigationIconTint(onSurface);
+    tintIcon(b.btnMoreMenu, onSurface);
+    tintIcon(b.btnNewSession, onSurface);
+  }
+
+  private void tintIcon(ImageButton button, int color) {
+    Drawable drawable = button.getDrawable();
+    if (drawable == null) return;
+    DrawableCompat.setTint(drawable.mutate(), color);
   }
 
   private void showMoreMenu(View anchor) {

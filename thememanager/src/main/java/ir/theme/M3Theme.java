@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
@@ -470,6 +471,27 @@ public final class M3Theme {
         imageView(v);
       }
     }
+  }
+
+  public static void imageB(ImageButton... v) {
+    for (var it : v) {
+      if (it != null) {
+        imageButton(it);
+      }
+    }
+  }
+
+  public static void imageButton(ImageButton button) {
+    ColorStateList buttons =
+        new ColorStateList(
+            new int[][] {
+              new int[] {android.R.attr.state_focused},
+              new int[] {android.R.attr.state_hovered},
+              new int[] {-android.R.attr.state_enabled},
+              new int[] {}
+            },
+            new int[] {onSurface(), onPrimary(), onSurfaceVariant(), primary()});
+    button.setImageTintList(buttons);
   }
 
   public static void materialButton(MaterialButton b) {

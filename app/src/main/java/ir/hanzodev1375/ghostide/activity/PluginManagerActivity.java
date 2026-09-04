@@ -70,15 +70,14 @@ public class PluginManagerActivity extends BaseCompat {
     bind.rvPlugins.setAdapter(adapter);
 
     bind.btnBack.setOnClickListener(v -> finish());
+    bind.fab.setEnableDynamicBackground(true);
     bind.fab.setOnClickListener(v -> openDocumentLauncher.launch(new String[] {"*/*"}));
 
     bind.searchLayout.setOnTextChangedListener(this::onSearchTextChanged);
     bind.searchLayout.show();
     bind.rvPlugins.setItemAnimator(new ParticleItemAnimator(this));
-
     setupInsets();
     refreshList();
-
     M3Theme.applyTopLevel(bind.getRoot());
   }
 

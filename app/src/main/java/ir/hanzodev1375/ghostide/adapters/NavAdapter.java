@@ -1,5 +1,6 @@
 package ir.hanzodev1375.ghostide.adapters;
 
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,6 +73,8 @@ public class NavAdapter extends RecyclerView.Adapter<NavAdapter.ViewHolder> {
           });
     }
     M3Theme.listCard(holder.itemView);
+    M3Theme.textView(holder.nav_text);
+    holder.nav_icon.setImageTintList(ColorStateList.valueOf(M3Theme.tertiary()));
   }
 
   @Override

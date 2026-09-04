@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 import com.google.android.material.slider.Slider;
 import ir.hanzodev1375.components.databinding.SliderSheetBinding;
+import ir.theme.M3Theme;
 
 public class SliderSheet extends BaseSheet {
   private SliderSheetBinding binding;
@@ -15,6 +16,7 @@ public class SliderSheet extends BaseSheet {
     binding = SliderSheetBinding.inflate(LayoutInflater.from(context));
     setContentView(binding.getRoot());
     setHasPeekMod(false);
+    M3Theme.applyTopLevel(binding.getRoot());
   }
 
   public void setButtonOk(View.OnClickListener listener, int textRes) {

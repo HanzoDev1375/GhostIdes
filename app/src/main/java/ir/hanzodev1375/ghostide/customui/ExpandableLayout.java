@@ -9,9 +9,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.card.MaterialCardView;
 import ir.hanzodev1375.components.animators.AnimationManager;
+import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.theme.M3Theme;
@@ -62,7 +64,11 @@ public class ExpandableLayout extends LinearLayout {
   }
 
   void stepCard() {
-    M3Theme.cardView(card);
+    var isBack = GhostIdeAppLoader.getInstance().getSetting().isShowBackground();
+    var color = M3Theme.surface();
+    var stroke = M3Theme.outline();
+    card.setCardBackgroundColor(isBack ? ColorUtils.setAlphaComponent(color, 128) : color);
+    card.setStrokeColor(isBack ? ColorUtils.setAlphaComponent(stroke, 128) : stroke);
   }
 
   public void toggle() {

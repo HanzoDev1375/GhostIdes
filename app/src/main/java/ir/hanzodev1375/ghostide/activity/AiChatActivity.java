@@ -2,6 +2,8 @@ package ir.hanzodev1375.ghostide.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -10,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
 import ir.hanzodev1375.components.views.GhostToast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -56,6 +59,7 @@ public class AiChatActivity extends BaseCompat {
   private RecyclerView rvAttachedFiles;
   private ViewChilder child;
   private ChatAdapter adapter;
+  private ImageView booticon;
   private AttachedFilesAdapter attachedFilesAdapter;
   private final List<ChatMessage> messages = new ArrayList<>();
   private final List<AttachedFile> attachedFiles = new ArrayList<>();
@@ -111,7 +115,8 @@ public class AiChatActivity extends BaseCompat {
     actvProvider = findViewById(R.id.actv_provider);
     rvAttachedFiles = findViewById(R.id.rv_attached_files);
     child = findViewById(R.id.backgroundIconSetting);
-    setupBackgroundBlur(child, findViewById(R.id.rootAi),findViewById(R.id.appbar));
+    booticon = findViewById(R.id.booticon);
+    setupBackgroundBlur(child, findViewById(R.id.rootAi), findViewById(R.id.appbar));
     applyGlassToUi();
     setupProviderDropdown();
     setupChatRecyclerView();
@@ -135,14 +140,16 @@ public class AiChatActivity extends BaseCompat {
         }
         updateChatTitle();
       } else {
-
         currentChatId = -1;
       }
     } else {
       currentChatId = savedInstanceState.getLong("current_chat_id", -1);
     }
 
-    M3Theme.applyTopLevel(findViewById(R.id.rootAi));
+    M3Theme.apply(findViewById(R.id.rootAi));
+    btnAttach.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
+    btnAttach.setIconTint(ColorStateList.valueOf(M3Theme.onSurface()));
+    M3Theme.imageView(booticon);
   }
 
   private void setupBackPressed() {
@@ -366,7 +373,8 @@ public class AiChatActivity extends BaseCompat {
 
     String provider = prefs.getSelectedProvider();
     if (!prefs.hasApiKeyForProvider(provider)) {
-      GhostToast.makeText(this, "Please set the API key in Settings → AI Settings.", GhostToast.LENGTH_LONG)
+      GhostToast.makeText(
+              this, "Please set the API key in Settings → AI Settings.", GhostToast.LENGTH_LONG)
           .show();
       return;
     }
@@ -471,6 +479,7 @@ public class AiChatActivity extends BaseCompat {
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
+    item.setIconTintList(ColorStateList.valueOf(M3Theme.onSurface()));
     if (item.getItemId() == android.R.id.home) {
 
       getOnBackPressedDispatcher().onBackPressed();

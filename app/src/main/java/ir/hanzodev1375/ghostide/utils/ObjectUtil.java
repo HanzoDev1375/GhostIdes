@@ -169,6 +169,7 @@ public class ObjectUtil {
     for (int i = 0; i < items.size(); i++) {
       View v = LayoutInflater.from(activity).inflate(R.layout.glass_menu_item, container, false);
       TextView textView = v.findViewById(R.id.menuItemText);
+      M3Theme.textView(textView);
       textView.setText(items.get(i));
       final int index = i;
       textView.setOnClickListener(

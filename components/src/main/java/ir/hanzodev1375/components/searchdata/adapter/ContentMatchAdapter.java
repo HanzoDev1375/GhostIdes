@@ -83,6 +83,7 @@ public class ContentMatchAdapter extends RecyclerView.Adapter<ContentMatchAdapte
       super(itemView);
       tvLineNumber = itemView.findViewById(R.id.tvLineNumber);
       tvLine = itemView.findViewById(R.id.tvLineContent);
+      M3Theme.text(tvLineNumber,tvLine);
     }
   }
 }

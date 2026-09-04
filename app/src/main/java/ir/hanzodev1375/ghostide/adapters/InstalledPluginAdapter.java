@@ -1,7 +1,9 @@
 package ir.hanzodev1375.ghostide.adapters;
 
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +11,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.core.graphics.ColorUtils;
 import com.bumptech.glide.Glide;
+import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -23,7 +27,8 @@ import ir.hanzodev1375.ghostide.plugin.gpl.GplManifestReader;
 import ir.theme.M3Theme;
 
 /** Shows the currently installed plugins and lets the user filter or uninstall one. */
-public final class InstalledPluginAdapter extends RecyclerView.Adapter<InstalledPluginAdapter.ViewHolder> {
+public final class InstalledPluginAdapter
+    extends RecyclerView.Adapter<InstalledPluginAdapter.ViewHolder> {
 
   public interface OnUninstallListener {
     void onUninstall(InstalledPluginInfo plugin);
@@ -115,6 +120,16 @@ public final class InstalledPluginAdapter extends RecyclerView.Adapter<Installed
       version = itemView.findViewById(R.id.pluginVersion);
       description = itemView.findViewById(R.id.pluginDescription);
       uninstall = itemView.findViewById(R.id.btnUninstall);
+      var gd = new GradientDrawable();
+      var isBack = GhostIdeAppLoader.getInstance().getSetting().isShowBackground();
+      gd.setColor(
+          isBack ? ColorUtils.setAlphaComponent(M3Theme.surface(), 128) : M3Theme.surface());
+      gd.setStroke(
+          1, isBack ? ColorUtils.setAlphaComponent(M3Theme.outline(), 128) : M3Theme.outline());
+      gd.setCornerRadius(30f);
+      itemView.findViewById(R.id.rootpl).setBackground(gd);
+      M3Theme.text(name, version, description);
+      uninstall.setImageTintList(ColorStateList.valueOf(M3Theme.error()));
     }
   }
 }

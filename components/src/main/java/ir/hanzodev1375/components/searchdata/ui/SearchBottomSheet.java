@@ -20,6 +20,7 @@ import ir.hanzodev1375.components.searchdata.model.SearchQuery;
 import ir.hanzodev1375.components.searchdata.model.SearchType;
 import ir.hanzodev1375.components.searchdata.viewmodel.SearchViewModel;
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
+import ir.theme.M3Theme;
 import java.util.regex.Pattern;
 
 public class SearchBottomSheet extends BaseBlurBottomSheet {
@@ -53,6 +54,7 @@ public class SearchBottomSheet extends BaseBlurBottomSheet {
     setupModeToggle();
     setupTypeSwitch();
     observeViewModel();
+    M3Theme.applyTopLevel(binding.getRoot());
   }
 
   private void setupRecyclerView() {

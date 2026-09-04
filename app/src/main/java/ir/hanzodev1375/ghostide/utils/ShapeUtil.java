@@ -95,7 +95,7 @@ public class ShapeUtil {
             .build();
 
     MaterialShapeDrawable drawable = new MaterialShapeDrawable(model);
-    drawable.setFillColor(ColorStateList.valueOf(getcolorSurfaceContainer(view)));
+    drawable.setFillColor(ColorStateList.valueOf(M3Theme.surfaceContainer()));
     drawable.setElevation(0);
     PreferencesUtils appsetting = new PreferencesUtils(view.getContext());
     drawable.setAlpha(appsetting.isShowBackground() ? 100 : 255);

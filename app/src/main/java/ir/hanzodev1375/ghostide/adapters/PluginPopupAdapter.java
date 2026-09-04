@@ -107,6 +107,7 @@ public final class PluginPopupAdapter extends RecyclerView.Adapter<PluginPopupAd
       icon = itemView.findViewById(R.id.pluginIcon);
       name = itemView.findViewById(R.id.pluginName);
       typeIcon = itemView.findViewById(R.id.pluginTypeBadge);
+      M3Theme.textView(name);
     }
   }
 }

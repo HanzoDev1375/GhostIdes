@@ -9,10 +9,13 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
+import android.os.Handler;
+import android.os.Looper;
 import androidx.appcompat.app.AppCompatActivity;
 import ir.hanzodev1375.components.animators.AnimationManager;
 import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.hanzodev1375.ghostide.themeengine.Theme;
+import ir.theme.M3Theme;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
@@ -54,6 +57,61 @@ public class BaseCompat extends AppCompatActivity
       getWindow().setEnterTransition(enter);
     } else {
       getWindow().setEnterTransition(null);
+    }
+
+    applyJsonThemeBackground();
+    new Handler(Looper.getMainLooper())
+        .post(
+            () -> {
+              applyJsonThemeBackground();
+              View decor = getWindow().getDecorView();
+              if (decor != null) {
+                M3Theme.applyTopLevel(decor);
+              }
+            });
+  }
+
+  /**
+   * The app is fully driven by the JSON theme. The root background always comes from the theme's
+   * surface color, unless a background image is enabled in the theme (then the image is shown by
+   * {@link #setupBackgroundBlur} on the activities that have a background view). This keeps the UI
+   * independent from the XML light theme, so switching the device to day mode has no effect unless
+   * the user picks a light JSON theme.
+   */
+  private void applyJsonThemeBackground() {
+    if (isFinishing()) {
+      return;
+    }
+    View decor = getWindow().getDecorView();
+    if (decor == null) {
+      return;
+    }
+    try {
+      boolean showBackground = new PreferencesUtils(this).isShowBackground();
+      boolean hasImage = false;
+      try {
+        GhostTheme theme = new ThemeUtils(new ThemeManager(this)).getTheme();
+        hasImage =
+            theme != null
+                && theme.getWidget() != null
+                && theme.getWidget().getImagepath() != null
+                && !theme.getWidget().getImagepath().isEmpty();
+      } catch (Throwable ignoredImg) {
+      }
+      if (!showBackground || !hasImage) {
+        Integer surface = M3Theme.surface();
+        if (surface == null) {
+          surface = M3Theme.surfaceContainer();
+        }
+        if (surface != null) {
+          decor.setBackgroundColor(surface);
+          View content = decor.findViewById(android.R.id.content);
+          if (content != null) {
+            content.setBackgroundColor(surface);
+          }
+        }
+      }
+    } catch (Throwable ignored) {
     }
   }
 
@@ -123,6 +181,9 @@ public class BaseCompat extends AppCompatActivity
         backgroundView.setVisibility(View.VISIBLE);
         themeUtil.applyImageBackground(backgroundView);
       } else {
+        getWindow().getDecorView().setBackgroundColor(M3Theme.surface());
+        getWindow().setNavigationBarColor(M3Theme.surface());
+        getWindow().setStatusBarColor(M3Theme.surface());
         backgroundView.clear();
       }
     }

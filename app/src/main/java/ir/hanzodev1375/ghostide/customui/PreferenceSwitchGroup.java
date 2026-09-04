@@ -42,7 +42,10 @@ public class PreferenceSwitchGroup extends RelativeLayout implements View.OnClic
     binding = LayoutSwitchPerfenceBinding.inflate(LayoutInflater.from(context), this, true);
     setOnClickListener(this);
     showIcon(false);
-    M3Theme.applyTopLevel(binding.getRoot());
+    M3Theme.materialSwitch(binding.preferenceSwitch);
+    M3Theme.text(binding.preferenceDescription,binding.preferenceName);
+    //این گزینه خیلی سنگین هست چون لیست در لیست میشه
+   // M3Theme.applyTopLevel(binding.getRoot());
   }
 
   @Override

@@ -83,7 +83,6 @@ public class HistoryBottomSheetFragment extends BaseBlurBottomSheet {
       adapter = new HistoryAdapter();
       rvHistory.setAdapter(adapter);
     }
-
     loadChatsAsync();
 
     btnDeleteSelected.setOnClickListener(

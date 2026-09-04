@@ -66,6 +66,7 @@
           android:layout_height="20dp"
           android:contentDescription="AI Provider"
           android:transitionName="ghost_transition_ai_chat"
+          android:id="@+id/booticon"
           android:src="@drawable/ic_ai_robot"
           android:tint="?attr/colorPrimary" />
 

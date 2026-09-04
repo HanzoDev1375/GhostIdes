@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pluginSettingsRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp">
+
+            <ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat
+                android:id="@+id/glassBackdrop"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="96dp"
+                app:adaptiveTint="true"
+                app:bevelWidth="14dp"
+                app:cornerRadius="20dp"
+                app:dispersionStrength="0.12"
+                app:glassMaterial="regular"
+                app:refractionHeight="66dp"
+                app:sensorHighlight="false">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:padding="12dp" />
+
+            </ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat>
+
+        </FrameLayout>
+    </LinearLayout>
+
+    <ir.hanzodev1375.components.sheet.customitemsheet.ui.FabGlass
+        android:id="@+id/refreshFab"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:src="@drawable/ic_refresh"
+        app:adaptiveTint="true"
+        app:bevelWidth="14dp"
+        app:cornerRadius="12dp"
+        app:dispersionStrength="0.12"
+        app:glassMaterial="regular"
+        app:refractionHeight="66dp"
+        app:sensorHighlight="false" />
+
+</FrameLayout>

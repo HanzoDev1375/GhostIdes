@@ -85,14 +85,21 @@
 
   </LinearLayout>
 
-  <com.google.android.material.floatingactionbutton.FloatingActionButton
+  <ir.hanzodev1375.components.sheet.customitemsheet.ui.FabGlass
     android:id="@+id/fab"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="70dp"
+    android:layout_height="70dp"
     android:layout_gravity="bottom|end"
     android:layout_marginEnd="16dp"
     android:layout_marginBottom="16dp"
     android:contentDescription="@string/plugin_manager_title"
-    android:src="@drawable/ic_add" />
+    android:src="@drawable/ic_add"
+    app:adaptiveTint="true"
+    app:bevelWidth="14dp"
+    app:cornerRadius="20dp"
+    app:dispersionStrength="0.12"
+    app:glassMaterial="regular"
+    app:refractionHeight="66dp"
+    app:sensorHighlight="false" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
