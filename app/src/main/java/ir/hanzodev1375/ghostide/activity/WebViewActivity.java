@@ -22,6 +22,7 @@ import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.databinding.ActivityWebBinding;
 import ir.hanzodev1375.ghostide.utils.WebDownloadHelper;
 import ir.hanzodev1375.ghostide.utils.WebViewSetting;
+import ir.theme.M3Theme;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class WebViewActivity extends BaseCompat {
@@ -58,6 +59,8 @@ public class WebViewActivity extends BaseCompat {
     setupFab();
     setupBackHandler();
     loadIntentUrl();
+
+    M3Theme.applyTopLevel(b.getRoot());
   }
   private void setupToolbar() {
     setSupportActionBar(b.toolbar);

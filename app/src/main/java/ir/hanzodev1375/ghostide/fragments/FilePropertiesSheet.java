@@ -7,13 +7,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import com.blankj.utilcode.util.ThreadUtils;
 import com.blankj.utilcode.util.ThreadUtils.SimpleTask;
-import com.google.android.material.color.MaterialColors;
+
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.components.utils.GlassColors;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.databinding.BottomSheetFilePropertiesBinding;
 import ir.hanzodev1375.ghostide.databinding.ItemPropsRowBinding;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
+import ir.theme.M3Theme;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -76,8 +77,7 @@ public class FilePropertiesSheet extends BaseBlurBottomSheet {
 
     binding.btnClose.setOnClickListener(v -> dismiss());
 
-    int cardBg =
-        MaterialColors.getColor(binding.getRoot(), com.google.android.material.R.attr.colorSurfaceContainerHigh);
+    int cardBg = fallback(M3Theme.surfaceContainerHigh(), 0);
     for (int cardId : new int[] {R.id.card_single, R.id.card_system, R.id.card_analysis, R.id.card_multi}) {
       View card = binding.getRoot().findViewById(cardId);
       if (card != null) GlassColors.setBackgroundAlpha(card, cardBg, 150);
@@ -88,6 +88,7 @@ public class FilePropertiesSheet extends BaseBlurBottomSheet {
     } else {
       bindMulti(paths);
     }
+    M3Theme.apply(binding.getRoot());
   }
 
   @Override
@@ -357,5 +358,9 @@ public class FilePropertiesSheet extends BaseBlurBottomSheet {
     } catch (Exception ignored) {
     }
     return "u0_a" + (android.os.Process.myUid() - 10000);
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

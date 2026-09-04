@@ -11,6 +11,7 @@ import java.util.List;
 import ir.hanzodev1375.ghostide.databinding.ItemKeyValueBinding;
 import ir.hanzodev1375.ghostide.postman.model.KeyValueItem;
 import ir.hanzodev1375.ghostide.postman.util.SimpleTextWatcher;
+import ir.theme.M3Theme;
 
 /**
  * Backs the editable rows in Params / Headers / Form-body. Same adapter, three different backing
@@ -56,6 +57,7 @@ public class KeyValueAdapter extends RecyclerView.Adapter<KeyValueAdapter.ViewHo
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     holder.bind(items.get(position));
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

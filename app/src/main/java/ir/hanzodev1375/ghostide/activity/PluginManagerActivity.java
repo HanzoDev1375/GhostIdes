@@ -35,6 +35,7 @@ import ir.hanzodev1375.ghostide.plugin.gpl.GplPluginLoader;
 import ir.hanzodev1375.ghostide.plugin.gpl.LoadedGplPlugin;
 import ir.hanzodev1375.ghostide.terminal.activity.TerminalActivity;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.theme.M3Theme;
 /**
  * Lets the user browse to a {@code .gpl} file, install it, search installed plugins, and
  * uninstall them. A plugin here may contribute a {@code PluginScreen}, an {@code
@@ -77,6 +78,8 @@ public class PluginManagerActivity extends BaseCompat {
 
     setupInsets();
     refreshList();
+
+    M3Theme.applyTopLevel(bind.getRoot());
   }
 
   private void setupBackgroundBlur() {

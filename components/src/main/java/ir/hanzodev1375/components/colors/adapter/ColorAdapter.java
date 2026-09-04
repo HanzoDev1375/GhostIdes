@@ -12,6 +12,7 @@ import com.blankj.utilcode.util.ClipboardUtils;
 import ir.hanzodev1375.components.views.GhostToast;
 import ir.hanzodev1375.components.colors.model.ColorItem;
 import ir.hanzodev1375.components.R;
+import ir.theme.M3Theme;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -64,6 +65,7 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ColorViewHol
   @Override
   public void onBindViewHolder(@NonNull ColorViewHolder holder, int position) {
     holder.bind(filteredList.get(position));
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

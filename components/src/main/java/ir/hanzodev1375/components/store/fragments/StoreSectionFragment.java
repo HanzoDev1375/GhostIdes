@@ -11,9 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.color.MaterialColors;
 
 import ir.hanzodev1375.components.R;
+import ir.theme.M3Theme;
 
 public class StoreSectionFragment extends Fragment {
 
@@ -64,11 +64,15 @@ public class StoreSectionFragment extends Fragment {
     }
 
     int circle =
-        MaterialColors.getColor(
-            requireContext(),
-            com.google.android.material.R.attr.colorSurfaceContainerHighest,
+        fallback(
+            M3Theme.surfaceContainerHighest(),
             0xFFEEEEEE);
     iconContainer.setBackgroundResource(R.drawable.bg_store_icon_circle);
     iconContainer.getBackground().setTint(androidx.core.graphics.ColorUtils.setAlphaComponent(circle, 120));
+    M3Theme.applyTopLevel(view);
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

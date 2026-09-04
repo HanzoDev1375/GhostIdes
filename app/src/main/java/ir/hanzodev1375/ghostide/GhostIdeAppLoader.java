@@ -23,6 +23,7 @@ import ir.hanzodev1375.ghostide.plugin.gpl.GplInstalledPlugins;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplPluginLoader;
 import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
 import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
+import ir.theme.M3Theme;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 
@@ -50,6 +51,7 @@ public class GhostIdeAppLoader extends Application {
     mApplicationContext = getApplicationContext();
     ShizukuManager.registerListeners();
     ThemeEngine.applyToActivities(this);
+    M3Theme.init(this);
     var themeManager = new ThemeManager(this);
     theme = new ThemeUtils(themeManager);
     GhostToast.bindOfApp(this);

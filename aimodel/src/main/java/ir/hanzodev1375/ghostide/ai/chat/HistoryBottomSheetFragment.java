@@ -24,6 +24,7 @@ import com.google.android.material.listitem.ListItemCardView;
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.ghostide.ai.R;
 import ir.hanzodev1375.ghostide.ai.database.ChatRepository;
+import ir.theme.M3Theme;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -100,6 +101,7 @@ public class HistoryBottomSheetFragment extends BaseBlurBottomSheet {
         });
 
     btnCancel.setOnClickListener(v -> dismiss());
+    M3Theme.applyTopLevel(view);
   }
 
   private void loadChatsAsync() {
@@ -206,7 +208,10 @@ public class HistoryBottomSheetFragment extends BaseBlurBottomSheet {
         card.setCardBackgroundColor(
             ColorStateList.valueOf(
                 ColorUtils.setAlphaComponent(
-                    MaterialColors.getColor(card, R.attr.colorSurfaceContainerHighest), 128)));
+                    (M3Theme.surfaceContainerHighest() != null
+                            ? M3Theme.surfaceContainerHighest()
+                            : MaterialColors.getColor(card, R.attr.colorSurfaceContainerHighest)),
+                    128)));
       }
     }
   }

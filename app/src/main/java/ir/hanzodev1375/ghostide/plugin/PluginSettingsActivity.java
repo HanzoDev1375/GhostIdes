@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.theme.M3Theme;
 public class PluginSettingsActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +28,7 @@ public class PluginSettingsActivity extends AppCompatActivity {
     recyclerView.setAdapter(adapter);
     layout.addView(recyclerView);
     setContentView(layout);
+    M3Theme.applyTopLevel(layout);
   }
 
   private static class PluginSettingsAdapter

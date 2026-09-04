@@ -13,6 +13,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import ir.hanzodev1375.components.utils.SoftInputLifeCycleObserver;
 import java.lang.ref.WeakReference;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.theme.M3Theme;
 public class TextInputDialogFragment extends DialogFragment {
 
   private static final String ARG_TITLE = "title";
@@ -57,6 +58,7 @@ public class TextInputDialogFragment extends DialogFragment {
       editText.setText(preload);
       editText.selectAll();
     }
+    M3Theme.apply(view);
 
     return new DialogCompat(requireActivity())
         .setTitle(title)

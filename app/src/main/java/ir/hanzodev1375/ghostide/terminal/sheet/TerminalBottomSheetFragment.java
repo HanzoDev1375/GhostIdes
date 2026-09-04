@@ -19,7 +19,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.google.android.material.color.MaterialColors;
+import ir.theme.M3Theme;
 import com.termux.terminal.TerminalSession;
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.ghostide.R;
@@ -41,6 +41,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+
 public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
     implements GhostTerminalViewClient.KeyModifierState {
 
@@ -168,7 +169,7 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
 
   private void setupBackgroundBlur() {
     var appsetting = new PreferencesUtils(getContext());
-   var themeutil = new ThemeUtils(new ThemeManager(getContext()));
+    var themeutil = new ThemeUtils(new ThemeManager(getContext()));
 
     if (!appsetting.isBlurMod()) {
       return;
@@ -198,7 +199,8 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
     defaultKeyBackgroundColor =
         terminalBinding.keyCtrl.getBackgroundTintList() != null
             ? terminalBinding.keyCtrl.getBackgroundTintList().getDefaultColor()
-            : MaterialColors.getColor(terminalBinding.keyCtrl, R.attr.colorSecondaryContainer);
+            : fallback(M3Theme.secondaryContainer(), 0);
+    
     defaultKeyTextColor = terminalBinding.keyCtrl.getCurrentTextColor();
 
     terminalBinding.keyEsc.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_ESCAPE));
@@ -224,8 +226,8 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
 
   private void updateModifierButtonStyle(android.widget.Button button, boolean active) {
     if (active) {
-      int bg = MaterialColors.getColor(button, R.attr.colorPrimary);
-      int fg = MaterialColors.getColor(button, R.attr.colorOnPrimary);
+      int bg = fallback(M3Theme.primary(), 0);
+      int fg = fallback(M3Theme.onPrimary(), 0);
       button.setBackgroundTintList(ColorStateList.valueOf(bg));
       button.setTextColor(fg);
     } else {
@@ -280,7 +282,10 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
     }
   }
 
-  /** وقتی ویو هنوز layout نشده، emulator تا اولین onSizeChanged ساخته نمی‌شه و write() از دست می‌ره؛ پس صبر می‌کنیم. */
+  /**
+   * وقتی ویو هنوز layout نشده، emulator تا اولین onSizeChanged ساخته نمی‌شه و write() از دست می‌ره؛
+   * پس صبر می‌کنیم.
+   */
   private void writeCommandWhenReady(TerminalSession session, String command) {
     if (session == null || command == null || command.isEmpty()) return;
     terminalBinding.terminalView.post(
@@ -521,5 +526,9 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
   private void attachToRunningInstall() {
     buildInstallDialogViews();
     DebianInstaller.attach(getOrCreateInstallListener());
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

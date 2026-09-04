@@ -31,6 +31,7 @@ import ir.hanzodev1375.components.store.adapter.IconsAdapter;
 import ir.hanzodev1375.components.store.api.IconsApi;
 import ir.hanzodev1375.components.store.model.IconInfo;
 import ir.hanzodev1375.components.store.viewmodel.IconsViewModel;
+import ir.theme.M3Theme;
 
 public class IconsFragment extends Fragment {
 
@@ -105,6 +106,7 @@ public class IconsFragment extends Fragment {
     if (adapter.getItemCount() == 0) {
       viewModel.search("");
     }
+    M3Theme.applyTopLevel(view);
   }
 
   private void setupStyleSpinner() {

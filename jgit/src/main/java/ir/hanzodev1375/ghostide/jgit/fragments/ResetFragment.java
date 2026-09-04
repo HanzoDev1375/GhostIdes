@@ -10,10 +10,10 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textview.MaterialTextView;
 import ir.hanzodev1375.components.utils.GlassColors;
 import ir.hanzodev1375.ghostide.jgit.R;
+import ir.theme.M3Theme;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.ResetMode;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
@@ -39,7 +39,7 @@ public class ResetFragment extends Fragment {
 
     GlassColors.setBackgroundAlpha(
         view.findViewById(R.id.cardResetOptions),
-        MaterialColors.getColor(view, R.attr.colorSurface),
+        fallback(M3Theme.surface(), 0),
         120);
 
     btnMinus.setOnClickListener(v -> {
@@ -70,5 +70,10 @@ public class ResetFragment extends Fragment {
       if (result != null)
         GhostToast.makeText(getContext(), result.getMessage(), GhostToast.LENGTH_SHORT).show();
     });
+    M3Theme.applyTopLevel(view);
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

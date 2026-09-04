@@ -19,9 +19,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.transition.platform.MaterialSharedAxis;
 import ir.hanzodev1375.components.utils.ComponentsPrefs;
+import ir.theme.M3Theme;
 
 @MainThread
 public class SearchLayout extends FrameLayout {
@@ -66,17 +66,20 @@ public class SearchLayout extends FrameLayout {
           gd.setColor(
               setting.isShowBackground()
                   ? ColorUtils.setAlphaComponent(
-                      MaterialColors.getColor(rootView, R.attr.colorSurfaceContainerHigh), 90)
-                  : MaterialColors.getColor(rootView, R.attr.colorSurfaceContainerHigh));
+                      fallback(M3Theme.surfaceContainerHigh(), 0),
+                      90)
+                  : fallback(M3Theme.surfaceContainerHigh(), 0));
           gd.setStroke(
               2,
               setting.isShowBackground()
                   ? ColorUtils.setAlphaComponent(
-                      MaterialColors.getColor(rootView, R.attr.colorOutlineVariant), 90)
-                  : MaterialColors.getColor(rootView, R.attr.colorOutlineVariant));
+                      fallback(M3Theme.outlineVariant(), 0),
+                      90)
+                  : fallback(M3Theme.outlineVariant(), 0));
 
           rootView.setBackground(gd);
         });
+    M3Theme.apply(this);
   }
 
   private void setupListeners() {
@@ -194,5 +197,9 @@ public class SearchLayout extends FrameLayout {
       TransitionManager.beginDelayedTransition((ViewGroup) getParent(), material);
     }
     setVisibility(GONE);
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

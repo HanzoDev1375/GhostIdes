@@ -13,6 +13,7 @@ import java.util.List;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.searchdata.interfaces.OnLineClickListener;
 import ir.hanzodev1375.components.searchdata.model.ContentMatch;
+import ir.theme.M3Theme;
 
 public class ContentMatchAdapter extends RecyclerView.Adapter<ContentMatchAdapter.VH> {
   private final List<ContentMatch> matches;
@@ -46,6 +47,7 @@ public class ContentMatchAdapter extends RecyclerView.Adapter<ContentMatchAdapte
         v -> {
           if (listener != null) listener.onLineClick(filePath, match.getLineNumber());
         });
+    M3Theme.listCard(holder.itemView);
   }
 
   private SpannableString buildHighlightedSpan(ContentMatch match) {

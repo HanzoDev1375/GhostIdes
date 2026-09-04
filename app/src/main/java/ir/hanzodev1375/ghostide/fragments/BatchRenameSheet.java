@@ -10,13 +10,14 @@ import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.NonNull;
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.color.MaterialColors;
+
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textview.MaterialTextView;
 import ir.hanzodev1375.components.utils.GlassColors;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.enums.FileState;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
+import ir.theme.M3Theme;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +86,7 @@ public class BatchRenameSheet extends BaseBlurBottomSheet {
     MaterialTextView tvPreview = view.findViewById(R.id.tv_preview);
     GlassColors.setBackgroundAlpha(
         tvPreview,
-        MaterialColors.getColor(tvPreview, com.google.android.material.R.attr.colorSurfaceVariant),
+        fallback(M3Theme.surfaceVariant(), 0),
         150);
     MaterialButton btnPreview = view.findViewById(R.id.btn_preview);
     MaterialButton btnApply = view.findViewById(R.id.btn_apply);
@@ -142,6 +143,7 @@ public class BatchRenameSheet extends BaseBlurBottomSheet {
           dismiss();
         });
     updatePreview(etPattern, etFind, etReplace, switchRegex, tvPreview);
+    M3Theme.apply(view);
   }
 
   private void updatePreview(
@@ -249,5 +251,9 @@ public class BatchRenameSheet extends BaseBlurBottomSheet {
                           GhostToast.LENGTH_SHORT)
                       .show());
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

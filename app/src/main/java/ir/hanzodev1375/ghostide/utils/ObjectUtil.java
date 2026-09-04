@@ -17,10 +17,10 @@ import android.widget.TextView;
 import com.example.liquidglass.GlassMaterial;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import ir.hanzodev1375.ghostide.R;
-import com.google.android.material.color.MaterialColors;
 import com.skydoves.powermenu.MenuAnimation;
 import com.skydoves.powermenu.PowerMenu;
 import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
+import ir.theme.M3Theme;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import java.util.List;
@@ -59,11 +59,11 @@ public class ObjectUtil {
     menu.setMenuColor(
         setting.isShowBackground()
             ? Color.parseColor(widgetImpl.getMenubackground())
-            : MaterialColors.getColor(context, R.attr.colorSurface, 0));
+            : fallback(M3Theme.surface(), 0));
     menu.setTextColor(
         setting.isShowBackground()
             ? Color.parseColor(widgetImpl.getMenutextcolor())
-            : MaterialColors.getColor(context, R.attr.colorOnSurface, 0));
+            : fallback(M3Theme.onSurface(), 0));
     menu.setShowBackground(false);
     menu.setMenuRadius(25f);
     menu.setMenuShadow(3f);
@@ -71,7 +71,7 @@ public class ObjectUtil {
     menu.setIconColor(
         setting.isShowBackground()
             ? Color.parseColor(widgetImpl.getMenutextcolor())
-            : MaterialColors.getColor(context, R.attr.colorOnSurface, 0));
+            : fallback(M3Theme.onSurface(), 0));
     return menu;
   }
 
@@ -210,5 +210,9 @@ public class ObjectUtil {
           glassView.invalidate();
         });
     fadeIn.start();
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

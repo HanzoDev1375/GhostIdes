@@ -41,6 +41,7 @@ import ir.hanzodev1375.ghostide.postman.util.JsonUtils;
 import ir.hanzodev1375.ghostide.postman.util.PrefsManager;
 import ir.hanzodev1375.ghostide.postman.util.TimeUtils;
 import ir.hanzodev1375.ghostide.postman.util.UiUtils;
+import ir.theme.M3Theme;
 
 public class PostManActivity extends BaseCompat {
 
@@ -88,6 +89,8 @@ public class PostManActivity extends BaseCompat {
     setupBodyTypeToggle();
     setupResponseSheet();
     setupSendButton();
+
+    M3Theme.apply(binding.getRoot());
   }
 
   private void setupMethodAndContentTypeDropdowns() {
@@ -300,9 +303,9 @@ public class PostManActivity extends BaseCompat {
       String body = result.body == null ? "" : result.body;
       if (JsonUtils.looksLikeJson(body)) {
         String pretty = JsonUtils.prettyPrint(body);
-        int keyColor = ColorUtils.resolveAttrColor(this, R.attr.colorPrimary);
-        int stringColor = ColorUtils.resolveAttrColor(this, R.attr.colorTertiary);
-        int numberColor = ColorUtils.resolveAttrColor(this, R.attr.colorSecondary);
+        int keyColor = fallback(M3Theme.primary(), 0);
+        int stringColor = fallback(M3Theme.tertiary(), 0);
+        int numberColor = fallback(M3Theme.secondary(), 0);
         binding.responseBodyText.setText(
             JsonUtils.highlight(this, pretty, keyColor, stringColor, numberColor));
       } else {
@@ -404,7 +407,7 @@ public class PostManActivity extends BaseCompat {
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.menu_main, menu);
-    int tint = ColorUtils.resolveAttrColor(this, com.google.android.material.R.attr.colorOnSurface);
+    int tint = fallback(M3Theme.onSurface(), 0);
     for (int i = 0; i < menu.size(); i++) {
       MenuItem item = menu.getItem(i);
       if (item.getIcon() != null) {
@@ -443,5 +446,9 @@ public class PostManActivity extends BaseCompat {
       return true;
     }
     return super.onOptionsItemSelected(item);
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

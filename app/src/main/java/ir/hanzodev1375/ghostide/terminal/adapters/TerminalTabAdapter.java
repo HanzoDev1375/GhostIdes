@@ -5,8 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.color.MaterialColors;
-import ir.hanzodev1375.ghostide.R;
+import ir.theme.M3Theme;
 import ir.hanzodev1375.ghostide.databinding.ItemTerminalTabBinding;
 import ir.hanzodev1375.ghostide.terminal.TerminalTab;
 import java.util.List;
@@ -62,10 +61,8 @@ public class TerminalTabAdapter extends RecyclerView.Adapter<TerminalTabAdapter.
         null, isSelected ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
     int textColor =
         isSelected
-            ? MaterialColors.getColor(
-                holder.itemView, R.attr.colorPrimary)
-            : MaterialColors.getColor(
-                holder.itemView, R.attr.colorOnSurfaceVariant);
+            ? fallback(M3Theme.primary(), 0)
+            : fallback(M3Theme.onSurfaceVariant(), 0);
     holder.binding.tabTitle.setTextColor(textColor);
 
     holder.itemView.setOnClickListener(
@@ -92,5 +89,9 @@ public class TerminalTabAdapter extends RecyclerView.Adapter<TerminalTabAdapter.
       super(binding.getRoot());
       this.binding = binding;
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

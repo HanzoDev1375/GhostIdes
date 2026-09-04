@@ -17,6 +17,7 @@ import java.util.List;
 
 import ir.hanzodev1375.ghostide.ai.R;
 import ir.hanzodev1375.ghostide.ai.model.AttachedFile;
+import ir.theme.M3Theme;
 
 public class AttachedFilesAdapter
     extends RecyclerView.Adapter<AttachedFilesAdapter.FileViewHolder> {
@@ -71,6 +72,7 @@ public class AttachedFilesAdapter
             listener.onRemove(pos);
           }
         });
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

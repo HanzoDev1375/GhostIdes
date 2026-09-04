@@ -9,6 +9,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.theme.M3Theme;
+
 public class NewProjectDialog {
 
   public interface OnProjectCreated {
@@ -36,7 +38,7 @@ public class NewProjectDialog {
     TextInputLayout tilPkg = view.findViewById(R.id.tilPackageName);
     TextInputEditText etPkg = view.findViewById(R.id.etPackageName);
     view.findViewById(R.id.chipHtml).performClick();
-
+    M3Theme.applyTopLevel(view);
     dialog =
         new DialogCompat(context)
             .setTitle(R.string.project_new_title)

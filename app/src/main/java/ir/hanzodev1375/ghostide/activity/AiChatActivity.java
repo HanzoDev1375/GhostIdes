@@ -44,6 +44,7 @@ import ir.hanzodev1375.ghostide.ai.network.AiClientFactory;
 import ir.hanzodev1375.ghostide.ai.utils.AiConstants;
 import ir.hanzodev1375.ghostide.ai.utils.AiPreferencesUtils;
 import ir.hanzodev1375.ghostide.ai.utils.FileReadUtils;
+import ir.theme.M3Theme;
 
 public class AiChatActivity extends BaseCompat {
 
@@ -140,6 +141,8 @@ public class AiChatActivity extends BaseCompat {
     } else {
       currentChatId = savedInstanceState.getLong("current_chat_id", -1);
     }
+
+    M3Theme.applyTopLevel(findViewById(R.id.rootAi));
   }
 
   private void setupBackPressed() {

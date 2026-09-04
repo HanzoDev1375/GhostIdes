@@ -6,12 +6,11 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.view.View;
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
-import com.google.android.material.R;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.theme.M3Theme;
 
 public class ShapeUtil {
   private static final float RADIUS_DP = 24f;
@@ -60,13 +59,24 @@ public class ShapeUtil {
         new float[] {
           r,
           r, // بالا-چپ
-          r, 
+          r,
           r, // بالا-راست
           0,
           0, // پایین-راست
           0,
           0 // پایین-چپ
         });
+    PreferencesUtils appsetting = new PreferencesUtils(context);
+    bg.setAlpha(appsetting.isShowBackground() ? 128 : 255);
+    ColorStateList rippleColor = ColorStateList.valueOf(getRippleColor(context));
+    return new RippleDrawable(rippleColor, bg, null);
+  }
+
+  public static Drawable shape(float topRadiusDp, Context context, int color) {
+    float r = dpToPx(context, topRadiusDp);
+    var bg = new GradientDrawable();
+    bg.setColor(color);
+    bg.setCornerRadii(new float[] {r, r, r, r, 0, 0, 0, 0});
     PreferencesUtils appsetting = new PreferencesUtils(context);
     bg.setAlpha(appsetting.isShowBackground() ? 128 : 255);
     ColorStateList rippleColor = ColorStateList.valueOf(getRippleColor(context));
@@ -93,11 +103,13 @@ public class ShapeUtil {
   }
 
   public static int getcolorSurfaceContainer(View v) {
-    return MaterialColors.getColor(v, R.attr.colorSurfaceContainer);
+    Integer c = M3Theme.surfaceContainer();
+    return c != null ? c : 0;
   }
 
   public static int getcolorSurfaceContainer(Context v) {
-    return MaterialColors.getColor(v, R.attr.colorSurfaceContainer, 0);
+    Integer c = M3Theme.surfaceContainer();
+    return c != null ? c : 0;
   }
 
   private static Drawable createRippleDrawable(Drawable content, View view) {
@@ -106,15 +118,18 @@ public class ShapeUtil {
   }
 
   private static int getSurfaceColor(View view) {
-    return MaterialColors.getColor(view, R.attr.colorSurface);
+    Integer c = M3Theme.surface();
+    return c != null ? c : 0;
   }
 
   public static int getRippleColor(View view) {
-    return MaterialColors.getColor(view, R.attr.colorSurfaceContainerHighest);
+    Integer c = M3Theme.surfaceContainerHighest();
+    return c != null ? c : 0;
   }
 
   private static int getRippleColor(Context view) {
-    return MaterialColors.getColor(view, R.attr.colorSurfaceContainerHighest, 0);
+    Integer c = M3Theme.surfaceContainerHighest();
+    return c != null ? c : 0;
   }
 
   private static float dpToPx(View view, float dp) {
@@ -126,10 +141,12 @@ public class ShapeUtil {
   }
 
   private static int getSurfaceColor(Context context) {
-    return MaterialColors.getColor(context, R.attr.colorSurface, 0);
+    Integer c = M3Theme.surface();
+    return c != null ? c : 0;
   }
 
   public static int getcolorPrimaryContainer(View v) {
-    return MaterialColors.getColor(v, R.attr.colorPrimaryContainer, 0);
+    Integer c = M3Theme.primaryContainer();
+    return c != null ? c : 0;
   }
 }

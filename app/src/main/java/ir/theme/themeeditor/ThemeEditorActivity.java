@@ -59,6 +59,7 @@ import ir.hanzodev1375.ghostide.codeeditors.colorrender.ColorPickerBottomSheetDi
 import ir.theme.ActivityTheme;
 import ir.theme.EditorTheme;
 import ir.theme.GhostTheme;
+import ir.theme.MaterialTheme;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeMediaPath;
 import ir.theme.ThemeUtils;
@@ -80,6 +81,7 @@ public class ThemeEditorActivity extends BaseCompat {
   private List<ThemeRow> activityItems = new ArrayList<>();
   private List<ThemeRow> editorItems = new ArrayList<>();
   private List<ThemeRow> widgetItems = new ArrayList<>();
+  private List<ThemeRow> m3ColorItems = new ArrayList<>();
   private ImageItem pendingImageItem;
   private ActivityResultLauncher<String[]> pickImageLauncher;
   private Map<String, String> titleToKeyMap = new HashMap<>();
@@ -146,6 +148,7 @@ public class ThemeEditorActivity extends BaseCompat {
       if (currentTheme.getActivity() == null) currentTheme.setActivity(new ActivityTheme());
       if (currentTheme.getEditor() == null) currentTheme.setEditor(new EditorTheme());
       if (currentTheme.getWidget() == null) currentTheme.setWidget(new WidgetTheme());
+      if (currentTheme.getMaterial3() == null) currentTheme.setMaterial3(new MaterialTheme());
     } catch (Exception e) {
       GhostToast.makeText(this, "Invalid theme", GhostToast.LENGTH_SHORT).show();
       finish();
@@ -162,6 +165,7 @@ public class ThemeEditorActivity extends BaseCompat {
     tabLayout.addTab(tabLayout.newTab().setText("Activity"));
     tabLayout.addTab(tabLayout.newTab().setText("Editor"));
     tabLayout.addTab(tabLayout.newTab().setText("Widget"));
+    tabLayout.addTab(tabLayout.newTab().setText("M3Color"));
 
     tabLayout.addOnTabSelectedListener(
         new TabLayout.OnTabSelectedListener() {
@@ -176,6 +180,9 @@ public class ThemeEditorActivity extends BaseCompat {
                 break;
               case 2:
                 adapter = new ThemeDetailAdapter(widgetItems);
+                break;
+              case 3:
+                adapter = new ThemeDetailAdapter(m3ColorItems);
                 break;
             }
             clearSearch();
@@ -418,6 +425,57 @@ public class ThemeEditorActivity extends BaseCompat {
     titleToKeyMap.put("Menu Text Color", "menutextcolor");
     titleToKeyMap.put("Selected Menu Color", "selectedmenucolor");
     // Background قبلاً اضافه شد
+
+    // Material 3
+    titleToKeyMap.put("Primary", "primary");
+    titleToKeyMap.put("On Primary", "onPrimary");
+    titleToKeyMap.put("Primary Container", "primaryContainer");
+    titleToKeyMap.put("On Primary Container", "onPrimaryContainer");
+    titleToKeyMap.put("Primary Fixed", "primaryFixed");
+    titleToKeyMap.put("On Primary Fixed", "onPrimaryFixed");
+    titleToKeyMap.put("Primary Fixed Dim", "primaryFixedDim");
+    titleToKeyMap.put("On Primary Fixed Variant", "onPrimaryFixedVariant");
+    titleToKeyMap.put("Inverse Primary", "inversePrimary");
+    titleToKeyMap.put("Secondary", "secondary");
+    titleToKeyMap.put("On Secondary", "onSecondary");
+    titleToKeyMap.put("Secondary Container", "secondaryContainer");
+    titleToKeyMap.put("On Secondary Container", "onSecondaryContainer");
+    titleToKeyMap.put("Secondary Fixed", "secondaryFixed");
+    titleToKeyMap.put("On Secondary Fixed", "onSecondaryFixed");
+    titleToKeyMap.put("Secondary Fixed Dim", "secondaryFixedDim");
+    titleToKeyMap.put("On Secondary Fixed Variant", "onSecondaryFixedVariant");
+    titleToKeyMap.put("Tertiary", "tertiary");
+    titleToKeyMap.put("On Tertiary", "onTertiary");
+    titleToKeyMap.put("Tertiary Container", "tertiaryContainer");
+    titleToKeyMap.put("On Tertiary Container", "onTertiaryContainer");
+    titleToKeyMap.put("Tertiary Fixed", "tertiaryFixed");
+    titleToKeyMap.put("On Tertiary Fixed", "onTertiaryFixed");
+    titleToKeyMap.put("Tertiary Fixed Dim", "tertiaryFixedDim");
+    titleToKeyMap.put("On Tertiary Fixed Variant", "onTertiaryFixedVariant");
+    titleToKeyMap.put("Error", "error");
+    titleToKeyMap.put("On Error", "onError");
+    titleToKeyMap.put("Error Container", "errorContainer");
+    titleToKeyMap.put("On Error Container", "onErrorContainer");
+    titleToKeyMap.put("Background", "background");
+    titleToKeyMap.put("On Background", "onBackground");
+    titleToKeyMap.put("Surface", "surface");
+    titleToKeyMap.put("On Surface", "onSurface");
+    titleToKeyMap.put("Surface Variant", "surfaceVariant");
+    titleToKeyMap.put("On Surface Variant", "onSurfaceVariant");
+    titleToKeyMap.put("Outline", "outline");
+    titleToKeyMap.put("Outline Variant", "outlineVariant");
+    titleToKeyMap.put("Shadow", "shadow");
+    titleToKeyMap.put("Scrim", "scrim");
+    titleToKeyMap.put("Surface Tint", "surfaceTint");
+    titleToKeyMap.put("Inverse Surface", "inverseSurface");
+    titleToKeyMap.put("Inverse On Surface", "inverseOnSurface");
+    titleToKeyMap.put("Surface Dim", "surfaceDim");
+    titleToKeyMap.put("Surface Bright", "surfaceBright");
+    titleToKeyMap.put("Surface Container Lowest", "surfaceContainerLowest");
+    titleToKeyMap.put("Surface Container Low", "surfaceContainerLow");
+    titleToKeyMap.put("Surface Container", "surfaceContainer");
+    titleToKeyMap.put("Surface Container High", "surfaceContainerHigh");
+    titleToKeyMap.put("Surface Container Highest", "surfaceContainerHighest");
   }
 
   private String getDefaultColorForTitle(String title) {
@@ -432,6 +490,8 @@ public class ThemeEditorActivity extends BaseCompat {
       if (editor.has(key)) return editor.get(key).getAsString();
       JsonObject widget = defaultObj.getAsJsonObject("widget");
       if (widget.has(key)) return widget.get(key).getAsString();
+      JsonObject material3 = defaultObj.getAsJsonObject("material3");
+      if (material3.has(key)) return material3.get(key).getAsString();
     } catch (Exception ignored) {
     }
     return null;
@@ -493,6 +553,8 @@ public class ThemeEditorActivity extends BaseCompat {
         return editorItems;
       case 2:
         return widgetItems;
+      case 3:
+        return m3ColorItems;
       default:
         return activityItems;
     }
@@ -550,6 +612,7 @@ public class ThemeEditorActivity extends BaseCompat {
     activityItems.clear();
     editorItems.clear();
     widgetItems.clear();
+    m3ColorItems.clear();
 
     ActivityTheme a = currentTheme.getActivity();
     activityItems.add(
@@ -1001,6 +1064,66 @@ public class ThemeEditorActivity extends BaseCompat {
     widgetItems.add(
         new SliderItem(
             "Blur Size", w.getBlursize(), 0f, 25f, 1f, (t, v) -> t.getWidget().setBlursize(v)));
+
+    MaterialTheme m = currentTheme.getMaterial3();
+    m3ColorItems.add(m3("Primary", m.getPrimary(), (t, c) -> t.getMaterial3().setPrimary(c)));
+    m3ColorItems.add(m3("On Primary", m.getOnPrimary(), (t, c) -> t.getMaterial3().setOnPrimary(c)));
+    m3ColorItems.add(m3("Primary Container", m.getPrimaryContainer(), (t, c) -> t.getMaterial3().setPrimaryContainer(c)));
+    m3ColorItems.add(m3("On Primary Container", m.getOnPrimaryContainer(), (t, c) -> t.getMaterial3().setOnPrimaryContainer(c)));
+    m3ColorItems.add(m3("Primary Fixed", m.getPrimaryFixed(), (t, c) -> t.getMaterial3().setPrimaryFixed(c)));
+    m3ColorItems.add(m3("On Primary Fixed", m.getOnPrimaryFixed(), (t, c) -> t.getMaterial3().setOnPrimaryFixed(c)));
+    m3ColorItems.add(m3("Primary Fixed Dim", m.getPrimaryFixedDim(), (t, c) -> t.getMaterial3().setPrimaryFixedDim(c)));
+    m3ColorItems.add(m3("On Primary Fixed Variant", m.getOnPrimaryFixedVariant(), (t, c) -> t.getMaterial3().setOnPrimaryFixedVariant(c)));
+    m3ColorItems.add(m3("Inverse Primary", m.getInversePrimary(), (t, c) -> t.getMaterial3().setInversePrimary(c)));
+
+    m3ColorItems.add(m3("Secondary", m.getSecondary(), (t, c) -> t.getMaterial3().setSecondary(c)));
+    m3ColorItems.add(m3("On Secondary", m.getOnSecondary(), (t, c) -> t.getMaterial3().setOnSecondary(c)));
+    m3ColorItems.add(m3("Secondary Container", m.getSecondaryContainer(), (t, c) -> t.getMaterial3().setSecondaryContainer(c)));
+    m3ColorItems.add(m3("On Secondary Container", m.getOnSecondaryContainer(), (t, c) -> t.getMaterial3().setOnSecondaryContainer(c)));
+    m3ColorItems.add(m3("Secondary Fixed", m.getSecondaryFixed(), (t, c) -> t.getMaterial3().setSecondaryFixed(c)));
+    m3ColorItems.add(m3("On Secondary Fixed", m.getOnSecondaryFixed(), (t, c) -> t.getMaterial3().setOnSecondaryFixed(c)));
+    m3ColorItems.add(m3("Secondary Fixed Dim", m.getSecondaryFixedDim(), (t, c) -> t.getMaterial3().setSecondaryFixedDim(c)));
+    m3ColorItems.add(m3("On Secondary Fixed Variant", m.getOnSecondaryFixedVariant(), (t, c) -> t.getMaterial3().setOnSecondaryFixedVariant(c)));
+
+    m3ColorItems.add(m3("Tertiary", m.getTertiary(), (t, c) -> t.getMaterial3().setTertiary(c)));
+    m3ColorItems.add(m3("On Tertiary", m.getOnTertiary(), (t, c) -> t.getMaterial3().setOnTertiary(c)));
+    m3ColorItems.add(m3("Tertiary Container", m.getTertiaryContainer(), (t, c) -> t.getMaterial3().setTertiaryContainer(c)));
+    m3ColorItems.add(m3("On Tertiary Container", m.getOnTertiaryContainer(), (t, c) -> t.getMaterial3().setOnTertiaryContainer(c)));
+    m3ColorItems.add(m3("Tertiary Fixed", m.getTertiaryFixed(), (t, c) -> t.getMaterial3().setTertiaryFixed(c)));
+    m3ColorItems.add(m3("On Tertiary Fixed", m.getOnTertiaryFixed(), (t, c) -> t.getMaterial3().setOnTertiaryFixed(c)));
+    m3ColorItems.add(m3("Tertiary Fixed Dim", m.getTertiaryFixedDim(), (t, c) -> t.getMaterial3().setTertiaryFixedDim(c)));
+    m3ColorItems.add(m3("On Tertiary Fixed Variant", m.getOnTertiaryFixedVariant(), (t, c) -> t.getMaterial3().setOnTertiaryFixedVariant(c)));
+
+    m3ColorItems.add(m3("Error", m.getError(), (t, c) -> t.getMaterial3().setError(c)));
+    m3ColorItems.add(m3("On Error", m.getOnError(), (t, c) -> t.getMaterial3().setOnError(c)));
+    m3ColorItems.add(m3("Error Container", m.getErrorContainer(), (t, c) -> t.getMaterial3().setErrorContainer(c)));
+    m3ColorItems.add(m3("On Error Container", m.getOnErrorContainer(), (t, c) -> t.getMaterial3().setOnErrorContainer(c)));
+
+    m3ColorItems.add(m3("Background", m.getBackground(), (t, c) -> t.getMaterial3().setBackground(c)));
+    m3ColorItems.add(m3("On Background", m.getOnBackground(), (t, c) -> t.getMaterial3().setOnBackground(c)));
+    m3ColorItems.add(m3("Surface", m.getSurface(), (t, c) -> t.getMaterial3().setSurface(c)));
+    m3ColorItems.add(m3("On Surface", m.getOnSurface(), (t, c) -> t.getMaterial3().setOnSurface(c)));
+    m3ColorItems.add(m3("Surface Variant", m.getSurfaceVariant(), (t, c) -> t.getMaterial3().setSurfaceVariant(c)));
+    m3ColorItems.add(m3("On Surface Variant", m.getOnSurfaceVariant(), (t, c) -> t.getMaterial3().setOnSurfaceVariant(c)));
+    m3ColorItems.add(m3("Outline", m.getOutline(), (t, c) -> t.getMaterial3().setOutline(c)));
+    m3ColorItems.add(m3("Outline Variant", m.getOutlineVariant(), (t, c) -> t.getMaterial3().setOutlineVariant(c)));
+    m3ColorItems.add(m3("Shadow", m.getShadow(), (t, c) -> t.getMaterial3().setShadow(c)));
+    m3ColorItems.add(m3("Scrim", m.getScrim(), (t, c) -> t.getMaterial3().setScrim(c)));
+    m3ColorItems.add(m3("Surface Tint", m.getSurfaceTint(), (t, c) -> t.getMaterial3().setSurfaceTint(c)));
+
+    m3ColorItems.add(m3("Inverse Surface", m.getInverseSurface(), (t, c) -> t.getMaterial3().setInverseSurface(c)));
+    m3ColorItems.add(m3("Inverse On Surface", m.getInverseOnSurface(), (t, c) -> t.getMaterial3().setInverseOnSurface(c)));
+    m3ColorItems.add(m3("Surface Dim", m.getSurfaceDim(), (t, c) -> t.getMaterial3().setSurfaceDim(c)));
+    m3ColorItems.add(m3("Surface Bright", m.getSurfaceBright(), (t, c) -> t.getMaterial3().setSurfaceBright(c)));
+    m3ColorItems.add(m3("Surface Container Lowest", m.getSurfaceContainerLowest(), (t, c) -> t.getMaterial3().setSurfaceContainerLowest(c)));
+    m3ColorItems.add(m3("Surface Container Low", m.getSurfaceContainerLow(), (t, c) -> t.getMaterial3().setSurfaceContainerLow(c)));
+    m3ColorItems.add(m3("Surface Container", m.getSurfaceContainer(), (t, c) -> t.getMaterial3().setSurfaceContainer(c)));
+    m3ColorItems.add(m3("Surface Container High", m.getSurfaceContainerHigh(), (t, c) -> t.getMaterial3().setSurfaceContainerHigh(c)));
+    m3ColorItems.add(m3("Surface Container Highest", m.getSurfaceContainerHighest(), (t, c) -> t.getMaterial3().setSurfaceContainerHighest(c)));
+  }
+
+  private ColorItem m3(String title, String value, ColorUpdater updater) {
+    return new ColorItem(title, value, updater);
   }
 
   private void saveThemeToFile() {
@@ -1018,7 +1141,8 @@ public class ThemeEditorActivity extends BaseCompat {
       int pos = tabLayout.getSelectedTabPosition();
       if (pos == 0) adapter.updateList(activityItems);
       else if (pos == 1) adapter.updateList(editorItems);
-      else adapter.updateList(widgetItems);
+      else if (pos == 2) adapter.updateList(widgetItems);
+      else adapter.updateList(m3ColorItems);
     }
     adapter.setHighlightQuery(null);
   }

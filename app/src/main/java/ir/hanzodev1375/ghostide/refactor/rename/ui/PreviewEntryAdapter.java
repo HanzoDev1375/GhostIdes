@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import ir.hanzodev1375.ghostide.databinding.ItemPreviewEntryBinding;
 import ir.hanzodev1375.ghostide.refactor.rename.model.PreviewEntry;
+import ir.theme.M3Theme;
 
 public final class PreviewEntryAdapter
     extends ListAdapter<PreviewEntry, PreviewEntryAdapter.ViewHolder> {
@@ -44,6 +45,7 @@ public final class PreviewEntryAdapter
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     holder.bind(getItem(position));
+    M3Theme.listCard(holder.itemView);
   }
 
   static final class ViewHolder extends RecyclerView.ViewHolder {

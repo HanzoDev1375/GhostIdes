@@ -13,13 +13,13 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.color.MaterialColors;
 
 import ir.hanzodev1375.components.ftp.model.FtpEntry;
 import java.util.ArrayList;
 import java.util.List;
 
 import ir.hanzodev1375.components.R;
+import ir.theme.M3Theme;
 
 public class FtpBrowserAdapter extends RecyclerView.Adapter<FtpBrowserAdapter.VH> {
 
@@ -91,12 +91,12 @@ public class FtpBrowserAdapter extends RecyclerView.Adapter<FtpBrowserAdapter.VH
     if (entry.isDirectory()) {
       h.ivIcon.setImageResource(android.R.drawable.ic_menu_agenda);
       h.ivIcon.setImageTintList(
-          ColorStateList.valueOf(MaterialColors.getColor(h.ivIcon, R.attr.colorPrimary)));
+          ColorStateList.valueOf(fallback(M3Theme.primary(), 0)));
       h.ivMore.setVisibility(View.VISIBLE);
     } else {
       h.ivIcon.setImageResource(android.R.drawable.ic_menu_edit);
       h.ivIcon.setImageTintList(
-          ColorStateList.valueOf(MaterialColors.getColor(h.ivIcon, R.attr.colorOnSurfaceVariant)));
+          ColorStateList.valueOf(fallback(M3Theme.onSurfaceVariant(), 0)));
       h.ivMore.setVisibility(View.VISIBLE);
     }
 
@@ -109,6 +109,7 @@ public class FtpBrowserAdapter extends RecyclerView.Adapter<FtpBrowserAdapter.VH
         v -> {
           if (moreClick != null) moreClick.onMore(entry, v);
         });
+    M3Theme.listCard(h.itemView);
   }
 
   @Override
@@ -131,5 +132,9 @@ public class FtpBrowserAdapter extends RecyclerView.Adapter<FtpBrowserAdapter.VH
       tvSize = v.findViewById(R.id.tvSize);
       ivMore = v.findViewById(R.id.ivMore);
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

@@ -18,6 +18,7 @@ import ir.hanzodev1375.ghostide.plugin.api.ExtensionPoint;
 import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplManifest;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplManifestReader;
+import ir.theme.M3Theme;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +69,7 @@ public final class PluginPopupAdapter extends RecyclerView.Adapter<PluginPopupAd
 
     holder.itemView.setOnClickListener(
         v -> listener.onClick(v, item, holder.getBindingAdapterPosition()));
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

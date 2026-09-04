@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 import ir.hanzodev1375.ghostide.R;
+import ir.theme.M3Theme;
 
 public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ViewHolder> {
 
@@ -51,6 +52,7 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ViewHolder> 
     } else {
       holder.colorView.setImageResource(0);
     }
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

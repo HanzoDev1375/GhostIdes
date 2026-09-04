@@ -29,6 +29,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.theme.M3Theme;
 public class GitBottomSheetFragment extends BaseBlurBottomSheet {
 
   private static final int TAB_CHANGES = 0;
@@ -118,6 +119,7 @@ public class GitBottomSheetFragment extends BaseBlurBottomSheet {
       GhostToast.makeText(getContext(), "مسیر مخزن تنظیم نشده است!", GhostToast.LENGTH_SHORT).show();
       dismiss();
     }
+    M3Theme.applyTopLevel(view);
   }
 
   private void setupHeader(View root) {

@@ -7,7 +7,9 @@ public class GhostTheme {
   private EditorTheme editor;
 
   private WidgetTheme widget;
- 
+
+  private MaterialTheme material3;
+
   public ActivityTheme getActivity() {
     return activity;
   }
@@ -30,5 +32,13 @@ public class GhostTheme {
 
   public void setWidget(WidgetTheme widget) {
     this.widget = widget;
+  }
+
+  public MaterialTheme getMaterial3() {
+    return material3;
+  }
+
+  public void setMaterial3(MaterialTheme material3) {
+    this.material3 = material3;
   }
 }

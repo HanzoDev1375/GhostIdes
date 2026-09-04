@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import ir.hanzodev1375.ghostide.databinding.LayoutNavItemBinding;
 import ir.hanzodev1375.ghostide.models.NavModel;
+import ir.theme.M3Theme;
 import java.util.List;
 
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
@@ -70,6 +71,7 @@ public class NavAdapter extends RecyclerView.Adapter<NavAdapter.ViewHolder> {
             return false;
           });
     }
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override
@@ -84,6 +86,7 @@ public class NavAdapter extends RecyclerView.Adapter<NavAdapter.ViewHolder> {
   public void setOnItemClickListener(OnItemClickListener<NavModel> listener) {
     this.itemClickListener = listener;
   }
+
   public void setOnItemLongClickListener(OnItemLongClickListener<NavModel> listener) {
     this.itemLongClickListener = listener;
   }
@@ -92,9 +95,11 @@ public class NavAdapter extends RecyclerView.Adapter<NavAdapter.ViewHolder> {
     mDiffer.submitList(newItems);
     notifyDataSetChanged();
   }
+
   public interface OnItemClickListener<NavModel> {
     void onItemClick(View view, NavModel item, int position);
   }
+
   public interface OnItemLongClickListener<NavModel> {
     boolean onItemLongClick(View view, NavModel item, int position);
   }

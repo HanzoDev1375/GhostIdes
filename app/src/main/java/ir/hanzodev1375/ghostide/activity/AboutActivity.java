@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.hanzodev1375.ghostide.R;
+import ir.theme.M3Theme;
 
 public class AboutActivity extends BaseCompat {
   private GlassCompat cardDisplay, cardMemory, cardStorage, cardDeviceInfo;
@@ -57,6 +58,8 @@ public class AboutActivity extends BaseCompat {
     fillData();
     setupClickListeners();
     animateCardsIn();
+
+    M3Theme.applyTopLevel(findViewById(R.id.contentAreaAbout));
   }
 
   private void setupGlassBackdrop(GlassCompat glass) {

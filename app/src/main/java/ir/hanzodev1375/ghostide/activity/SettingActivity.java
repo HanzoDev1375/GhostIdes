@@ -43,6 +43,7 @@ import ir.hanzodev1375.ghostide.utils.LocaleHelper;
 import ir.theme.GhostTheme;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
+import ir.theme.M3Theme;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -228,6 +229,8 @@ public class SettingActivity extends BaseCompat {
           },
           500);
     }
+
+    M3Theme.applyTopLevel(root);
   }
 
   private void setupBackgroundBlur() {

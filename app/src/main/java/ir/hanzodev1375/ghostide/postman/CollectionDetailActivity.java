@@ -17,6 +17,7 @@ import ir.hanzodev1375.ghostide.postman.data.AppRepository;
 import ir.hanzodev1375.ghostide.databinding.ActivityCollectionDetailBinding;
 import ir.hanzodev1375.ghostide.postman.model.SavedRequest;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.theme.M3Theme;
 public class CollectionDetailActivity extends BaseCompat {
 
   private ActivityCollectionDetailBinding binding;
@@ -75,6 +76,8 @@ public class CollectionDetailActivity extends BaseCompat {
 
     binding.requestsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     binding.requestsRecyclerView.setAdapter(adapter);
+
+    M3Theme.apply(binding.getRoot());
 
     loadRequests();
   }

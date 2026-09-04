@@ -9,9 +9,10 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.google.android.material.color.MaterialColors;
+
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.components.utils.GlassColors;
+import ir.theme.M3Theme;
 import com.google.android.material.snackbar.Snackbar;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.databinding.BottomSheetRenameClassBinding;
@@ -53,7 +54,7 @@ public final class RenameClassBottomSheet extends BaseBlurBottomSheet {
     contentContainer.addView(binding.getRoot());
     GlassColors.setBackgroundAlpha(
         binding.warningCard,
-        MaterialColors.getColor(binding.getRoot(), com.google.android.material.R.attr.colorErrorContainer),
+        fallback(M3Theme.errorContainer(), 0),
         140);
     viewModel = new ViewModelProvider(this).get(RenameClassViewModel.class);
 
@@ -93,6 +94,7 @@ public final class RenameClassBottomSheet extends BaseBlurBottomSheet {
 
     observeViewModel();
     viewModel.start(projectRoot, targetFile, oldClassName);
+    M3Theme.apply(binding.getRoot());
   }
 
   private void observeViewModel() {
@@ -234,5 +236,9 @@ public final class RenameClassBottomSheet extends BaseBlurBottomSheet {
   public void onDestroyView() {
     super.onDestroyView();
     binding = null;
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

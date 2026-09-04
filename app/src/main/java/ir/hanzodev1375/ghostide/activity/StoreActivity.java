@@ -14,6 +14,7 @@ import ir.hanzodev1375.ghostide.R;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.theme.M3Theme;
 
 public class StoreActivity extends BaseCompat {
 
@@ -89,6 +90,7 @@ public class StoreActivity extends BaseCompat {
           }
           return false;
         });
+    M3Theme.applyTopLevel(root);
   }
 
   private void syncNavItem(int position) {

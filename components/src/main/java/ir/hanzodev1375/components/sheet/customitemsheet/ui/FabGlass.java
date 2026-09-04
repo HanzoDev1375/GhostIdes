@@ -5,7 +5,7 @@ import com.example.liquidglass.LiquidGlassFab;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.utils.ComponentsPrefs;
 import android.util.AttributeSet;
-import com.google.android.material.color.MaterialColors;
+import ir.theme.M3Theme;
 
 public class FabGlass extends LiquidGlassFab {
   private ComponentsPrefs setting;
@@ -28,7 +28,11 @@ public class FabGlass extends LiquidGlassFab {
   void init() {
     setting = new ComponentsPrefs(getContext());
     if (setting.isGlassMaterialColor()) {
-      setGlassTint(MaterialColors.getColor(this, R.attr.colorSurface), setting.getGlassTint());
+      setGlassTint(fallback(M3Theme.surface(), 0), setting.getGlassTint());
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

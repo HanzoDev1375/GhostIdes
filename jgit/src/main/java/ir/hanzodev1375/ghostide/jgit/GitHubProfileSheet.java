@@ -16,12 +16,12 @@ import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.theme.M3Theme;
 import ir.hanzodev1375.ghostide.jgit.adapter.EventAdapter;
 import ir.hanzodev1375.ghostide.jgit.adapter.RepoAdapter;
 import ir.hanzodev1375.ghostide.jgit.model.GitHubEvent;
@@ -80,7 +80,7 @@ public class GitHubProfileSheet extends BaseBlurBottomSheet {
     tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.star_24px).setText("Starred"));
     tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_bolt).setText("Activity"));
     tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.rss_feed_24px).setText("Feed"));
-    int orginalColor = MaterialColors.getColor(tabLayout, R.attr.colorSurfaceContainerLow);
+    int orginalColor = fallback(M3Theme.surfaceContainerLow(), 0);
     if (app.isBlurMod()) {
       tabLayout.setBackgroundTintList(
           ColorStateList.valueOf(ColorUtils.setAlphaComponent(orginalColor, 128)));
@@ -106,6 +106,7 @@ public class GitHubProfileSheet extends BaseBlurBottomSheet {
           @Override
           public void onTabReselected(TabLayout.Tab tab) {}
         });
+    M3Theme.applyTopLevel(root);
   }
 
   private void loadRepos() {
@@ -241,5 +242,9 @@ public class GitHubProfileSheet extends BaseBlurBottomSheet {
         outRect.bottom = itemMargin;
       }
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

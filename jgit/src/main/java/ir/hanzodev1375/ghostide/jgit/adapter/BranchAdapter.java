@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.jgit.R;
+import ir.theme.M3Theme;
 
 public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.ViewHolder> {
   private List<String> branches = new ArrayList<>();
@@ -72,6 +73,7 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.ViewHolder
       });
       holder.btnRebase.setEnabled(!branch.equals(currentBranch));
     }
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

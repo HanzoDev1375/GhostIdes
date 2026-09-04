@@ -18,7 +18,7 @@ import androidx.core.util.Supplier;
 import androidx.transition.Transition;
 import com.google.android.material.transition.MaterialSharedAxis;
 import androidx.transition.TransitionManager;
-import com.google.android.material.color.MaterialColors;
+import ir.theme.M3Theme;
 import io.github.rosemoe.sora.event.PublishSearchResultEvent;
 import io.github.rosemoe.sora.widget.EditorSearcher;
 import io.github.rosemoe.sora.widget.CodeEditor;
@@ -61,8 +61,8 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
     setupClickListeners();
     hide();
     gd = new GradientDrawable();
-    gd.setColor(MaterialColors.getColor(binding.getRoot(), R.attr.colorSurface));
-    gd.setStroke(2, MaterialColors.getColor(binding.getRoot(), R.attr.colorOnSurface));
+    gd.setColor(fallback(M3Theme.surface(), 0));
+    gd.setStroke(2, fallback(M3Theme.onSurface(), 0));
     gd.setCornerRadius(50f);
     binding.getRoot().setBackground(gd);
   }
@@ -195,8 +195,7 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
             info = String.format("%d/%d", currentMatchIndex + 1, totalMatches);
           } else {
             textcolor =
-                MaterialColors.getColor(
-                    binding.tvresult, com.google.android.material.R.attr.colorOnSurface);
+                fallback(M3Theme.onSurface(), 0);
             info = "Result: " + totalMatches;
           }
 
@@ -205,8 +204,7 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
         } else {
           info = "Result 0";
           textcolor =
-              MaterialColors.getColor(
-                  binding.tvresult, com.google.android.material.R.attr.colorErrorContainer);
+              fallback(M3Theme.errorContainer(), 0);
           binding.gotoNext.setEnabled(false);
           binding.gotoLast.setEnabled(false);
         }
@@ -464,5 +462,9 @@ public class GhostIdeEditorSearch extends LinearLayoutCompat {
     void onViewShow();
 
     void onViewHide();
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

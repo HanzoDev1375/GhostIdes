@@ -20,6 +20,7 @@ import ir.hanzodev1375.ghostide.postman.data.AppRepository;
 import ir.hanzodev1375.ghostide.databinding.ActivityHistoryBinding;
 import ir.hanzodev1375.ghostide.postman.model.HistoryItem;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.theme.M3Theme;
 public class HistoryActivity extends BaseCompat {
 
   private ActivityHistoryBinding binding;
@@ -73,6 +74,8 @@ public class HistoryActivity extends BaseCompat {
 
     binding.historyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     binding.historyRecyclerView.setAdapter(adapter);
+
+    M3Theme.apply(binding.getRoot());
 
     loadHistory();
   }

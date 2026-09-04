@@ -15,6 +15,7 @@ import ir.hanzodev1375.components.utils.AndroidUtils;
 import ir.hanzodev1375.components.utils.SoftInputLifeCycleObserver;
 import java.lang.ref.WeakReference;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.theme.M3Theme;
 public class RenameDialogFragment extends DialogFragment {
   public static final String TAG = RenameDialogFragment.class.getSimpleName();
 
@@ -79,6 +80,7 @@ public class RenameDialogFragment extends DialogFragment {
       @NonNull LayoutInflater inflater,
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
+    M3Theme.apply(mDialogView);
     return mDialogView;
   }
 

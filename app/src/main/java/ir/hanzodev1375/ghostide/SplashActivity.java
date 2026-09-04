@@ -10,6 +10,7 @@ import ir.hanzodev1375.ghostide.utils.PermissionUtils;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import ir.hanzodev1375.components.views.GhostToast;
+import ir.theme.M3Theme;
 
 public class SplashActivity extends BaseCompat {
 
@@ -38,6 +39,8 @@ public class SplashActivity extends BaseCompat {
         .setDuration(800)
         .withEndAction(() -> logo.postDelayed(this::checkPermissionsAndStart, 1200))
         .start();
+
+    M3Theme.apply(findViewById(android.R.id.content));
   }
 
   private void checkPermissionsAndStart() {

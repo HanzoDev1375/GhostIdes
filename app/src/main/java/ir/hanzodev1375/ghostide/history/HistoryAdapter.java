@@ -11,11 +11,12 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import ir.hanzodev1375.ghostide.materialfileicon.core.FileIconHelper;
 import com.bumptech.glide.Glide;
-import com.google.android.material.color.MaterialColors;
+
 import com.google.android.material.listitem.ListItemCardView;
 import com.google.android.material.listitem.ListItemViewHolder;
 import java.util.ArrayList;
 import java.util.List;
+import ir.theme.M3Theme;
 import ir.hanzodev1375.ghostide.R;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
@@ -77,6 +78,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     holder.bindItem(items.get(position));
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override
@@ -118,16 +120,19 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
           .into(ivIcon);
 
       var gd = new GradientDrawable();
-      gd.setColor(MaterialColors.getColor(ivIcon, com.google.android.material.R.attr.colorSurface));
+      gd.setColor(fallback(M3Theme.surface(), 0));
       gd.setStroke(
-          1, MaterialColors.getColor(ivIcon, com.google.android.material.R.attr.colorOutline));
+          1, fallback(M3Theme.outline(), 0));
       gd.setCornerRadius(8);
       ivIcon.setPadding(5, 5, 5, 5);
       ivIcon.setBackground(gd);
 
       tvPath.setTextColor(
-          MaterialColors.getColor(
-              tvPath, com.google.android.material.R.attr.colorOnSurfaceVariant));
+          fallback(M3Theme.onSurfaceVariant(), 0));
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

@@ -7,10 +7,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.color.MaterialColors;
+
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.customui.PreferenceSwitchGroup;
 import ir.hanzodev1375.ghostide.models.SettingItem;
+import ir.theme.M3Theme;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,6 +115,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
             }
           });
     }
+    M3Theme.listCard(holder.itemView);
   }
 
   private SpannableString highlightText(String text, String query, ViewHolder holder) {
@@ -129,7 +131,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
       int endIndex = startIndex + query.length();
       spannableString.setSpan(
           new ForegroundColorSpan(
-              MaterialColors.getColor(holder.itemView.getContext(), R.attr.colorError, 0)),
+              fallback(M3Theme.error(), 0)),
           startIndex,
           endIndex,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -210,5 +212,9 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
       super(itemView);
       switchGroup = itemView;
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

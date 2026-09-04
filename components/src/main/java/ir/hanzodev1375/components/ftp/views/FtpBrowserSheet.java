@@ -22,7 +22,6 @@ import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.components.utils.GlassColors;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.skydoves.powermenu.MenuAnimation;
 import com.skydoves.powermenu.PowerMenu;
@@ -31,6 +30,7 @@ import com.skydoves.powermenu.PowerMenuItem;
 import ir.hanzodev1375.components.ftp.interfaces.RemoteClient;
 import ir.hanzodev1375.components.ftp.adapter.FtpBrowserAdapter;
 import ir.hanzodev1375.components.ftp.model.FtpEntry;
+import ir.theme.M3Theme;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +40,7 @@ import java.util.concurrent.Executors;
 
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+
 public class FtpBrowserSheet extends BaseBlurBottomSheet {
 
   public static final String TAG = "FtpBrowserSheet";
@@ -82,9 +83,7 @@ public class FtpBrowserSheet extends BaseBlurBottomSheet {
     BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
     dialog.setOnShowListener(
         d -> {
-          FrameLayout bottomSheet =
-              ((BottomSheetDialog) d)
-                  .findViewById(R.id.design_bottom_sheet);
+          FrameLayout bottomSheet = ((BottomSheetDialog) d).findViewById(R.id.design_bottom_sheet);
           if (bottomSheet != null) {
             BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
             behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -97,15 +96,15 @@ public class FtpBrowserSheet extends BaseBlurBottomSheet {
 
   @Override
   protected void onContentReady(@NonNull ViewGroup contentContainer) {
-    View view = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_ftp_browser, null, false);
+    View view =
+        LayoutInflater.from(requireContext())
+            .inflate(R.layout.bottom_sheet_ftp_browser, null, false);
     contentContainer.addView(view);
 
     MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
     tvPath = view.findViewById(R.id.tvPath);
     GlassColors.setBackgroundAlpha(
-        (View) tvPath.getParent(),
-        MaterialColors.getColor(tvPath, R.attr.colorSurfaceVariant),
-        150);
+        (View) tvPath.getParent(), fallback(M3Theme.surfaceVariant(), 0), 150);
     progressBar = view.findViewById(R.id.progressBar);
     rvFiles = view.findViewById(R.id.rvFiles);
     llEmpty = view.findViewById(R.id.llEmpty);
@@ -180,12 +179,8 @@ public class FtpBrowserSheet extends BaseBlurBottomSheet {
     menu.addItem(new PowerMenuItem(getString(R.string.ftp_menu_delete))); // 1
     menu.addItem(new PowerMenuItem(getString(R.string.ftp_menu_rename))); // 2
 
-    menu.setMenuColor(
-        MaterialColors.getColor(
-            anchor, R.attr.colorSurface, 0));
-    menu.setTextColor(
-      MaterialColors.getColor(
-            anchor,R.attr.colorOnSurface, 0));
+    menu.setMenuColor(fallback(M3Theme.surface(), 0));
+    menu.setTextColor(fallback(M3Theme.onSurface(), 0));
     menu.setShowBackground(false);
     menu.setAutoDismiss(true);
     menu.setMenuRadius(30f);
@@ -205,11 +200,7 @@ public class FtpBrowserSheet extends BaseBlurBottomSheet {
 
     int[] loc = new int[2];
     anchor.getLocationOnScreen(loc);
-    menu.showAtLocation(
-        anchor,
-        Gravity.TOP | Gravity.START,
-        loc[0],
-        loc[1] + anchor.getHeight());
+    menu.showAtLocation(anchor, Gravity.TOP | Gravity.START, loc[0], loc[1] + anchor.getHeight());
   }
 
   private void downloadEntry(FtpEntry entry) {
@@ -335,5 +326,9 @@ public class FtpBrowserSheet extends BaseBlurBottomSheet {
 
   public void show(FragmentManager manager) {
     show(manager, TAG);
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

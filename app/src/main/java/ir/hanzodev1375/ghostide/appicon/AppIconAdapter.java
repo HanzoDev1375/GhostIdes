@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import ir.hanzodev1375.ghostide.R;
+import ir.theme.M3Theme;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,6 +47,7 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.ViewHold
     holder.iconView.setImageResource(icon.previewRes);
     holder.labelView.setText(icon.labelRes);
     holder.checkView.setVisibility(position == checkedPosition ? View.VISIBLE : View.INVISIBLE);
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

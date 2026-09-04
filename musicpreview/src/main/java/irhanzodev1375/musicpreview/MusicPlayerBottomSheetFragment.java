@@ -23,6 +23,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.color.MaterialColors;
 import irhanzodev1375.musicpreview.databinding.FragmentMusicPlayerBottomSheetBinding;
+import ir.theme.M3Theme;
 import java.util.Locale;
 import java.util.Map;
 
@@ -100,6 +101,7 @@ public class MusicPlayerBottomSheetFragment extends BottomSheetDialogFragment {
     updateUI();
     setupListeners();
     startProgressUpdates();
+    M3Theme.apply(binding.getRoot());
   }
 
   private void setupSheetStyle() {
@@ -168,7 +170,10 @@ public class MusicPlayerBottomSheetFragment extends BottomSheetDialogFragment {
     squigglyProgress.transitionEnabled = true;
     squigglyProgress.setAnimate(false);
 
-    int primaryColor = MaterialColors.getColor(requireView(), R.attr.colorPrimary, Color.BLUE);
+    int primaryColor =
+        (M3Theme.primary() != null
+            ? M3Theme.primary()
+            : MaterialColors.getColor(requireView(), R.attr.colorPrimary, Color.BLUE));
     squigglyProgress.setTint(primaryColor);
 
     binding.musicSheetSeekBar.setProgressDrawable(squigglyProgress);

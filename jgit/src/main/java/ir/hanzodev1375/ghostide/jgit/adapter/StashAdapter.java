@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.StashInfo;
+import ir.theme.M3Theme;
 
 public class StashAdapter extends RecyclerView.Adapter<StashAdapter.ViewHolder> {
   private List<StashInfo> stashes = new ArrayList<>();
@@ -51,6 +52,7 @@ public class StashAdapter extends RecyclerView.Adapter<StashAdapter.ViewHolder> 
     holder.btnPop.setOnClickListener(v -> { if (listener != null) listener.onPop(stash); });
     holder.btnApply.setOnClickListener(v -> { if (listener != null) listener.onApply(stash); });
     holder.btnDrop.setOnClickListener(v -> { if (listener != null) listener.onDrop(stash); });
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

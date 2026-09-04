@@ -21,6 +21,7 @@ import ir.hanzodev1375.components.ftp.impl.SftpClientImpl;
 import ir.hanzodev1375.components.ftp.impl.SmbClientImpl;
 import ir.hanzodev1375.components.ftp.interfaces.RemoteClient;
 
+import ir.theme.M3Theme;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -56,6 +57,7 @@ public class FtpConnectSheet extends BaseBlurBottomSheet {
   protected void onContentReady(@NonNull ViewGroup contentContainer) {
     View view = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_ftp_connect, null, false);
     contentContainer.addView(view);
+    M3Theme.applyTopLevel(view);
 
     etHost = view.findViewById(R.id.etHost);
     etPort = view.findViewById(R.id.etPort);

@@ -5,8 +5,8 @@ import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import com.google.android.material.color.MaterialColors;
 import ir.hanzodev1375.components.R;
+import ir.theme.M3Theme;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import androidx.appcompat.widget.AppCompatImageView;
 import ir.hanzodev1375.components.animators.AnimationManager;
@@ -36,6 +36,7 @@ public class ImageViewAnimator extends AppCompatImageView implements View.OnTouc
   private void init() {
     setOnTouchListener(this);
     setClickable(true);
+    M3Theme.apply(this);
   }
 
   @Override
@@ -44,7 +45,8 @@ public class ImageViewAnimator extends AppCompatImageView implements View.OnTouc
       case MotionEvent.ACTION_DOWN:
         animateTo(SCALE);
         setColorFilter(
-            MaterialColors.getColor(this, R.attr.colorPrimary, 0), PorterDuff.Mode.SRC_IN);
+            fallback(M3Theme.primary(), 0),
+            PorterDuff.Mode.SRC_IN);
         break;
       case MotionEvent.ACTION_UP:
       case MotionEvent.ACTION_CANCEL:
@@ -69,5 +71,9 @@ public class ImageViewAnimator extends AppCompatImageView implements View.OnTouc
       setScaleX(target);
       setScaleY(target);
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

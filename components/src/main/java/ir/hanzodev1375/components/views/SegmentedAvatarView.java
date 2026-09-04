@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
@@ -20,7 +21,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.palette.graphics.Palette;
-import com.google.android.material.color.MaterialColors;
+import ir.theme.M3Theme;
 
 /**
  * SegmentedAvatarView draws a circular avatar clipped inside a bounding circle, surrounded by a
@@ -97,6 +98,7 @@ public class SegmentedAvatarView extends ImageViewAnimator {
     super(context, attrs, defStyleAttr);
     readAttributes(context, attrs);
     setupPaints();
+    M3Theme.apply(this);
   }
 
   // ---- Attribute parsing --------------------------------------------------
@@ -109,8 +111,8 @@ public class SegmentedAvatarView extends ImageViewAnimator {
     ringPadding = DEFAULT_RING_PADDING_DP * density;
     segmentCount = DEFAULT_SEGMENT_COUNT;
     gapAngle = DEFAULT_GAP_ANGLE_DEG;
-    startColor = MaterialColors.getColor(this, R.attr.colorTertiary);
-    endColor = MaterialColors.getColor(this, R.attr.colorTertiaryContainer);
+    startColor = fallback(M3Theme.tertiary(), Color.TRANSPARENT);
+    endColor = fallback(M3Theme.tertiaryContainer(), Color.TRANSPARENT);
     gradientRotation = 0f;
     ringAlpha = DEFAULT_RING_ALPHA;
     ringVisible = true;
@@ -510,5 +512,9 @@ public class SegmentedAvatarView extends ImageViewAnimator {
   /** Returns the ring radius currently in effect (auto or overridden), in pixels. */
   public float getRingRadius() {
     return ringRadius;
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

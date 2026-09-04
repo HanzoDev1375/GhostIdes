@@ -3,9 +3,8 @@ package ir.hanzodev1375.components.sheet.customitemsheet.ui;
 import android.content.Context;
 import com.example.liquidglass.LiquidGlassView;
 import android.util.AttributeSet;
-import com.google.android.material.color.MaterialColors;
-import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.utils.ComponentsPrefs;
+import ir.theme.M3Theme;
 
 public class GlassCompat extends LiquidGlassView {
   private ComponentsPrefs setting;
@@ -28,7 +27,7 @@ public class GlassCompat extends LiquidGlassView {
   void init() {
     setting = new ComponentsPrefs(getContext());
     if (setting.isGlassMaterialColor()) {
-      setGlassTint(MaterialColors.getColor(this, R.attr.colorSurface), setting.getGlassTint());
+      setGlassTint(M3Theme.surface(), setting.getGlassTint());
     }
   }
 }

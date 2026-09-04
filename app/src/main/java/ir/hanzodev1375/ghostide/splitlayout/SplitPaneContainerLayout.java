@@ -11,7 +11,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
-import com.google.android.material.color.MaterialColors;
+import ir.theme.M3Theme;
 import ir.hanzodev1375.ghostide.models.TabModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,9 +57,7 @@ public class SplitPaneContainerLayout extends LinearLayout {
     if (getChildCount() > 0) {
       primaryPaneHost = getChildAt(0);
     }
-    dividerColor =
-        MaterialColors.getColor(
-            this, com.google.android.material.R.attr.colorOutlineVariant, Color.GRAY);
+    dividerColor = fallback(M3Theme.outlineVariant(), Color.GRAY);
   }
 
   public void initialize(
@@ -251,5 +249,9 @@ public class SplitPaneContainerLayout extends LinearLayout {
     for (EditorPaneFragment pane : extraPanes) {
       pane.updateGitStatus(isChanged);
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import com.google.android.material.color.MaterialColors;
+import ir.theme.M3Theme;
 import irhanzodev1375.musicpreview.databinding.MusicLayoutBinding;
 import java.io.File;
 import java.util.Map;
@@ -61,6 +62,7 @@ public class MusicView extends FrameLayout implements MusicPlayerBottomSheetFrag
           }
         });
     stepBackground(rootMusicView);
+    M3Theme.apply(this);
   }
 
   public void setOnMusicClickListener(Runnable listener) {

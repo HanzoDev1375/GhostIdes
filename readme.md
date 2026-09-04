@@ -137,6 +137,13 @@ The editor supports deep UI customization, including:
 - [x] Bracket-level coloring
 - [x] Selection styles
 
+### Make your own theme
+
+- 📘 English guide — [click here to learn how to create a theme](https://github.com/HanzoDev1375/GhostIdes/blob/main/ThemeMakerEn.md)
+- 📙 راهنمای فارسی — برای ساخت تم [اینجا کلیک کنید](https://github.com/HanzoDev1375/GhostIdes/blob/main/ThemeMakerFa.md)
+
+> Create a theme quickly: copy any `.gth` file, rename it, open it in the File Manager and choose **Edit**. The Theme Editor's 4 tabs (Activity · Editor · Widget · M3Color) let you pick every color visually.
+
 ---
 ## 🚀 Why Ghost IDE?
 

@@ -26,6 +26,7 @@ import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.store.adapter.FontsAdapter;
 import ir.hanzodev1375.components.store.model.FontInfo;
 import ir.hanzodev1375.components.store.viewmodel.FontsViewModel;
+import ir.theme.M3Theme;
 
 public class FontsFragment extends Fragment {
 
@@ -89,6 +90,7 @@ public class FontsFragment extends Fragment {
     if (adapter.getItemCount() == 0) {
       viewModel.search("");
     }
+    M3Theme.applyTopLevel(view);
   }
 
   private void onFonts(List<FontInfo> fonts) {

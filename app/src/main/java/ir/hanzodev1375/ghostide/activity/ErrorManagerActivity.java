@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
+import ir.theme.M3Theme;
 
 public class ErrorManagerActivity extends BaseCompat {
   private ErrormanagerBinding bind;
@@ -134,6 +135,8 @@ public class ErrorManagerActivity extends BaseCompat {
           ClipboardUtils.copyText(plainText);
           FileIOUtils.writeFileFromString("/sdcard/Ghostide/error.log", plainText);
         });
+
+    M3Theme.applyTopLevel(bind.getRoot());
   }
 
   private void setupBackgroundBlur() {

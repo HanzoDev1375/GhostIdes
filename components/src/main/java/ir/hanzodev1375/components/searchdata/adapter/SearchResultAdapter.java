@@ -15,6 +15,7 @@ import java.util.List;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.searchdata.interfaces.OnLineClickListener;
 import ir.hanzodev1375.components.searchdata.model.FileSearchResult;
+import ir.theme.M3Theme;
 
 public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapter.VH> {
     private final List<FileSearchResult> items = new ArrayList<>();
@@ -67,6 +68,7 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
         } else {
             holder.rvContentMatches.setVisibility(View.GONE);
         }
+        M3Theme.listCard(holder.itemView);
     }
 
     @Override

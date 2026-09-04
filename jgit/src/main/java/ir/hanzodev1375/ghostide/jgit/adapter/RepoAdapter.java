@@ -10,10 +10,10 @@ import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.Chip;
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
 import com.google.android.material.listitem.ListItemViewHolder;
 import ir.hanzodev1375.ghostide.jgit.R;
+import ir.theme.M3Theme;
 import ir.hanzodev1375.ghostide.jgit.model.GitHubRepo;
 import java.util.List;
 
@@ -75,6 +75,7 @@ public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.VH> {
         v -> {
           if (listener != null) listener.onClick(repo);
         });
+    M3Theme.listCard(h.itemView);
   }
 
   @Override
@@ -103,7 +104,12 @@ public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.VH> {
       cardrepo.setCardBackgroundColor(
           ColorStateList.valueOf(
               ColorUtils.setAlphaComponent(
-                  MaterialColors.getColor(cardrepo, R.attr.colorSurfaceContainer), 128)));
+                  fallback(M3Theme.surfaceContainer(), 0),
+                  128)));
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

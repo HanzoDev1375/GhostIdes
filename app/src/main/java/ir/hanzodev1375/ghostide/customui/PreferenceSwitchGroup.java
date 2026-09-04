@@ -15,6 +15,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.LayoutSwitchPerfenceBinding;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
+import ir.theme.M3Theme;
 
 public class PreferenceSwitchGroup extends RelativeLayout implements View.OnClickListener {
 
@@ -41,6 +42,7 @@ public class PreferenceSwitchGroup extends RelativeLayout implements View.OnClic
     binding = LayoutSwitchPerfenceBinding.inflate(LayoutInflater.from(context), this, true);
     setOnClickListener(this);
     showIcon(false);
+    M3Theme.applyTopLevel(binding.getRoot());
   }
 
   @Override

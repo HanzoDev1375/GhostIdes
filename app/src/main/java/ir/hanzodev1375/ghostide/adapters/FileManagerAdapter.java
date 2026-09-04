@@ -30,7 +30,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import ir.hanzodev1375.ghostide.materialfileicon.core.FileIconHelper;
 import com.bumptech.glide.Glide;
-import com.google.android.material.color.MaterialColors;
+
 import com.google.android.material.listitem.ListItemCardView;
 import com.google.android.material.listitem.ListItemViewHolder;
 import ir.hanzodev1375.filetreelib.filetreelibglide.glide.xml.VectorModel;
@@ -39,6 +39,7 @@ import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.models.FileManagerModel;
 import ir.hanzodev1375.ghostide.utils.Icon;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
+import ir.theme.M3Theme;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
@@ -374,6 +375,7 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     FileManagerModel item = items.get(position);
+    M3Theme.listCard(holder.itemView);
     holder.bindItem(item);
     if (!isGrid) holder.bind(position, getItemCount());
     boolean isSelected =
@@ -552,31 +554,27 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
       }
       tvDate.setText(item.getLastModifiedFormatted());
       var gd = new GradientDrawable();
-      gd.setColor(MaterialColors.getColor(ivIcon, com.google.android.material.R.attr.colorSurface));
-      gd.setStroke(
-          1, MaterialColors.getColor(ivIcon, com.google.android.material.R.attr.colorOutline));
+      gd.setColor(fallback(M3Theme.surface(), 0));
+      gd.setStroke(1, fallback(M3Theme.outline(), 0));
       gd.setCornerRadius(8);
       ivIcon.setPadding(5, 5, 5, 5);
       ivIcon.setBackground(gd);
       int color;
       switch (item.getState()) {
         case CREATOR:
-          color =
-              MaterialColors.getColor(tvName, com.google.android.material.R.attr.colorOnPrimary);
+          color = fallback(M3Theme.onPrimary(), 0);
           break;
         case RENAME:
-          color =
-              MaterialColors.getColor(tvName, com.google.android.material.R.attr.colorSecondary);
+          color = fallback(M3Theme.secondary(), 0);
           break;
         case SERACH:
-          color = MaterialColors.getColor(tvName, com.google.android.material.R.attr.colorTertiary);
+          color = fallback(M3Theme.tertiary(), 0);
           break;
         default:
           if (isGitChanged(item)) {
             color = ContextCompat.getColor(tvName.getContext(), R.color.tab_git_modified);
           } else {
-            color =
-                MaterialColors.getColor(tvName, com.google.android.material.R.attr.colorOnSurface);
+            color = fallback(M3Theme.onSurface(), 0);
           }
       }
       tvName.setTextColor(color);
@@ -637,5 +635,9 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
           && oldItem.getLastModified() == newItem.getLastModified()
           && oldItem.getState() == newItem.getState();
     }
+  }
+
+  private int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

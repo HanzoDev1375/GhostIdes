@@ -305,8 +305,7 @@ public class ModuleCreator {
     return content.stripTrailing() + "\n\n" + newLine + "\n";
   }
 
-  private boolean addDependencyToApp(File root, String moduleName)
-      throws IOException {
+  private boolean addDependencyToApp(File root, String moduleName) throws IOException {
     File appGradle = new File(root, "app/build.gradle.kts");
     if (!appGradle.exists()) appGradle = new File(root, "app/build.gradle");
     if (!appGradle.exists()) return false;

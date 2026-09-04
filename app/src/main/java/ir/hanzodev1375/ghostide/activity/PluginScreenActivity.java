@@ -15,6 +15,7 @@ import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.ide.ui.api.PluginScreen;
 import ir.hanzodev1375.ghostide.ide.ui.api.PluginUiExtensionPoints;
 import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
+import ir.theme.M3Theme;
 
 /**
  * Hosts one {@link PluginScreen} at a time, chosen by {@link #EXTRA_SCREEN_ID}. This is the only
@@ -52,6 +53,8 @@ public class PluginScreenActivity extends BaseCompat {
           .replace(R.id.plugin_screen_container, fragment)
           .commit();
     }
+
+    M3Theme.applyTopLevel(findViewById(R.id.plugin_screen_container));
   }
 
   private void setupBackgroundBlur() {

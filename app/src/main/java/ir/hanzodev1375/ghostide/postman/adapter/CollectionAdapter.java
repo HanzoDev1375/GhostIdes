@@ -10,6 +10,7 @@ import java.util.List;
 
 import ir.hanzodev1375.ghostide.databinding.ItemCollectionBinding;
 import ir.hanzodev1375.ghostide.postman.model.RequestCollection;
+import ir.theme.M3Theme;
 
 public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.ViewHolder> {
 
@@ -38,6 +39,7 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Vi
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     holder.bind(items.get(position));
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

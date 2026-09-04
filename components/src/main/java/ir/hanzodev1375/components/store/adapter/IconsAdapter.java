@@ -13,13 +13,13 @@ import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
 import com.google.android.material.listitem.ListItemViewHolder;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import ir.hanzodev1375.components.R;
+import ir.theme.M3Theme;
 import ir.hanzodev1375.components.store.api.IconsApi;
 import ir.hanzodev1375.components.store.model.IconInfo;
 import ir.hanzodev1375.components.utils.ComponentsPrefs;
@@ -76,7 +76,9 @@ public class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.VH> {
     holder.name.setText(name);
     holder.bind(position, getItemCount());
     int bgColor =
-        MaterialColors.getColor(holder.card, R.attr.colorSurfaceContainerLow, Color.TRANSPARENT);
+        fallback(
+            M3Theme.surfaceContainerLow(),
+            Color.TRANSPARENT);
     boolean showBg = new ComponentsPrefs(holder.itemView.getContext()).isShowBackground();
     holder.card.setCardBackgroundColor(
         ColorStateList.valueOf(showBg ? ColorUtils.setAlphaComponent(bgColor, 128) : bgColor));
@@ -92,7 +94,7 @@ public class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.VH> {
     }
     var gd = new GradientDrawable();
     gd.setCornerRadius(0.50f);
-    gd.setColor(MaterialColors.getColor(holder.preview,R.attr.colorOnSurface));
+    gd.setColor(fallback(M3Theme.onSurface(), 0));
     holder.preview.setBackground(gd);
     boolean supported = IconsApi.isSupported(item, style);
     holder.unsupported.setVisibility(supported ? View.GONE : View.VISIBLE);
@@ -115,6 +117,7 @@ public class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.VH> {
         v -> {
           if (listener != null) listener.onDownloadClick(item, holder.getBindingAdapterPosition());
         });
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override
@@ -137,5 +140,9 @@ public class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.VH> {
       unsupported = v.findViewById(R.id.iconUnsupported);
       download = v.findViewById(R.id.iconDownloadButton);
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

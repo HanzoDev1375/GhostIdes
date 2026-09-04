@@ -6,9 +6,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textview.MaterialTextView;
 import ir.hanzodev1375.components.utils.GlassColors;
+import ir.theme.M3Theme;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,7 +44,7 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
     TagInfo tag = tags.get(position);
     GlassColors.setBackgroundAlpha(
         holder.itemView,
-        MaterialColors.getColor(holder.itemView, R.attr.colorSurface),
+        fallback(M3Theme.surface(), 0),
         150);
     holder.tvName.setText(tag.getName());
     holder.tvHash.setText(tag.getHash()
@@ -59,6 +59,7 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
       holder.tvMessage.setVisibility(View.GONE);
     }
     holder.btnDelete.setOnClickListener(v -> { if (listener != null) listener.onDelete(tag); });
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override
@@ -74,5 +75,9 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
       tvMessage = v.findViewById(R.id.tvTagMessage);
       btnDelete = v.findViewById(R.id.btnDeleteTag);
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

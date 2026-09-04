@@ -33,6 +33,7 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import ir.hanzodev1375.components.views.GhostToast;
+import ir.theme.M3Theme;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,7 +42,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-import com.google.android.material.color.MaterialColors;
 import ir.hanzodev1375.components.views.TouchableWebView;
 
 public class WebViewBottomSheetFragment extends BottomSheetDialogFragment {
@@ -102,7 +102,7 @@ public class WebViewBottomSheetFragment extends BottomSheetDialogFragment {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    backgroundColor = MaterialColors.getColor(getContext(), R.attr.colorSurface, 0);
+    backgroundColor = fallback(M3Theme.surface(), 0);
 
     if (getArguments() != null) {
       String rawUrl = getArguments().getString(ARG_URL);
@@ -137,6 +137,7 @@ public class WebViewBottomSheetFragment extends BottomSheetDialogFragment {
     }
 
     applyPendingThemeIfAny();
+    M3Theme.apply(view);
   }
 
   private void applyPendingThemeIfAny() {
@@ -521,5 +522,9 @@ public class WebViewBottomSheetFragment extends BottomSheetDialogFragment {
           .getProgressDrawable()
           .setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

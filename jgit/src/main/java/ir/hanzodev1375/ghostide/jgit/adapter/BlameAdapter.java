@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.BlameInfo;
+import ir.theme.M3Theme;
 
 public class BlameAdapter extends RecyclerView.Adapter<BlameAdapter.VH> {
   private List<BlameInfo> list = new ArrayList<>();
@@ -46,6 +47,7 @@ public class BlameAdapter extends RecyclerView.Adapter<BlameAdapter.VH> {
         v -> {
           if (listener != null) listener.onClick(b);
         });
+    M3Theme.listCard(h.itemView);
   }
 
   @Override

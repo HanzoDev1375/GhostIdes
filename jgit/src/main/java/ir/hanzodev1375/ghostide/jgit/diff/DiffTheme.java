@@ -2,9 +2,7 @@ package ir.hanzodev1375.ghostide.jgit.diff;
 
 import android.content.Context;
 import android.graphics.Color;
-import com.google.android.material.color.MaterialColors;
-//import com.ninjacoder.jgit.R;
-import com.google.android.material.R;
+import ir.theme.M3Theme;
 
 public class DiffTheme {
 
@@ -229,14 +227,14 @@ public class DiffTheme {
     horizontalLineColor = Color.rgb(58, 60, 76);
   }
   public void applyMaterial3(Context c ){
-    normalLineBg = MaterialColors.getColor(c,R.attr.colorSurface,0);
+    normalLineBg = fallback(M3Theme.surface(), 0);
     addedLineBg = Color.rgb(40, 60, 40);
     removedLineBg = Color.rgb(70, 40, 40);
     headerLineBg = Color.rgb(40, 40, 70);
     contextLineBg = Color.rgb(60, 60, 70);
-    lineNumberBg = MaterialColors.getColor(c,R.attr.colorSurface,0);
+    lineNumberBg = fallback(M3Theme.surface(), 0);
 
-    normalTextColor = MaterialColors.getColor(c,R.attr.colorOnSurface,0);
+    normalTextColor = fallback(M3Theme.onSurface(), 0);
     addedTextColor = Color.rgb(80, 250, 123);
     removedTextColor = Color.rgb(255, 85, 85);
     headerTextColor = Color.rgb(139, 233, 253);
@@ -245,5 +243,9 @@ public class DiffTheme {
 
     separatorColor = Color.TRANSPARENT;
     horizontalLineColor = Color.rgb(58, 60, 76);
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

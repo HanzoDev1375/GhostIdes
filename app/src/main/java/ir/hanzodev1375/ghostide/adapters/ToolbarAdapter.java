@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import ir.hanzodev1375.components.views.GhostToast;
-import com.google.android.material.color.MaterialColors;
+import ir.theme.M3Theme;
 import java.util.List;
 
 public class ToolbarAdapter extends RecyclerView.Adapter<ToolbarAdapter.Holder> {
@@ -37,7 +37,7 @@ public class ToolbarAdapter extends RecyclerView.Adapter<ToolbarAdapter.Holder> 
 
     image.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
     image.setColorFilter(
-        MaterialColors.getColor(image, com.google.android.material.R.attr.colorOnSurface),
+        fallback(M3Theme.onSurface(), 0),
         PorterDuff.Mode.SRC_IN);
 
     return new Holder(image);
@@ -75,5 +75,9 @@ public class ToolbarAdapter extends RecyclerView.Adapter<ToolbarAdapter.Holder> 
 
   private static int dp(Context c, int value) {
     return (int) (value * c.getResources().getDisplayMetrics().density);
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

@@ -7,9 +7,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.color.MaterialColors;
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.sheet.customitemsheet.callback.OnSheetListener;
+import ir.theme.M3Theme;
 import ir.hanzodev1375.components.sheet.customitemsheet.model.SheetModel;
 import java.util.List;
 
@@ -44,7 +44,7 @@ public class SheetAdapter extends RecyclerView.Adapter<SheetAdapter.Holder> {
         icon.setVisibility(View.VISIBLE);
         icon.setImageResource(model.icon());
         icon.setImageTintList(
-            ColorStateList.valueOf(MaterialColors.getColor(icon, R.attr.colorSecondary)));
+            ColorStateList.valueOf(fallback(M3Theme.secondary(), 0)));
       }
     }
   }
@@ -65,10 +65,15 @@ public class SheetAdapter extends RecyclerView.Adapter<SheetAdapter.Holder> {
             listener.call(listSheetModel.get(pos), pos, v);
           }
         });
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override
   public int getItemCount() {
     return listSheetModel.size();
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

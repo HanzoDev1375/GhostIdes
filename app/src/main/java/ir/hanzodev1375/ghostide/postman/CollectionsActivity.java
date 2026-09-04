@@ -19,6 +19,7 @@ import ir.hanzodev1375.ghostide.postman.adapter.CollectionAdapter;
 import ir.hanzodev1375.ghostide.postman.data.AppRepository;
 import ir.hanzodev1375.ghostide.databinding.ActivityCollectionsBinding;
 import ir.hanzodev1375.ghostide.postman.model.RequestCollection;
+import ir.theme.M3Theme;
 
 public class CollectionsActivity extends BaseCompat {
 
@@ -78,6 +79,8 @@ public class CollectionsActivity extends BaseCompat {
     binding.collectionsRecyclerView.setAdapter(adapter);
 
     binding.newCollectionFab.setOnClickListener(v -> showNewCollectionDialog());
+
+    M3Theme.apply(binding.getRoot());
 
     loadCollections();
   }

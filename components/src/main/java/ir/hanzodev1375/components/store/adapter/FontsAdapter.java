@@ -12,7 +12,6 @@ import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
 
 import com.google.android.material.listitem.ListItemViewHolder;
@@ -20,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 import ir.hanzodev1375.components.R;
+import ir.theme.M3Theme;
 import ir.hanzodev1375.components.store.model.FontInfo;
 import ir.hanzodev1375.components.utils.ComponentsPrefs;
 
@@ -69,9 +69,8 @@ public class FontsAdapter extends RecyclerView.Adapter<FontsAdapter.VH> {
     holder.category.setText(item.category != null ? item.category : "");
     holder.bind(position,getItemCount());
     int bgColor =
-        MaterialColors.getColor(
-            holder.card,
-            R.attr.colorSurfaceContainerLow,
+        fallback(
+            M3Theme.surfaceContainerLow(),
             Color.TRANSPARENT);
     boolean showBg = new ComponentsPrefs(holder.itemView.getContext()).isShowBackground();
     holder.card.setCardBackgroundColor(
@@ -92,6 +91,7 @@ public class FontsAdapter extends RecyclerView.Adapter<FontsAdapter.VH> {
         v -> {
           if (listener != null) listener.onDownloadClick(item, holder.getBindingAdapterPosition());
         });
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override
@@ -114,5 +114,9 @@ public class FontsAdapter extends RecyclerView.Adapter<FontsAdapter.VH> {
       category = v.findViewById(R.id.fontCategory);
       download = v.findViewById(R.id.downloadButton);
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

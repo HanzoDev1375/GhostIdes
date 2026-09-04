@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import ir.hanzodev1375.ghostide.R;
+import ir.theme.M3Theme;
 import com.bumptech.glide.Glide;
 
 public class ImageViewerFragment extends Fragment {
@@ -42,5 +43,6 @@ public class ImageViewerFragment extends Fragment {
       Uri uri = Uri.parse(getArguments().getString(ARG_URI));
       Glide.with(this).load(uri).into(ivMain);
     }
+    M3Theme.apply(view);
   }
 }

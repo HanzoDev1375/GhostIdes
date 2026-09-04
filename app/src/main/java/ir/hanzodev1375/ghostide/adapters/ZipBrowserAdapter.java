@@ -25,13 +25,14 @@ import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import ir.hanzodev1375.ghostide.materialfileicon.core.FileIconHelper;
-import com.google.android.material.color.MaterialColors;
+
 import com.google.android.material.listitem.ListItemCardView;
 import com.google.android.material.listitem.ListItemViewHolder;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.models.ZipEntryModel;
 import ir.hanzodev1375.ghostide.utils.ShapeUtil;
+import ir.theme.M3Theme;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
@@ -318,6 +319,7 @@ public class ZipBrowserAdapter extends RecyclerView.Adapter<ZipBrowserAdapter.Vi
             setting.isShowBackground()
                 ? ColorUtils.setAlphaComponent(backgroundColor, 128)
                 : backgroundColor));
+    M3Theme.listCard(holder.itemView);
   }
 
   class ViewHolder extends ListItemViewHolder {
@@ -374,8 +376,7 @@ public class ZipBrowserAdapter extends RecyclerView.Adapter<ZipBrowserAdapter.Vi
     void bind(ZipEntryModel item) {
 
       if (item.isDirectory()) {
-        ivIcon.setImageTintList(
-            ColorStateList.valueOf(MaterialColors.getColor(ivIcon, R.attr.colorOnSurface, 0)));
+        ivIcon.setImageTintList(ColorStateList.valueOf(M3Theme.onSurface()));
         ivIcon.setImageResource(R.drawable.folder);
       } else {
         ivIcon.setImageTintList(null);
@@ -387,9 +388,8 @@ public class ZipBrowserAdapter extends RecyclerView.Adapter<ZipBrowserAdapter.Vi
       }
 
       GradientDrawable gd = new GradientDrawable();
-      gd.setColor(MaterialColors.getColor(ivIcon, com.google.android.material.R.attr.colorSurface));
-      gd.setStroke(
-          1, MaterialColors.getColor(ivIcon, com.google.android.material.R.attr.colorOutline));
+      gd.setColor(M3Theme.surface());
+      gd.setStroke(1, M3Theme.outline());
       gd.setCornerRadius(8);
       ivIcon.setPadding(5, 5, 5, 5);
       ivIcon.setBackground(gd);
@@ -399,8 +399,7 @@ public class ZipBrowserAdapter extends RecyclerView.Adapter<ZipBrowserAdapter.Vi
       } else {
         tvName.setText(highlight(item.getName(), searchQuery));
       }
-      tvName.setTextColor(
-          MaterialColors.getColor(tvName, com.google.android.material.R.attr.colorOnSurface));
+      tvName.setTextColor(M3Theme.onSurface());
 
       tvDate.setText(item.getSubtitle());
     }

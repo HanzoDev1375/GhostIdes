@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ir.hanzodev1375.ghostide.R;
+import ir.theme.M3Theme;
 
 public class BreadcrumbAdapter extends RecyclerView.Adapter<BreadcrumbAdapter.ViewHolder> {
 
@@ -49,7 +50,7 @@ public class BreadcrumbAdapter extends RecyclerView.Adapter<BreadcrumbAdapter.Vi
         v -> {
           if (listener != null) listener.onBreadcrumbClick(item);
         });
-    
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

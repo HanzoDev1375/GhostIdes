@@ -12,6 +12,7 @@ import java.util.List;
 import ir.hanzodev1375.ghostide.databinding.ItemSavedRequestBinding;
 import ir.hanzodev1375.ghostide.postman.model.SavedRequest;
 import ir.hanzodev1375.ghostide.postman.util.UiUtils;
+import ir.theme.M3Theme;
 
 public class SavedRequestAdapter extends RecyclerView.Adapter<SavedRequestAdapter.ViewHolder> {
 
@@ -40,6 +41,7 @@ public class SavedRequestAdapter extends RecyclerView.Adapter<SavedRequestAdapte
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     holder.bind(items.get(position));
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

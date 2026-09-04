@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.color.MaterialColors;
+import ir.theme.M3Theme;
 import ir.hanzodev1375.ghostide.interfaces.OnItemClickListener;
 import ir.hanzodev1375.ghostide.models.ToolbarModel;
 import java.util.List;
@@ -66,11 +66,7 @@ public class ToolbarListAdapter extends RecyclerView.Adapter<ToolbarListAdapter.
     }
 
     public void bind(ToolbarModel model, OnItemClickListener<ToolbarModel> clickListener) {
-      int tint =
-          MaterialColors.getColor(
-              context,
-              com.google.android.material.R.attr.colorOnSurface,
-              Color.parseColor("#8A000000"));
+      int tint = fallback(M3Theme.onSurface(), Color.parseColor("#8A000000"));
       icon.setColorFilter(tint);
       icon.setImageResource(model.getIcon());
       icon.setOnClickListener(
@@ -92,5 +88,9 @@ public class ToolbarListAdapter extends RecyclerView.Adapter<ToolbarListAdapter.
             return false;
           });
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

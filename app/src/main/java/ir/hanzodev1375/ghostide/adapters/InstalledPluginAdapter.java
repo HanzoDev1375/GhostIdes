@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.models.InstalledPluginInfo;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplManifestReader;
+import ir.theme.M3Theme;
 
 /** Shows the currently installed plugins and lets the user filter or uninstall one. */
 public final class InstalledPluginAdapter extends RecyclerView.Adapter<InstalledPluginAdapter.ViewHolder> {
@@ -91,6 +92,7 @@ public final class InstalledPluginAdapter extends RecyclerView.Adapter<Installed
     } else {
       holder.icon.setImageResource(R.mipmap.ic_lego_foreground);
     }
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

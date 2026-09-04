@@ -33,8 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.blankj.utilcode.util.ClipboardUtils;
 import com.bumptech.glide.Glide;
 import com.example.liquidglass.GlassMaterial;
-import com.google.android.material.color.MaterialColors;
-import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
+import ir.theme.M3Theme;import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import ir.ghostide.logcat.BottomSheetLogView;
 import ir.hanzodev1375.components.RenameDialogFragment;
 import ir.hanzodev1375.components.TextInputDialogFragment;
@@ -97,6 +96,7 @@ import ir.hanzodev1375.ghostide.utils.StorageUtils;
 import ir.hanzodev1375.ghostide.utils.ZipUtil;
 import ir.hanzodev1375.ghostide.utils.zip.ZipOperationManager;
 import ir.theme.themeeditor.ThemeEditorActivity;
+import ir.theme.M3Theme;
 import java.io.File;
 import java.util.List;
 import java.util.Locale;
@@ -240,14 +240,24 @@ public class FileManagerActivity extends BaseCompat
     
     appsetting = new PreferencesUtils(this);
     bind.fab.bindOfAcivity(this);
+    Integer headtopColor = M3Theme.surfaceContainerHigh();
+    Integer headlineColor = M3Theme.surfaceContainer();
     if (appsetting.isShowBackground()) {
       bind.headtop.setBackgroundColor(0);
       bind.headline.setBackgroundColor(0);
       setupBackgroundBlur(bind.backgroundiconfilemanager, bind.contentContainer);
     } else {
       bind.headtop.setBackgroundColor(
-          MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
-      bind.headline.setBackground(ShapeUtil.shape(40f, this));
+          headtopColor != null
+              ? headtopColor
+              : fallback(M3Theme.surfaceContainer(), 0));
+      bind.headline.setBackground(
+          ShapeUtil.shape(
+              40f,
+              this,
+              headlineColor != null
+                  ? headlineColor
+                  : fallback(M3Theme.surfaceContainer(), 0)));
     }
     networkChangeReceiver = new NetworkChangeReceiver(this);
     IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -1337,6 +1347,8 @@ public class FileManagerActivity extends BaseCompat
               });
         });
     selectionPanel.setVisibility(View.GONE);
+
+    M3Theme.applyTopLevel(bind.getRoot());
   }
 
   private void applyGlassBackground(View panel) {
@@ -1730,7 +1742,7 @@ public class FileManagerActivity extends BaseCompat
       setupBackgroundBlur(bind.backgroundiconfilemanager, bind.contentContainer);
     } else {
       bind.headtop.setBackgroundColor(
-          MaterialColors.getColor(bind.headtop, R.attr.colorSurfaceContainer));
+          fallback(M3Theme.surfaceContainer(), 0));
       bind.headline.setBackground(ShapeUtil.shape(40f, this));
     }
 
@@ -2191,5 +2203,9 @@ public class FileManagerActivity extends BaseCompat
     intent.setDataAndType(uri, "application/vnd.android.package-archive");
     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
     startActivity(intent);
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

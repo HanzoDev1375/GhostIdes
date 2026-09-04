@@ -19,6 +19,7 @@ import com.example.liquidglass.GlassMaterial;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import ir.hanzodev1375.components.R;
+import ir.theme.M3Theme;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -338,11 +339,11 @@ public class LiquidGlassDialogBuilderJava extends MaterialAlertDialogBuilder {
       TextView tv = targets.get(i);
       int color;
       if (i == 3) {
-        color = MaterialColors.getColor(tv, R.attr.colorOnSurface);
+        color = M3Theme.onSurface();
       } else if (i >= 4) {
-        color = MaterialColors.getColor(tv, R.attr.colorOnSurface);
+        color = M3Theme.onSurface();
       } else {
-        color = MaterialColors.getColor(tv, R.attr.colorError);
+        color = M3Theme.onSurface();
       }
       tv.setTextColor(color);
     }

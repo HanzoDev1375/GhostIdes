@@ -18,7 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.liquidglass.LiquidGlassFab;
-import com.google.android.material.color.MaterialColors;
+import ir.theme.M3Theme;
 import com.google.android.material.shape.ShapeAppearanceModel;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 
@@ -84,7 +84,7 @@ public class FloatingToolbarView extends FrameLayout {
     setElevation(0);
     cardView.setElevation(0);
     if (setting.isGlassMaterialColor()) {
-      fab.setGlassTint(MaterialColors.getColor(fab, R.attr.colorSurface), 0.6f);
+      fab.setGlassTint(fallback(M3Theme.surface(), 0), 0.6f);
     }
   }
 
@@ -347,5 +347,9 @@ public class FloatingToolbarView extends FrameLayout {
   void setFabCustomSize(int size) {
     this.fabCustomSize = size;
     fab.setLayoutParams(new LinearLayout.LayoutParams(size, size));
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

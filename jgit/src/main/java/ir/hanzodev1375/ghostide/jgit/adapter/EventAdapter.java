@@ -10,10 +10,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
 import com.google.android.material.listitem.ListItemViewHolder;
 import ir.hanzodev1375.ghostide.jgit.R;
+import ir.theme.M3Theme;
 import ir.hanzodev1375.ghostide.jgit.model.GitHubEvent;
 import java.util.List;
 
@@ -45,6 +45,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.VH> {
     h.icon.setImageResource(getEventIcon(event.getType()));
     h.bind(position, getItemCount());
     h.icon.setColorFilter(getEventIconColor(event.getType()));
+    M3Theme.listCard(h.itemView);
   }
 
   private int getEventIcon(String type) {
@@ -116,8 +117,13 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.VH> {
       cardev.setCardBackgroundColor(
           ColorStateList.valueOf(
               ColorUtils.setAlphaComponent(
-                  MaterialColors.getColor(cardev, R.attr.colorSurfaceContainer), 128)));
+                  fallback(M3Theme.surfaceContainer(), 0),
+                  128)));
       cardev.setClickable(true);
     }
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

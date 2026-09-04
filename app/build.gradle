@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id "kotlin-kapt"
 }
 
 android {
@@ -97,7 +96,7 @@ dependencies {
     implementation(libs.glide.avif.integration)
     implementation(libs.androidx.recyclerview.selection)
     implementation(libs.androidx.swiperefreshlayout)
-    kapt libs.glide.compiler
+    annotationProcessor libs.glide.compiler
     implementation(libs.shizuku.api)
     implementation(libs.shizuku.provider)
     implementation("androidx.palette:palette:1.0.0")
@@ -116,4 +115,5 @@ dependencies {
     implementation 'com.github.Dimezis:BlurView:version-3.2.0'
     
     implementation project(':thememanager')
+    implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:6.1'
 }

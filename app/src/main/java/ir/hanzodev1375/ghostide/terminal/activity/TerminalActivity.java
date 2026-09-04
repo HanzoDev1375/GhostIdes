@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.os.IBinder;
 import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -27,7 +29,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
-import com.google.android.material.color.MaterialColors;
+import ir.theme.M3Theme;
 import com.termux.terminal.TerminalSession;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
@@ -50,6 +52,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+
 public class TerminalActivity extends BaseCompat
     implements GhostTerminalViewClient.KeyModifierState, TerminalSessionService.SessionListener {
 
@@ -97,6 +100,7 @@ public class TerminalActivity extends BaseCompat
     super.onCreate(savedInstanceState);
     b = ActivityTerminalBinding.inflate(getLayoutInflater());
     setContentView(b.getRoot());
+    M3Theme.apply(b.getRoot());
 
     setupToolbar();
     setupEdgeToEdgeInsets();
@@ -106,9 +110,7 @@ public class TerminalActivity extends BaseCompat
     setupBackHandler();
     setupBackgroundBlur();
     maybeRequestNotificationPermission();
-    getWindow()
-        .getDecorView()
-        .setBackgroundColor(MaterialColors.getColor(this, R.attr.colorSurface, 0));
+    getWindow().getDecorView().setBackgroundColor(fallback(M3Theme.surface(), 0));
   }
 
   @Override
@@ -209,8 +211,7 @@ public class TerminalActivity extends BaseCompat
   private void setupBackgroundBlur() {
     b.inputDock.setElevation(0f);
     setupBackgroundBlur(
-        b.backgroundIconTerminal,
-        b.toolbar, b.sessionTabsRow, b.inputDock, b.terminalView);
+        b.backgroundIconTerminal, b.toolbar, b.sessionTabsRow, b.inputDock, b.terminalView);
   }
 
   private void setupToolbar() {
@@ -293,11 +294,19 @@ public class TerminalActivity extends BaseCompat
   }
 
   private void setupExtraKeys() {
-    defaultKeyBackgroundColor =
-        b.keyCtrl.getBackgroundTintList() != null
-            ? b.keyCtrl.getBackgroundTintList().getDefaultColor()
-            : MaterialColors.getColor(b.keyCtrl, R.attr.colorSecondaryContainer);
-    defaultKeyTextColor = b.keyCtrl.getCurrentTextColor();
+    int tonalBg = fallback(M3Theme.secondaryContainer(), fallback(M3Theme.secondary(), 0));
+    int tonalFg = fallback(M3Theme.onSecondaryContainer(), fallback(M3Theme.onSecondary(), 0));
+    defaultKeyBackgroundColor = tonalBg;
+    defaultKeyTextColor = tonalFg;
+
+    Button[] keys = {
+      b.keyEsc, b.keyTab, b.keyCtrl, b.keyAlt, b.keyUp, b.keyDown, b.keyLeft,
+      b.keyRight, b.keySlash, b.keyDash, b.keyPipe
+    };
+    for (Button key : keys) {
+      key.setBackgroundTintList(ColorStateList.valueOf(tonalBg));
+      key.setTextColor(tonalFg);
+    }
 
     b.keyEsc.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_ESCAPE));
     b.keyTab.setOnClickListener(v -> sendKeyEvent(KeyEvent.KEYCODE_TAB));
@@ -320,15 +329,14 @@ public class TerminalActivity extends BaseCompat
         });
   }
 
-  private void updateModifierButtonStyle(android.widget.Button button, boolean active) {
+  private void updateModifierButtonStyle(Button button, boolean active) {
     if (active) {
-      int bg = MaterialColors.getColor(button, R.attr.colorPrimary);
-      int fg = MaterialColors.getColor(button, R.attr.colorOnPrimary);
-      button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(bg));
+      int bg = fallback(M3Theme.primary(), 0);
+      int fg = fallback(M3Theme.onPrimary(), 0);
+      button.setBackgroundTintList(ColorStateList.valueOf(bg));
       button.setTextColor(fg);
     } else {
-      button.setBackgroundTintList(
-          android.content.res.ColorStateList.valueOf(defaultKeyBackgroundColor));
+      button.setBackgroundTintList(ColorStateList.valueOf(defaultKeyBackgroundColor));
       button.setTextColor(defaultKeyTextColor);
     }
   }
@@ -380,7 +388,6 @@ public class TerminalActivity extends BaseCompat
     }
   }
 
-  
   private void writeCommandWhenReady(TerminalSession session, String command) {
     if (session == null || command == null || command.isEmpty()) return;
     b.terminalView.post(
@@ -495,13 +502,15 @@ public class TerminalActivity extends BaseCompat
         .setPositiveButton(
             getString(R.string.terminal_action_remove),
             (dialog, which) ->
-                  DebianBootstrap.uninstall(
-                      this,
-                      () -> {
-                        GhostToast.makeText(
-                                this, getString(R.string.terminal_debian_removed), GhostToast.LENGTH_SHORT)
-                            .show();
-                      }))
+                DebianBootstrap.uninstall(
+                    this,
+                    () -> {
+                      GhostToast.makeText(
+                              this,
+                              getString(R.string.terminal_debian_removed),
+                              GhostToast.LENGTH_SHORT)
+                          .show();
+                    }))
         .setNegativeButton(getString(R.string.terminal_action_cancel), null)
         .show();
   }
@@ -532,7 +541,9 @@ public class TerminalActivity extends BaseCompat
                 (dialog, which) -> {
                   DebianInstaller.cancelInstall();
                   GhostToast.makeText(
-                          this, getString(R.string.terminal_install_cancelled), GhostToast.LENGTH_SHORT)
+                          this,
+                          getString(R.string.terminal_install_cancelled),
+                          GhostToast.LENGTH_SHORT)
                       .show();
                 })
             .create();
@@ -584,7 +595,8 @@ public class TerminalActivity extends BaseCompat
             runOnUiThread(
                 () -> {
                   if (installDialog != null) installDialog.dismiss();
-                  GhostToast.makeText(TerminalActivity.this, message, GhostToast.LENGTH_LONG).show();
+                  GhostToast.makeText(TerminalActivity.this, message, GhostToast.LENGTH_LONG)
+                      .show();
                 });
           }
         };
@@ -599,5 +611,9 @@ public class TerminalActivity extends BaseCompat
   private void attachToRunningInstall() {
     buildInstallDialogViews();
     DebianInstaller.attach(getOrCreateInstallListener());
+  }
+
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 }

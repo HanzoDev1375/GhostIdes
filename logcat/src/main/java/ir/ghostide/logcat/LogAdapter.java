@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
 import com.google.android.material.listitem.ListItemViewHolder;
+import ir.theme.M3Theme;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,6 +78,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> impl
     holder.tvPriority.setTextColor(getPriorityColor(log.getPriority()));
     holder.itemView.setOnClickListener(v -> showPopupMenu(v, log));
     holder.bind(position, getItemCount());
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override
@@ -96,7 +98,9 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> impl
       int end = start + query.length();
       spannable.setSpan(
           new ForegroundColorSpan(
-              MaterialColors.getColor(context, R.attr.colorOnPrimary, 0xDCB304)),
+              (M3Theme.onPrimary() != null
+                  ? M3Theme.onPrimary()
+                  : MaterialColors.getColor(context, R.attr.colorOnPrimary, 0xDCB304))),
           start,
           end,
           Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -147,11 +151,13 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> impl
               break;
             case "Copy Tag":
               clipboard.setPrimaryClip(ClipData.newPlainText("tag", log.getTag()));
-              GhostToast.makeText(anchor.getContext(), "Tag copied", GhostToast.LENGTH_SHORT).show();
+              GhostToast.makeText(anchor.getContext(), "Tag copied", GhostToast.LENGTH_SHORT)
+                  .show();
               break;
             case "Copy Message":
               clipboard.setPrimaryClip(ClipData.newPlainText("message", log.getMessage()));
-              GhostToast.makeText(anchor.getContext(), "Message copied", GhostToast.LENGTH_SHORT).show();
+              GhostToast.makeText(anchor.getContext(), "Message copied", GhostToast.LENGTH_SHORT)
+                  .show();
               break;
             case "Copy All Messages":
               String all = getAllFilteredMessages();
@@ -230,7 +236,10 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> impl
       root = itemView.findViewById(R.id.root);
       root.setCardBackgroundColor(
           ColorUtils.setAlphaComponent(
-              MaterialColors.getColor(root, R.attr.colorSurfaceContainer), 128));
+              (M3Theme.surfaceContainer() != null
+                  ? M3Theme.surfaceContainer()
+                  : MaterialColors.getColor(root, R.attr.colorSurfaceContainer)),
+              128));
     }
   }
 }

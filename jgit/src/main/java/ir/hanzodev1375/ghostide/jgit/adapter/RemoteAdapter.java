@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.RemoteInfo;
+import ir.theme.M3Theme;
 
 public class RemoteAdapter extends RecyclerView.Adapter<RemoteAdapter.ViewHolder> {
   private List<RemoteInfo> remotes = new ArrayList<>();
@@ -65,6 +66,7 @@ public class RemoteAdapter extends RecyclerView.Adapter<RemoteAdapter.ViewHolder
         v -> {
           if (listener != null) listener.onFetch(remote);
         });
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

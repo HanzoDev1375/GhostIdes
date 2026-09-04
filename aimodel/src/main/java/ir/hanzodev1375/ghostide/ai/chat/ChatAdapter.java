@@ -17,6 +17,7 @@ import java.util.List;
 
 import ir.hanzodev1375.ghostide.ai.R;
 import ir.hanzodev1375.ghostide.ai.model.ChatMessage;
+import ir.theme.M3Theme;
 
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -79,6 +80,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     } else if (holder instanceof ErrorViewHolder) {
       ((ErrorViewHolder) holder).tvError.setText(msg.getContent());
     }
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

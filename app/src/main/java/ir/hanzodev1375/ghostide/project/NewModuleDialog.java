@@ -12,6 +12,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import ir.theme.M3Theme;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.R;
@@ -55,6 +56,7 @@ public class NewModuleDialog {
       chip.setChecked(false);
       chipGroupModules.addView(chip);
     }
+    M3Theme.applyTopLevel(view);
 
     tvRoot.setText(context.getString(R.string.module_project_root, projectRootPath));
 

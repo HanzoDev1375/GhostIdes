@@ -15,7 +15,7 @@ import ir.hanzodev1375.ghostide.R;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.material.color.MaterialColors;
+import ir.theme.M3Theme;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 
 public class MaterialGradientCard extends FrameLayout {
@@ -70,17 +70,13 @@ public class MaterialGradientCard extends FrameLayout {
 
     rect.set(0, 0, getWidth(), getHeight());
 
-    int surface = MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface);
+    int surface = fallback(M3Theme.onSurface(), 0);
 
-    int high =
-        MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceContainerHigh);
+    int high = fallback(M3Theme.surfaceContainerHigh(), 0);
 
-    int highest =
-        MaterialColors.getColor(
-            this, com.google.android.material.R.attr.colorSurfaceContainerHighest);
+    int highest = fallback(M3Theme.surfaceContainerHighest(), 0);
 
-    int outline =
-        MaterialColors.getColor(this, com.google.android.material.R.attr.colorOutlineVariant);
+    int outline = fallback(M3Theme.outlineVariant(), 0);
     bgPaint.setShader(
         new LinearGradient(
             0,
@@ -89,14 +85,14 @@ public class MaterialGradientCard extends FrameLayout {
             getHeight(),
             new int[] {
               setting.isShowBackground()
-                  ? get(R.attr.colorPrimaryContainer, 0.30f)
-                  : get(R.attr.colorPrimaryContainer, 0.12f),
+                  ? composite(M3Theme.primaryContainer(), 0.30f)
+                  : composite(M3Theme.primaryContainer(), 0.12f),
               setting.isShowBackground()
-                  ? get(R.attr.colorOnPrimary, 0.12f)
-                  : get(R.attr.colorOnPrimary, 0.8f),
+                  ? composite(M3Theme.onPrimary(), 0.12f)
+                  : composite(M3Theme.onPrimary(), 0.8f),
               setting.isShowBackground()
-                  ? get(R.attr.colorOnPrimaryFixed, 0.18f)
-                  : get(R.attr.colorOnPrimaryFixed)
+                  ? composite(M3Theme.onPrimaryFixed(), 0.18f)
+                  : fallback(M3Theme.onPrimaryFixed(), 0)
             },
             new float[] {.25f, .65f, 1f},
             Shader.TileMode.CLAMP));
@@ -146,13 +142,13 @@ public class MaterialGradientCard extends FrameLayout {
     canvas.drawRoundRect(rect, radius, radius, strokePaint);
   }
 
-  int get(int id) {
-    return MaterialColors.getColor(this, id);
+  private static int fallback(Integer value, int def) {
+    return value != null ? value : def;
   }
 
-  int get(int id, float alpha) {
-    return MaterialColors.compositeARGBWithAlpha(
-        MaterialColors.getColor(this, id), Math.round(alpha * 255));
+  private static int composite(Integer color, float alpha) {
+    int c = color != null ? color : 0;
+    return androidx.core.graphics.ColorUtils.setAlphaComponent(c, Math.round(alpha * 255));
   }
 
   private int dp(int dp) {

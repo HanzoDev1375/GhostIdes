@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.CommitInfo;
+import ir.theme.M3Theme;
 
 public class CommitAdapter extends RecyclerView.Adapter<CommitAdapter.ViewHolder> {
   private List<CommitInfo> commits = new ArrayList<>();
@@ -52,6 +53,7 @@ public class CommitAdapter extends RecyclerView.Adapter<CommitAdapter.ViewHolder
         v -> {
           if (listener != null) listener.onClick(commit);
         });
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override

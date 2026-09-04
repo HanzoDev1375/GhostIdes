@@ -12,6 +12,7 @@ import java.util.List;
 import ir.hanzodev1375.ghostide.postman.model.HistoryItem;
 import ir.hanzodev1375.ghostide.postman.util.TimeUtils;
 import ir.hanzodev1375.ghostide.postman.util.UiUtils;
+import ir.theme.M3Theme;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
 
@@ -40,6 +41,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     holder.bind(items.get(position));
+    M3Theme.listCard(holder.itemView);
   }
 
   @Override
