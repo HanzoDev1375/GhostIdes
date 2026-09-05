@@ -16,6 +16,7 @@ import ir.hanzodev1375.ghostide.jgit.adapter.FileChangeAdapter;
 import ir.hanzodev1375.ghostide.jgit.dialogs.CommitDialog;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.FileChange;
+import ir.theme.M3Theme;
 import java.io.File;
 
 public class ChangedFilesFragment extends Fragment {
@@ -37,7 +38,7 @@ public class ChangedFilesFragment extends Fragment {
     adapter = new FileChangeAdapter();
     recyclerView.setAdapter(adapter);
     ((EmptyView) view.findViewById(R.id.emptyView)).bindTo(recyclerView);
-
+    M3Theme.apply(view);
     viewModel.changedFiles.observe(getViewLifecycleOwner(), adapter::submitList);
 
     adapter.setOnItemClickListener(

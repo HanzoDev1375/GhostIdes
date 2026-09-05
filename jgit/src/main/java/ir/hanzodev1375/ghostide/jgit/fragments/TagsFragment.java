@@ -18,13 +18,15 @@ import ir.hanzodev1375.ghostide.jgit.adapter.TagAdapter;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.TagInfo;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.theme.M3Theme;
+
 public class TagsFragment extends Fragment {
   private GitViewModel viewModel;
   private TagAdapter adapter;
 
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-      Bundle savedInstanceState) {
+  public View onCreateView(
+      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.fragment_tags, container, false);
   }
 
@@ -38,7 +40,7 @@ public class TagsFragment extends Fragment {
     rv.setAdapter(adapter);
     EmptyView emptyView = view.findViewById(R.id.emptyView);
     emptyView.bindTo(rv);
-
+    M3Theme.apply(view);
     TextInputEditText editName = view.findViewById(R.id.editTagName);
     TextInputEditText editMsg = view.findViewById(R.id.editTagMessage);
     MaterialButton btnCreate = view.findViewById(R.id.btnCreateTag);
@@ -46,27 +48,34 @@ public class TagsFragment extends Fragment {
     viewModel.tags.observe(getViewLifecycleOwner(), tags -> adapter.submitList(tags));
     viewModel.refreshTags();
 
-    adapter.setOnTagActionListener(tag ->
-        new DialogCompat(requireContext())
-            .setTitle(getString(R.string.tag_delete_confirm_title))
-            .setMessage(getString(R.string.tag_delete_confirm_msg, tag.getName()))
-            .setPositiveButton(getString(R.string.delete),
-                (d, w) -> viewModel.deleteTag(tag.getName()))
-            .setNegativeButton(getString(R.string.cancel), null)
-            .show());
+    adapter.setOnTagActionListener(
+        tag ->
+            new DialogCompat(requireContext())
+                .setTitle(getString(R.string.tag_delete_confirm_title))
+                .setMessage(getString(R.string.tag_delete_confirm_msg, tag.getName()))
+                .setPositiveButton(
+                    getString(R.string.delete), (d, w) -> viewModel.deleteTag(tag.getName()))
+                .setNegativeButton(getString(R.string.cancel), null)
+                .show());
 
-    btnCreate.setOnClickListener(v -> {
-      String name = editName.getText() != null ? editName.getText().toString().trim() : "";
-      if (name.isEmpty()) { editName.setError("Required"); return; }
-      String msg = editMsg.getText() != null ? editMsg.getText().toString().trim() : "";
-      viewModel.createTag(name, msg.isEmpty() ? null : msg);
-      editName.setText("");
-      editMsg.setText("");
-    });
+    btnCreate.setOnClickListener(
+        v -> {
+          String name = editName.getText() != null ? editName.getText().toString().trim() : "";
+          if (name.isEmpty()) {
+            editName.setError("Required");
+            return;
+          }
+          String msg = editMsg.getText() != null ? editMsg.getText().toString().trim() : "";
+          viewModel.createTag(name, msg.isEmpty() ? null : msg);
+          editName.setText("");
+          editMsg.setText("");
+        });
 
-    viewModel.operationResult.observe(getViewLifecycleOwner(), result -> {
-      if (result != null)
-        GhostToast.makeText(getContext(), result.getMessage(), GhostToast.LENGTH_SHORT).show();
-    });
+    viewModel.operationResult.observe(
+        getViewLifecycleOwner(),
+        result -> {
+          if (result != null)
+            GhostToast.makeText(getContext(), result.getMessage(), GhostToast.LENGTH_SHORT).show();
+        });
   }
 }

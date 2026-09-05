@@ -14,6 +14,7 @@ import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.diff.GitDiffViewer;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.CommitInfo;
+import ir.theme.M3Theme;
 
 public class CommitDiffBottomSheetFragment extends BaseBlurBottomSheet {
 
@@ -53,7 +54,7 @@ public class CommitDiffBottomSheetFragment extends BaseBlurBottomSheet {
     diffViewer = view.findViewById(R.id.diffViewer);
     progressBar = view.findViewById(R.id.progressBar);
     emptyText = view.findViewById(R.id.emptyText);
-
+    M3Theme.apply(view);
     TextView tvHash = view.findViewById(R.id.tvCommitHash);
     TextView tvMessage = view.findViewById(R.id.tvCommitMessage);
 
@@ -77,8 +78,7 @@ public class CommitDiffBottomSheetFragment extends BaseBlurBottomSheet {
     if (TextUtils.isEmpty(diff) || "No changes in this commit.".equals(diff)) {
       diffViewer.setVisibility(View.GONE);
       emptyText.setVisibility(View.VISIBLE);
-      emptyText.setText(
-          "Commit not found.".equals(diff) ? diff : "No changes to display");
+      emptyText.setText("Commit not found.".equals(diff) ? diff : "No changes to display");
     } else {
       emptyText.setVisibility(View.GONE);
       diffViewer.setVisibility(View.VISIBLE);

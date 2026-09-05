@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 import ir.theme.M3Theme;
+
 public class GitBottomSheetFragment extends BaseBlurBottomSheet {
 
   private static final int TAB_CHANGES = 0;
@@ -73,7 +74,7 @@ public class GitBottomSheetFragment extends BaseBlurBottomSheet {
     setHasPeekMod(false);
     progressBar = view.findViewById(R.id.progressBar);
     setupHeader(view);
-
+    M3Theme.apply(view);
     viewModel.progressMessage.observe(
         getViewLifecycleOwner(),
         msg -> {
@@ -116,7 +117,8 @@ public class GitBottomSheetFragment extends BaseBlurBottomSheet {
       }
       isInitialized = true;
     } else if (repoPath == null || repoPath.isEmpty()) {
-      GhostToast.makeText(getContext(), "مسیر مخزن تنظیم نشده است!", GhostToast.LENGTH_SHORT).show();
+      GhostToast.makeText(getContext(), "مسیر مخزن تنظیم نشده است!", GhostToast.LENGTH_SHORT)
+          .show();
       dismiss();
     }
     M3Theme.applyTopLevel(view);
@@ -184,7 +186,8 @@ public class GitBottomSheetFragment extends BaseBlurBottomSheet {
           String name = etName.getText().toString().trim();
           String email = etEmail.getText().toString().trim();
           if (name.isEmpty() || email.isEmpty()) {
-            GhostToast.makeText(getContext(), "Name and email required", GhostToast.LENGTH_SHORT).show();
+            GhostToast.makeText(getContext(), "Name and email required", GhostToast.LENGTH_SHORT)
+                .show();
             return;
           }
           prefsUtils.setGitLocalUserName(name);

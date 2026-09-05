@@ -16,6 +16,7 @@ import com.google.android.material.textview.MaterialTextView;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.adapter.BlameAdapter;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
+import ir.theme.M3Theme;
 
 public class BlameFragment extends Fragment {
   private GitViewModel viewModel;
@@ -35,6 +36,7 @@ public class BlameFragment extends Fragment {
     rv.setLayoutManager(new LinearLayoutManager(getContext()));
     adapter = new BlameAdapter();
     rv.setAdapter(adapter);
+    M3Theme.apply(view);
 
     ProgressBar progress = view.findViewById(R.id.blameProgress);
     MaterialTextView tvEmpty = view.findViewById(R.id.tvBlameEmpty);

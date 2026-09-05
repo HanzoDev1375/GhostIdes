@@ -15,6 +15,8 @@ import com.google.android.material.snackbar.Snackbar;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.theme.M3Theme;
+
 public class CommitDialog extends DialogFragment {
 
   private EditText etMessage, etAuthor, etEmail;
@@ -32,18 +34,14 @@ public class CommitDialog extends DialogFragment {
   @NonNull
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
-
     utils = new PreferencesUtils(requireContext());
-
     View view = requireActivity().getLayoutInflater().inflate(R.layout.dialog_commit, null);
-
     etMessage = view.findViewById(R.id.etCommitMessage);
     etAuthor = view.findViewById(R.id.etAuthor);
     etEmail = view.findViewById(R.id.etEmail);
-
+    M3Theme.text(etAuthor, etEmail, etMessage);
     String savedName = utils.getGitCommitName();
     String savedEmail = utils.getGitCommitEmail();
-
     if (savedName != null && !savedName.trim().isEmpty()) {
       etAuthor.setText(savedName);
       etAuthor.setVisibility(View.GONE);

@@ -1,5 +1,6 @@
 package ir.hanzodev1375.ghostide.jgit.adapter;
 
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,6 +68,8 @@ public class RemoteAdapter extends RecyclerView.Adapter<RemoteAdapter.ViewHolder
           if (listener != null) listener.onFetch(remote);
         });
     M3Theme.listCard(holder.itemView);
+    Integer error = M3Theme.error();
+    if (error != null) holder.btnRemove.setBackgroundTintList(ColorStateList.valueOf(error));
   }
 
   @Override

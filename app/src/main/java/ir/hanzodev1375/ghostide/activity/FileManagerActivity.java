@@ -244,7 +244,12 @@ public class FileManagerActivity extends BaseCompat
     Integer headtopColor = M3Theme.surfaceContainerHigh();
     Integer headlineColor = M3Theme.surfaceContainer();
     M3Theme.imageB(
-        bind.btnGoToDir, bind.btnGoToDir, bind.buttonAi, bind.buttonPlugins, bind.btnSettings);
+        bind.btnGoToDir,
+        bind.btnGoToDir,
+        bind.buttonAi,
+        bind.buttonPlugins,
+        bind.btnSettings,
+        bind.gitActionButton);
     M3Theme.textView(bind.userNameText);
     if (appsetting.isShowBackground()) {
       bind.headtop.setBackgroundColor(0);

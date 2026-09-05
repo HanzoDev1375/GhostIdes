@@ -21,6 +21,7 @@ import ir.hanzodev1375.ghostide.translator.model.AndroidLanguage;
 import ir.hanzodev1375.ghostide.translator.model.StringEntry;
 import ir.hanzodev1375.ghostide.translator.util.StringsXmlParser;
 import ir.hanzodev1375.ghostide.translator.viewmodel.TranslatorViewModel;
+import ir.theme.M3Theme;
 
 public class StringsTranslatorSheet extends BaseBlurBottomSheet {
   public static final String TAG = "StringsTranslatorSheet";
@@ -47,6 +48,7 @@ public class StringsTranslatorSheet extends BaseBlurBottomSheet {
     setupButtons();
     observeViewModel();
     checkAndShowPath();
+    M3Theme.apply(binding.getRoot());
   }
 
   private void checkAndShowPath() {

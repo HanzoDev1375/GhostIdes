@@ -1,5 +1,6 @@
 package ir.hanzodev1375.ghostide.jgit.adapter;
 
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +54,8 @@ public class StashAdapter extends RecyclerView.Adapter<StashAdapter.ViewHolder> 
     holder.btnApply.setOnClickListener(v -> { if (listener != null) listener.onApply(stash); });
     holder.btnDrop.setOnClickListener(v -> { if (listener != null) listener.onDrop(stash); });
     M3Theme.listCard(holder.itemView);
+    Integer error = M3Theme.error();
+    if (error != null) holder.btnDrop.setBackgroundTintList(ColorStateList.valueOf(error));
   }
 
   @Override

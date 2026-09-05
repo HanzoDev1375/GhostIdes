@@ -22,6 +22,7 @@ import androidx.core.graphics.ColorUtils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.chip.Chip;
@@ -495,9 +496,62 @@ public final class M3Theme {
   }
 
   public static void materialButton(MaterialButton b) {
-    Integer primary = color(m3().getPrimary());
-    Integer onPrimary = color(m3().getOnPrimary());
-    Integer onPrimaryContainer = fallback(m3().getOnPrimaryContainer(), m3().getOnPrimary());
+    Integer primary = color(m3() != null ? m3().getPrimary() : null);
+    Integer onPrimary = color(m3() != null ? m3().getOnPrimary() : null);
+    Integer onPrimaryContainer =
+        fallback(
+            m3() != null ? m3().getOnPrimaryContainer() : null,
+            m3() != null ? m3().getOnPrimary() : null);
+
+    if (b.isChecked()) {
+      Integer container = fallback(color(m3() != null ? m3().getPrimaryContainer() : null), primary);
+      Integer onContainer = fallback(onPrimaryContainer, onPrimary);
+      if (container != null) {
+        b.setBackgroundTintList(ColorStateList.valueOf(container));
+        try {
+          b.setStrokeColor(ColorStateList.valueOf(container));
+        } catch (Throwable ignored) {
+        }
+      }
+      if (onContainer != null) {
+        b.setTextColor(onContainer);
+        b.setIconTint(ColorStateList.valueOf(onContainer));
+        try {
+          b.setRippleColor(ColorStateList.valueOf(surfaceAlpha(onContainer)));
+        } catch (Throwable ignored) {
+        }
+      }
+      return;
+    }
+
+    if (b.getStrokeWidth() > 0) {
+      Integer stroke =
+          fallback(
+              color(m3() != null ? m3().getOutlineVariant() : null),
+              color(m3() != null ? m3().getOutline() : null),
+              onPrimary);
+      Integer text = fallback(primary, color(m3() != null ? m3().getOnSurfaceVariant() : null));
+      b.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
+      if (stroke != null) {
+        try {
+          b.setStrokeColor(ColorStateList.valueOf(stroke));
+        } catch (Throwable ignored) {
+        }
+      }
+      if (text != null) {
+        b.setTextColor(text);
+        b.setIconTint(ColorStateList.valueOf(text));
+      }
+      Integer ripple = fallback(color(m3() != null ? m3().getOnSurface() : null), text);
+      if (ripple != null) {
+        try {
+          b.setRippleColor(ColorStateList.valueOf(surfaceAlpha(ripple)));
+        } catch (Throwable ignored) {
+        }
+      }
+      return;
+    }
+
     boolean filled = b.getStrokeWidth() <= 0;
     if (filled && primary != null) {
       b.setBackgroundTintList(ColorStateList.valueOf(primary));
@@ -516,6 +570,27 @@ public final class M3Theme {
       try {
         b.setRippleColor(ColorStateList.valueOf(surfaceAlpha(onPrimaryContainer)));
       } catch (Throwable ignored) {
+      }
+    }
+  }
+
+  public static void toggleGroup(MaterialButtonToggleGroup group) {
+    if (group == null) {
+      return;
+    }
+    group.addOnButtonCheckedListener(
+        (g, checkedId, isChecked) -> {
+          for (int i = 0; i < g.getChildCount(); i++) {
+            View v = g.getChildAt(i);
+            if (v instanceof MaterialButton) {
+              materialButton((MaterialButton) v);
+            }
+          }
+        });
+    for (int i = 0; i < group.getChildCount(); i++) {
+      View v = group.getChildAt(i);
+      if (v instanceof MaterialButton) {
+        materialButton((MaterialButton) v);
       }
     }
   }
@@ -840,6 +915,7 @@ public final class M3Theme {
         nav.setItemTextColor(sl);
         nav.setItemActiveIndicatorColor(
             ColorStateList.valueOf(color(m3().getSecondaryContainer())));
+        nav.setBackgroundTintList(ColorStateList.valueOf(color(m3().getSurfaceBright())));
       } catch (Throwable ignored) {
       }
     }

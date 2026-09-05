@@ -1,0 +1,1 @@
+npm install -g typescript @vue/language-server

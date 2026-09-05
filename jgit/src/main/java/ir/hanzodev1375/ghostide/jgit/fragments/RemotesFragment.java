@@ -18,6 +18,8 @@ import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.model.RemoteInfo;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.theme.M3Theme;
+
 public class RemotesFragment extends Fragment {
   private GitViewModel viewModel;
   private RemoteAdapter adapter;
@@ -39,7 +41,7 @@ public class RemotesFragment extends Fragment {
     adapter = new RemoteAdapter();
     recyclerView.setAdapter(adapter);
     ((EmptyView) view.findViewById(R.id.emptyView)).bindTo(recyclerView);
-
+    M3Theme.apply(view);
     viewModel.remotes.observe(getViewLifecycleOwner(), adapter::submitList);
 
     adapter.setOnRemoteActionListener(
@@ -137,7 +139,8 @@ public class RemotesFragment extends Fragment {
           .show();
       return;
     }
-    GhostToast.makeText(getContext(), "Fetching from " + remote.getName() + "...", GhostToast.LENGTH_SHORT)
+    GhostToast.makeText(
+            getContext(), "Fetching from " + remote.getName() + "...", GhostToast.LENGTH_SHORT)
         .show();
     viewModel.fetch(remote.getName(), "oauth2", token);
   }
@@ -154,7 +157,8 @@ public class RemotesFragment extends Fragment {
 
     String branch = viewModel.currentBranch.getValue();
     if (branch == null || branch.isEmpty()) {
-      GhostToast.makeText(getContext(), "Could not get current branch", GhostToast.LENGTH_SHORT).show();
+      GhostToast.makeText(getContext(), "Could not get current branch", GhostToast.LENGTH_SHORT)
+          .show();
       return;
     }
 

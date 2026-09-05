@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import ir.theme.M3Theme;
 import java.util.ArrayList;
 import java.util.List;
 import ir.hanzodev1375.ghostide.jgit.R;
@@ -39,7 +40,7 @@ public class ConflictResolverFragment extends Fragment {
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     adapter = new ConflictAdapter();
     recyclerView.setAdapter(adapter);
-
+M3Theme.apply(view);
     viewModel.conflictFiles.observe(getViewLifecycleOwner(), conflicts -> {
       adapter.submitList(conflicts);
       boolean empty = conflicts == null || conflicts.isEmpty();

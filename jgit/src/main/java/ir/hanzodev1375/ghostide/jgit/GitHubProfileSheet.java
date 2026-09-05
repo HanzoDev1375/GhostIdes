@@ -3,16 +3,12 @@ package ir.hanzodev1375.ghostide.jgit;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Rect;
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
@@ -81,10 +77,7 @@ public class GitHubProfileSheet extends BaseBlurBottomSheet {
     tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_bolt).setText("Activity"));
     tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.rss_feed_24px).setText("Feed"));
     int orginalColor = fallback(M3Theme.surfaceContainerLow(), 0);
-    if (app.isBlurMod()) {
-      tabLayout.setBackgroundTintList(
-          ColorStateList.valueOf(ColorUtils.setAlphaComponent(orginalColor, 128)));
-    } else tabLayout.setBackgroundTintList(ColorStateList.valueOf(orginalColor));
+    tabLayout.setBackgroundTintList(ColorStateList.valueOf(0));
     loadRepos();
     setHasPeekMod(false);
 

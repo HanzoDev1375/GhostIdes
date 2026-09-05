@@ -91,6 +91,7 @@ public class PostManActivity extends BaseCompat {
     setupSendButton();
 
     M3Theme.apply(binding.getRoot());
+    M3Theme.toggleGroup(binding.bodyTypeToggleGroup);
   }
 
   private void setupMethodAndContentTypeDropdowns() {

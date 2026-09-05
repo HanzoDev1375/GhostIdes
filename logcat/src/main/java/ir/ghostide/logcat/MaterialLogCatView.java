@@ -1,24 +1,19 @@
 package ir.ghostide.logcat;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import androidx.annotation.NonNull;
-import android.os.Build;
-import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import ir.theme.M3Theme;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -48,6 +43,8 @@ public class MaterialLogCatView extends LinearLayout {
     recyclerView = findViewById(R.id.recycler_logs);
     searchBox = findViewById(R.id.search_logs);
     btnSave = findViewById(R.id.fab_save_logs);
+    M3Theme.fabView(btnSave);
+    M3Theme.editText(searchBox);
 
     recyclerView.setLayoutManager(new LinearLayoutManager(context));
 

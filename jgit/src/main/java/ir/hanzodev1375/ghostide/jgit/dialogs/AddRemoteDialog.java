@@ -8,6 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.theme.M3Theme;
+
 public class AddRemoteDialog extends DialogFragment {
   private OnRemoteAddListener listener;
 
@@ -25,7 +27,7 @@ public class AddRemoteDialog extends DialogFragment {
     View view = requireActivity().getLayoutInflater().inflate(R.layout.dialog_add_remote, null);
     EditText etName = view.findViewById(R.id.etRemoteName);
     EditText etUrl = view.findViewById(R.id.etRemoteUrl);
-
+    M3Theme.text(etName, etUrl);
     return new DialogCompat(requireActivity())
         .setTitle("Add Remote")
         .setView(view)

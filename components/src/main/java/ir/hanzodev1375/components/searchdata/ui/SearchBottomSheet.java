@@ -55,6 +55,7 @@ public class SearchBottomSheet extends BaseBlurBottomSheet {
     setupTypeSwitch();
     observeViewModel();
     M3Theme.applyTopLevel(binding.getRoot());
+    M3Theme.toggleGroup(binding.toggleSearchMode);
   }
 
   private void setupRecyclerView() {

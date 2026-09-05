@@ -1,5 +1,6 @@
 package ir.hanzodev1375.ghostide.jgit.adapter;
 
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,10 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.ViewHolder> {
     }
     holder.btnDelete.setOnClickListener(v -> { if (listener != null) listener.onDelete(tag); });
     M3Theme.listCard(holder.itemView);
+    Integer error = M3Theme.errorContainer();
+    if (error != null) holder.btnDelete.setBackgroundTintList(ColorStateList.valueOf(error));
+    Integer onError = M3Theme.onErrorContainer();
+    if (onError != null) holder.btnDelete.setTextColor(onError);
   }
 
   @Override

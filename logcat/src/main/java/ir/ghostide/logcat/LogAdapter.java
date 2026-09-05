@@ -16,7 +16,6 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import ir.hanzodev1375.components.views.GhostToast;
 import androidx.annotation.NonNull;
-import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.listitem.ListItemCardView;
@@ -234,12 +233,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> impl
       tvTag = itemView.findViewById(R.id.tv_tag);
       tvMessage = itemView.findViewById(R.id.tv_message);
       root = itemView.findViewById(R.id.root);
-      root.setCardBackgroundColor(
-          ColorUtils.setAlphaComponent(
-              (M3Theme.surfaceContainer() != null
-                  ? M3Theme.surfaceContainer()
-                  : MaterialColors.getColor(root, R.attr.colorSurfaceContainer)),
-              128));
+      M3Theme.listItemCardView(root);
     }
   }
 }

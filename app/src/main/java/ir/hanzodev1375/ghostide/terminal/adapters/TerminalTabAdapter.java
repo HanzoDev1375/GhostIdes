@@ -88,6 +88,7 @@ public class TerminalTabAdapter extends RecyclerView.Adapter<TerminalTabAdapter.
     ViewHolder(ItemTerminalTabBinding binding) {
       super(binding.getRoot());
       this.binding = binding;
+      M3Theme.applyTopLevel(binding.getRoot());
     }
   }
 

@@ -16,6 +16,8 @@ import ir.hanzodev1375.ghostide.jgit.R;
 import ir.hanzodev1375.ghostide.jgit.adapter.BranchAdapter;
 import ir.hanzodev1375.ghostide.jgit.jgitandroid.datamanager.GitViewModel;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.theme.M3Theme;
+
 public class BranchesFragment extends Fragment {
   private GitViewModel viewModel;
   private BranchAdapter adapter;
@@ -34,7 +36,7 @@ public class BranchesFragment extends Fragment {
     adapter = new BranchAdapter();
     recyclerView.setAdapter(adapter);
     ((EmptyView) view.findViewById(R.id.emptyView)).bindTo(recyclerView);
-
+    M3Theme.apply(view);
     viewModel.branches.observe(
         getViewLifecycleOwner(),
         list -> {
@@ -55,7 +57,8 @@ public class BranchesFragment extends Fragment {
                 .setTitle("Delete Branch")
                 .setMessage("Delete branch '" + branchName + "'?")
                 .setPositiveButton("Delete", (d, w) -> viewModel.deleteBranch(branchName))
-                .setNegativeButton("Cancel", null).show();
+                .setNegativeButton("Cancel", null)
+                .show();
           }
 
           @Override
@@ -65,7 +68,8 @@ public class BranchesFragment extends Fragment {
                 .setTitle("Merge Branch")
                 .setMessage("Merge '" + branchName + "' into '" + current + "'?")
                 .setPositiveButton("Merge", (d, w) -> viewModel.mergeBranch(branchName))
-                .setNegativeButton("Cancel", null).show();
+                .setNegativeButton("Cancel", null)
+                .show();
           }
 
           @Override
@@ -73,9 +77,15 @@ public class BranchesFragment extends Fragment {
             String current = viewModel.currentBranch.getValue();
             new DialogCompat(requireContext())
                 .setTitle("Rebase")
-                .setMessage("Rebase '" + current + "' onto '" + branchName + "'?\n\nThis rewrites commit history.")
+                .setMessage(
+                    "Rebase '"
+                        + current
+                        + "' onto '"
+                        + branchName
+                        + "'?\n\nThis rewrites commit history.")
                 .setPositiveButton("Rebase", (d, w) -> viewModel.rebaseBranch(branchName))
-                .setNegativeButton("Cancel", null).show();
+                .setNegativeButton("Cancel", null)
+                .show();
           }
         });
 
@@ -85,7 +95,9 @@ public class BranchesFragment extends Fragment {
             v -> {
               String name = etNewBranch.getText().toString().trim();
               if (!name.isEmpty()) viewModel.createBranch(name);
-              else GhostToast.makeText(getContext(), "Enter branch name", GhostToast.LENGTH_SHORT).show();
+              else
+                GhostToast.makeText(getContext(), "Enter branch name", GhostToast.LENGTH_SHORT)
+                    .show();
             });
 
     viewModel.operationResult.observe(

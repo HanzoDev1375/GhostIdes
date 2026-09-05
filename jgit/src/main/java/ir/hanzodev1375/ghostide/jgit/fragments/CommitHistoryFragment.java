@@ -13,6 +13,7 @@ import ir.hanzodev1375.ghostide.jgit.R;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import ir.theme.M3Theme;
 
 public class CommitHistoryFragment extends Fragment {
   private GitViewModel viewModel;
@@ -36,7 +37,7 @@ public class CommitHistoryFragment extends Fragment {
     viewModel.commitHistory.observe(getViewLifecycleOwner(), adapter::submitList);
     view.findViewById(R.id.btnRefreshHistory)
         .setOnClickListener(v -> viewModel.refreshCommitHistory());
-
+M3Theme.apply(view);
     adapter.setOnCommitClickListener(
         commit ->
             CommitDiffBottomSheetFragment.newInstance(commit)

@@ -61,6 +61,7 @@
                  android:layout_width="1dp"
                  android:layout_marginEnd="2dp"
                  android:background="?attr/colorOutlineVariant"
+                 android:id="@+id/dividerTabs"
                  android:layout_gravity="center_vertical" />
 
             <ImageButton
@@ -78,7 +79,8 @@
         <View
              android:layout_height="1dp"
              android:layout_width="match_parent"
-             android:background="?attr/colorOutlineVariant" />
+             android:background="?attr/colorOutlineVariant"
+             android:id="@+id/dividerTop" />
 
         <com.termux.view.TerminalView
              android:layout_height="0dp"
@@ -154,7 +156,8 @@
                                  android:layout_width="1dp"
                                  android:layout_marginEnd="8dp"
                                  android:background="?attr/colorOutlineVariant"
-                                 android:layout_marginStart="8dp" />
+                                 android:layout_marginStart="8dp"
+                                 android:id="@+id/divExtra1" />
 
                             <Button
                                  android:layout_height="34dp"
@@ -184,7 +187,8 @@
                                  android:layout_width="1dp"
                                  android:layout_marginEnd="8dp"
                                  android:background="?attr/colorOutlineVariant"
-                                 android:layout_marginStart="8dp" />
+                                 android:layout_marginStart="8dp"
+                                 android:id="@+id/divExtra2" />
 
                             <Button
                                  android:layout_height="34dp"
@@ -230,7 +234,8 @@
                                  android:layout_width="1dp"
                                  android:layout_marginEnd="8dp"
                                  android:background="?attr/colorOutlineVariant"
-                                 android:layout_marginStart="8dp" />
+                                 android:layout_marginStart="8dp"
+                                 android:id="@+id/divExtra3" />
 
                             <Button
                                  android:layout_height="34dp"
@@ -318,7 +323,8 @@
                     <View
                          android:layout_height="4dp"
                          android:layout_width="36dp"
-                         android:background="@drawable/bg_drag_handle" />
+                         android:background="@drawable/bg_drag_handle"
+                         android:id="@+id/dragHandlePill" />
 
                     <ImageView
                          android:layout_height="16dp"

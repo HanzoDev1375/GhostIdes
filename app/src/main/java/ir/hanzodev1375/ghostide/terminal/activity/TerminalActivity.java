@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.blankj.utilcode.util.FileUtils;
 import ir.hanzodev1375.components.views.GhostToast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
@@ -31,7 +33,9 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.bumptech.glide.Glide;
+import com.blankj.utilcode.util.FileIOUtils;
+import com.blankj.utilcode.util.ResourceUtils;
+import ir.theme.GhostTheme;
 import ir.theme.M3Theme;
 import com.termux.terminal.TerminalSession;
 import ir.hanzodev1375.ghostide.R;
@@ -46,11 +50,11 @@ import ir.hanzodev1375.ghostide.terminal.TerminalInputDock;
 import ir.hanzodev1375.ghostide.terminal.TerminalSessionService;
 import ir.hanzodev1375.ghostide.terminal.TerminalTab;
 import ir.hanzodev1375.ghostide.terminal.adapters.TerminalTabAdapter;
-import ir.hanzodev1375.ghostide.utils.BlurTransformation;
 import ir.hanzodev1375.ghostide.utils.ObjectUtil;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import java.nio.charset.StandardCharsets;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +65,21 @@ public class TerminalActivity extends BaseCompat
 
   public static final String EXTRA_WORKING_DIR = "working_dir";
   public static final String EXTRA_COMMAND = "command";
-
+  private static final String ASSET_INIT_SH = "shell/init.sh";
+  private static final String INIT_RUN_MARKER = "ghostide-init-run";
+  private static final String[] HELPER_COMMANDS = {
+    "weblsp",
+    "pylsp",
+    "phplsp",
+    "cpplsp",
+    "golsp",
+    "sasslsp",
+    "rubylsp",
+    "csharplsp",
+    "vuelsp",
+    "javalsp"
+  };
+  private static final String LOG_TAG = "TerminalActivity";
   private ActivityTerminalBinding b;
   private TerminalSessionService service;
   private boolean isBound = false;
@@ -109,11 +127,11 @@ public class TerminalActivity extends BaseCompat
     setupEdgeToEdgeInsets();
     setupTerminalView();
     setupExtraKeys();
+    applyJsonTheme();
     setupInputDock();
     setupBackHandler();
     setupBackgroundBlur();
     maybeRequestNotificationPermission();
-    getWindow().getDecorView().setBackgroundColor(fallback(M3Theme.surface(), 0));
   }
 
   @Override
@@ -215,6 +233,85 @@ public class TerminalActivity extends BaseCompat
     b.inputDock.setElevation(0f);
     setupBackgroundBlur(
         b.backgroundIconTerminal, b.toolbar, b.sessionTabsRow, b.inputDock, b.terminalView);
+  }
+
+  /**
+   * تم JSON را به‌صورت صریح روی تک‌تک المان‌های layout اعمال می‌کند. خیلی از ویوها (نوار تب‌ها،
+   * دیوایدرها، پنل ورودی و...) background را از ?attr/... می‌گیرند که همیشه به رنگ‌های تم JSON ست
+   * نمی‌شود؛ اینجا همه را مستقیماً از {@link M3Theme} رنگ می‌زنیم تا تم کامل باشد.
+   */
+  private void applyJsonTheme() {
+    boolean hasBackgroundImage = isBackgroundImageEnabled();
+
+    if (hasBackgroundImage) {
+      // با وجود عکس پس‌زمینه، رنگ‌های تُپُر اعمال نمی‌شوند تا عکس نمایان باشد.
+      b.coordinator.setBackgroundColor(Color.TRANSPARENT);
+    } else {
+      Integer surfaceContainer = M3Theme.surfaceContainer();
+      Integer surface = M3Theme.surface();
+      Integer surfaceHigh = M3Theme.surfaceContainerHigh();
+
+      if (surfaceContainer == null) surfaceContainer = surface;
+      if (surfaceContainer != null) b.coordinator.setBackgroundColor(surfaceContainer);
+
+      if (surfaceHigh != null) {
+        applyViewColor(b.toolbar, surfaceHigh);
+        applyViewColor(b.sessionTabsRow, surfaceHigh);
+        applyViewColor(b.inputDock, surfaceHigh);
+      }
+    }
+
+    Integer onSurface = M3Theme.onSurface();
+    Integer onSurfaceVariant = M3Theme.onSurfaceVariant();
+    Integer outlineVariant = M3Theme.outlineVariant();
+    Integer primary = M3Theme.primary();
+
+    if (onSurface != null) {
+      b.handleChevron.setColorFilter(onSurface);
+    }
+
+    if (primary != null) {
+      b.commandInputLayout.setEndIconTintList(ColorStateList.valueOf(primary));
+    }
+
+    if (onSurfaceVariant != null) {
+      b.commandInput.setHintTextColor(onSurfaceVariant);
+    }
+
+    if (outlineVariant != null) {
+      applyViewColor(b.dividerTabs, outlineVariant);
+      applyViewColor(b.dividerTop, outlineVariant);
+      applyViewColor(b.divExtra1, outlineVariant);
+      applyViewColor(b.divExtra2, outlineVariant);
+      applyViewColor(b.divExtra3, outlineVariant);
+      applyViewColor(b.dragHandlePill, outlineVariant);
+    }
+  }
+
+  /** آیا کاربر عکس پس‌زمینه فعال کرده تا رنگ‌های تُپُر حذف شوند؟ */
+  private boolean isBackgroundImageEnabled() {
+    boolean showBg = new PreferencesUtils(this).isShowBackground();
+    try {
+      GhostTheme theme = new ThemeUtils(new ThemeManager(this)).getTheme();
+      return showBg
+          && theme != null
+          && theme.getWidget() != null
+          && theme.getWidget().getImagepath() != null
+          && !theme.getWidget().getImagepath().isEmpty();
+    } catch (Throwable ignored) {
+      return false;
+    }
+  }
+
+  /** رنگ را روی background موجود View اعمال می‌کند (فرم/گوشه‌های گرد حفظ می‌شود). */
+  private void applyViewColor(View view, int color) {
+    if (view == null) return;
+    Drawable background = view.getBackground();
+    if (background != null) {
+      background.mutate().setTint(color);
+    } else {
+      view.setBackgroundColor(color);
+    }
   }
 
   private void setupToolbar() {
@@ -320,8 +417,17 @@ public class TerminalActivity extends BaseCompat
     defaultKeyTextColor = tonalFg;
 
     Button[] keys = {
-      b.keyEsc, b.keyTab, b.keyCtrl, b.keyAlt, b.keyUp, b.keyDown, b.keyLeft,
-      b.keyRight, b.keySlash, b.keyDash, b.keyPipe
+      b.keyEsc,
+      b.keyTab,
+      b.keyCtrl,
+      b.keyAlt,
+      b.keyUp,
+      b.keyDown,
+      b.keyLeft,
+      b.keyRight,
+      b.keySlash,
+      b.keyDash,
+      b.keyPipe
     };
     for (Button key : keys) {
       key.setBackgroundTintList(ColorStateList.valueOf(tonalBg));
@@ -405,6 +511,93 @@ public class TerminalActivity extends BaseCompat
     if (command != null && !command.isEmpty()) {
       TerminalSession session = currentSession();
       writeCommandWhenReady(session, command);
+    }
+
+    syncShellScriptsToFilesDir();
+    runInitScriptIfNeeded();
+  }
+
+  /**
+   * بعد از نصبِ تازه‌ی Debian، فایل init.sh را فقط یک‌بار (بعد از ۲ ثانیه) در اولین سشنِ Debian
+   * اجرا می‌کند تا دیتاهای نصب (مثل nodejs) تنظیم شوند. بعد از اجرا یک marker روی rootfs ساخته
+   * می‌شود؛ پس وقتی کاربر Debian را حذف و دوباره نصب کند، marker حذف شده و init.sh دوباره اجرا
+   * می‌شود.
+   */
+  private void runInitScriptIfNeeded() {
+    File rootfs = DebianBootstrap.getRootfsDir(this);
+    File marker = new File(rootfs, INIT_RUN_MARKER);
+    if (marker.exists()) return;
+
+    b.terminalView.postDelayed(
+        new Runnable() {
+          @Override
+          public void run() {
+            TerminalSession session = currentSession();
+            if (session == null) return;
+            if (session.getEmulator() == null) {
+              b.terminalView.postDelayed(this, 100);
+              return;
+            }
+            installHelperCommands(rootfs);
+            String script = ResourceUtils.readAssets2String(ASSET_INIT_SH);
+            if (script != null && !script.isEmpty()) {
+              session.write(
+                  script
+                      + "\n"
+                      + "echo 'GhostIDE: type one of: "
+                      + String.join(", ", HELPER_COMMANDS)
+                      + "'\n");
+              FileUtils.createFileByDeleteOldFile(marker);
+              FileIOUtils.writeFileFromString(marker, "done");
+            }
+          }
+        },
+        2000);
+  }
+
+  /** اسکریپت‌های کمکی را از assets به files/shell اپ کپی می‌کند تا همیشه به‌روز باشند. */
+  private void syncShellScriptsToFilesDir() {
+    File shellDir = new File(getFilesDir(), "shell");
+    if (!shellDir.exists() && !shellDir.mkdirs()) return;
+    for (String name : HELPER_COMMANDS) {
+      copyAssetToFile("shell/" + name + ".sh", new File(shellDir, name + ".sh"));
+    }
+  }
+
+  private void copyAssetToFile(String assetPath, File target) {
+    try {
+      String content = ResourceUtils.readAssets2String(assetPath);
+      if (content == null || content.isEmpty()) return;
+      FileUtils.createFileByDeleteOldFile(target);
+      FileIOUtils.writeFileFromString(target, content);
+    } catch (Exception e) {
+      Log.w(LOG_TAG, "copy asset failed: " + assetPath, e);
+    }
+  }
+
+  /**
+   * برای دستورهای weblsp و pylsp داخل rootfs یک wrapper می‌سازد که نسخه‌ی اسکریپت را از فایل‌های اپ
+   * (مسیر /ghostide/files/shell/ داخل proot) اجرا می‌کند؛ یعنی با هر آپدیت اپ، کاربر همیشه آخرین
+   * نسخه‌ی اسکریپت‌ها را می‌گیرد.
+   */
+  private void installHelperCommands(File rootfs) {
+    for (String name : HELPER_COMMANDS) {
+      installHelperCommand(rootfs, name);
+    }
+  }
+
+  private void installHelperCommand(File rootfs, String name) {
+    try {
+      File binDir = new File(rootfs, "usr/local/bin");
+      if (!binDir.exists() && !binDir.mkdirs()) return;
+      File command = new File(binDir, name);
+      String wrapper = "#!/bin/bash\nexec bash /ghostide/files/shell/" + name + ".sh \"$@\"\n";
+      
+      FileUtils.createFileByDeleteOldFile(command);
+      FileIOUtils.writeFileFromString(command, wrapper);
+      command.setExecutable(true, false);
+    } catch (Exception e) {
+      Log.w(LOG_TAG, "install helper command failed: " + name, e);
     }
   }
 
