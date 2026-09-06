@@ -22,6 +22,9 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import ir.hanzodev1375.components.views.GhostToast;
+import ir.hanzodev1375.components.effect.ripple.WaterRipple;
+import ir.hanzodev1375.components.effect.ThanosEffect;
+import ir.hanzodev1375.components.effect.ThanosItemAnimator;
 import androidx.activity.OnBackPressedCallback;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -126,6 +129,8 @@ public class FileManagerActivity extends BaseCompat
   private Disposable fileManagerHostRegistration;
   private FileManagerAdapter adapter;
   private ZipBrowserAdapter zipAdapter;
+  private ThanosEffect thanosEffect;
+  private ThanosItemAnimator thanosItemAnimator;
   private View selectionPanel;
   private boolean selectionPanelShowing = false;
   private TextView selectionCount;
@@ -230,6 +235,7 @@ public class FileManagerActivity extends BaseCompat
   private int systemBarsBottomInset = 0;
   private MusicPlayerBottomSheetFragment musicBottomSheet;
   private boolean pendingAnimation = false;
+  private boolean snapArmed = false;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -303,6 +309,7 @@ public class FileManagerActivity extends BaseCompat
             : new LinearLayoutManager(this));
     bind.rvfiles.setAdapter(adapter);
     bind.rvfiles.addItemDecoration(new MarginItemDecoration(this));
+    setupThanosEffect();
     app = new UpadteAppView(this, bind.downloader, () -> {});
     stepSearch();
     adapter.setupSelectionTracker(bind.rvfiles);
@@ -315,7 +322,15 @@ public class FileManagerActivity extends BaseCompat
               if (files != null && !files.isEmpty()) fileModels = files.get(0);
               boolean animate = pendingAnimation;
               pendingAnimation = false;
+              boolean wasArmed = snapArmed;
+              snapArmed = false;
               adapter.submitList(new ArrayList<>(files), animate);
+              // این بارگذاری مجدد ناشی از حذف واقعیه؛ باید پرچم تانوس روشن بمونه تا انیمیشن حذف که به‌صورت
+              // ناهمگام روی فریم بعدی توسط RecyclerView اجرا می‌شه، بتونه اون رو ببینن. برای ناوبری/بارگذاری
+              // عادی (wasArmed=false) پرچم رو خاموش می‌کنیم تا افکت روی کلیک/ناوبری اجرا نشه.
+              if (!wasArmed) {
+                thanosItemAnimator.setSnapDeletionPending(false);
+              }
               if (files == null || files.isEmpty()) {
                 bind.emptystates.setVisibility(View.VISIBLE);
                 bind.rvfiles.setVisibility(View.GONE);
@@ -743,6 +758,29 @@ public class FileManagerActivity extends BaseCompat
           @Override
           public void onSelectionModeEnded() {}
         });
+  }
+
+  private void setupThanosEffect() {
+    if (!ThanosEffect.supports()) return;
+    ViewGroup container = (ViewGroup) bind.rvfiles.getParent();
+    if (container == null) return;
+    thanosEffect = new ThanosEffect(this);
+    thanosEffect.setLayoutParams(
+        new ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    container.addView(thanosEffect);
+    thanosItemAnimator = new ThanosItemAnimator(() -> thanosEffect);
+    bind.rvfiles.setItemAnimator(thanosItemAnimator);
+  }
+
+  /**
+   * قبل از شروع عملیات حذف صدا زده می‌شه تا افکت تانوس فقط روی حذف واقعی اجرا بشه نه روی
+   * کلیک/ناوبری.
+   */
+  private void armSnap() {
+    if (thanosItemAnimator == null) return;
+    snapArmed = true;
+    thanosItemAnimator.setSnapDeletionPending(true);
   }
 
   private void enterZipMode(String zipFilePath) {
@@ -1206,6 +1244,7 @@ public class FileManagerActivity extends BaseCompat
                 .setPositiveButton(
                     getString(R.string.ok),
                     (d, w) -> {
+                      armSnap();
                       viewModel.deleteFiles(selected);
                       adapter.clearSelection();
                     })
@@ -1476,6 +1515,11 @@ public class FileManagerActivity extends BaseCompat
   @Override
   protected void onDestroy() {
     super.onDestroy();
+    WaterRipple.clear();
+    if (thanosEffect != null) {
+      thanosEffect.kill();
+      thanosEffect = null;
+    }
     bind.musicPreview.release();
     bind = null;
     this.unregisterReceiver(networkChangeReceiver);
@@ -1683,7 +1727,12 @@ public class FileManagerActivity extends BaseCompat
     new DialogCompat(this)
         .setTitle(getString(R.string.removed))
         .setMessage(getString(R.string.removedmassges, model.getName() + "?"))
-        .setPositiveButton(getString(R.string.ok), (d, w) -> viewModel.deleteFile(model))
+        .setPositiveButton(
+            getString(R.string.ok),
+            (d, w) -> {
+              armSnap();
+              viewModel.deleteFile(model);
+            })
         .setNegativeButton(getString(R.string.cancel), null)
         .show();
   }
@@ -1693,7 +1742,11 @@ public class FileManagerActivity extends BaseCompat
             getString(R.string.dialog_create_file_title),
             getString(R.string.dialog_create_file_hint),
             null)
-        .setCallback(text -> viewModel.createFile(text))
+        .setCallback(
+            text -> {
+              viewModel.createFile(text);
+              playRootRipple();
+            })
         .show(getSupportFragmentManager(), null);
   }
 
@@ -1702,12 +1755,25 @@ public class FileManagerActivity extends BaseCompat
             getString(R.string.dialog_create_folder_title),
             getString(R.string.dialog_create_folder_hint),
             null)
-        .setCallback(text -> viewModel.createFolder(text))
+        .setCallback(
+            text -> {
+              viewModel.createFolder(text);
+              playRootRipple();
+            })
         .show(getSupportFragmentManager(), null);
+  }
+
+  private void playRootRipple() {
+    if (getWindow() == null || getWindow().getDecorView() == null) return;
+    View decor = getWindow().getDecorView();
+    WaterRipple.ripple(decor, decor.getWidth() / 2f, decor.getHeight() / 2f, 0.6f);
+    WaterRipple.ripple(decor, decor.getWidth() / 4f, decor.getHeight() / 3f, 0.4f);
+    WaterRipple.ripple(decor, decor.getWidth() * 3f / 4f, decor.getHeight() / 3f, 0.4f);
   }
 
   private void setupHeader() {
     GitHubClient gitHub = new GitHubClient(this);
+    bind.userAvatar.setLoggedIn(gitHub.isLoggedIn());
     if (gitHub.isLoggedIn()) {
       bind.userNameText.setText(gitHub.getName());
       profileview = new ProfileView(this);

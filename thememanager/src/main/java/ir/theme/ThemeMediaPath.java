@@ -54,7 +54,8 @@ public final class ThemeMediaPath {
     if (TextUtils.isEmpty(storedPath)) {
       return storedPath;
     }
-    if (storedPath.startsWith(PREFIX_CONTENT) || !storedPath.startsWith(".")) {
+    if (storedPath.startsWith(PREFIX_CONTENT) || storedPath.startsWith("http")
+        || storedPath.startsWith("file:") || storedPath.startsWith("/")) {
       return storedPath;
     }
     File themeDir = themeDirOf(themeFilePath);

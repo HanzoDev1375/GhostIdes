@@ -70,7 +70,9 @@ public abstract class LspContentImpl {
                                String filePath, CodeEditor editor) {
     String executablePath = findInstalledExecutable(context);
     if (executablePath == null) {
-      Log.e(tag, serverName + " is not installed.");
+      Log.e(tag, serverName + " is not available: no server executable was found inside the "
+          + "Debian rootfs. Install it from the Debian terminal first (e.g. for node: "
+          + "apt-get update && apt-get install -y nodejs).");
       return null;
     }
 
@@ -135,11 +137,27 @@ public abstract class LspContentImpl {
 
   public String findInstalledExecutable(Context context) {
     File rootfs = DebianBootstrap.getRootfsDir(context);
-    if (rootfs == null || !rootfs.exists()) return null;
+    if (rootfs == null || !rootfs.exists()) {
+      Log.w(tag, serverName + ": Debian rootfs is not installed yet ("
+          + (rootfs != null ? rootfs.getAbsolutePath() : "null") + ").");
+      return null;
+    }
     if (candidatePaths == null) return null;
+    // Check the configured paths first, then a couple of extra common locations so a server
+    // still starts when the binary was installed to a non-default path inside the rootfs.
+    java.util.Set<String> checked = new java.util.HashSet<>();
     for (String candidate : candidatePaths) {
       if (candidate == null) continue;
-      File f = new File(rootfs, candidate.substring(1));
+      checked.add(candidate);
+      File f = new File(rootfs, candidate.substring(candidate.startsWith("/") ? 1 : 0));
+      if (f.exists()) return candidate;
+    }
+    String[] extraPaths = {
+      "/usr/local/bin/node", "/usr/bin/nodejs", "/opt/node/bin/node", "/usr/lib/nodejs/node"
+    };
+    for (String candidate : extraPaths) {
+      if (!checked.add(candidate)) continue;
+      File f = new File(rootfs, candidate.substring(candidate.startsWith("/") ? 1 : 0));
       if (f.exists()) return candidate;
     }
     return null;

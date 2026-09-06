@@ -63,7 +63,7 @@ public final class LanguageManager {
     register((c, p) -> new CssLanguage(c, p), "css");
     register((c, p) -> new JsLanguage(c, p), "js","mjs","jsx");
     register((c, p) -> new Python3Language(c), "py");
-    register((c, p) -> new JsonLanguage(c, p), "json");
+    register((c, p) -> new JsonLanguage(c, p), "json", "gth");
     register((c, p) -> new XmlLanguage(), "xml");
     register((c, p) -> new KotlinLanguage(c), "kt", "kts","ninja"); //فلن برای تست است تا بعدا sdk زبانمو پیاده سازی کنم...
     register((c, p) -> new TomlLanguage(), "toml");

@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import ir.hanzodev1375.components.sheet.BaseSheet;
 import ir.hanzodev1375.ghostide.codeeditors.R;
 
@@ -20,11 +21,38 @@ public class ColorPickerBottomSheetDialog {
     void onColorPicked(int colorArgb);
   }
 
+  /** Invoked when the user picks a relative theme reference (e.g. {@code @material3.surface}). */
+  public interface OnReferencePickedListener {
+    void onReferencePicked(String reference);
+  }
+
   // پرچم برای جلوگیری از حلقه بی‌نهایت هنگام تنظیم متن از سوی کد
   private static boolean settingText = false;
 
   public static void show(
       @NonNull Context context, int initialColor, @NonNull OnColorPickedListener listener) {
+    show(context, initialColor, null, listener, null);
+  }
+
+  /**
+   * Variant that also understands theme references. {@code initialValue} may be a hex string or a
+   * {@code @block.key} reference; an existing reference is shown in the reference field so the user
+   * can keep, change or replace it with a concrete color.
+   */
+  public static void show(
+      @NonNull Context context,
+      String initialValue,
+      @NonNull OnColorPickedListener colorListener,
+      OnReferencePickedListener refListener) {
+    show(context, 0xFF000000, initialValue, colorListener, refListener);
+  }
+
+  public static void show(
+      @NonNull Context context,
+      int fallbackColor,
+      String initialValue,
+      @NonNull OnColorPickedListener colorListener,
+      OnReferencePickedListener refListener) {
 
     var dialog = new BaseSheet(context);
     View view = LayoutInflater.from(context).inflate(R.layout.color_picker_bottom_sheet, null);
@@ -37,12 +65,27 @@ public class ColorPickerBottomSheetDialog {
     TextInputEditText rgbaInput = view.findViewById(R.id.rgbaValue);
     TextInputEditText hslInput = view.findViewById(R.id.hslValue);
     TextInputEditText hslaInput = view.findViewById(R.id.hslaValue);
+    TextInputLayout refLayout = view.findViewById(R.id.refLayout);
+    TextInputEditText refValue = view.findViewById(R.id.refValue);
+    Button useRefButton = view.findViewById(R.id.useRefButton);
 
     Button confirmBtn = view.findViewById(R.id.confirmButton);
 
+    // مقداردهی اولیه
+    String existingRef = (initialValue != null && initialValue.startsWith("@")) ? initialValue : null;
+    String existingHex = initialValue;
+    if (existingRef != null || existingHex == null) {
+      existingHex = null;
+    }
+    int initialColor = fallbackColor;
+    if (existingHex != null) {
+      try {
+        initialColor = hexToArgb(existingHex);
+      } catch (Exception ignored) {
+      }
+    }
     final int[] currentColor = new int[] {initialColor};
 
-    // مقداردهی اولیه
     int r = Color.red(initialColor);
     int g = Color.green(initialColor);
     int b = Color.blue(initialColor);
@@ -53,6 +96,10 @@ public class ColorPickerBottomSheetDialog {
     spectrum.setColor(initialColor);
     hueBar.setHue(hsl[0]);
     alphaSlider.setValue(a);
+
+    if (existingRef != null) {
+      refValue.setText(existingRef);
+    }
 
     // نمایش اولیه
     updatePreview(
@@ -145,14 +192,48 @@ public class ColorPickerBottomSheetDialog {
     hslInput.addTextChangedListener(textWatcher);
     hslaInput.addTextChangedListener(textWatcher);
 
+    useRefButton.setOnClickListener(
+        v -> {
+          String ref = String.valueOf(refValue.getText()).trim();
+          if (ref.isEmpty() || !ref.startsWith("@")) {
+            refLayout.setError("Enter a reference like @material3.surface");
+            return;
+          }
+          refLayout.setError(null);
+          if (refListener != null) {
+            refListener.onReferencePicked(ref);
+          }
+          dialog.dismiss();
+        });
+
     confirmBtn.setOnClickListener(
         v -> {
-          listener.onColorPicked(currentColor[0]);
+          colorListener.onColorPicked(currentColor[0]);
           dialog.dismiss();
         });
 
     dialog.setContentView(view);
     dialog.show();
+  }
+
+  /** Parses {@code #RRGGBB} / {@code #AARRGGBB}. The theme format uses #RRGGBBAA. */
+  public static int hexToArgb(String hexValue) {
+    String hex = hexValue == null ? "" : hexValue.trim();
+    if (hex.startsWith("#")) hex = hex.substring(1);
+    if (hex.length() == 6) {
+      int rr = Integer.parseInt(hex.substring(0, 2), 16);
+      int gg = Integer.parseInt(hex.substring(2, 4), 16);
+      int bb = Integer.parseInt(hex.substring(4, 6), 16);
+      return Color.argb(255, rr, gg, bb);
+    }
+    if (hex.length() == 8) {
+      int rr = Integer.parseInt(hex.substring(0, 2), 16);
+      int gg = Integer.parseInt(hex.substring(2, 4), 16);
+      int bb = Integer.parseInt(hex.substring(4, 6), 16);
+      int aa = Integer.parseInt(hex.substring(6, 8), 16);
+      return Color.argb(aa, rr, gg, bb);
+    }
+    throw new IllegalArgumentException("invalid hex color: " + hexValue);
   }
 
   // ==================== متدهای به‌روزرسانی ====================

@@ -15,6 +15,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 import ir.hanzodev1375.ghostide.R;
@@ -30,6 +32,7 @@ import ir.theme.EditorTheme;
 import ir.theme.GhostTheme;
 import ir.theme.ThemeMediaPath;
 import ir.theme.WidgetTheme;
+import ir.theme.internal.ThemeRefResolver;
 
 public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
 
@@ -59,6 +62,14 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
       String json = getArguments().getString(ARG_THEME_JSON);
       themeFilePath = getArguments().getString(ARG_THEME_PATH);
       currentTheme = new Gson().fromJson(json, GhostTheme.class);
+      if (currentTheme != null) {
+        try {
+          JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
+          ThemeRefResolver.resolveJson(obj);
+          currentTheme = new Gson().fromJson(obj, GhostTheme.class);
+        } catch (Exception ignored) {
+        }
+      }
     }
     if (currentTheme == null) {
       dismiss();

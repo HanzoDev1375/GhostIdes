@@ -1,20 +1,28 @@
 package ir.hanzodev1375.components.views;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.SweepGradient;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.animation.OvershootInterpolator;
 import ir.hanzodev1375.components.R;
+import ir.hanzodev1375.components.colors.AccentPalette;
+import ir.hanzodev1375.components.effect.StarParticlesView;
 import androidx.annotation.ColorInt;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
@@ -86,6 +94,34 @@ public class SegmentedAvatarView extends ImageViewAnimator {
   private float avatarRadius;
   private float ringRadius;
 
+  // ---- Premium login star + particles --------------------------------------
+
+  private static final int DEFAULT_BADGE_GRADIENT_TOP = 0xFF6FD5FF;
+  private static final int DEFAULT_BADGE_GRADIENT_BOTTOM = 0xFF8E4EFF;
+
+  /** مبنای طراحی حلقه/ذرات؛ وقتی رنگ آواتار «اکسنت» می‌شه این دو استاپ به سمتش شیفت می‌خورن. */
+  private static final int BASE_RING_START = DEFAULT_BADGE_GRADIENT_TOP;
+
+  private static final int BASE_RING_END = DEFAULT_BADGE_GRADIENT_BOTTOM;
+  private static final int LOGIN_PARTICLE_COUNT = 70;
+
+  private int badgeGradientTop = DEFAULT_BADGE_GRADIENT_TOP;
+  private int badgeGradientBottom = DEFAULT_BADGE_GRADIENT_BOTTOM;
+
+  private StarParticlesView.Drawable starParticles;
+  private boolean loggedIn;
+  private float loginFxAlpha;
+  private ValueAnimator loginFxAnimator;
+  private final OvershootInterpolator badgePopInterpolator = new OvershootInterpolator(3.5f);
+
+  private final Path badgeStarPath = new Path();
+  private final Paint badgeHaloPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+  private final Paint badgeStarPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+  private LinearGradient badgeStarGradient;
+  private float badgeX;
+  private float badgeY;
+  private float badgeRadius;
+
   public SegmentedAvatarView(Context context) {
     this(context, null);
   }
@@ -99,6 +135,24 @@ public class SegmentedAvatarView extends ImageViewAnimator {
     readAttributes(context, attrs);
     setupPaints();
     M3Theme.apply(this);
+    setupLoginFx(context);
+  }
+
+  private void setupLoginFx(Context context) {
+    float density = context.getResources().getDisplayMetrics().density;
+    starParticles =
+        new StarParticlesView.Drawable(
+            LOGIN_PARTICLE_COUNT, density, StarParticlesView.getRefreshRate(context, 60f));
+    starParticles.isCircle = true;
+    starParticles.useRotate = true;
+    starParticles.useBlur = true;
+    starParticles.roundEffect = true;
+    starParticles.checkBounds = true;
+    starParticles.minLifeTime = 1800;
+    starParticles.randLifeTime = 700;
+    starParticles.setStartFromCenter(true);
+    starParticles.setGradient(badgeGradientTop, badgeGradientBottom);
+    starParticles.init();
   }
 
   // ---- Attribute parsing --------------------------------------------------
@@ -186,6 +240,32 @@ public class SegmentedAvatarView extends ImageViewAnimator {
 
     ringRect.set(
         centerX - ringRadius, centerY - ringRadius, centerX + ringRadius, centerY + ringRadius);
+
+    updateLoginFxGeometry();
+  }
+
+  /**
+   * Places the premium star badge on the avatar's bottom-right edge (on the 45° line, straddling the
+   * avatar circle like Telegram) and sizes the particle spawn area around the badge itself.
+   */
+  private void updateLoginFxGeometry() {
+    if (starParticles == null || avatarRadius <= 0f) {
+      return;
+    }
+    badgeRadius = avatarRadius * 0.48f;
+    badgeStarGradient = null;
+    float cos45 = 0.7071067812f;
+    float d = avatarRadius * 0.97f;
+    badgeX = centerX + d * cos45;
+    badgeY = centerY + d * cos45;
+
+    float half = badgeRadius * 1.6f;
+    starParticles.rect.set(badgeX - half, badgeY - half, badgeX + half, badgeY + half);
+    starParticles.rect2.set(-half, -half, getWidth() + half, getHeight() + half);
+    starParticles.excludeRect.setEmpty();
+    if (loggedIn) {
+      starParticles.resetPositions();
+    }
   }
 
   // ---- Ring shader ------------------------------------------------------
@@ -297,11 +377,51 @@ public class SegmentedAvatarView extends ImageViewAnimator {
               if (palette == null || !paletteColorEnabled) {
                 return;
               }
-              startColor = pickStartSwatchColor(palette, startColor);
-              endColor = pickEndSwatchColor(palette, endColor);
-              ringShaderDirty = true;
-              invalidate();
+              int accent = pickStartSwatchColor(palette, 0);
+              if (accent != 0) {
+                applyAvatarAccent(accent);
+              }
             });
+  }
+
+  /**
+   * رنگ اصلی (Swatch خوشه‌ای) آواتار → «اکسنت»: حلقه و گرادیان ستاره/ذرات با AccentPalette به سمت
+   * hue اکسنت شیفت می‌خورن.
+   */
+  private void applyAvatarAccent(int accent) {
+    boolean isDark = isBackgroundDark();
+    int newStart =
+        AccentPalette.changeAccent(
+            BASE_RING_START, accent, BASE_RING_START, isDark, startColor);
+    int newEnd = AccentPalette.recolor(accent, BASE_RING_END);
+
+    // Keep the ring and the star/particle effect bright: if the avatar palette resolves to a very
+    // dark colour the particles would otherwise render as black smudges. Fall back to the default
+    // premium gradient instead.
+    if (AccentPalette.perceivedBrightness(newStart) < 0.30f) {
+      newStart = BASE_RING_START;
+    }
+    if (AccentPalette.perceivedBrightness(newEnd) < 0.30f) {
+      newEnd = BASE_RING_END;
+    }
+
+    badgeGradientTop = newStart;
+    badgeGradientBottom = newEnd;
+    if (starParticles != null) {
+      starParticles.setGradient(badgeGradientTop, badgeGradientBottom);
+    }
+    startColor = newStart;
+    endColor = newEnd;
+    ringShaderDirty = true;
+    badgeStarGradient = null;
+    invalidate();
+  }
+
+  /** بک‌گراند فعلی تم (سرفیسِ M3)؛ روی این رنگ آواتار/حلقه رسم می‌شود. */
+  private boolean isBackgroundDark() {
+    Integer bg = M3Theme.surfaceContainer();
+    int backgroundColor = bg != null ? bg : 0xFFFFFFFF;
+    return AccentPalette.perceivedBrightness(backgroundColor) < 0.5f;
   }
 
   private int pickStartSwatchColor(Palette palette, int fallback) {
@@ -311,17 +431,6 @@ public class SegmentedAvatarView extends ImageViewAnimator {
     }
     if (swatch == null) {
       swatch = palette.getDominantSwatch();
-    }
-    return swatch != null ? swatch.getRgb() : fallback;
-  }
-
-  private int pickEndSwatchColor(Palette palette, int fallback) {
-    Palette.Swatch swatch = palette.getDarkVibrantSwatch();
-    if (swatch == null) {
-      swatch = palette.getMutedSwatch();
-    }
-    if (swatch == null) {
-      swatch = palette.getDarkMutedSwatch();
     }
     return swatch != null ? swatch.getRgb() : fallback;
   }
@@ -337,6 +446,140 @@ public class SegmentedAvatarView extends ImageViewAnimator {
     if (ringVisible) {
       rebuildRingShaderIfNeeded();
       drawSegmentedRing(canvas);
+    }
+
+    drawLoginFx(canvas);
+  }
+
+  // ---- Premium login star + particles --------------------------------------
+
+  /** Draws the star badge (bottom-right of the avatar) and the particles around it. */
+  private void drawLoginFx(Canvas canvas) {
+    if (starParticles == null || loginFxAlpha <= 0.01f) {
+      return;
+    }
+    float alpha = Math.min(1f, loginFxAlpha);
+    float scale = badgePopInterpolator.getInterpolation(alpha);
+
+    int save = canvas.save();
+    canvas.translate(badgeX, badgeY);
+    canvas.scale(scale, scale, 0f, 0f);
+    drawStarBadge(canvas, alpha);
+    canvas.restoreToCount(save);
+
+    starParticles.onDraw(canvas, alpha);
+
+    if (!starParticles.paused) {
+      invalidate();
+    }
+  }
+
+  /** Star draw at origin: soft subtle glow and a gradient 4-pointed premium star (no white disc). */
+  private void drawStarBadge(Canvas canvas, float alpha) {
+    badgeHaloPaint.setColor(badgeGradientBottom);
+    badgeHaloPaint.setAlpha((int) (60 * alpha));
+    canvas.drawCircle(0f, 0f, badgeRadius * 1.12f, badgeHaloPaint);
+
+    if (badgeStarGradient == null) {
+      badgeStarGradient =
+          new LinearGradient(
+              0f,
+              -badgeRadius * 0.9f,
+              0f,
+              badgeRadius * 0.9f,
+              badgeGradientTop,
+              badgeGradientBottom,
+              Shader.TileMode.CLAMP);
+      badgeStarPaint.setShader(badgeStarGradient);
+    }
+    badgeStarPaint.setAlpha((int) (255 * alpha));
+    buildStarPath(badgeStarPath, 0f, 0f, badgeRadius * 0.9f, badgeRadius * 0.42f, 4);
+    canvas.drawPath(badgeStarPath, badgeStarPaint);
+  }
+
+  private void buildStarPath(
+      Path path, float cx, float cy, float outerR, float innerR, int points) {
+    path.reset();
+    double step = Math.PI / points;
+    for (int i = 0; i < points * 2; i++) {
+      double r = (i % 2 == 0) ? outerR : innerR;
+      double angle = -Math.PI / 2 + i * step;
+      float x = (float) (cx + Math.cos(angle) * r);
+      float y = (float) (cy + Math.sin(angle) * r);
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    path.close();
+  }
+
+  /**
+   * Shows the premium star + particles when the user is logged in (small burst from the badge) and
+   * fades them away when logged out.
+   */
+  public void setLoggedIn(boolean loggedIn) {
+    if (this.loggedIn == loggedIn) {
+      return;
+    }
+    this.loggedIn = loggedIn;
+
+    if (loginFxAnimator != null) {
+      loginFxAnimator.cancel();
+    }
+
+    if (loggedIn) {
+      starParticles.setPaused(false);
+      starParticles.setStartFromCenter(true);
+      updateLoginFxGeometry();
+      loginFxAlpha = 0f;
+    }
+
+    loginFxAnimator = ValueAnimator.ofFloat(0f, 1f);
+    loginFxAnimator.setDuration(loggedIn ? 650 : 350);
+    loginFxAnimator.setInterpolator(
+        loggedIn ? new OvershootInterpolator(1.4f) : new OvershootInterpolator(1f));
+    loginFxAnimator.addUpdateListener(
+        animation -> {
+          float t = (float) animation.getAnimatedValue();
+          loginFxAlpha = loggedIn ? t : (1f - t);
+          invalidate();
+        });
+    loginFxAnimator.addListener(
+        new AnimatorListenerAdapter() {
+          @Override
+          public void onAnimationEnd(Animator animation) {
+            loginFxAlpha = loggedIn ? 1f : 0f;
+            // Stop the particle render loop once the entrance/exit animation has settled so the
+            // view does not invalidate continuously while just sitting there. The static badge
+            // star is still drawn via loginFxAlpha.
+            starParticles.setPaused(true);
+            invalidate();
+          }
+        });
+    loginFxAnimator.start();
+    invalidate();
+  }
+
+  public boolean isLoggedIn() {
+    return loggedIn;
+  }
+
+  @Override
+  protected void onAttachedToWindow() {
+    super.onAttachedToWindow();
+    if (starParticles != null && loginFxAlpha > 0.01f && loginFxAnimator != null
+        && loginFxAnimator.isRunning()) {
+      starParticles.setPaused(false);
+    }
+  }
+
+  @Override
+  protected void onDetachedFromWindow() {
+    super.onDetachedFromWindow();
+    if (starParticles != null) {
+      starParticles.setPaused(true);
     }
   }
 

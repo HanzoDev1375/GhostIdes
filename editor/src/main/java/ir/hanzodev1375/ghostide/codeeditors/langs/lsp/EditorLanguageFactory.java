@@ -72,6 +72,7 @@ public final class EditorLanguageFactory {
     FACTORIES.put("rb", (context, path) -> new RubyLanguage(context));
     FACTORIES.put("css", CssLanguage::new);
     FACTORIES.put("json", JsonLanguage::new);
+    FACTORIES.put("gth", JsonLanguage::new);
     FACTORIES.put("html", HtmlLanguage::new);
     FACTORIES.put("htm", HtmlLanguage::new);
     FACTORIES.put("js", JsLanguage::new);

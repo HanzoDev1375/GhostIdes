@@ -17,6 +17,13 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/action_edit_source"
+        android:title="Edit source"
+        android:icon="@drawable/ic_edit"
+        app:iconTint="?colorOnSurface"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_search"
         android:title="Search"
         android:icon="@drawable/outline_search"

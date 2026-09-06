@@ -12,6 +12,7 @@ import com.downloader.PRDownloader;
 import ir.hanzodev1375.components.views.GhostToast;
 import ir.hanzodev1375.ghostide.adapters.UiFeedbackHostImpl;
 import ir.hanzodev1375.ghostide.activity.ErrorManagerActivity;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.GhostThemeLspAssets;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.ProotProcessLauncherImpl;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.ide.ui.api.FileIconContributor;
@@ -56,6 +57,7 @@ public class GhostIdeAppLoader extends Application {
     theme = new ThemeUtils(themeManager);
     GhostToast.bindOfApp(this);
     PRDownloader.initialize(getApplicationContext());
+    GhostThemeLspAssets.install(this);
     GlobalRegistry.services()
         .register(IdeHostServices.PROOT_PROCESS_LAUNCHER, new ProotProcessLauncherImpl(this));
     UiFeedbackHostImpl uiFeedbackHost = new UiFeedbackHostImpl();

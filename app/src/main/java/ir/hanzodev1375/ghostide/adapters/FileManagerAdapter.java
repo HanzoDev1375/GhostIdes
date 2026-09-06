@@ -374,6 +374,7 @@ public class FileManagerAdapter extends RecyclerView.Adapter<FileManagerAdapter.
 
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    holder.itemView.setVisibility(View.VISIBLE);
     FileManagerModel item = items.get(position);
     M3Theme.listCard(holder.itemView);
     holder.bindItem(item);

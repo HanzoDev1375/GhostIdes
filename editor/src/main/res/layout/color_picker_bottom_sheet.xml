@@ -1,143 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
-     xmlns:android="http://schemas.android.com/apk/res/android"
-     xmlns:app="http://schemas.android.com/apk/res-auto"
-     android:layout_height="wrap_content"
-     android:layout_width="match_parent">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
 
     <LinearLayout
-         android:layout_height="wrap_content"
-         android:layout_width="match_parent"
-         android:padding="16dp"
-         android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:padding="16dp"
+        android:orientation="vertical">
 
         <TextView
-             android:layout_height="wrap_content"
-             android:layout_width="wrap_content"
-             android:layout_marginBottom="16dp"
-             style="@style/TextAppearance.Material3.HeadlineSmall"
-             android:text="Select Color" />
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginBottom="16dp"
+            style="@style/TextAppearance.Material3.HeadlineSmall"
+            android:text="Select Color" />
 
         <LinearLayout
-             android:layout_height="200dp"
-             android:layout_width="match_parent"
-             android:gravity="center"
-             android:orientation="horizontal">
+            android:layout_height="200dp"
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal">
 
             <ir.hanzodev1375.ghostide.codeeditors.colorrender.ColorSpectrumView
-                 android:layout_height="match_parent"
-                 android:layout_width="0dp"
-                 android:layout_weight="1"
-                 android:id="@+id/colorSpectrum" />
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:id="@+id/colorSpectrum" />
 
             <ir.hanzodev1375.ghostide.codeeditors.colorrender.HueSliderView
-                 android:layout_height="match_parent"
-                 android:layout_width="24dp"
-                 android:layout_marginStart="8dp"
-                 android:id="@+id/hueSliderView" />
+                android:layout_height="match_parent"
+                android:layout_width="24dp"
+                android:layout_marginStart="8dp"
+                android:id="@+id/hueSliderView" />
 
         </LinearLayout>
 
         <TextView
-             android:layout_height="wrap_content"
-             android:layout_width="wrap_content"
-             style="@style/TextAppearance.Material3.LabelLarge"
-             android:text="Alpha" />
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            style="@style/TextAppearance.Material3.LabelLarge"
+            android:text="Alpha" />
 
         <com.google.android.material.slider.Slider
-             android:layout_height="wrap_content"
-             android:layout_width="match_parent"
-             android:valueTo="255"
-             android:value="255"
-             android:valueFrom="0"
-             android:id="@+id/alphaSlider" />
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:valueTo="255"
+            android:value="255"
+            android:valueFrom="0"
+            android:id="@+id/alphaSlider" />
 
         <com.google.android.material.imageview.ShapeableImageView
-             android:layout_height="48dp"
-             android:layout_width="48dp"
-             app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
-             android:layout_marginTop="16dp"
-             android:id="@+id/colorPreview"
-             android:layout_gravity="center" />
+            android:layout_height="48dp"
+            android:layout_width="48dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+            android:layout_marginTop="16dp"
+            android:id="@+id/colorPreview"
+            android:layout_gravity="center" />
 
         <com.google.android.material.textfield.TextInputLayout
-             android:layout_height="wrap_content"
-             android:layout_width="match_parent"
-             android:hint="Hex"
-             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-             android:layout_marginTop="16dp">
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:hint="Hex"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_marginTop="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                 android:layout_height="wrap_content"
-                 android:layout_width="match_parent"
-                 android:inputType="text"
-                 android:id="@+id/hexValue" />
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:id="@+id/hexValue" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-             android:layout_height="wrap_content"
-             android:layout_width="match_parent"
-             android:hint="RGB"
-             style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:hint="RGB"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
-                 android:layout_height="wrap_content"
-                 android:layout_width="match_parent"
-                 android:inputType="text"
-                 android:id="@+id/rgbValue" />
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:id="@+id/rgbValue" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-             android:layout_height="wrap_content"
-             android:layout_width="match_parent"
-             android:hint="RGBA"
-             style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:hint="RGBA"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
-                 android:layout_height="wrap_content"
-                 android:layout_width="match_parent"
-                 android:inputType="text"
-                 android:id="@+id/rgbaValue" />
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:id="@+id/rgbaValue" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-             android:layout_height="wrap_content"
-             android:layout_width="match_parent"
-             android:hint="HSL"
-             style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:hint="HSL"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
-                 android:layout_height="wrap_content"
-                 android:layout_width="match_parent"
-                 android:inputType="text"
-                 android:id="@+id/hslValue" />
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:id="@+id/hslValue" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-             android:layout_height="wrap_content"
-             android:layout_width="match_parent"
-             android:hint="HSLA"
-             style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:hint="HSLA"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
-                 android:layout_height="wrap_content"
-                 android:layout_width="match_parent"
-                 android:inputType="text"
-                 android:id="@+id/hslaValue" />
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:id="@+id/hslaValue" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:hint="Reference (@block.key)"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_marginTop="16dp"
+            android:id="@+id/refLayout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:inputType="textUri"
+                android:id="@+id/refValue" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
-             android:layout_height="wrap_content"
-             android:layout_width="match_parent"
-             style="@style/Widget.Material3.Button"
-             android:layout_marginTop="16dp"
-             android:id="@+id/confirmButton"
-             android:text="تایید" />
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_marginTop="8dp"
+            android:id="@+id/useRefButton"
+            android:text="Use reference" />
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            style="@style/Widget.Material3.Button"
+            android:layout_marginTop="16dp"
+            android:id="@+id/confirmButton"
+            android:text="@android:string/ok" />
 
     </LinearLayout>
 

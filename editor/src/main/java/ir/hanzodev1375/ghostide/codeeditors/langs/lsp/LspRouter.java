@@ -45,13 +45,15 @@ public final class LspRouter {
     SASS,
     JS,
     RUBY,
-    CSHARP
+    CSHARP,
+    GTH
   }
 
   private static Lang langOf(String filePath) {
     if (filePath == null) return Lang.NONE;
     String lower = filePath.toLowerCase(Locale.ROOT);
     if (lower.endsWith(".py")) return Lang.PYTHON;
+    if (GthServer.INSTANCE.isSupportedFile(filePath)) return Lang.GTH;
     if (JavaServer.INSTANCE.isSupportedFile(filePath)) return Lang.JAVA;
     if (ClangdServer.INSTANCE.isSupportedFile(filePath)) return Lang.CPP;
     if (TsServer.INSTANCE.isSupportedFile(filePath)) return Lang.JS;
@@ -106,6 +108,8 @@ public final class LspRouter {
         return JsonServer.INSTANCE.isInstalled(context);
       case MARKDOWN:
         return MarkdownServer.INSTANCE.isInstalled(context);
+      case GTH:
+        return GthServer.INSTANCE.isInstalled(context);
       default:
         return false;
     }
@@ -123,6 +127,8 @@ public final class LspRouter {
       }
 
       switch (langOf(filePath)) {
+        case GTH:
+          return GthServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case PYTHON:
           return PylspServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case JAVA:

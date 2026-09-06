@@ -12,6 +12,7 @@ import com.google.gson.JsonParser;
 import ir.theme.internal.ThemeConstKeys;
 import ir.theme.internal.ThemeFileUtil;
 import ir.theme.internal.ThemePrefsHelper;
+import ir.theme.internal.ThemeRefResolver;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 
@@ -166,6 +167,7 @@ public class ThemeManager {
     JsonObject defaultObj = JsonParser.parseString(getDefaultThemeJson()).getAsJsonObject();
     JsonObject loadedObj = JsonParser.parseString(loadedJson).getAsJsonObject();
     deepMerge(defaultObj, loadedObj);
+    ThemeRefResolver.resolveJson(loadedObj);
     return loadedObj.toString();
   }
 

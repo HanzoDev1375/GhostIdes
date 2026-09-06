@@ -54,7 +54,9 @@ public class AnimationManager {
     if (!receiverRegistered) {
       IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        context.getApplicationContext().registerReceiver(batteryReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        context
+            .getApplicationContext()
+            .registerReceiver(batteryReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
       } else {
         context.getApplicationContext().registerReceiver(batteryReceiver, filter);
       }
