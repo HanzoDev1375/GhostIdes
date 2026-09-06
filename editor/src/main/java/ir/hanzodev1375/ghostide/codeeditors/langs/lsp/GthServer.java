@@ -2,10 +2,8 @@ package ir.hanzodev1375.ghostide.codeeditors.langs.lsp;
 
 import android.content.Context;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition;
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.LanguageServerDefinition;
@@ -13,27 +11,19 @@ import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import io.github.rosemoe.sora.lsp.editor.LspLanguage;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.langs.json.JsonLanguage;
+import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.gth.EmbeddedGthConnectionProvider;
 
 /**
  * Language server for GhostIDE theme files ({@code .gth}).
  *
- * <p>The server is installed <i>inside the Debian proot rootfs</i> via npm, exactly like the other
- * node-based servers (intelephense, vscode-css-language-server, ...). Inside the Debian terminal
- * run:
- *
- * <pre>{@code
- * apt-get update && apt-get install -y nodejs npm
- * npm install -g ghost-theme-lsp
- * }</pre>
- *
- * This puts the {@code ghost-theme-lsp} launcher into the rootfs ({@code /usr/local/bin}), which
- * {@link ProotStdioConnectionProvider} then executes directly.
+ * <p>Unlike the other servers (which launch a binary inside the Debian proot rootfs), this one runs
+ * <b>fully in-process</b>: {@link EmbeddedGthConnectionProvider} hosts an LSP4j {@link
+ * ir.hanzodev1375.ghostide.codeeditors.langs.lsp.gth.GhostThemeLanguageServer} inside the editor
+ * and bridges it to the client through in-memory pipes. No node/npm/proot install is needed.
  *
  * <p>Features: JSON diagnostics, sections/key completions, {@code @section.key} reference
  * completions, hover with resolved values, go-to-definition for references, document colors, and
- * document/range formatting via Prettier. Prettier is optional: the server tries a one-time {@code
- * npm install -g prettier} in the background and falls back to a built-in JSON printer, so
- * formatting always works.
+ * whole-document / range formatting with a tolerant built-in JSON printer.
  */
 public class GthServer extends LspContentImpl {
 
@@ -41,16 +31,12 @@ public class GthServer extends LspContentImpl {
 
   private static final String TAG = "GthServer";
 
-  private static final String[] NODE_PATHS = {
-    "/usr/local/bin/ghost-theme-lsp", "/usr/bin/ghost-theme-lsp"
-  };
-
   private GthServer() {
     super(
         "GthServer",
         "ghost-theme-lsp",
         new HashSet<>(Collections.singletonList("gth")),
-        NODE_PATHS);
+        null);
   }
 
   @Override
@@ -58,16 +44,25 @@ public class GthServer extends LspContentImpl {
     return "gth".equals(extensionOf(filePath));
   }
 
+  /** The embedded server is always available; there is nothing to install. */
+  @Override
+  public boolean isInstalled(Context context) {
+    return true;
+  }
+
+  /** No external binary exists for the in-process server. */
+  @Override
+  public String findInstalledExecutable(Context context) {
+    return "";
+  }
+
   @Override
   protected LanguageServerDefinition createDefinition(
       Context context, String executablePath, String ext) {
-    if (executablePath == null) return null;
-    List<String> args = Arrays.asList("--stdio");
     return new CustomLanguageServerDefinition(
         ext,
-        workingDir -> new ProotStdioConnectionProvider(context, workingDir, executablePath, args),
+        workingDir -> new EmbeddedGthConnectionProvider(),
         serverName,
-        null,
         null);
   }
 
@@ -83,6 +78,8 @@ public class GthServer extends LspContentImpl {
     JsonLanguage json = new JsonLanguage(context, "");
     lspEditor.setWrapperLanguage(json);
     lspEditor.setEditor(editor);
+    lspEditor.setEnableInlayHint(true);
+    lspEditor.setEnableHover(true);
     LspLanguage lang = (LspLanguage) editor.getEditorLanguage();
     lang.setFormatter(json.getFormatter());
     return lspEditor;
