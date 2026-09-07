@@ -179,4 +179,4 @@ The editor supports deep UI customization, including:
 
 - how in install Plugin? [click](https://github.com/HanzoDev1375/GhostIdes/blob/main/Plugin.md)
 - نحوه پیاده سازی پلاگین [click](https://github.com/HanzoDev1375/GhostIdes/blob/main/Pluginfa.md)
-- or see website [click]()
+- or see website [click](https://hanzodev1375.github.io/plugin-doc-ghost-ide/)

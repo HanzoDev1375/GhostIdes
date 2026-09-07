@@ -91,4 +91,27 @@
   <string name="web_sheet_menu_reload">Reload</string>
   <string name="web_sheet_menu_copy_link">Copy link</string>
   <string name="web_sheet_menu_open_browser">Open in browser</string>
+  <string name="pluginstore_empty">No plugins found</string>
+  <string name="pluginstore_icon">Plugin icon</string>
+  <string name="pluginstore_install">Install</string>
+  <string name="pluginstore_busy">Installing…</string>
+  <string name="pluginstore_installed_button">Installed</string>
+  <string name="pluginstore_install_and_source">Install + Source</string>
+  <string name="pluginstore_install_only">Install only</string>
+  <string name="pluginstore_no_description">No description available</string>
+  <string name="pluginstore_installed">Plugin %s installed</string>
+  <string name="pluginstore_install_error">Install failed: %s</string>
+  <string name="pluginstore_source_saved">Source saved to %s</string>
+  <string name="pluginstore_source_error">Source download failed: %s</string>
+  <string name="themes_dev_version">%1$s · v%2$d</string>
+  <string name="themes_empty">No themes available</string>
+  <string name="themes_error_network">Network error: %1$s</string>
+  <string name="themes_error_http">Server error: %1$d</string>
+  <string name="themes_error_parse">Parse error: %1$s</string>
+  <string name="themes_download_done">Theme downloaded</string>
+  <string name="themes_applied">Theme downloaded and applied</string>
+  <string name="themes_download_failed">Download failed</string>
+  <string name="themes_background_failed">Background download failed</string>
+  <string name="themes_description">Description</string>
+  <string name="themes_description_failed">No description available</string>
 </resources>

@@ -2080,6 +2080,14 @@ public class FileManagerActivity extends BaseCompat
                       return Optional.<PluginPopupAdapter.PluginItem>empty();
                     }
 
+                    var ownerScreens = PluginPopupAdapter.screensOf(manifest.id());
+                    if (!ownerScreens.isEmpty()) {
+                      var screen = ownerScreens.get(0);
+                      return Optional.of(
+                          new PluginPopupAdapter.PluginItem(
+                              screen.getId(), screen.getTitle(), f, manifest));
+                    }
+
                     var matchingScreen =
                         registeredScreens.stream()
                             .filter(s -> manifest.id().equals(s.getId()))
@@ -2119,6 +2127,15 @@ public class FileManagerActivity extends BaseCompat
         new PluginPopupAdapter(
             (view, item, pos) -> {
               if (popupRef[0] != null) popupRef[0].dismiss();
+              String ownerId = item.manifest() != null ? item.manifest().id() : item.id();
+
+              var ownerScreens = PluginPopupAdapter.screensOf(ownerId);
+              if (!ownerScreens.isEmpty()) {
+                startActivity(
+                    PluginScreenActivity.createIntent(this, ownerScreens.get(0).getId()));
+                return;
+              }
+
               var allScreens =
                   GlobalRegistry.extensions().extensions(PluginUiExtensionPoints.PLUGIN_SCREEN);
 

@@ -12,8 +12,8 @@ import ir.hanzodev1375.ghostide.plugin.api.PluginLogger;
 
 /**
  * Extensions register into the shared {@code GlobalRegistry.extensions()}, but services use a
- * per-plugin copy so each plugin can be given its own scoped {@code Context} without leaking it
- * to other plugins.
+ * per-plugin copy so each plugin can be given its own scoped {@code Context} without leaking it to
+ * other plugins.
  */
 final class DefaultPluginContext implements PluginContext {
 
@@ -29,7 +29,7 @@ final class DefaultPluginContext implements PluginContext {
       MutableServiceRegistry services,
       PluginLogger logger) {
     this.descriptor = descriptor;
-    this.extensions = extensions;
+    this.extensions = new PluginScopedExtensions(extensions, descriptor.getId());
     this.services = services;
     this.logger = logger;
   }

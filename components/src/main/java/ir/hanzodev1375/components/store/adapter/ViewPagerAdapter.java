@@ -3,6 +3,7 @@ package ir.hanzodev1375.components.store.adapter;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -11,6 +12,7 @@ import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.store.fragments.FontsFragment;
 import ir.hanzodev1375.components.store.fragments.IconsFragment;
 import ir.hanzodev1375.components.store.fragments.StoreSectionFragment;
+import ir.hanzodev1375.components.store.fragments.ThemesFragment;
 import ir.hanzodev1375.components.store.fragments.WebFragments;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
@@ -24,9 +26,18 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
   private final Context context;
 
+  /** App-side fragment shown on the plugins tab (owned by the host, not this module). */
+  @Nullable private final Fragment pluginFragment;
+
   public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+    this(fragmentActivity, null);
+  }
+
+  public ViewPagerAdapter(
+      @NonNull FragmentActivity fragmentActivity, @Nullable Fragment pluginFragment) {
     super(fragmentActivity);
     this.context = fragmentActivity;
+    this.pluginFragment = pluginFragment;
   }
 
   @NonNull
@@ -34,17 +45,16 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
   public Fragment createFragment(int position) {
     switch (position) {
       case PAGE_THEMES:
-        return StoreSectionFragment.newInstance(
-            R.drawable.ic_outline_palette,
-            context.getString(R.string.store_tab_themes),
-            context.getString(R.string.store_no_items_themes));
+        return new ThemesFragment();
       case PAGE_FONTS:
         return new FontsFragment();
       case PAGE_PLUGINS:
-        return StoreSectionFragment.newInstance(
-            R.drawable.ic_outline_extension,
-            context.getString(R.string.store_tab_plugins),
-            context.getString(R.string.store_no_items_plugins));
+        return pluginFragment != null
+            ? pluginFragment
+            : StoreSectionFragment.newInstance(
+                R.drawable.ic_outline_extension,
+                context.getString(R.string.store_tab_plugins),
+                context.getString(R.string.store_no_items_plugins));
       case PAGE_ICONS:
         return new IconsFragment();
       case PAGE_PROJECTS:

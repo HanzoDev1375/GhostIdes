@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.ide.api.EditorExtensionPoints;
+import ir.hanzodev1375.ghostide.ide.ui.api.EditorPanel;
+import ir.hanzodev1375.ghostide.ide.ui.api.PluginScreen;
 import ir.hanzodev1375.ghostide.ide.ui.api.PluginUiExtensionPoints;
 import ir.hanzodev1375.ghostide.interfaces.OnItemClickListener;
 import ir.hanzodev1375.ghostide.plugin.api.ExtensionPoint;
@@ -75,6 +77,28 @@ public final class PluginPopupAdapter extends RecyclerView.Adapter<PluginPopupAd
   @Override
   public int getItemCount() {
     return items.size();
+  }
+
+  public static List<EditorPanel> panelsOf(String pluginId) {
+    if (pluginId == null) {
+      return List.of();
+    }
+    return GlobalRegistry.extensions()
+        .registrations(PluginUiExtensionPoints.EDITOR_PANEL).stream()
+        .filter(r -> pluginId.equals(r.ownerPluginId()))
+        .map(r -> (EditorPanel) r.extension())
+        .toList();
+  }
+
+  public static List<PluginScreen> screensOf(String pluginId) {
+    if (pluginId == null) {
+      return List.of();
+    }
+    return GlobalRegistry.extensions()
+        .registrations(PluginUiExtensionPoints.PLUGIN_SCREEN).stream()
+        .filter(r -> pluginId.equals(r.ownerPluginId()))
+        .map(r -> (PluginScreen) r.extension())
+        .toList();
   }
 
   private static boolean owns(String pluginId, ExtensionPoint<?> point) {

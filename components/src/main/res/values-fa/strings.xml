@@ -92,4 +92,26 @@
   <string name="web_sheet_menu_reload">بارگذاری مجدد</string>
   <string name="web_sheet_menu_copy_link">لینک را کپی کنید</string>
   <string name="web_sheet_menu_open_browser">در مرورگر باز کنید</string>
+  <string name="pluginstore_empty">هیچ افزونه‌ای یافت نشد</string>
+  <string name="pluginstore_icon">آیکن افزونه</string>
+  <string name="pluginstore_install">نصب</string>
+  <string name="pluginstore_busy">در حال نصب…</string>
+  <string name="pluginstore_installed_button">نصب شد</string>
+  <string name="pluginstore_install_and_source">نصب + سورس</string>
+  <string name="pluginstore_install_only">فقط نصب</string>
+  <string name="pluginstore_no_description">توضیحی در دسترس نیست</string>
+  <string name="pluginstore_installed">افزونه %s نصب شد</string>
+  <string name="pluginstore_install_error">نصب ناموفق بود: %s</string>
+  <string name="pluginstore_source_saved">سورس در %s ذخیره شد</string>
+  <string name="pluginstore_source_error">دانلود سورس ناموفق بود: %s</string>
+  <string name="themes_dev_version">%1$s · نسخه %2$d</string>
+  <string name="themes_empty">تمی در دسترس نیست</string>
+  <string name="themes_error_network">خطای شبکه: %1$s</string>
+  <string name="themes_error_http">خطای سرور: %1$d</string>
+  <string name="themes_error_parse">خطای تجزیه: %1$s</string>
+  <string name="themes_download_done">تم دانلود شد</string>
+  <string name="themes_applied">تم دانلود و اعمال شد</string>
+  <string name="themes_download_failed">دانلود ناموفق بود</string>
+  <string name="themes_description">توضیحات</string>
+  <string name="themes_description_failed">توضیحی در دسترس نیست</string>
 </resources>

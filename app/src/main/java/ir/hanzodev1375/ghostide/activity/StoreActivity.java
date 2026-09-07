@@ -10,10 +10,12 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import ir.hanzodev1375.components.store.adapter.ViewPagerAdapter;
+import ir.hanzodev1375.components.store.fragments.PluginStoreFragment;
 import ir.hanzodev1375.ghostide.R;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.ghostide.plugin.install.GplPluginInstallerHost;
 import ir.theme.M3Theme;
 
 public class StoreActivity extends BaseCompat {
@@ -21,6 +23,7 @@ public class StoreActivity extends BaseCompat {
   private ViewPager2 viewPager;
   private BottomNavigationView bottomNav;
   private MaterialToolbar toolbar;
+  private GplPluginInstallerHost installerHost;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +59,7 @@ public class StoreActivity extends BaseCompat {
           return insets;
         });
 
-    ViewPagerAdapter adapter = new ViewPagerAdapter(this);
+    ViewPagerAdapter adapter = new ViewPagerAdapter(this, new PluginStoreFragment());
     viewPager.setAdapter(adapter);
     viewPager.setUserInputEnabled(true);
     viewPager.setOffscreenPageLimit(ViewPagerAdapter.PAGE_COUNT);
@@ -91,6 +94,21 @@ public class StoreActivity extends BaseCompat {
           return false;
         });
     M3Theme.applyTopLevel(root);
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
+    installerHost = new GplPluginInstallerHost(this);
+    installerHost.register();
+  }
+
+  @Override
+  protected void onStop() {
+    if (installerHost != null) {
+      installerHost.unregister();
+    }
+    super.onStop();
   }
 
   private void syncNavItem(int position) {

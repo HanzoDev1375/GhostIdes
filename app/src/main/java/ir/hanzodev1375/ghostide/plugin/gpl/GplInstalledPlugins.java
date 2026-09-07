@@ -3,6 +3,7 @@ package ir.hanzodev1375.ghostide.plugin.gpl;
 import android.content.Context;
 import android.util.Log;
 
+import ir.hanzodev1375.components.store.data.PluginRepository;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -13,13 +14,12 @@ import java.util.List;
 public final class GplInstalledPlugins {
 
   private static final String TAG = "GplInstalledPlugins";
-  private static final String INSTALL_DIR_NAME = "gpl_plugins";
   private static final String GPL_EXTENSION = ".gpl";
 
   private GplInstalledPlugins() {}
 
   public static File installDir(Context context) {
-    File dir = new File(context.getApplicationContext().getFilesDir(), INSTALL_DIR_NAME);
+    File dir = PluginRepository.pluginsDir();
     if (!dir.exists()) {
       dir.mkdirs();
     }

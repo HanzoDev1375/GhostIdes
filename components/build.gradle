@@ -41,5 +41,7 @@ dependencies {
     }
     implementation 'org.bouncycastle:bcprov-jdk18on:1.78' 
     implementation(libs.glass)
+    implementation(libs.eventbus)
     implementation project(':thememanager')
+    implementation(libs.markwon.core)
 }

@@ -743,6 +743,28 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
                     Log.d(
                         "EditorActivity", "  file=" + f.getName() + " manifestId=" + manifest.id());
 
+                    var ownerPanels = PluginPopupAdapter.panelsOf(manifest.id());
+                    if (!ownerPanels.isEmpty()) {
+                      var panel = ownerPanels.get(0);
+                      Log.d(
+                          "EditorActivity",
+                          "    -> matched EditorPanel(owner): " + panel.getId());
+                      return Optional.of(
+                          new PluginPopupAdapter.PluginItem(
+                              panel.getId(), panel.getTitle(), f, manifest));
+                    }
+
+                    var ownerScreens = PluginPopupAdapter.screensOf(manifest.id());
+                    if (!ownerScreens.isEmpty()) {
+                      var screen = ownerScreens.get(0);
+                      Log.d(
+                          "EditorActivity",
+                          "    -> matched PluginScreen(owner): " + screen.getId());
+                      return Optional.of(
+                          new PluginPopupAdapter.PluginItem(
+                              screen.getId(), screen.getTitle(), f, manifest));
+                    }
+
                     var matchingPanel =
                         registeredPanels.stream()
                             .filter(p -> manifest.id().equals(p.getId()))
@@ -805,6 +827,21 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
         new PluginPopupAdapter(
             (view, item, pos) -> {
               if (popupRef[0] != null) popupRef[0].dismiss();
+              String ownerId = item.manifest() != null ? item.manifest().id() : item.id();
+
+              var ownerPanels = PluginPopupAdapter.panelsOf(ownerId);
+              if (!ownerPanels.isEmpty()) {
+                pluginPanelHost.showPanel(ownerPanels.get(0));
+                return;
+              }
+
+              var ownerScreens = PluginPopupAdapter.screensOf(ownerId);
+              if (!ownerScreens.isEmpty()) {
+                startActivity(
+                    PluginScreenActivity.createIntent(this, ownerScreens.get(0).getId()));
+                return;
+              }
+
               var allPanels =
                   GlobalRegistry.extensions().extensions(PluginUiExtensionPoints.EDITOR_PANEL);
               var allScreens =
