@@ -47,7 +47,12 @@ public class FontsApi {
   }
 
   public static void searchFonts(Context context, String query, Callbacks callback) {
-    if (cachedFonts != null) {
+    searchFonts(context, query, false, callback);
+  }
+
+  public static void searchFonts(
+      Context context, String query, boolean forceRefresh, Callbacks callback) {
+    if (!forceRefresh && cachedFonts != null) {
       new Handler(Looper.getMainLooper()).post(() -> callback.onSuccess(filter(cachedFonts, query)));
       return;
     }

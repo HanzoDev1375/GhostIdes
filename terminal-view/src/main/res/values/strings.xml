@@ -2,4 +2,6 @@
   <string name="paste_text">Paste</string>
   <string name="copy_text">Copy</string>
   <string name="text_selection_more">More…</string>
+  <string name="terminal_completion_item_icon">Completion type</string>
+  <string name="terminal_completion_loading">Loading…</string>
 </resources>

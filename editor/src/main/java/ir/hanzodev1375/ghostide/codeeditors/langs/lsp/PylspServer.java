@@ -51,9 +51,6 @@ public class PylspServer extends LspContentImpl {
     var py = new Python3Language(context);
     lspEditor.setWrapperLanguage(py);
     lspEditor.setEditor(editor);
-    lspEditor.setEnableInlayHint(true);
-    lspEditor.setEnableSignatureHelp(true);
-    lspEditor.setEnableHover(true);
     var lang = (LspLanguage) editor.getEditorLanguage();
     lang.setFormatter(py.getFormatter());
     return lspEditor;

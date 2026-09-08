@@ -163,32 +163,18 @@ npm install -g typescript @vue/language-server
 
 ## Java Lsp 
 
-- توجه: ابتدا پایتون را نصب کنید
+- توجه: فقط به Node.js نیاز دارد (بدون نیاز به JVM)
 
 ```bash
 
-apt install -y gnupg
-apt update && apt install -y wget gpg ca-certificates
+apt update && apt install -y nodejs npm wget gnupg ca-certificates
 
-mkdir -p /etc/apt/keyrings
-wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /etc/apt/keyrings/adoptium.gpg
+node --version
+npm --version
 
-echo "deb [signed-by=/etc/apt/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print $2}' /etc/os-release) main" > /etc/apt/sources.list.d/adoptium.list
+npm install -g jj-language-server
 
-apt update
-apt install -y temurin-25-jdk
-
-java -version
-javac -version
-
-mkdir -p /root/jdtls
-cd /root/jdtls
-wget -q http://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz -O jdtls.tar.gz
-tar -xzf jdtls.tar.gz
-rm jdtls.tar.gz
-chmod +x /root/jdtls/bin/jdtls
-
-ls /root/jdtls/bin/jdtls
-java -version
+which jj-language-server
+jj-language-server --version
 
 ```

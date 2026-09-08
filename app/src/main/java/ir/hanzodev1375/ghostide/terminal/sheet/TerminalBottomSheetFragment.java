@@ -192,7 +192,37 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
     terminalBinding.terminalView.setTerminalViewClient(
         new GhostTerminalViewClient(terminalBinding.terminalView, this));
     TerminalColorsUtil.apply(getActivity(), requireContext());
-    terminalBinding.terminalView.setBackgroundColor(Color.TRANSPARENT);
+    applyTerminalBackground();
+  }
+
+  /**
+   * وقتی پس‌زمینه‌ی تصویری فعال نشده، TerminalView رنگش را دستی از M3Theme می‌گیرد تا با تم JSON
+   * هم‌رنگ شود؛ رنگ deliberately متمایز از اکشن‌بار (surfaceContainerHigh) و coordinator
+   * (surfaceContainer) است تا کل صفحه یکدست نشود. فقط با پس‌زمینه‌ی تصویری شفاف می‌ماند.
+   */
+  private void applyTerminalBackground() {
+    if (terminalBinding.terminalView == null) return;
+    if (hasBackgroundImage()) {
+      terminalBinding.terminalView.setBackgroundColor(Color.TRANSPARENT);
+      return;
+    }
+    Integer bg = M3Theme.surfaceContainerLow();
+    if (bg == null) bg = M3Theme.surface();
+    terminalBinding.terminalView.setBackgroundColor(bg != null ? bg : 0xFF121212);
+  }
+
+  private boolean hasBackgroundImage() {
+    boolean showBg = new PreferencesUtils(requireContext()).isShowBackground();
+    try {
+      var theme = new ThemeUtils(new ThemeManager(requireContext())).getTheme();
+      return showBg
+          && theme != null
+          && theme.getWidget() != null
+          && theme.getWidget().getImagepath() != null
+          && !theme.getWidget().getImagepath().isEmpty();
+    } catch (Throwable ignored) {
+      return false;
+    }
   }
 
   private void setupExtraKeys() {

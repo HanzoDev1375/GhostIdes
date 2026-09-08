@@ -80,6 +80,7 @@ public class PluginStoreAdapter extends RecyclerView.Adapter<PluginStoreAdapter.
     }
 
     holder.action.setOnClickListener(v -> EventBus.getDefault().post(new PluginStoreEvent(item)));
+    holder.card.setOnClickListener(v -> EventBus.getDefault().post(new PluginStoreEvent(item)));
     M3Theme.listCard(holder.itemView);
   }
 

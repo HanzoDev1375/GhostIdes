@@ -62,6 +62,12 @@ public final class AndroidClasspathResolver {
     "root/android-sdk", "opt/android-sdk", "usr/lib/android-sdk"
   };
 
+  // ریشههای احتمالی JDK نصبشده در ترمینال (نسبت به rootfs). jmodهای اون بهعنوان سیستملیبرری
+  // واقعی به موتور LSP داده میشن تا چک java.base جیدیتی برای جاوا ۹+ پاس بشه.
+  private static final String[] JDK_ROOT_CANDIDATES = {
+    "usr/lib/jvm", "opt/java", "opt/jdk"
+  };
+
   private static final String[] GRADLE_BUILD_FILE_NAMES = {"build.gradle", "build.gradle.kts"};
   private static final String[] GRADLE_PROJECT_MARKERS = {
     "settings.gradle", "settings.gradle.kts", "gradlew"
@@ -467,6 +473,44 @@ public final class AndroidClasspathResolver {
       }
     }
     return best;
+  }
+
+  /**
+   * مسیر lib/jrt-fs.jar بهترین JDK نصبشده در ترمینال رو برمیگردونه تا بهعنوان سیستملیبرری واقعی به
+   * موتور LSP داده بشه. ECJ این فایل رو بهصورت ClasspathJrt میشناسه که ماژول java.base رو ارائه
+   * میده (برخلاف jmod ها که در چک ابتداییِ bindings شناسا نمیشن)؛ با اون میشه با کامپلاینس ۱۷ و
+   * bindings کامل پارس کرد، دقیقاً مثل جیدیتیالاس که زیرِ یک JVM واقعی اجرا میشه. مسیر از دید هاست
+   * (host) هست چون ECJ درونفرآیند روی فایلسیستم اندروید بازش میکنه. اگه JDKای نباشه null برمیگرده
+   * و موتور به ۱٫۸ برمیگرده.
+   */
+  public static File findJdkJrt(File rootfs) {
+    if (rootfs == null) return null;
+    File bestJrt = null;
+    int bestLevel = Integer.MIN_VALUE;
+    for (String candidate : JDK_ROOT_CANDIDATES) {
+      File jvmDir = new File(rootfs, candidate);
+      File[] jdks = jvmDir.isDirectory() ? jvmDir.listFiles() : null;
+      if (jdks == null) continue;
+      for (File jdk : jdks) {
+        // فقط JDK حقیقی هر دو رو داره (jmod نشانهی JDK بودن، jrt تصویر ماژول برای LSP).
+        File jmodsDir = new File(jdk, "jmods");
+        if (!new File(jmodsDir, "java.base.jmod").isFile()) continue;
+        File jrt = new File(new File(jdk, "lib"), "jrt-fs.jar");
+        if (!jrt.isFile()) continue;
+        int level = jdkVersionOf(jdk.getName());
+        if (level > bestLevel) {
+          bestLevel = level;
+          bestJrt = jrt;
+        }
+      }
+    }
+    return bestJrt;
+  }
+
+  private static int jdkVersionOf(String name) {
+    if (name == null) return 0;
+    java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\d+").matcher(name);
+    return m.find() ? Integer.parseInt(m.group()) : 0;
   }
 
   /**

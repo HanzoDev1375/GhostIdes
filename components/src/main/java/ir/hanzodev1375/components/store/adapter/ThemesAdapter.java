@@ -8,17 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.google.android.material.listitem.ListItemCardView;
 import com.google.android.material.listitem.ListItemViewHolder;
-
 import java.util.List;
-
 import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.store.api.ThemesApi;
 import ir.hanzodev1375.components.store.model.ThemeItem;
@@ -66,23 +62,11 @@ public class ThemesAdapter extends RecyclerView.Adapter<ThemesAdapter.VH> {
     boolean showBg = new ComponentsPrefs(holder.itemView.getContext()).isShowBackground();
     holder.card.setCardBackgroundColor(
         ColorStateList.valueOf(showBg ? ColorUtils.setAlphaComponent(bgColor, 128) : bgColor));
-
-    String iconUrl = item.iconUrl(ThemesApi.REPO_BASE);
-    if (iconUrl == null || iconUrl.isEmpty()) {
-      String fallback = item.image1();
-      if (fallback != null && !fallback.isEmpty()) {
-        iconUrl = fallback.startsWith("http") ? fallback : ThemesApi.REPO_BASE + fallback;
-      }
-    }
-    if (iconUrl != null) {
-      Glide.with(context)
-          .load(iconUrl)
-          .placeholder(R.drawable.ic_outline_palette)
-          .error(R.drawable.ic_outline_palette)
-          .into(holder.icon);
-    } else {
-      holder.icon.setImageResource(R.drawable.ic_outline_palette);
-    }
+    Glide.with(context)
+        .load(item.icon())
+        .placeholder(R.drawable.ic_outline_palette)
+        .error(R.drawable.ic_outline_palette)
+        .into(holder.icon);
 
     M3Theme.text(holder.name, holder.dev);
 

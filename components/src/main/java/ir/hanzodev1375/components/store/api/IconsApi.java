@@ -65,7 +65,12 @@ public class IconsApi {
   }
 
   public static void searchIcons(Context context, String query, Callbacks callback) {
-    if (cachedIcons != null) {
+    searchIcons(context, query, false, callback);
+  }
+
+  public static void searchIcons(
+      Context context, String query, boolean forceRefresh, Callbacks callback) {
+    if (!forceRefresh && cachedIcons != null) {
       postSuccess(callback, filter(cachedIcons, query));
       return;
     }

@@ -41,6 +41,21 @@ android {
     jniLibs {
         useLegacyPackaging = true
     }
+    resources {
+        excludes += [
+            'META-INF/AL2.0',
+            'META-INF/LGPL2.1',
+            'about_files/*',
+            'plugin.xml',
+            'fragment.xml',
+            'OSGI-INF/*',
+            'META-INF/eclipse/',
+            'META-INF/services/',
+            'schema/',
+            'META-INF/eclipse.inf',
+            'plugin.properties'
+        ]
+    }
    }
 
     compileOptions {

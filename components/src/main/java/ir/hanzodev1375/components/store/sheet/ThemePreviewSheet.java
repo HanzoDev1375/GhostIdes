@@ -249,7 +249,10 @@ public class ThemePreviewSheet extends BaseBlurBottomSheet {
                   }
                 }
                 if (out != null && out.exists()) {
-                  File bg = downloadBackground(out);
+                  int lastSlash = url.lastIndexOf('/');
+                  String themeDirUrl =
+                      lastSlash >= 0 ? url.substring(0, lastSlash + 1) : ThemesApi.REPO_BASE;
+                  File bg = downloadBackground(out, themeDirUrl);
                   new ThemeManager(context).setThemeFromFile(out.getAbsolutePath());
                   applied = true;
                   appliedMsg =
@@ -286,6 +289,9 @@ public class ThemePreviewSheet extends BaseBlurBottomSheet {
                                 message != null ? message : context.getString(res),
                                 Toast.LENGTH_SHORT)
                             .show();
+                          if(success) {
+                          	getActivity().recreate();
+                          }  
                       });
             })
         .start();
@@ -316,7 +322,7 @@ public class ThemePreviewSheet extends BaseBlurBottomSheet {
    * ./wallpaper.png). That image lives in the theme's repo folder next to the .gth file. Download
    * it into the same local folder so the theme's reference resolves on device.
    */
-  private File downloadBackground(File themeFile) {
+  private File downloadBackground(File themeFile, String themeDirUrl) {
     try {
       String json = FileIOUtils.readFile2String(themeFile);
       JsonObject root = JsonParser.parseString(json).getAsJsonObject();
@@ -338,7 +344,7 @@ public class ThemePreviewSheet extends BaseBlurBottomSheet {
       if (imagepath.startsWith("./")) {
         imagepath = imagepath.substring(2);
       }
-      String bgUrl = ThemesApi.REPO_BASE + imagepath;
+      String bgUrl = themeDirUrl + imagepath;
       String bgName = new File(bgUrl).getName();
       File dir = themeFile.getParentFile();
       File bg = new File(dir, bgName);

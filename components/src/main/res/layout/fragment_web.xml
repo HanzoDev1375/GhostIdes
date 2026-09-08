@@ -1,33 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-     xmlns:android="http://schemas.android.com/apk/res/android"
-     android:layout_height="match_parent"
-     android:layout_width="match_parent"
-     android:gravity="center">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-         android:layout_height="match_parent"
-         android:layout_width="match_parent"
-         android:padding="8dp"
-         android:clipToPadding="false"
-         android:layout_gravity="center"
-         android:id="@+id/recyclerView" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="12dp"
+        android:paddingTop="8dp">
+
+        <ir.hanzodev1375.components.SearchLayout
+            android:id="@+id/searchLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="6dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:padding="8dp" />
+    </LinearLayout>
 
     <ProgressBar
-         android:layout_height="wrap_content"
-         android:layout_width="wrap_content"
-         android:visibility="gone"
-         android:indeterminateTint="?attr/colorPrimary"
-         android:id="@+id/progressBar"
-         android:layout_gravity="center" />
+        android:id="@+id/progressBar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:indeterminateTint="?attr/colorPrimary"
+        android:visibility="gone" />
 
     <TextView
-         android:layout_height="wrap_content"
-         android:layout_width="wrap_content"
-         android:visibility="gone"
-         android:textSize="16sp"
-         android:textColor="?attr/colorError"
-         android:id="@+id/errorText"
-         android:layout_gravity="center" />
+        android:id="@+id/errorText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:padding="24dp"
+        android:textColor="?attr/colorError"
+        android:textSize="14sp"
+        android:visibility="gone" />
 
-</LinearLayout>
+</FrameLayout>

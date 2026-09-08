@@ -40,9 +40,10 @@ public class ProotStdioConnectionProvider implements StreamConnectionProvider, L
   private static final String TAG = "ProotLSP";
 
   private final Context appContext;
-  private final String workingDir; 
-  private final String guestExecutable; 
+  private final String workingDir;
+  private final List<String> guestCommand;
   private final List<String> args;
+  private final List<String> extraBindMounts;
 
   private Process process;
   private Thread stderrPump;
@@ -50,10 +51,46 @@ public class ProotStdioConnectionProvider implements StreamConnectionProvider, L
 
   public ProotStdioConnectionProvider(
       Context context, String workingDir, String guestExecutable, List<String> args) {
+    this(context, workingDir, guestExecutable, args, null);
+  }
+
+  public ProotStdioConnectionProvider(
+      Context context,
+      String workingDir,
+      String guestExecutable,
+      List<String> args,
+      List<String> extraBindMounts) {
     this.appContext = context.getApplicationContext();
     this.workingDir = workingDir;
-    this.guestExecutable = guestExecutable;
+    this.guestCommand = splitCommand(guestExecutable);
     this.args = args != null ? args : new ArrayList<>();
+    this.extraBindMounts = extraBindMounts;
+  }
+
+  private static List<String> splitCommand(String command) {
+    List<String> parts = new ArrayList<>();
+    if (command == null) {
+      parts.add("");
+      return parts;
+    }
+    boolean inQuote = false;
+    StringBuilder current = new StringBuilder();
+    for (int i = 0; i < command.length(); i++) {
+      char c = command.charAt(i);
+      if (c == '\'') {
+        inQuote = !inQuote;
+      } else if (c == ' ' && !inQuote) {
+        if (current.length() > 0) {
+          parts.add(current.toString());
+          current.setLength(0);
+        }
+      } else {
+        current.append(c);
+      }
+    }
+    if (current.length() > 0) parts.add(current.toString());
+    if (parts.isEmpty()) parts.add("");
+    return parts;
   }
 
   @Override
@@ -63,13 +100,14 @@ public class ProotStdioConnectionProvider implements StreamConnectionProvider, L
       throw new IOException("rootfs دبیان پیدا نشد: " + rootfs.getAbsolutePath());
     }
 
+    String probePath = guestCommand.get(guestCommand.size() - 1);
     String relativeGuestPath =
-        guestExecutable.startsWith("/") ? guestExecutable.substring(1) : guestExecutable;
+        probePath.startsWith("/") ? probePath.substring(1) : probePath;
     File serverBinary = new File(rootfs, relativeGuestPath);
-    if (!serverBinary.exists()) {
+    if (!serverBinary.exists() && !isAvailableViaBindMount(probePath)) {
       throw new IOException(
           "باینری "
-              + guestExecutable
+              + probePath
               + " داخل rootfs پیدا نشد. "
               + "اول باید داخل proot دبیان نصبش کنی (مثلا: apt install clangd).");
     }
@@ -102,9 +140,17 @@ public class ProotStdioConnectionProvider implements StreamConnectionProvider, L
     command.add("-b");
     command.add(new File(workingDir).getAbsolutePath());
 
+    if (extraBindMounts != null) {
+      for (String bindMount : extraBindMounts) {
+        if (bindMount == null || bindMount.isEmpty()) continue;
+        command.add("-b");
+        command.add(bindMount);
+      }
+    }
+
     command.add("-w");
     command.add(workingDir);
-    command.add(guestExecutable);
+    command.addAll(guestCommand);
     command.addAll(args);
 
     ProcessBuilder pb = new ProcessBuilder(command);
@@ -131,15 +177,27 @@ public class ProotStdioConnectionProvider implements StreamConnectionProvider, L
                       new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                  Log.d(TAG, "[" + guestExecutable + "] " + line);
+                  Log.d(TAG, "[" + guestCommand + "] " + line);
                 }
               } catch (IOException ignored) {
                 // پروسه بسته شده، طبیعیه
               }
             },
-            "lsp-stderr-" + guestExecutable);
+            "lsp-stderr-" + guestCommand);
     stderrPump.setDaemon(true);
     stderrPump.start();
+  }
+
+  private boolean isAvailableViaBindMount(String guestPath) {
+    if (extraBindMounts == null) return false;
+    File hostPath = new File(guestPath);
+    if (hostPath.exists() && hostPath.isFile()) return true;
+    for (String bindMount : extraBindMounts) {
+      if (bindMount == null || bindMount.isEmpty()) continue;
+      File probe = new File(bindMount, guestPath.substring(guestPath.startsWith("/") ? 1 : 0));
+      if (probe.exists()) return true;
+    }
+    return false;
   }
 
   @Override

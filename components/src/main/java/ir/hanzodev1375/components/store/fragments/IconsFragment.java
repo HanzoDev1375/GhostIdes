@@ -3,8 +3,6 @@ package ir.hanzodev1375.components.store.fragments;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,12 +19,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ir.hanzodev1375.components.R;
+import ir.hanzodev1375.components.SearchLayout;
 import ir.hanzodev1375.components.store.adapter.IconsAdapter;
 import ir.hanzodev1375.components.store.api.IconsApi;
 import ir.hanzodev1375.components.store.model.IconInfo;
@@ -44,7 +42,7 @@ public class IconsFragment extends Fragment {
   private TextView errorText;
   private TextView emptyText;
   private AutoCompleteTextView styleSpinner;
-  private TextInputEditText searchInput;
+  private SearchLayout searchLayout;
   private IconsAdapter adapter;
   private IconsViewModel viewModel;
 
@@ -65,7 +63,11 @@ public class IconsFragment extends Fragment {
     errorText = view.findViewById(R.id.errorText);
     emptyText = view.findViewById(R.id.emptyText);
     styleSpinner = view.findViewById(R.id.styleSpinner);
-    searchInput = view.findViewById(R.id.searchInput);
+    searchLayout = view.findViewById(R.id.searchLayout);
+
+    searchLayout.setIconClose(R.drawable.ic_close_24);
+    searchLayout.setIconSearch(R.drawable.outline_search24);
+    searchLayout.show();
 
     list.setLayoutManager(new LinearLayoutManager(requireContext()));
     adapter = new IconsAdapter(new ArrayList<>(), this::onDownloadClick);
@@ -73,7 +75,7 @@ public class IconsFragment extends Fragment {
 
     viewModel =
         new ViewModelProvider(
-                requireActivity(),
+                this,
                 new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication()))
             .get(IconsViewModel.class);
 
@@ -86,25 +88,16 @@ public class IconsFragment extends Fragment {
 
     setupStyleSpinner();
 
-    searchInput.addTextChangedListener(
-        new TextWatcher() {
-          @Override
-          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-          @Override
-          public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-          @Override
-          public void afterTextChanged(Editable s) {
-            if (searchRunnable != null) searchHandler.removeCallbacks(searchRunnable);
-            searchRunnable =
-                () -> viewModel.search(s == null ? "" : s.toString());
-            searchHandler.postDelayed(searchRunnable, SEARCH_DELAY);
-          }
+    searchLayout.setOnTextChangedListener(
+        text -> {
+          if (searchRunnable != null) searchHandler.removeCallbacks(searchRunnable);
+          searchRunnable =
+              () -> viewModel.search(text == null ? "" : text);
+          searchHandler.postDelayed(searchRunnable, SEARCH_DELAY);
         });
 
     if (adapter.getItemCount() == 0) {
-      viewModel.search("");
+      viewModel.search("", true);
     }
     M3Theme.applyTopLevel(view);
   }
@@ -126,7 +119,7 @@ public class IconsFragment extends Fragment {
         (parent, v, position, id) -> {
           viewModel.setStyle(position);
           adapter.setStyle(position);
-          viewModel.search(searchInput.getText() == null ? "" : searchInput.getText().toString());
+          viewModel.search(searchLayout.getQuery());
         });
   }
 

@@ -25,9 +25,15 @@ public class IconsRepository {
           .build();
 
   public void search(Context context, String query, Callback<List<IconInfo>> callback) {
+    search(context, query, false, callback);
+  }
+
+  public void search(
+      Context context, String query, boolean forceRefresh, Callback<List<IconInfo>> callback) {
     IconsApi.searchIcons(
         context,
         query,
+        forceRefresh,
         new IconsApi.Callbacks() {
           @Override
           public void onSuccess(List<IconInfo> icons) {

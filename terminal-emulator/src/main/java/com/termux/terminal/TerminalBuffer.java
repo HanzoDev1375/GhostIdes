@@ -169,6 +169,27 @@ public final class TerminalBuffer {
         return mActiveTranscriptRows;
     }
 
+    /** The number of columns (character cells) in a row. */
+    public int getColumns() {
+        return mColumns;
+    }
+
+    /** The number of rows on the visible screen (excluding scrollback/transcript). */
+    public int getScreenRows() {
+        return mScreenRows;
+    }
+
+    /**
+     * Return the text of a single screen row (external coordinate, 0..screenRows-1), with trailing
+     * whitespace trimmed. If {@code row} is out of range, an empty string is returned.
+     */
+    public String getRowText(int row) {
+        if (row < 0 || row >= mScreenRows) {
+            return "";
+        }
+        return getSelectedText(0, row, mColumns, row).trim();
+    }
+
     public int getActiveRows() {
         return mActiveTranscriptRows + mScreenRows;
     }

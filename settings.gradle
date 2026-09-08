@@ -31,4 +31,5 @@ include(':plugin-api')
 include(':ide-api')
 include(':ide-ui-api')
 include ':thememanager'
+include ':javacore'
 //include(':proot')

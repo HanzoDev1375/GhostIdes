@@ -25,9 +25,15 @@ public class FontsRepository {
           .build();
 
   public void search(Context context, String query, Callback<List<FontInfo>> callback) {
+    search(context, query, false, callback);
+  }
+
+  public void search(
+      Context context, String query, boolean forceRefresh, Callback<List<FontInfo>> callback) {
     FontsApi.searchFonts(
         context,
         query,
+        forceRefresh,
         new FontsApi.Callbacks() {
           @Override
           public void onSuccess(List<FontInfo> fonts) {

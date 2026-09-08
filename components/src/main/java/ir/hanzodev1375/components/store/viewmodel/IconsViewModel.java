@@ -72,12 +72,17 @@ public class IconsViewModel extends AndroidViewModel {
   }
 
   public void search(String query) {
+    search(query, false);
+  }
+
+  public void search(String query, boolean forceRefresh) {
     final int seq = ++searchSeq;
     isLoading.setValue(true);
     error.setValue(null);
     repository.search(
         getApplication(),
         query,
+        forceRefresh,
         new IconsRepository.Callback<List<IconInfo>>() {
           @Override
           public void onSuccess(List<IconInfo> data) {

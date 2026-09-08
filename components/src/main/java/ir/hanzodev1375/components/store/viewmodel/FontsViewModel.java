@@ -57,6 +57,10 @@ public class FontsViewModel extends AndroidViewModel {
   }
 
   public void search(String query) {
+    search(query, false);
+  }
+
+  public void search(String query, boolean forceRefresh) {
     if (Boolean.TRUE.equals(isLoading.getValue())) {
       return;
     }
@@ -65,6 +69,7 @@ public class FontsViewModel extends AndroidViewModel {
     repository.search(
         getApplication(),
         query,
+        forceRefresh,
         new FontsRepository.Callback<List<FontInfo>>() {
           @Override
           public void onSuccess(List<FontInfo> data) {

@@ -98,6 +98,7 @@
   <string name="pluginstore_installed_button">Installed</string>
   <string name="pluginstore_install_and_source">Install + Source</string>
   <string name="pluginstore_install_only">Install only</string>
+  <string name="pluginstore_run_setup">Run in terminal</string>
   <string name="pluginstore_no_description">No description available</string>
   <string name="pluginstore_installed">Plugin %s installed</string>
   <string name="pluginstore_install_error">Install failed: %s</string>
@@ -114,4 +115,7 @@
   <string name="themes_background_failed">Background download failed</string>
   <string name="themes_description">Description</string>
   <string name="themes_description_failed">No description available</string>
+  <string name="webstore_download_done">Project downloaded to ghostide/projects</string>
+  <string name="webstore_download_failed">Download failed</string>
+  <string name="webstore_images">%1$d images</string>
 </resources>

@@ -360,7 +360,23 @@ public class TerminalActivity extends BaseCompat
   private void setupTerminalView() {
     b.terminalView.setTerminalViewClient(new GhostTerminalViewClient(b.terminalView, this));
     TerminalColorsUtil.apply(this, this);
-    b.terminalView.setBackgroundColor(Color.TRANSPARENT);
+    applyTerminalBackground();
+  }
+
+  /**
+   * وقتی کاربر پس‌زمینه‌ی تصویری فعال نکرده، TerminalView باید رنگش را دستی از M3Theme بگیرد تا با
+   * تم JSON هم‌رنگ شود؛ رنگ deliberately متمایز از اکشن‌بار (surfaceContainerHigh) و coordinator
+   * (surfaceContainer) است تا کل صفحه یکدست نشود. فقط با پس‌زمینه‌ی تصویری شفاف می‌ماند.
+   */
+  private void applyTerminalBackground() {
+    if (b.terminalView == null) return;
+    if (isBackgroundImageEnabled()) {
+      b.terminalView.setBackgroundColor(Color.TRANSPARENT);
+      return;
+    }
+    Integer bg = M3Theme.surfaceContainerLow();
+    if (bg == null) bg = M3Theme.surface();
+    b.terminalView.setBackgroundColor(bg != null ? bg : 0xFF121212);
   }
 
   private void setupSessionTabs() {
@@ -491,6 +507,8 @@ public class TerminalActivity extends BaseCompat
     if (session == null) return;
     byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
     session.write(bytes, 0, bytes.length);
+    // Combinações especiais do dock (/, -, |) ignoram onKeyDown/IME: atualiza o completador
+    b.terminalView.refreshCompletion();
   }
 
   private void addNewSession() {

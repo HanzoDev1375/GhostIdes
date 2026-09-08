@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ir.hanzodev1375.components.R;
+import ir.hanzodev1375.components.SearchLayout;
 import ir.hanzodev1375.components.store.adapter.ThemesAdapter;
 import ir.hanzodev1375.components.store.model.ThemeItem;
 import ir.hanzodev1375.components.store.sheet.ThemePreviewSheet;
@@ -31,6 +32,7 @@ public class ThemesFragment extends Fragment {
   private TextView errorText;
   private ImageView emptyIcon;
   private TextView emptyText;
+  private SearchLayout searchLayout;
   private ThemesAdapter adapter;
   private ThemesViewModel viewModel;
 
@@ -51,6 +53,11 @@ public class ThemesFragment extends Fragment {
     errorText = view.findViewById(R.id.errorText);
     emptyIcon = view.findViewById(R.id.emptyIcon);
     emptyText = view.findViewById(R.id.emptyText);
+    searchLayout = view.findViewById(R.id.searchLayout);
+
+    searchLayout.setIconClose(R.drawable.ic_close_24);
+    searchLayout.setIconSearch(R.drawable.outline_search24);
+    searchLayout.show();
 
     list.setLayoutManager(new LinearLayoutManager(requireContext()));
     adapter = new ThemesAdapter(requireContext(), new ArrayList<>(), this::onThemeClick);
@@ -58,7 +65,7 @@ public class ThemesFragment extends Fragment {
 
     viewModel =
         new ViewModelProvider(
-                requireActivity(),
+                this,
                 new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication()))
             .get(ThemesViewModel.class);
 
@@ -66,9 +73,10 @@ public class ThemesFragment extends Fragment {
     viewModel.getIsLoading().observe(getViewLifecycleOwner(), this::onLoading);
     viewModel.getError().observe(getViewLifecycleOwner(), this::onError);
 
-    if (adapter.getItemCount() == 0) {
-      viewModel.load();
-    }
+    searchLayout.setOnTextChangedListener(
+        text -> viewModel.search(text == null ? "" : text));
+
+    viewModel.load();
     M3Theme.applyTopLevel(view);
   }
 

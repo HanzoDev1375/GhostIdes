@@ -1,5 +1,6 @@
 package ir.hanzodev1375.ghostide.activity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -9,14 +10,20 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import ir.hanzodev1375.components.sheet.PluginSetupSheet;
 import ir.hanzodev1375.components.store.adapter.ViewPagerAdapter;
+import ir.hanzodev1375.components.store.event.PluginSetupEvent;
 import ir.hanzodev1375.components.store.fragments.PluginStoreFragment;
 import ir.hanzodev1375.ghostide.R;
+import ir.hanzodev1375.ghostide.terminal.activity.TerminalActivity;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.plugin.install.GplPluginInstallerHost;
 import ir.theme.M3Theme;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class StoreActivity extends BaseCompat {
 
@@ -101,6 +108,9 @@ public class StoreActivity extends BaseCompat {
     super.onStart();
     installerHost = new GplPluginInstallerHost(this);
     installerHost.register();
+    if (!EventBus.getDefault().isRegistered(this)) {
+      EventBus.getDefault().register(this);
+    }
   }
 
   @Override
@@ -108,7 +118,28 @@ public class StoreActivity extends BaseCompat {
     if (installerHost != null) {
       installerHost.unregister();
     }
+    if (EventBus.getDefault().isRegistered(this)) {
+      EventBus.getDefault().unregister(this);
+    }
     super.onStop();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void onPluginSetup(PluginSetupEvent event) {
+    if (event == null) {
+      return;
+    }
+    new PluginSetupSheet(this, event.name, event.iconUrl, event.actions, this::runSetupCommand)
+        .show();
+  }
+
+  private void runSetupCommand(String command) {
+    if (command == null || command.trim().isEmpty()) {
+      return;
+    }
+    Intent intent = new Intent(this, TerminalActivity.class);
+    intent.putExtra(TerminalActivity.EXTRA_COMMAND, command);
+    startActivity(intent);
   }
 
   private void syncNavItem(int position) {

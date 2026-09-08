@@ -11,7 +11,6 @@
   <string name="store_no_items_themes">اقلام تم در این‌جا نمایش داده می‌شوند</string>
   <string name="store_no_items_fonts">اقلام فونت در این‌جا نمایش داده می‌شوند</string>
   <string name="store_no_items_plugins">اقلام پلاگین در این‌جا نمایش داده می‌شوند</string>
-
   <string name="google_fonts_api_key"></string>
   <string name="fonts_search_hint">جستجوی فونت…</string>
   <string name="fonts_search_empty">فونتی پیدا نشد</string>
@@ -25,7 +24,6 @@
   <string name="fonts_error_http">خطای سرور: کد %s</string>
   <string name="fonts_error_parse">خطای تجزیه: %s</string>
   <string name="empty">خالی</string>
-
   <string name="icons_search_hint">جستجوی ایکون…</string>
   <string name="icons_search_empty">ایکونی پیدا نشد</string>
   <string name="icons_style_label">نوع</string>
@@ -99,6 +97,7 @@
   <string name="pluginstore_installed_button">نصب شد</string>
   <string name="pluginstore_install_and_source">نصب + سورس</string>
   <string name="pluginstore_install_only">فقط نصب</string>
+  <string name="pluginstore_run_setup">اجرا در ترمینال</string>
   <string name="pluginstore_no_description">توضیحی در دسترس نیست</string>
   <string name="pluginstore_installed">افزونه %s نصب شد</string>
   <string name="pluginstore_install_error">نصب ناموفق بود: %s</string>
@@ -112,6 +111,10 @@
   <string name="themes_download_done">تم دانلود شد</string>
   <string name="themes_applied">تم دانلود و اعمال شد</string>
   <string name="themes_download_failed">دانلود ناموفق بود</string>
+  <string name="themes_background_failed">دانلود پس زمینه انجام نشد</string>
   <string name="themes_description">توضیحات</string>
   <string name="themes_description_failed">توضیحی در دسترس نیست</string>
+  <string name="webstore_download_done">پروژه در ghostide/projects ذخیره شد</string>
+  <string name="webstore_download_failed">دانلود ناموفق بود</string>
+  <string name="webstore_images">%1$d تصویر</string>
 </resources>

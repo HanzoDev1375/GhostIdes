@@ -1,7 +1,6 @@
 package ir.hanzodev1375.components.store.fragments;
 
 import android.os.Bundle;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
+import java.util.Set;
 
 import ir.hanzodev1375.components.R;
-import ir.hanzodev1375.components.sheet.customitemsheet.ui.LiquidGlassDialogBuilderJava;
+import ir.hanzodev1375.components.SearchLayout;
 import ir.hanzodev1375.components.store.adapter.PluginStoreAdapter;
-import ir.hanzodev1375.components.store.api.PluginStoreApi;
 import ir.hanzodev1375.components.store.event.PluginStoreEvent;
-import ir.hanzodev1375.components.store.model.PluginDoc;
 import ir.hanzodev1375.components.store.model.PluginItem;
 import ir.hanzodev1375.components.store.viewmodel.PluginStoreViewModel;
 import ir.theme.M3Theme;
@@ -38,6 +36,7 @@ public class PluginStoreFragment extends Fragment {
   private ProgressBar progress;
   private TextView errorText;
   private TextView emptyText;
+  private SearchLayout searchLayout;
   private PluginStoreAdapter adapter;
   private PluginStoreViewModel viewModel;
 
@@ -57,6 +56,11 @@ public class PluginStoreFragment extends Fragment {
     progress = view.findViewById(R.id.progressBar);
     errorText = view.findViewById(R.id.errorText);
     emptyText = view.findViewById(R.id.emptyText);
+    searchLayout = view.findViewById(R.id.searchLayout);
+
+    searchLayout.setIconClose(R.drawable.ic_close_24);
+    searchLayout.setIconSearch(R.drawable.outline_search24);
+    searchLayout.show();
 
     list.setLayoutManager(new LinearLayoutManager(requireContext()));
     adapter = new PluginStoreAdapter();
@@ -64,7 +68,7 @@ public class PluginStoreFragment extends Fragment {
 
     viewModel =
         new ViewModelProvider(
-                requireActivity(),
+                this,
                 new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication()))
             .get(PluginStoreViewModel.class);
 
@@ -74,6 +78,9 @@ public class PluginStoreFragment extends Fragment {
     viewModel.getBusy().observe(getViewLifecycleOwner(), adapter::setBusy);
     viewModel.getInstalled().observe(getViewLifecycleOwner(), adapter::setInstalled);
     viewModel.getMessage().observe(getViewLifecycleOwner(), this::onMessage);
+
+    searchLayout.setOnTextChangedListener(
+        text -> viewModel.search(text == null ? "" : text));
 
     viewModel.loadPlugins();
     M3Theme.applyTopLevel(view);
@@ -93,45 +100,15 @@ public class PluginStoreFragment extends Fragment {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onPluginStoreEvent(PluginStoreEvent event) {
-    if (event.plugin == null) {
+    if (event.plugin == null || viewModel == null) {
       return;
     }
-    fetchDocAndShowDialog(event.plugin);
-  }
-
-  private void fetchDocAndShowDialog(PluginItem item) {
-    PluginStoreApi.fetchDoc(
-        item.doc(),
-        new PluginStoreApi.DocCallback() {
-          @Override
-          public void onSuccess(PluginDoc doc) {
-            showInstallDialog(item, doc);
-          }
-
-          @Override
-          public void onError(String message) {
-            showInstallDialog(item, new PluginDoc("", "", ""));
-          }
-        });
-  }
-
-  private void showInstallDialog(PluginItem item, PluginDoc doc) {
-    String note =
-        doc.note() == null || doc.note().trim().isEmpty()
-            ? requireContext().getString(R.string.pluginstore_no_description)
-            : doc.note();
-
-    new LiquidGlassDialogBuilderJava(requireContext())
-        .setTitle(item.name())
-        .setMessage(Html.fromHtml(note, Html.FROM_HTML_MODE_COMPACT))
-        .setPositiveButton(
-            R.string.pluginstore_install_and_source,
-            (dialog, which) -> viewModel.install(item, true))
-        .setNegativeButton(
-            R.string.pluginstore_install_only,
-            (dialog, which) -> viewModel.install(item, false))
-        .setNeutralButton(android.R.string.cancel, null)
-        .show();
+    Set<String> installedSet = viewModel.getInstalled().getValue();
+    if (installedSet != null && installedSet.contains(event.plugin.name())) {
+      viewModel.requestSetup(event.plugin);
+    } else {
+      viewModel.install(event.plugin, false);
+    }
   }
 
   private void onPlugins(List<PluginItem> plugins) {

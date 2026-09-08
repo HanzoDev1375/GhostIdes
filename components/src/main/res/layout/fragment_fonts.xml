@@ -12,22 +12,10 @@
         android:paddingHorizontal="12dp"
         android:paddingTop="8dp">
 
-        <com.google.android.material.textfield.TextInputLayout
+        <ir.hanzodev1375.components.SearchLayout
             android:id="@+id/searchLayout"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/fonts_search_hint"
-            app:startIconDrawable="@drawable/outline_search24"
-            app:startIconTint="?attr/colorOnSurfaceVariant">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/searchInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:maxLines="1" />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="wrap_content" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/fontsList"

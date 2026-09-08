@@ -28,7 +28,10 @@ public class JavaServer extends LspContentImpl {
 
   private static final String[] JAVA_CANDIDATE_PATHS = {"/usr/bin/java"};
   private static final String[] JDTLS_CANDIDATE_PATHS = {
-    "/root/jdtls/bin/jdtls", "/opt/jdtls/bin/jdtls", "/usr/local/bin/jdtls", "/usr/bin/jdtls"
+    "/root/jdtls/bin/jdtls",
+    "/opt/jdtls/bin/jdtls",
+    "/usr/local/bin/jdtls",
+    "/usr/bin/jdtls"
   };
 
   private JavaServer() {
@@ -89,15 +92,11 @@ public class JavaServer extends LspContentImpl {
     JavaLanguage java = new JavaLanguage(context);
     lspEditor.setWrapperLanguage(java);
     lspEditor.setEditor(editor);
-    lspEditor.setEnableInlayHint(true);
-    lspEditor.setEnableSignatureHelp(true);
-    lspEditor.setEnableHover(true);
-    var lang = (LspLanguage) editor.getEditorLanguage();
-    lang.setFormatter(java.getFormatter());
     return lspEditor;
   }
 
-  // ──────────────────── createDefinition (called by base class ensureDefinitionRegistered) ────────────────────
+  // ──────────────────── createDefinition (called by base class ensureDefinitionRegistered)
+  // ────────────────────
 
   @Override
   protected LanguageServerDefinition createDefinition(
@@ -129,7 +128,8 @@ public class JavaServer extends LspContentImpl {
     args.add(dataDir.getAbsolutePath());
 
     Map<String, Object> initOptions =
-        buildInvisibleProjectInitOptions(pendingRootfs, pendingProjectRootFile, pendingSourceRoots, pendingLibJars);
+        buildInvisibleProjectInitOptions(
+            pendingRootfs, pendingProjectRootFile, pendingSourceRoots, pendingLibJars);
 
     return new CustomLanguageServerDefinition(
         "java",
@@ -184,6 +184,19 @@ public class JavaServer extends LspContentImpl {
   }
 
   // ──────────────────── Helpers ────────────────────
+
+  /**
+   * jdtls launcher is a python3 script (bin/jdtls loads jdtls.py), so it must be
+   * spawned via {@code python3}. We return the command as {@code python3 <path>}
+   * so {@link ProotStdioConnectionProvider#splitCommand} turns it into two argv
+   * entries and the probe still resolves the actual script file.
+   */
+  @Override
+  public String findInstalledExecutable(Context context) {
+    String path = super.findInstalledExecutable(context);
+    if (path == null) return null;
+    return "python3 " + path;
+  }
 
   public static String findJavaExecutable(Context context) {
     File rootfs = DebianBootstrap.getRootfsDir(context);

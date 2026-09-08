@@ -21,4 +21,6 @@ android {
 dependencies {
     implementation project(":terminal-emulator")
     implementation libs.androidx.appcompat
+    implementation libs.material
+    implementation project(":thememanager")
 }

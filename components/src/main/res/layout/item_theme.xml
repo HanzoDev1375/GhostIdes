@@ -19,13 +19,12 @@
             android:orientation="horizontal"
             android:padding="6dp">
 
-            <com.google.android.material.imageview.ShapeableImageView
+            <ImageView
                 android:id="@+id/themeIcon"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:contentDescription="@null"
                 android:scaleType="centerCrop"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium"
                 tools:srcCompat="@drawable/ic_outline_palette" />
 
             <LinearLayout

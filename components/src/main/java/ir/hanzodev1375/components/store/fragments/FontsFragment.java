@@ -1,8 +1,6 @@
 package ir.hanzodev1375.components.store.fragments;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +15,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ir.hanzodev1375.components.R;
+import ir.hanzodev1375.components.SearchLayout;
 import ir.hanzodev1375.components.store.adapter.FontsAdapter;
 import ir.hanzodev1375.components.store.model.FontInfo;
 import ir.hanzodev1375.components.store.viewmodel.FontsViewModel;
@@ -34,7 +32,7 @@ public class FontsFragment extends Fragment {
   private ProgressBar progress;
   private TextView errorText;
   private TextView emptyText;
-  private TextInputEditText searchInput;
+  private SearchLayout searchLayout;
   private FontsAdapter adapter;
   private FontsViewModel viewModel;
 
@@ -54,7 +52,11 @@ public class FontsFragment extends Fragment {
     progress = view.findViewById(R.id.progressBar);
     errorText = view.findViewById(R.id.errorText);
     emptyText = view.findViewById(R.id.emptyText);
-    searchInput = view.findViewById(R.id.searchInput);
+    searchLayout = view.findViewById(R.id.searchLayout);
+
+    searchLayout.setIconClose(R.drawable.ic_close_24);
+    searchLayout.setIconSearch(R.drawable.outline_search24);
+    searchLayout.show();
 
     list.setLayoutManager(new LinearLayoutManager(requireContext()));
     adapter = new FontsAdapter(new ArrayList<>(), this::onDownloadClick);
@@ -62,7 +64,7 @@ public class FontsFragment extends Fragment {
 
     viewModel =
         new ViewModelProvider(
-                requireActivity(),
+                this,
                 new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication()))
             .get(FontsViewModel.class);
 
@@ -73,22 +75,11 @@ public class FontsFragment extends Fragment {
     viewModel.getDownloaded().observe(getViewLifecycleOwner(), adapter::setDownloaded);
     viewModel.getMessage().observe(getViewLifecycleOwner(), this::onMessage);
 
-    searchInput.addTextChangedListener(
-        new TextWatcher() {
-          @Override
-          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-          @Override
-          public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-          @Override
-          public void afterTextChanged(Editable s) {
-            viewModel.search(s == null ? "" : s.toString());
-          }
-        });
+    searchLayout.setOnTextChangedListener(
+        text -> viewModel.search(text == null ? "" : text));
 
     if (adapter.getItemCount() == 0) {
-      viewModel.search("");
+      viewModel.search("", true);
     }
     M3Theme.applyTopLevel(view);
   }

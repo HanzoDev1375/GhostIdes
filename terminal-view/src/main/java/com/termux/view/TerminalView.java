@@ -44,6 +44,8 @@ import androidx.annotation.RequiresApi;
 import com.termux.terminal.KeyHandler;
 import com.termux.terminal.TerminalEmulator;
 import com.termux.terminal.TerminalSession;
+import com.termux.view.completion.TerminalAutoCompletion;
+import com.termux.view.completion.TerminalCompletionItem;
 import com.termux.view.textselection.TextSelectionCursorController;
 
 /** View displaying and interacting with a {@link TerminalSession}. */
@@ -51,6 +53,9 @@ public final class TerminalView extends View {
 
   /** Log terminal view key and IME events. */
   private static boolean TERMINAL_VIEW_KEY_LOGGING_ENABLED = false;
+
+  /** Auto-completion component for shell commands. */
+  protected TerminalAutoCompletion mAutoCompletion;
 
   /** The currently displayed terminal session, whose emulator is {@link #mEmulator}. */
   public TerminalSession mTermSession;
@@ -319,6 +324,16 @@ public final class TerminalView extends View {
     AccessibilityManager am =
         (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
     mAccessibilityEnabled = am.isEnabled();
+
+    mAutoCompletion = new TerminalAutoCompletion(context, this);
+    mAutoCompletion.setCallback(new TerminalAutoCompletion.Callback() {
+      @Override
+      public void onItemSelected(TerminalCompletionItem item) {
+        if (mClient != null && mTermSession != null) {
+          mClient.onCompletionSelected(item);
+        }
+      }
+    });
   }
 
   /**
@@ -1013,6 +1028,21 @@ public final class TerminalView extends View {
       // If left alt, send escape before the code point to make e.g. Alt+B and Alt+F work in
       // readline:
       mTermSession.writeCodePoint(altDown, codePoint);
+
+      // Trigger terminal autocomplete on printable ASCII characters (word chars and word
+      // boundaries). Ignore control characters.
+      if (mAutoCompletion != null && codePoint >= 0x20 && codePoint != 0x7f) {
+        int cp = codePoint;
+        boolean isWordChar = (cp >= 'a' && cp <= 'z')
+            || (cp >= 'A' && cp <= 'Z')
+            || (cp >= '0' && cp <= '9')
+            || cp == '_' || cp == '-' || cp == '/';
+        if (isWordChar) {
+          mAutoCompletion.onTextChanged(sessionRef());
+        } else {
+          mAutoCompletion.onWordBoundary(sessionRef());
+        }
+      }
     }
   }
 
@@ -1020,6 +1050,40 @@ public final class TerminalView extends View {
   public boolean handleKeyCode(int keyCode, int keyMod) {
     // Ensure cursor is shown when a key is pressed down like long hold on (arrow) keys
     if (mEmulator != null) mEmulator.setCursorBlinkState(true);
+
+    // Navigate / accept items while the auto-completion popup is shown.
+    if (mAutoCompletion != null && mAutoCompletion.isShowing() && !isSelectingText()) {
+      switch (keyCode) {
+        case KeyEvent.KEYCODE_DPAD_UP:
+          mAutoCompletion.moveUp();
+          return true;
+        case KeyEvent.KEYCODE_DPAD_DOWN:
+          mAutoCompletion.moveDown();
+          return true;
+        case KeyEvent.KEYCODE_TAB:
+        case KeyEvent.KEYCODE_ENTER:
+        case KeyEvent.KEYCODE_NUMPAD_ENTER:
+          if (mAutoCompletion.select()) return true;
+          break;
+        case KeyEvent.KEYCODE_ESCAPE:
+          mAutoCompletion.hide();
+          return true;
+        case KeyEvent.KEYCODE_DEL:
+        case KeyEvent.KEYCODE_FORWARD_DEL:
+          mAutoCompletion.hide();
+          break;
+      }
+    }
+
+    // Record the entered command into completion history when Enter is pressed without the popup.
+    if (!(mAutoCompletion != null && mAutoCompletion.isShowing())
+        && keyCode == KeyEvent.KEYCODE_ENTER && mAutoCompletion != null) {
+      TerminalAutoCompletion.TerminalSessionRef ref = sessionRef();
+      String line = ref != null ? ref.getCurrentLine() : "";
+      if (line != null && !line.trim().isEmpty()) {
+        mAutoCompletion.addHistoryCommand(line.trim().split("\\s+")[0]);
+      }
+    }
 
     if (handleKeyCodeAction(keyCode, keyMod)) return true;
 
@@ -1030,6 +1094,86 @@ public final class TerminalView extends View {
     if (code == null) return false;
     mTermSession.write(code);
     return true;
+  }
+
+  /**
+   * A {@link TerminalAutoCompletion.TerminalSessionRef} backed by the current emulator/session.
+   * It reads the line under the cursor from the emulator screen buffer and commits accepted
+   * completions back to the shell via the session's PTY.
+   */
+  private TerminalAutoCompletion.TerminalSessionRef sessionRef() {
+    return new TerminalAutoCompletion.TerminalSessionRef() {
+      @Override
+      public String getCurrentLine() {
+        if (mEmulator == null || mTermSession == null) return "";
+        try {
+          String row = mEmulator.getScreen().getRowText(mEmulator.getCursorRow());
+          return stripShellPrompt(row);
+        } catch (Exception e) {
+          return "";
+        }
+      }
+
+      @Override
+      public int getCursorCol() {
+        if (mEmulator == null) return 0;
+        return mEmulator.getCursorCol();
+      }
+
+      @Override
+      public int getCursorRow() {
+        if (mEmulator == null) return 0;
+        return mEmulator.getCursorRow();
+      }
+
+      @Override
+      public void commitSuffix(String text) {
+        if (mTermSession != null && text != null) {
+          mTermSession.write(text);
+        }
+      }
+    };
+  }
+
+  /**
+   * Strip the shell prompt (e.g. {@code root@localhost:~# }, {@code user@host:/path$ }) from the
+   * front of a screen row so that command/argument completion only sees the text the user typed.
+   * The prompt is detected as the last occurrence of a prompt delimiter ({@code $}, {@code #},
+   * {@code %}, {@code >}) followed by whitespace or the end of the line. If no prompt is found the
+   * line is returned unchanged (e.g. a wrapping line with no prompt).
+   */
+  private static String stripShellPrompt(String line) {
+    if (line == null) return "";
+    int stripAt = -1;
+    for (int i = line.length() - 1; i >= 0; i--) {
+      char c = line.charAt(i);
+      if (c == '$' || c == '#' || c == '%' || c == '>') {
+        int next = i + 1;
+        if (next >= line.length() || Character.isWhitespace(line.charAt(next))) {
+          stripAt = i;
+          break;
+        }
+      }
+    }
+    if (stripAt < 0) {
+      return line;
+    }
+    return line.substring(stripAt + 1).trim();
+  }
+
+  /** @return The auto-completion component, may be null if the view has not been configured. */
+  public TerminalAutoCompletion getAutoCompletion() {
+    return mAutoCompletion;
+  }
+
+  /**
+   * Re-evaluate terminal auto-completion based on the current command line. Used when characters are
+   * written straight to the session (e.g. special keys from the input dock) that bypass the normal
+   * key/IME path, so the completion popup stays in sync.
+   */
+  public void refreshCompletion() {
+    if (mAutoCompletion == null) return;
+    mAutoCompletion.onWordBoundary(sessionRef());
   }
 
   public boolean handleKeyCodeAction(int keyCode, int keyMod) {

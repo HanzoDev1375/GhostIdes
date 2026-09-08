@@ -11,6 +11,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,6 +21,7 @@ import ir.hanzodev1375.components.store.data.PluginRepository;
 import ir.hanzodev1375.components.store.event.PluginInstallEvent;
 import ir.hanzodev1375.components.store.event.PluginInstalledListEvent;
 import ir.hanzodev1375.components.store.event.PluginResultEvent;
+import ir.hanzodev1375.components.store.event.PluginSetupRequestEvent;
 import ir.hanzodev1375.components.store.model.PluginItem;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -29,6 +31,9 @@ public class PluginStoreViewModel extends AndroidViewModel {
 
   private final PluginRepository repository = new PluginRepository();
   private final ExecutorService io = Executors.newSingleThreadExecutor();
+
+  private final List<PluginItem> allPlugins = new ArrayList<>();
+  private String query = "";
 
   private final MutableLiveData<List<PluginItem>> plugins =
       new MutableLiveData<>(new ArrayList<>());
@@ -87,7 +92,11 @@ public class PluginStoreViewModel extends AndroidViewModel {
           @Override
           public void onSuccess(List<PluginItem> data) {
             isLoading.setValue(false);
-            plugins.setValue(data != null ? data : new ArrayList<>());
+            allPlugins.clear();
+            if (data != null) {
+              allPlugins.addAll(data);
+            }
+            applyFilter();
           }
 
           @Override
@@ -96,6 +105,23 @@ public class PluginStoreViewModel extends AndroidViewModel {
             error.setValue(msg);
           }
         });
+  }
+
+  public void search(String q) {
+    query = q == null ? "" : q.trim().toLowerCase(Locale.ROOT);
+    applyFilter();
+  }
+
+  private void applyFilter() {
+    List<PluginItem> filtered = new ArrayList<>();
+    for (PluginItem item : allPlugins) {
+      if (query.isEmpty()
+          || (item.name() != null
+              && item.name().toLowerCase(Locale.ROOT).contains(query))) {
+        filtered.add(item);
+      }
+    }
+    plugins.setValue(filtered);
   }
 
   /** Ask the host to install the plugin; optionally download its source first. */
@@ -130,6 +156,11 @@ public class PluginStoreViewModel extends AndroidViewModel {
 
   private void postInstall(PluginItem item) {
     EventBus.getDefault().post(new PluginInstallEvent(item));
+  }
+
+  public void requestSetup(PluginItem item) {
+    if (item == null) return;
+    EventBus.getDefault().post(new PluginSetupRequestEvent(item));
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)

@@ -21,3 +21,9 @@ chmod +x /root/jdtls/bin/jdtls
 
 ls /root/jdtls/bin/jdtls
 java -version
+
+# expose a `jdtls` command on PATH that runs the python launcher
+if ! command -v jdtls >/dev/null 2>&1; then
+  printf '#!/bin/bash\nexec /usr/bin/python3 /root/jdtls/bin/jdtls "$@"\n' > /usr/local/bin/jdtls
+  chmod +x /usr/local/bin/jdtls
+fi
