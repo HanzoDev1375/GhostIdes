@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import ir.hanzodev1375.components.views.GhostToast;
 import ir.hanzodev1375.components.utils.ParticleItemAnimator;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -187,7 +188,8 @@ public class PluginManagerActivity extends BaseCompat {
       }
       File installedFile = new File(installDir, manifest.id() + GPL_EXTENSION);
       if (!tempFile.renameTo(installedFile)) {
-        throw new IOException("Could not move installed plugin into place");
+        copyFile(tempFile, installedFile);
+        tempFile.delete();
       }
       cleanupOnFailure = installedFile;
       LoadedGplPlugin loadedPlugin = loader.load(installedFile);
@@ -260,6 +262,17 @@ public class PluginManagerActivity extends BaseCompat {
       if (input == null) {
         throw new IOException("Could not open " + uri);
       }
+      byte[] buffer = new byte[8192];
+      int read;
+      while ((read = input.read(buffer)) != -1) {
+        output.write(buffer, 0, read);
+      }
+    }
+  }
+
+  private static void copyFile(File source, File destination) throws IOException {
+    try (var input = new FileInputStream(source);
+        var output = new FileOutputStream(destination)) {
       byte[] buffer = new byte[8192];
       int read;
       while ((read = input.read(buffer)) != -1) {

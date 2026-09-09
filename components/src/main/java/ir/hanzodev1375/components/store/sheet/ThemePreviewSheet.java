@@ -32,11 +32,13 @@ import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.hanzodev1375.components.store.adapter.ThemeImageAdapter;
 import ir.hanzodev1375.components.store.api.ThemesApi;
 import ir.hanzodev1375.components.store.model.ThemeItem;
+import ir.hanzodev1375.components.store.event.ThemeInstalledEvent;
 import ir.theme.M3Theme;
 import ir.theme.ThemeManager;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.greenrobot.eventbus.EventBus;
 
 public class ThemePreviewSheet extends BaseBlurBottomSheet {
 
@@ -290,7 +292,7 @@ public class ThemePreviewSheet extends BaseBlurBottomSheet {
                                 Toast.LENGTH_SHORT)
                             .show();
                           if(success) {
-                          	getActivity().recreate();
+                          	EventBus.getDefault().post(new ThemeInstalledEvent());
                           }  
                       });
             })

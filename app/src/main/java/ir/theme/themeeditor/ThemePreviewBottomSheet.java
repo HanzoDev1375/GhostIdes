@@ -6,12 +6,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
@@ -27,6 +25,7 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.html.HtmlLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.java.JavaLanguage;
 import ir.hanzodev1375.ghostide.codeeditors.langs.js.JsLanguage;
 import ir.hanzodev1375.components.childern.ViewChilder;
+import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
 import ir.theme.ActivityTheme;
 import ir.theme.EditorTheme;
 import ir.theme.GhostTheme;
@@ -34,7 +33,7 @@ import ir.theme.ThemeMediaPath;
 import ir.theme.WidgetTheme;
 import ir.theme.internal.ThemeRefResolver;
 
-public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
+public class ThemePreviewBottomSheet extends BaseBlurBottomSheet {
 
   private static final String ARG_THEME_JSON = "theme_json";
   private static final String ARG_THEME_PATH = "theme_path";
@@ -76,18 +75,15 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
     }
   }
 
-  @Nullable
   @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.bottom_sheet_preview_theme, container, false);
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+  protected void onContentReady(ViewGroup contentContainer) {
+    View view =
+        getLayoutInflater()
+            .inflate(R.layout.bottom_sheet_preview_theme, contentContainer, false);
+    contentContainer.addView(
+        view,
+        new ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
     editorPreview = view.findViewById(R.id.editorPreview);
     tabLayout = view.findViewById(R.id.tabLayout);
@@ -310,12 +306,6 @@ public class ThemePreviewBottomSheet extends BottomSheetDialogFragment {
       } else {
         backgroundMedia.clear();
       }
-    }
-
-    Window window = requireDialog().getWindow();
-    if (window != null) {
-      window.setStatusBarColor(Color.TRANSPARENT);
-      window.setNavigationBarColor(Color.TRANSPARENT);
     }
   }
 

@@ -3,6 +3,7 @@ package ir.theme.themeeditor;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
@@ -15,7 +16,6 @@ import android.view.MenuItem;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,7 +39,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
+import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import java.io.ByteArrayOutputStream;
 import android.util.Log;
 import java.io.File;
@@ -50,7 +50,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.hanzodev1375.components.childern.ViewChilderPreview;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
@@ -62,6 +61,7 @@ import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.theme.ActivityTheme;
 import ir.theme.EditorTheme;
 import ir.theme.GhostTheme;
+import ir.theme.M3Theme;
 import ir.theme.MaterialTheme;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeMediaPath;
@@ -125,6 +125,12 @@ public class ThemeEditorActivity extends BaseCompat {
 
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
+    Integer themeOnSurface = M3Theme.onSurface();
+    if (themeOnSurface != null) {
+      toolbar.setTitleTextColor(themeOnSurface);
+      toolbar.setSubtitleTextColor(themeOnSurface);
+      toolbar.setBackgroundTintList(ColorStateList.valueOf(0));
+    }
 
     currentThemePath = getIntent().getStringExtra(EXTRA_THEME_PATH);
     if (currentThemePath == null || currentThemePath.isEmpty()) {
@@ -171,6 +177,7 @@ public class ThemeEditorActivity extends BaseCompat {
     tabLayout.addTab(tabLayout.newTab().setText("Editor"));
     tabLayout.addTab(tabLayout.newTab().setText("Widget"));
     tabLayout.addTab(tabLayout.newTab().setText("M3Color"));
+    tabLayout.setBackgroundTintList(ColorStateList.valueOf(0));
 
     tabLayout.addOnTabSelectedListener(
         new TabLayout.OnTabSelectedListener() {
@@ -203,8 +210,73 @@ public class ThemeEditorActivity extends BaseCompat {
 
     adapter = new ThemeDetailAdapter(activityItems);
     recyclerView.setAdapter(adapter);
+    applyToolbarAndTabColors();
     applyPreviewStyle();
     loadEditedThemeBackground();
+  }
+
+  private void applyToolbarAndTabColors() {
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    TabLayout tabs = tabLayout;
+    if (currentTheme == null) return;
+
+    ActivityTheme act = currentTheme.getActivity();
+    WidgetTheme wgt = currentTheme.getWidget();
+    MaterialTheme m3 = currentTheme.getMaterial3();
+
+    int surface =
+        resolveColor(wgt != null ? wgt.getSurface() : null, m3 != null ? m3.getSurface() : null);
+    int text =
+        resolveColor(wgt != null ? wgt.getText() : null, m3 != null ? m3.getOnSurface() : null);
+    int accent =
+        resolveColor(wgt != null ? wgt.getAccent() : null, m3 != null ? m3.getPrimary() : null);
+    int bg =
+        resolveColor(
+            act != null ? act.getBackground() : null, m3 != null ? m3.getBackground() : null);
+    var isBack = GhostIdeAppLoader.getInstance().getSetting().isShowBackground();
+    var colorBack = Color.parseColor(act.getBackground());
+    if (toolbar != null) {
+      toolbar.setBackgroundColor(isBack ? colorBack : M3Theme.surfaceContainerLow());
+      toolbar.setTitleTextColor(M3Theme.onSurface());
+      toolbar.setSubtitleTextColor(M3Theme.onSurface());
+    }
+
+    View appbar = findViewById(R.id.appbar);
+    if (appbar != null) {
+      appbar.setBackgroundColor(isBack ? colorBack : M3Theme.surfaceContainerLow());
+    }
+    getWindow().setStatusBarColor(isBack ? colorBack : M3Theme.surfaceContainerLow());
+
+    if (tabs != null) {
+      tabs.setBackgroundColor(isBack ? colorBack : M3Theme.surfaceContainerLow());
+      tabs.setSelectedTabIndicatorColor(M3Theme.surfaceContainerLow());
+      Integer tabSelected = M3Theme.onSurface();
+      Integer tabUnselected = M3Theme.onSurfaceVariant();
+      if (tabSelected != null || tabUnselected != null) {
+        tabs.setTabTextColors(
+            tabUnselected != null ? tabUnselected : text, tabSelected != null ? tabSelected : text);
+      }
+    }
+  }
+
+  private int resolveColor(String direct, String fallback) {
+    Integer c = resolveColorOrNull(direct);
+    if (c != null) return c;
+    c = resolveColorOrNull(fallback);
+    return c != null ? c : Color.TRANSPARENT;
+  }
+
+  private Integer resolveColorOrNull(String value) {
+    if (value == null || value.isEmpty()) return null;
+    try {
+      return Color.parseColor(ThemeRefResolver.resolve(currentTheme, value));
+    } catch (Exception e) {
+      try {
+        return Color.parseColor(value);
+      } catch (Exception ignored) {
+        return null;
+      }
+    }
   }
 
   private void loadEditedThemeBackground() {
@@ -528,6 +600,7 @@ public class ThemeEditorActivity extends BaseCompat {
     buildColorItems();
     refreshCurrentTab();
     clearSearch();
+    applyToolbarAndTabColors();
     GhostToast.makeText(this, "Reset to default", GhostToast.LENGTH_SHORT).show();
   }
 
@@ -1423,6 +1496,7 @@ public class ThemeEditorActivity extends BaseCompat {
                     item.currentColor = newHex;
                     saveThemeToFile();
                     notifyItemChanged(holder.getBindingAdapterPosition());
+                    applyToolbarAndTabColors();
                     if ("Background".equals(item.title)) {
                       animateBackgroundColor(newColor);
                     }
@@ -1435,6 +1509,7 @@ public class ThemeEditorActivity extends BaseCompat {
                     item.currentColor = ref;
                     saveThemeToFile();
                     notifyItemChanged(holder.getBindingAdapterPosition());
+                    applyToolbarAndTabColors();
                     String r = ThemeRefResolver.resolve(currentTheme, ref);
                     try {
                       if (r != null) Color.parseColor(r);
@@ -1472,6 +1547,7 @@ public class ThemeEditorActivity extends BaseCompat {
             item.currentColor = ref;
             saveThemeToFile();
             refreshCurrentTab();
+            applyToolbarAndTabColors();
             if ("Background".equals(item.title)) {
               String r = ThemeRefResolver.resolve(currentTheme, ref);
               try {

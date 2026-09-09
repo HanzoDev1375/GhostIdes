@@ -321,6 +321,10 @@
         </activity-alias>
 
         <service
+            android:name=".pulse.PulseService"
+            android:exported="false" />
+
+        <service
             android:name=".terminal.TerminalSessionService"
             android:exported="false"
             android:foregroundServiceType="specialUse">

@@ -35,10 +35,10 @@ import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
  * before falling back to its built-in, hardcoded per-language classes.
  *
  * <p>{@link #connectFile} follows the exact {@code LspProject.createEditor} / {@code
- * connectWithTimeoutBlocking} sequence {@code JavaServer} already uses successfully; it does not
+ * connectWithTimeoutBlocking} sequence the built-in servers already use successfully; it does not
  * call {@code LspEditor.setWrapperLanguage}, so a registry-provided language gets LSP features
  * (completion, diagnostics, hover) but not the language-specific formatter integration a
- * hand-written built-in like {@code JavaServer} wires up separately.
+ * hand-written built-in wires up separately.
  */
 public class LspExtensionBridge {
 

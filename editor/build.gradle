@@ -42,7 +42,6 @@ dependencies {
     implementation project(":ide-api")
     implementation project(':ide-ui-api')
     implementation project(":components")
-    implementation project(":javacore")
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)

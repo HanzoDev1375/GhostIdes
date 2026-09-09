@@ -29,15 +29,26 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
   /** App-side fragment shown on the plugins tab (owned by the host, not this module). */
   @Nullable private final Fragment pluginFragment;
 
+  /** App-side fragment shown on the themes tab (owned by the host, not this module). */
+  @Nullable private final Fragment themeFragment;
+
   public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
-    this(fragmentActivity, null);
+    this(fragmentActivity, null, null);
   }
 
   public ViewPagerAdapter(
       @NonNull FragmentActivity fragmentActivity, @Nullable Fragment pluginFragment) {
+    this(fragmentActivity, pluginFragment, null);
+  }
+
+  public ViewPagerAdapter(
+      @NonNull FragmentActivity fragmentActivity,
+      @Nullable Fragment pluginFragment,
+      @Nullable Fragment themeFragment) {
     super(fragmentActivity);
     this.context = fragmentActivity;
     this.pluginFragment = pluginFragment;
+    this.themeFragment = themeFragment;
   }
 
   @NonNull
@@ -45,7 +56,9 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
   public Fragment createFragment(int position) {
     switch (position) {
       case PAGE_THEMES:
-        return new ThemesFragment();
+        return themeFragment != null
+            ? themeFragment
+            : new ThemesFragment();
       case PAGE_FONTS:
         return new FontsFragment();
       case PAGE_PLUGINS:

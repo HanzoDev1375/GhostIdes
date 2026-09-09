@@ -501,4 +501,9 @@
     <string name="backgroundzoomsubtitle">When you enable this option, animated zoom mode is enabled for you in the code editor with the keyboard displayed....</string>
     <string name="tabcolortitle">Color languages</string>
     <string name="tabcolorsubtitle">Color a tab with each extension with this feature</string>
+    <string name="themes_dev_version">%1$s · v%2$d</string>
+    <string name="themes_download_failed">Download failed</string>
+    <string name="themes_applied">Theme downloaded and applied</string>
+    <string name="themes_description_failed">No description available</string>
+    <string name="themes_empty">No themes available</string>
 </resources>

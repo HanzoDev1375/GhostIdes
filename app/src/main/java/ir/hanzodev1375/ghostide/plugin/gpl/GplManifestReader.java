@@ -48,7 +48,7 @@ public final class GplManifestReader {
       }
     } catch (Exception err) {
       Log.e(TAG, "Failed to read manifest from " + gplFile, err);
-     // throw new IOException("Failed to read manifest from " + gplFile, err);
+  //  throw new IOException("Failed to read manifest from " + gplFile, err);
     }
     return null;
   }

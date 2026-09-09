@@ -103,7 +103,8 @@ public class JavaServer extends LspContentImpl {
       Context context, String jdtlsExecutable, String ext) {
 
     String workspaceId = sanitize(pendingProjectRootFile.getAbsolutePath());
-    File dataDir = new File(context.getCacheDir(), "jdtls-workspace/" + workspaceId);
+    File rootfs = DebianBootstrap.getRootfsDir(context);
+    File dataDir = new File(rootfs, "root/.cache/jdtls-workspace/" + workspaceId);
     dataDir.mkdirs();
 
     List<String> args = new ArrayList<>();
@@ -186,16 +187,16 @@ public class JavaServer extends LspContentImpl {
   // ──────────────────── Helpers ────────────────────
 
   /**
-   * jdtls launcher is a python3 script (bin/jdtls loads jdtls.py), so it must be
-   * spawned via {@code python3}. We return the command as {@code python3 <path>}
-   * so {@link ProotStdioConnectionProvider#splitCommand} turns it into two argv
-   * entries and the probe still resolves the actual script file.
+   * jdtls launcher is a python3 script (bin/jdtls loads jdtls.py), so it must be spawned via {@code
+   * python3}. We return the command as {@code python3 <path>} so {@link
+   * ProotStdioConnectionProvider#splitCommand} turns it into two argv entries and the probe still
+   * resolves the actual script file.
    */
   @Override
   public String findInstalledExecutable(Context context) {
     String path = super.findInstalledExecutable(context);
-    if (path == null) return null;
-    return "python3 " + path;
+    if (path != null) return "python3 " + path;
+    return null;
   }
 
   public static String findJavaExecutable(Context context) {

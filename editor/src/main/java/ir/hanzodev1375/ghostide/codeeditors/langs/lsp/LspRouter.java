@@ -19,7 +19,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import io.github.rosemoe.sora.lsp.client.languageserver.requestmanager.RequestManager;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import io.github.rosemoe.sora.widget.CodeEditor;
-import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.jdt.JdtServer;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.model.BreadcrumbItem;
 import ir.hanzodev1375.ghostide.ide.api.LspServerProvider;
 
@@ -34,7 +33,6 @@ public final class LspRouter {
   private enum Lang {
     NONE,
     PYTHON,
-    JAVA,
     CPP,
     GO,
     CSS,
@@ -55,7 +53,7 @@ public final class LspRouter {
     String lower = filePath.toLowerCase(Locale.ROOT);
     if (lower.endsWith(".py")) return Lang.PYTHON;
     if (GthServer.INSTANCE.isSupportedFile(filePath)) return Lang.GTH;
-    if (JdtServer.INSTANCE.isSupportedFile(filePath)) return Lang.JAVA;
+
     if (ClangdServer.INSTANCE.isSupportedFile(filePath)) return Lang.CPP;
     if (TsServer.INSTANCE.isSupportedFile(filePath)) return Lang.JS;
     if (PhpServer.INSTANCE.isSupportedFile(filePath)) return Lang.PHP;
@@ -83,8 +81,7 @@ public final class LspRouter {
     switch (langOf(filePath)) {
       case PYTHON:
         return PylspServer.INSTANCE.isInstalled(context);
-      case JAVA:
-        return JdtServer.INSTANCE.isInstalled(context);
+
       case CPP:
         return ClangdServer.INSTANCE.isInstalled(context);
       case GO:
@@ -132,8 +129,7 @@ public final class LspRouter {
           return GthServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case PYTHON:
           return PylspServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
-        case JAVA:
-          return JdtServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
+
         case CPP:
           return ClangdServer.INSTANCE.connectFile(context, projectRoot, filePath, editor);
         case GO:

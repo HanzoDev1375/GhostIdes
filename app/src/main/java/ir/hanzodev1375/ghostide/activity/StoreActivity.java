@@ -14,6 +14,7 @@ import ir.hanzodev1375.components.sheet.PluginSetupSheet;
 import ir.hanzodev1375.components.store.adapter.ViewPagerAdapter;
 import ir.hanzodev1375.components.store.event.PluginSetupEvent;
 import ir.hanzodev1375.components.store.fragments.PluginStoreFragment;
+import ir.hanzodev1375.ghostide.store.ThemeStoreFragment;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.terminal.activity.TerminalActivity;
 import ir.theme.ThemeManager;
@@ -66,7 +67,8 @@ public class StoreActivity extends BaseCompat {
           return insets;
         });
 
-    ViewPagerAdapter adapter = new ViewPagerAdapter(this, new PluginStoreFragment());
+    ViewPagerAdapter adapter =
+        new ViewPagerAdapter(this, new PluginStoreFragment(), new ThemeStoreFragment());
     viewPager.setAdapter(adapter);
     viewPager.setUserInputEnabled(true);
     viewPager.setOffscreenPageLimit(ViewPagerAdapter.PAGE_COUNT);

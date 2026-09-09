@@ -81,6 +81,9 @@ import ir.hanzodev1375.ghostide.adapters.FileManagerHostAdapter;
 import ir.hanzodev1375.ghostide.ide.ui.api.IdeHostServices;
 import ir.hanzodev1375.ghostide.ide.ui.api.PluginUiExtensionPoints;
 import ir.hanzodev1375.ghostide.plugin.PluginManager;
+import ir.hanzodev1375.ghostide.pulse.PulseBridge;
+import ir.hanzodev1375.ghostide.pulse.PulseListener;
+import ir.hanzodev1375.ghostide.pulse.PulseService;
 import ir.hanzodev1375.ghostide.plugin.api.Disposable;
 import ir.hanzodev1375.ghostide.plugin.api.GlobalRegistry;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplInstalledPlugins;
@@ -120,6 +123,10 @@ import net.lingala.zip4j.ZipFile;
 import ir.hanzodev1375.ghostide.translator.ui.StringsTranslatorSheet;
 import irhanzodev1375.musicpreview.MusicPlayerBottomSheetFragment;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.hanzodev1375.components.store.event.ThemeInstalledEvent;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class FileManagerActivity extends BaseCompat
     implements NetworkChangeReceiver.CallBackNetWork {
@@ -236,6 +243,8 @@ public class FileManagerActivity extends BaseCompat
   private MusicPlayerBottomSheetFragment musicBottomSheet;
   private boolean pendingAnimation = false;
   private boolean snapArmed = false;
+  private PulseBridge changePulse;
+  private final PulseListener changePulseListener = this::echoTreeChange;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -246,6 +255,9 @@ public class FileManagerActivity extends BaseCompat
     setupSearchLayoutInsets();
 
     appsetting = new PreferencesUtils(this);
+    if (!EventBus.getDefault().isRegistered(this)) {
+      EventBus.getDefault().register(this);
+    }
     bind.fab.bindOfAcivity(this);
     Integer headtopColor = M3Theme.surfaceContainerHigh();
     Integer headlineColor = M3Theme.surfaceContainer();
@@ -519,6 +531,7 @@ public class FileManagerActivity extends BaseCompat
     setOnBackPress();
     setupGitButton();
     observePathForGit();
+    observePulseRoot();
     initZipBrowserAdapter();
   }
 
@@ -1515,6 +1528,9 @@ public class FileManagerActivity extends BaseCompat
   @Override
   protected void onDestroy() {
     super.onDestroy();
+    if (EventBus.getDefault().isRegistered(this)) {
+      EventBus.getDefault().unregister(this);
+    }
     WaterRipple.clear();
     if (thanosEffect != null) {
       thanosEffect.kill();
@@ -1528,6 +1544,13 @@ public class FileManagerActivity extends BaseCompat
     if (fileManagerHostRegistration != null) {
       fileManagerHostRegistration.dispose();
       fileManagerHostRegistration = null;
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void onThemeInstalled(ThemeInstalledEvent event) {
+    if (EventBus.getDefault().isRegistered(this)) {
+      recreate();
     }
   }
 
@@ -1812,6 +1835,7 @@ public class FileManagerActivity extends BaseCompat
   @Override
   protected void onResume() {
     super.onResume();
+    relaxPulseRoot();
     setupHeader();
     if (appsetting.isShowBackground()) {
       bind.headtop.setBackgroundColor(0);
@@ -1900,6 +1924,12 @@ public class FileManagerActivity extends BaseCompat
       }
       refreshGitStatus();
     }
+  }
+
+  @Override
+  protected void onPause() {
+    coilPulseRoot();
+    super.onPause();
   }
 
   void stepButton(View v) {
@@ -2191,6 +2221,62 @@ public class FileManagerActivity extends BaseCompat
             zipAdapter.loadZip(currentZipFilePath, zipAdapter.getCurrentInternalPath());
           }
         });
+  }
+
+  private void observePulseRoot() {
+    viewModel
+        .getCurrentPath()
+        .observe(
+            this,
+            path -> {
+              if (changePulse != null && path != null) {
+                changePulse.point(new File(path));
+              }
+            });
+  }
+
+  private void relaxPulseRoot() {
+    if (changePulse != null) return;
+    changePulse = new PulseBridge(changePulseListener);
+    String path = viewModel.getCurrentPath().getValue();
+    if (path != null) changePulse.point(new File(path));
+    try {
+      boolean ok =
+          bindService(
+              new Intent(this, PulseService.class), changePulse, Context.BIND_AUTO_CREATE);
+      if (!ok) {
+        changePulse = null;
+      }
+    } catch (RuntimeException e) {
+      changePulse = null;
+    }
+  }
+
+  private void coilPulseRoot() {
+    if (changePulse == null) return;
+    try {
+      unbindService(changePulse);
+    } catch (RuntimeException ignored) {
+    }
+    changePulse.quell();
+    changePulse = null;
+  }
+
+  private void echoTreeChange(String mutated) {
+    if (isFinishing() || isZipMode) return;
+    String shown = viewModel.getCurrentPath().getValue();
+    if (shown == null) return;
+    if (affectsVisibleList(mutated, shown)) {
+      viewModel.loadFiles(shown);
+    }
+  }
+
+  private static boolean affectsVisibleList(String mutated, String shown) {
+    if (mutated == null || shown == null) return false;
+    if (mutated.equals(shown)) return true;
+    File mutatedFile = new File(mutated);
+    File parent = mutatedFile.getParentFile();
+    return parent != null && parent.getAbsolutePath().equals(shown);
   }
 
   private String formatSize(long bytes) {

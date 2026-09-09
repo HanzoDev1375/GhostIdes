@@ -21,14 +21,14 @@ import ir.hanzodev1375.ghostide.codeeditors.langs.formatHelp.DebianBootstrap;
 
 /**
  * Abstract base class for all LSP language servers.
- * <p>
- * Every server follows the same connection flow: locate the binary, obtain or create
- * an {@link LspProject}, register a {@link LanguageServerDefinition}, and attach the
- * file to the editor. This class centralises that boilerplate while leaving the
- * server-specific parts (binary name, extensions, language creation) to subclasses.
- * <p>
- * To add a new language server, create a class that extends this one and implement
- * the abstract methods.
+ *
+ * <p>Every server follows the same connection flow: locate the binary, obtain or create an {@link
+ * LspProject}, register a {@link LanguageServerDefinition}, and attach the file to the editor. This
+ * class centralises that boilerplate while leaving the server-specific parts (binary name,
+ * extensions, language creation) to subclasses.
+ *
+ * <p>To add a new language server, create a class that extends this one and implement the abstract
+ * methods.
  *
  * @author Ghost
  */
@@ -42,8 +42,8 @@ public abstract class LspContentImpl {
   private final Map<String, LspProject> projects = new HashMap<>();
   private final Set<String> registeredDefinitions = new HashSet<>();
 
-  protected LspContentImpl(String tag, String serverName, Set<String> supportedExtensions,
-                           String[] candidatePaths) {
+  protected LspContentImpl(
+      String tag, String serverName, Set<String> supportedExtensions, String[] candidatePaths) {
     this.tag = tag;
     this.serverName = serverName;
     this.supportedExtensions = supportedExtensions;
@@ -61,18 +61,21 @@ public abstract class LspContentImpl {
 
   /**
    * Connects a file to its language server.
-   * <p>
-   * Default implementation: locate binary, obtain/create project, register definition,
-   * then run the connection handshake on the main thread. Subclasses may override
-   * this entirely or rely on {@link #onEditorCreated} for fine-grained control.
+   *
+   * <p>Default implementation: locate binary, obtain/create project, register definition, then run
+   * the connection handshake on the main thread. Subclasses may override this entirely or rely on
+   * {@link #onEditorCreated} for fine-grained control.
    */
-  public LspEditor connectFile(Context context, String projectRoot,
-                               String filePath, CodeEditor editor) {
+  public LspEditor connectFile(
+      Context context, String projectRoot, String filePath, CodeEditor editor) {
     String executablePath = findInstalledExecutable(context);
     if (executablePath == null) {
-      Log.e(tag, serverName + " is not available: no server executable was found inside the "
-          + "Debian rootfs. Install it from the Debian terminal first (e.g. for node: "
-          + "apt-get update && apt-get install -y nodejs).");
+      Log.e(
+          tag,
+          serverName
+              + " is not available: no server executable was found inside the "
+              + "Debian rootfs. Install it from the Debian terminal first (e.g. for node: "
+              + "apt-get update && apt-get install -y nodejs).");
       return null;
     }
 
@@ -83,13 +86,15 @@ public abstract class LspContentImpl {
     final LspEditor[] holder = new LspEditor[1];
     final CountDownLatch latch = new CountDownLatch(1);
 
-    new Handler(Looper.getMainLooper()).post(() -> {
-      try {
-        holder[0] = onEditorCreated(project.createEditor(filePath), editor);
-      } finally {
-        latch.countDown();
-      }
-    });
+    new Handler(Looper.getMainLooper())
+        .post(
+            () -> {
+              try {
+                holder[0] = onEditorCreated(project.createEditor(filePath), editor);
+              } finally {
+                latch.countDown();
+              }
+            });
 
     try {
       latch.await();
@@ -111,8 +116,8 @@ public abstract class LspContentImpl {
   // ─────────────────────── Hooks ───────────────────────
 
   /**
-   * Called after the {@link LspEditor} has been created so the subclass can attach
-   * a wrapper language, enable features, or set a formatter.
+   * Called after the {@link LspEditor} has been created so the subclass can attach a wrapper
+   * language, enable features, or set a formatter.
    *
    * @return the same {@code lspEditor} instance (convenience for chaining)
    */
@@ -121,9 +126,9 @@ public abstract class LspContentImpl {
   }
 
   /**
-   * Unique key used to prevent duplicate server-definition registration per
-   * project root and extension. Override when a server registers under a
-   * different namespace (e.g. Emmet alongside HTML).
+   * Unique key used to prevent duplicate server-definition registration per project root and
+   * extension. Override when a server registers under a different namespace (e.g. Emmet alongside
+   * HTML).
    */
   protected String definitionKey(String projectRoot, String ext) {
     return projectRoot + "::" + ext;
@@ -138,28 +143,41 @@ public abstract class LspContentImpl {
   public String findInstalledExecutable(Context context) {
     File rootfs = DebianBootstrap.getRootfsDir(context);
     if (rootfs == null || !rootfs.exists()) {
-      Log.w(tag, serverName + ": Debian rootfs is not installed yet ("
-          + (rootfs != null ? rootfs.getAbsolutePath() : "null") + ").");
+      Log.w(
+          tag,
+          serverName
+              + ": Debian rootfs is not installed yet ("
+              + (rootfs != null ? rootfs.getAbsolutePath() : "null")
+              + ").");
       return null;
     }
     if (candidatePaths == null) return null;
     // Check the configured paths first, then a couple of extra common locations so a server
     // still starts when the binary was installed to a non-default path inside the rootfs.
-    java.util.Set<String> checked = new java.util.HashSet<>();
+    Set<String> checked = new HashSet<>();
     for (String candidate : candidatePaths) {
       if (candidate == null) continue;
       checked.add(candidate);
       File f = new File(rootfs, candidate.substring(candidate.startsWith("/") ? 1 : 0));
       if (f.exists()) return candidate;
     }
-    String[] extraPaths = {
-      "/usr/local/bin/node", "/usr/bin/nodejs", "/opt/node/bin/node", "/usr/lib/nodejs/node"
-    };
-    for (String candidate : extraPaths) {
-      if (!checked.add(candidate)) continue;
-      File f = new File(rootfs, candidate.substring(candidate.startsWith("/") ? 1 : 0));
-      if (f.exists()) return candidate;
-    }
+    
+//    
+//    String[] extraPaths = {
+//      "/usr/local/bin/node",
+//      "/usr/bin/nodejs",
+//      "/opt/node/bin/node",
+//      "/usr/lib/nodejs/node",
+//      "/root/jdtls/bin/jdtls",
+//      "/opt/jdtls/bin/jdtls",
+//      "/usr/local/bin/jdtls",
+//      "/usr/bin/jdtls"
+//    };
+//    for (String candidate : extraPaths) {
+//      if (!checked.add(candidate)) continue;
+//      File f = new File(rootfs, candidate.substring(candidate.startsWith("/") ? 1 : 0));
+//      if (f.exists()) return candidate;
+//    }
     return null;
   }
 
@@ -191,8 +209,7 @@ public abstract class LspContentImpl {
   }
 
   protected synchronized void ensureDefinitionRegistered(
-      LspProject project, Context context, String executablePath,
-      String projectRoot, String ext) {
+      LspProject project, Context context, String executablePath, String projectRoot, String ext) {
     String key = definitionKey(projectRoot, ext);
     if (!registeredDefinitions.contains(key)) {
       project.addServerDefinition(createDefinition(context, executablePath, ext));
