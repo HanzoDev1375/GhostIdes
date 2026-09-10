@@ -60,9 +60,11 @@ public class ThemeManager {
   }
 
   public void saveTheme(GhostTheme theme) {
+    GhostTheme old = getTheme();
     String json = gson.toJson(theme);
     prefsHelper.putThemeJson(json);
     invalidateCache();
+    notifyChanged(old, true);
   }
 
   public GhostTheme getTheme() {
@@ -138,10 +140,12 @@ public class ThemeManager {
   }
 
   public void setThemeFromFile(String filePath) {
+    GhostTheme old = getTheme();
     invalidateCache();
     if (filePath == null || filePath.trim().isEmpty()) {
       prefsHelper.setAppThemeFile("");
       prefsHelper.putThemeJson(getDefaultThemeJson());
+      notifyChanged(old, true);
       return;
     }
 
@@ -154,6 +158,7 @@ public class ThemeManager {
         if (theme != null) {
           prefsHelper.setAppThemeFile(filePath);
           prefsHelper.putThemeJson(merged);
+          notifyChanged(old, true);
           return;
         }
       } catch (Exception ignored) {
@@ -161,6 +166,7 @@ public class ThemeManager {
     }
     prefsHelper.setAppThemeFile("");
     prefsHelper.putThemeJson(getDefaultThemeJson());
+    notifyChanged(old, true);
   }
 
   private String mergeWithDefault(String loadedJson) {
@@ -369,8 +375,14 @@ public class ThemeManager {
   }
 
   public void resetToDefault() {
+    GhostTheme old = getTheme();
     invalidateCache();
     prefsHelper.removeThemeJson();
     prefsHelper.setAppThemeFile("");
+    notifyChanged(old, true);
+  }
+
+  private void notifyChanged(GhostTheme old, boolean animated) {
+    ThemeBus.getInstance().notifyThemeChanged(old, getTheme(), animated);
   }
 }

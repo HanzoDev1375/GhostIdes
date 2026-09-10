@@ -348,6 +348,27 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
   }
 
   @Override
+  protected void applyOwnTheme(ThemeUtils themeUtils) {
+    if (binding == null) {
+      return;
+    }
+    try {
+      themeUtils.applyActivity(this);
+      themeUtils.applyView(binding.mainContent);
+      themeUtils.applyImageBackground(binding.backgroundicon);
+      themeUtils.applyFab(binding.fabineditor);
+      themeUtils.applyGhostIdeEditorSearch(binding.editorSearch);
+      themeUtils.applyTabLayout(binding.tab, getCurrentFilePath());
+      themeUtils.applyEditorStatusBar(binding.editorStatusBar);
+      IdeEditor editor = getEditor();
+      if (editor != null) {
+        themeUtils.applyEditor(editor);
+      }
+    } catch (Throwable ignored) {
+    }
+  }
+
+  @Override
   protected void onResume() {
     super.onResume();
 

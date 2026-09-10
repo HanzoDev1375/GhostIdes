@@ -117,10 +117,7 @@ public final class DirectoryPulse {
 
     FileObserver roost = hatch(dir, round);
     if (roosts.putIfAbsent(marker, roost) != null) return;
-    if (!roost.startWatching()) {
-      roosts.remove(marker);
-      return;
-    }
+    roost.startWatching();
 
     File[] offspring = dir.listFiles();
     if (offspring == null) return;

@@ -45,6 +45,9 @@ public final class M3Theme {
   private static Context appContext;
   private static boolean showBackground;
 
+  /** Live-override theme used while a theme transition animation is running. */
+  private static volatile GhostTheme previewTheme;
+
   private M3Theme() {}
 
   public static void init(Context context) {
@@ -58,6 +61,20 @@ public final class M3Theme {
     }
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
     showBackground = prefs.getBoolean(KEY_SHOW_BACKGROUND, false);
+  }
+
+  /**
+   * During a theme transition, every color method reads from this temporary theme instead of the
+   * persisted one. Pass {@code null} to restore the real theme.
+   */
+  public static void setPreviewTheme(GhostTheme theme) {
+    previewTheme = theme;
+  }
+
+  /** The live-override theme while a transition is running, or {@code null}. */
+  @Nullable
+  public static GhostTheme peekPreviewTheme() {
+    return previewTheme;
   }
 
   public static Integer surfaceContainer() {
@@ -692,7 +709,8 @@ public final class M3Theme {
 
     if (boxBg != null) {
       try {
-        input.setBoxBackgroundColor(boxBg);
+        int bg = isBackgroundImageMode() ? ColorUtils.setAlphaComponent(boxBg, 128) : boxBg;
+        input.setBoxBackgroundColor(bg);
       } catch (Throwable ignored) {
       }
     }
@@ -739,22 +757,43 @@ public final class M3Theme {
     Integer accent = fallback(m3().getPrimary(), m3().getSecondary());
     Integer onAccent = fallback(m3().getOnPrimary(), m3().getOnPrimaryContainer());
     Integer outlineVar = fallback(m3().getOutlineVariant(), m3().getOutline());
+    Integer primaryContainer = color(m3().getPrimaryContainer());
 
     if (surface != null) {
       try {
         int enabledBg = surface;
-        int pressedBg = fallback(color(m3().getPrimaryContainer()), surface);
+        int checkedBg =
+            primaryContainer != null
+                ? (showBackground ? surfaceAlpha(primaryContainer) : primaryContainer)
+                : enabledBg;
+        int pressedBg = checkedBg;
         chip.setChipBackgroundColor(
             new ColorStateList(
-                new int[][] {new int[] {android.R.attr.state_pressed}, new int[] {}},
-                new int[] {pressedBg}));
+                new int[][] {
+                  new int[] {android.R.attr.state_checked},
+                  new int[] {android.R.attr.state_selected},
+                  new int[] {android.R.attr.state_pressed},
+                  new int[] {-android.R.attr.state_enabled},
+                  new int[] {}
+                },
+                new int[] {checkedBg, checkedBg, pressedBg, enabledBg, enabledBg}));
       } catch (Throwable ignored) {
       }
     }
 
     if (onSurface != null) {
       try {
-        chip.setTextColor(onSurface);
+        int enabledText = onSurface;
+        int pressedText = fallback(onAccent, onSurface);
+        chip.setTextColor(
+            new ColorStateList(
+                new int[][] {
+                  new int[] {android.R.attr.state_checked},
+                  new int[] {android.R.attr.state_selected},
+                  new int[] {android.R.attr.state_pressed},
+                  new int[] {}
+                },
+                new int[] {pressedText, pressedText, pressedText, enabledText}));
       } catch (Throwable ignored) {
       }
     }
@@ -766,7 +805,7 @@ public final class M3Theme {
         chip.setChipStrokeColor(
             new ColorStateList(
                 new int[][] {new int[] {android.R.attr.state_pressed}, new int[] {}},
-                new int[] {pressedStroke}));
+                new int[] {pressedStroke, enabledStroke}));
       } catch (Throwable ignored) {
       }
     }
@@ -774,10 +813,15 @@ public final class M3Theme {
     if (accent != null) {
       try {
         chip.setChipIconTint(ColorStateList.valueOf(accent));
-        chip.setCheckedIconTint(ColorStateList.valueOf(accent));
+        chip.setCheckedIconTint(ColorStateList.valueOf(onAccent != null ? onAccent : accent));
         chip.setCloseIconTint(ColorStateList.valueOf(onAccent != null ? onAccent : accent));
       } catch (Throwable ignored) {
       }
+    }
+
+    try {
+      chip.setCheckedIconVisible(true);
+    } catch (Throwable ignored) {
     }
 
     if (accent != null) {
@@ -1047,6 +1091,15 @@ public final class M3Theme {
     return alpha ? surfaceAlpha(c) : c;
   }
 
+  /** True when the background-image mode is on and the current theme provides an image. */
+  private static boolean isBackgroundImageMode() {
+    if (!showBackground) {
+      return false;
+    }
+    WidgetTheme w = widget();
+    return w != null && w.getImagepath() != null && !w.getImagepath().isEmpty();
+  }
+
   @Nullable
   public static Integer color(@Nullable String hex) {
     if (hex == null || hex.isEmpty()) {
@@ -1094,6 +1147,10 @@ public final class M3Theme {
   }
 
   private static GhostTheme theme() {
+    GhostTheme preview = previewTheme;
+    if (preview != null) {
+      return preview;
+    }
     if (appContext == null) {
       return null;
     }

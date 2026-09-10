@@ -1,6 +1,10 @@
 package ir.hanzodev1375.ghostide.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.app.ActivityOptions;
+import android.view.animation.DecelerateInterpolator;
 import androidx.annotation.NonNull;
 import com.google.android.material.transition.platform.MaterialSharedAxis;
 import android.content.Context;
@@ -14,25 +18,24 @@ import android.os.Looper;
 import androidx.appcompat.app.AppCompatActivity;
 import ir.hanzodev1375.components.animators.AnimationManager;
 import ir.hanzodev1375.components.childern.ViewChilder;
-import ir.hanzodev1375.ghostide.themeengine.Theme;
 import ir.theme.M3Theme;
-import java.util.ArrayList;
-import java.util.List;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
-import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
 import ir.hanzodev1375.ghostide.utils.LocaleHelper;
 import ir.theme.GhostTheme;
+import ir.theme.ThemeBus;
 import ir.theme.ThemeManager;
+import ir.theme.ThemePreviewBuilder;
 import ir.theme.ThemeUtils;
 import android.view.View;
+import java.util.Map;
 
 public class BaseCompat extends AppCompatActivity
-    implements SharedPreferences.OnSharedPreferenceChangeListener {
+    implements SharedPreferences.OnSharedPreferenceChangeListener,
+        ThemeBus.ThemeChangeListener {
 
   private PreferencesUtils prefs;
-  private Theme lastTheme;
   private AnimationManager animMgr;
-  private List<BaseCompat> ACTIVITIES = new ArrayList<>();
+  private ValueAnimator themeAnimator;
 
   @Override
   protected void attachBaseContext(Context newBase) {
@@ -44,10 +47,8 @@ public class BaseCompat extends AppCompatActivity
   protected void onCreate(Bundle arg0) {
     prefs = new PreferencesUtils(this);
     EdgeToEdge.enable(this);
-    ThemeEngine.applyToActivity(this);
-    lastTheme = ThemeEngine.getInstance(this).getStaticTheme();
     super.onCreate(arg0);
-    ACTIVITIES.add(this);
+    ThemeBus.getInstance().register(this);
     getWindow().setNavigationBarColor(Color.TRANSPARENT);
     getWindow().setStatusBarColor(Color.TRANSPARENT);
     animMgr = AnimationManager.getInstance(this);
@@ -117,19 +118,16 @@ public class BaseCompat extends AppCompatActivity
 
   @Override
   protected void onDestroy() {
-    ACTIVITIES.remove(this);
+    if (themeAnimator != null) {
+      themeAnimator.cancel();
+    }
+    ThemeBus.getInstance().unregister(this);
     super.onDestroy();
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-
-    Theme currentTheme = ThemeEngine.getInstance(this).getStaticTheme();
-    if (currentTheme != lastTheme) {
-      recreate();
-      return;
-    }
 
     prefs.getDefaultPreferences().registerOnSharedPreferenceChangeListener(this);
     animMgr.registerReceiver(this);
@@ -145,18 +143,106 @@ public class BaseCompat extends AppCompatActivity
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {}
 
-  public void recreateAllActivities() {
-    List<BaseCompat> copy = new ArrayList<>(ACTIVITIES);
-    for (BaseCompat activity : copy) {
-      if (activity == null) {
-        continue;
-      }
-      if (activity.isFinishing()) {
-        continue;
-      }
-      activity.runOnUiThread(activity::recreate);
+  @Override
+  public void onThemeChanged(GhostTheme oldTheme, GhostTheme newTheme, boolean animated) {
+    if (isFinishing()) {
+      return;
+    }
+    if (themeAnimator != null) {
+      themeAnimator.cancel();
+    }
+    boolean canAnimate =
+        animated
+            && oldTheme != null
+            && newTheme != null
+            && ValueAnimator.areAnimatorsEnabled()
+            && animMgr != null
+            && animMgr.areAnimationsEnabled();
+    if (canAnimate) {
+      startThemeTransition(oldTheme, newTheme);
+    } else {
+      M3Theme.setPreviewTheme(null);
+      applyThemeFinal();
     }
   }
+
+  /** Re-applies the current theme immediately on this activity, without recreating it. */
+  public final void reapplyThemeLive() {
+    if (isFinishing()) {
+      return;
+    }
+    if (themeAnimator != null) {
+      themeAnimator.cancel();
+    }
+    M3Theme.setPreviewTheme(null);
+    applyThemeFinal();
+  }
+
+  private void startThemeTransition(GhostTheme oldTheme, GhostTheme newTheme) {
+    if (themeAnimator != null) {
+      themeAnimator.cancel();
+    }
+    Map<String, Integer> oldPalette = ThemePreviewBuilder.palette(oldTheme);
+    Map<String, Integer> newPalette = ThemePreviewBuilder.palette(newTheme);
+    ThemePreviewBuilder previewBuilder = new ThemePreviewBuilder(newTheme);
+    ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
+    animator.setDuration(250L);
+    animator.setInterpolator(new DecelerateInterpolator());
+    animator.addUpdateListener(
+        a -> {
+          float t = a.getAnimatedFraction();
+          Map<String, Integer> palette = ThemePreviewBuilder.blendPalettes(oldPalette, newPalette, t);
+          M3Theme.setPreviewTheme(previewBuilder.build(palette));
+          applyThemeNow();
+        });
+    animator.addListener(
+        new AnimatorListenerAdapter() {
+          @Override
+          public void onAnimationEnd(Animator animation) {
+            finishThemeTransition(newTheme);
+          }
+
+          @Override
+          public void onAnimationCancel(Animator animation) {
+            finishThemeTransition(newTheme);
+          }
+        });
+    themeAnimator = animator;
+    animator.start();
+  }
+
+  private void finishThemeTransition(GhostTheme newTheme) {
+    if (themeAnimator != null) {
+      themeAnimator.removeAllListeners();
+      themeAnimator.removeAllUpdateListeners();
+      themeAnimator.cancel();
+    }
+    themeAnimator = null;
+    M3Theme.setPreviewTheme(newTheme);
+    applyThemeFinal();
+  }
+
+  private void applyThemeNow() {
+    M3Theme.applyTopLevel(getWindow().getDecorView());
+    ThemeUtils themeUtils = new ThemeUtils(new ThemeManager(this));
+    themeUtils.applyActivity(this);
+    applyJsonThemeBackground();
+    applyOwnTheme(themeUtils);
+  }
+
+  /** One-shot full restyle: repaints every themed view in the window's decor tree. */
+  private void applyThemeFinal() {
+    if (isFinishing()) {
+      return;
+    }
+    View decor = getWindow().getDecorView();
+    if (decor != null) {
+      M3Theme.apply(decor);
+    }
+    applyThemeNow();
+  }
+
+  protected void applyOwnTheme(ThemeUtils themeUtils) {}
 
   protected void setupBackgroundBlur(ViewChilder backgroundView, View... tintViews) {
     boolean showBg = new PreferencesUtils(this).isShowBackground();

@@ -82,12 +82,17 @@
     <string name="pref_app_theme_desc">Change the overall color scheme of the program</string>
     <string name="theme_load_title">Load Theme from File</string>
     <string name="theme_load_message">Enter full path of .gth file</string>
+    <string name="theme_files_title">Themes in /sdcard/ghostide/themes/</string>
     <string name="theme_load_hint">Path to .gth file</string>
     <string name="theme_load_empty_path">Path cannot be empty</string>
     <string name="theme_load_invalid_extension">File must end with .gth</string>
     <string name="theme_load_file_not_found">File not found: %s</string>
     <string name="theme_load_success">Theme loaded successfully. App will restart.</string>
     <string name="theme_load_error">Failed to load theme: %s</string>
+    <string name="theme_delete_title">Delete theme file</string>
+    <string name="theme_delete_message">Are you sure you want to delete "%s"?</string>
+    <string name="theme_delete_success">Theme file deleted</string>
+    <string name="theme_delete_failed">Could not delete theme file</string>
     <string name="pref_load_theme_file">Load theme from file</string>
     <string name="pref_load_theme_file_desc">Import .gth theme file from storage</string>
     <string name="saveitemthis">Save this</string>

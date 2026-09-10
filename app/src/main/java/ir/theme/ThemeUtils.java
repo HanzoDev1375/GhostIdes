@@ -35,6 +35,10 @@ public class ThemeUtils {
   }
 
   public GhostTheme getTheme() {
+    GhostTheme preview = M3Theme.peekPreviewTheme();
+    if (preview != null) {
+      return preview;
+    }
     return manager.getTheme();
   }
 

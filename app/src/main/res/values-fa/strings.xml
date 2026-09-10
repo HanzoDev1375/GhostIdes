@@ -86,6 +86,10 @@
   <string name="theme_load_file_not_found">فایل یافت نشد: %s</string>
   <string name="theme_load_success">تم با موفقیت بارگیری شد. برنامه مجدداً راه‌اندازی می‌شود.</string>
   <string name="theme_load_error">بارگیری تم انجام نشد: %s</string>
+  <string name="theme_delete_title">حذف فایل تم</string>
+  <string name="theme_delete_message">مطمئن هستید که می‌خواهید «%s» را حذف کنید؟</string>
+  <string name="theme_delete_success">فایل تم حذف شد</string>
+  <string name="theme_delete_failed">حذف فایل تم ممکن نشد</string>
   <string name="pref_load_theme_file">بارگیری تم از فایل</string>
   <string name="pref_load_theme_file_desc">وارد کردن فایل تم .gth از حافظه</string>
   <string name="saveitemthis">ذخیره این</string>

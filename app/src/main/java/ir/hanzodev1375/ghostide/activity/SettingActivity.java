@@ -12,6 +12,7 @@ import androidx.core.os.LocaleListCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.blankj.utilcode.util.ThreadUtils;
@@ -36,20 +37,21 @@ import ir.hanzodev1375.ghostide.codeeditors.util.TranslateLanguages;
 import ir.hanzodev1375.ghostide.customui.ExpandableLayout;
 import ir.hanzodev1375.ghostide.jgit.GitHubClient;
 import ir.hanzodev1375.ghostide.models.SettingItem;
-import ir.hanzodev1375.ghostide.themeengine.ThemeChooserDialogBuilder;
-import ir.hanzodev1375.ghostide.themeengine.ThemeEngine;
 import ir.hanzodev1375.ghostide.utils.FileUtil;
 import ir.hanzodev1375.ghostide.utils.LocaleHelper;
 import ir.theme.GhostTheme;
 import ir.theme.ThemeManager;
-import ir.theme.ThemeUtils;
 import ir.theme.M3Theme;
+import ir.theme.ThemeBus;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import androidx.appcompat.app.AlertDialog;
+import android.os.Environment;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.hanzodev1375.ghostide.adapters.ThemeFilesAdapter;
 
 public class SettingActivity extends BaseCompat {
 
@@ -57,7 +59,6 @@ public class SettingActivity extends BaseCompat {
   protected ExpandableLayout expandEditor, expandApp, LspView;
   private RecyclerView rvEditor, rvApp, rvLsp;
   private SettingsAdapter editorAdapter, appAdapter, lspAdapter;
-  private ThemeEngine themeEngine;
   private AiPreferencesUtils aiPrefs;
   private SearchLayout ser;
   private boolean isSearchActive = false;
@@ -71,7 +72,6 @@ public class SettingActivity extends BaseCompat {
     aiPrefs = new AiPreferencesUtils(this);
     prefs = new PreferencesUtils(this);
     setupBackgroundBlur();
-    themeEngine = ThemeEngine.getInstance(this);
     MaterialToolbar toolbar = findViewById(R.id.toolbar);
     ser = findViewById(R.id.searchitem);
 
@@ -194,14 +194,13 @@ public class SettingActivity extends BaseCompat {
     appAdapter.setOnItemClickListener(
         position -> {
           if (position == 0) showBufferSizeDialog();
-          else if (position == 1) showThemeDialog();
-          else if (position == 2) showAppIconDialog();
-          else if (position == 3) showLoadThemeDialog();
-          else if (position == 4) showGitHubAccountDialog();
-          else if (position == 5) showLanguageDialog();
-          else if (position == 10) showAnimationThresholdDialog();
-          else if (position == 11) showGridConunt();
-          else if (position == 16) showGlassTintDialog();
+          else if (position == 1) showAppIconDialog();
+          else if (position == 2) showLoadThemeDialog();
+          else if (position == 3) showGitHubAccountDialog();
+          else if (position == 4) showLanguageDialog();
+          else if (position == 9) showAnimationThresholdDialog();
+          else if (position == 10) showGridConunt();
+          else if (position == 15) showGlassTintDialog();
         });
 
     aiAdapter.setOnItemClickListener(
@@ -534,13 +533,6 @@ public class SettingActivity extends BaseCompat {
             null));
     items.add(
         new SettingItem(
-            getString(R.string.pref_app_theme),
-            getString(R.string.pref_app_theme_desc),
-            false,
-            0,
-            null));
-    items.add(
-        new SettingItem(
             getString(R.string.pref_app_icon),
             getString(R.string.pref_app_icon_desc)
                 + "\n"
@@ -595,7 +587,10 @@ public class SettingActivity extends BaseCompat {
             0,
             isChecked -> {
               prefs.setShowBackground(isChecked);
+              M3Theme.reloadMode();
               setupBackgroundBlur();
+              GhostTheme themeNow = new ThemeManager(SettingActivity.this).getTheme();
+              ThemeBus.getInstance().notifyThemeChanged(themeNow, themeNow, false);
             }));
     items.add(
         new SettingItem(
@@ -650,7 +645,7 @@ public class SettingActivity extends BaseCompat {
             0,
             isChecked -> {
               prefs.setGlassMaterialColor(isChecked);
-              recreate();
+              reapplyThemeLive();
             }));
     items.add(
         new SettingItem(
@@ -881,25 +876,6 @@ public class SettingActivity extends BaseCompat {
         .show();
   }
 
-  private void showThemeDialog() {
-    new ThemeChooserDialogBuilder(this)
-        .setPositiveButton(
-            R.string.ok,
-            (position, theme) -> {
-              themeEngine.setStaticTheme(theme);
-              recreateAllActivities();
-            })
-        .setNegativeButton(R.string.cancel)
-        .setNeutralButton(
-            "Default",
-            (position, theme) -> {
-              themeEngine.resetTheme();
-              recreateAllActivities();
-            })
-        .create()
-        .show();
-  }
-
   private void showAppIconDialog() {
     new AppIconChooserDialogBuilder(this)
         .setTitle(R.string.pref_app_icon)
@@ -918,58 +894,178 @@ public class SettingActivity extends BaseCompat {
         .show();
   }
 
+  private static final String THEMES_DIRECTORY = "ghostide/themes";
+
   private void showLoadThemeDialog() {
-    View v = getLayoutInflater().inflate(R.layout.layout_inputlayout, null, false);
+    View v = getLayoutInflater().inflate(R.layout.dialog_theme_picker, null, false);
     TextInputLayout input = v.findViewById(R.id.editor);
     input.setHint("/sdcard/GhostIDE/themes/draks.gth");
     input.getEditText().setText(!prefs.getAppThemeFile().isEmpty() ? prefs.getAppThemeFile() : "");
+
+    RecyclerView list = v.findViewById(R.id.theme_list);
+    list.setLayoutManager(new GridLayoutManager(this, 3));
+
+    ThemeFilesAdapter[] box = new ThemeFilesAdapter[1];
+    ThemeFilesAdapter adapter =
+        new ThemeFilesAdapter(
+            scanThemeFiles(),
+            file -> {
+              previewTheme(input, file);
+              box[0].setSelectedPath(file.getAbsolutePath());
+              box[0].notifyDataSetChanged();
+            });
+    box[0] = adapter;
+    adapter.setSelectedPath(prefs.getAppThemeFile());
+    adapter.setOnFileLongClickListener(
+        (file, holder) -> confirmDeleteThemeFile(file, adapter));
+    list.setAdapter(adapter);
+
+    DialogCompat dialogBuilder =
+        new DialogCompat(this)
+            .setTitle(getString(R.string.theme_load_title))
+            .setMessage(getString(R.string.theme_load_message))
+            .setView(v)
+            .setPositiveButton(R.string.ok, null)
+            .setNegativeButton(R.string.cancel, null);
+    AlertDialog dialog = dialogBuilder.create();
+    dialog.setOnDismissListener(d -> onThemeDialogDismissed());
+    dialog.setOnShowListener(
+        d ->
+            dialog
+                .getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(v12 -> applyThemeFromInput(input, dialog)));
+    dialog.show();
+  }
+
+  private List<File> scanThemeFiles() {
+    List<File> themes = new ArrayList<>();
+    File themeDir = new File(Environment.getExternalStorageDirectory(), THEMES_DIRECTORY);
+    if (themeDir.isDirectory()) {
+      File[] files = themeDir.listFiles();
+      if (files != null) {
+        for (File f : files) {
+          if (f.isFile() && f.getName().toLowerCase(Locale.ROOT).endsWith(".gth")) {
+            themes.add(f);
+          }
+        }
+      }
+    }
+    return themes;
+  }
+
+  private void confirmDeleteThemeFile(File file, ThemeFilesAdapter adapter) {
     new DialogCompat(this)
-        .setTitle(getString(R.string.theme_load_title))
-        .setMessage(getString(R.string.theme_load_message))
-        .setView(v)
+        .setTitle(getString(R.string.theme_delete_title))
+        .setMessage(getString(R.string.theme_delete_message, file.getName()))
         .setPositiveButton(
-            R.string.ok,
-            (dialog, which) -> {
-              String path = input.getEditText().getText().toString().trim();
-              if (path.isEmpty()) {
-                GhostToast.makeText(this, getString(R.string.theme_load_empty_path), GhostToast.LENGTH_SHORT)
-                    .show();
-                return;
-              }
-              if (!path.endsWith(".gth")) {
+            R.string.action_delete,
+            (d, w) -> {
+              boolean removed = file.exists() && file.delete();
+              if (removed) {
+                String applied = prefs.getAppThemeFile();
+                if (applied != null && applied.equals(file.getAbsolutePath())) {
+                  prefs.setAppThemeFile("");
+                }
+                adapter.refresh(scanThemeFiles());
                 GhostToast.makeText(
-                        this, getString(R.string.theme_load_invalid_extension), GhostToast.LENGTH_SHORT)
+                        this, getString(R.string.theme_delete_success), GhostToast.LENGTH_SHORT)
                     .show();
-                return;
-              }
-              File file = new File(path);
-              if (!file.exists()) {
+              } else {
                 GhostToast.makeText(
-                        this,
-                        String.format(getString(R.string.theme_load_file_not_found), path),
-                        GhostToast.LENGTH_SHORT)
-                    .show();
-                return;
-              }
-              try {
-                String json = new String(FileUtil.readBytesCompat(file), StandardCharsets.UTF_8);
-                GhostTheme theme = new Gson().fromJson(json, GhostTheme.class);
-                if (theme == null) throw new Exception("Invalid theme format");
-                new ThemeManager(this).saveTheme(theme);
-                prefs.setAppThemeFile(path);
-                GhostToast.makeText(this, getString(R.string.theme_load_success), GhostToast.LENGTH_LONG)
-                    .show();
-              } catch (Exception e) {
-                GhostToast.makeText(
-                        this,
-                        String.format(getString(R.string.theme_load_error), e.getMessage()),
-                        GhostToast.LENGTH_SHORT)
+                        this, getString(R.string.theme_delete_failed), GhostToast.LENGTH_SHORT)
                     .show();
               }
             })
-        .setNegativeButton(
-            R.string.cancel, (dialog, which) -> new ThemeManager(this).resetToDefault())
+        .setNegativeButton(R.string.cancel, null)
         .show();
+  }
+
+  private void previewTheme(TextInputLayout input, File file) {
+    try {
+      String json = new String(FileUtil.readBytesCompat(file), StandardCharsets.UTF_8);
+      GhostTheme theme = new Gson().fromJson(json, GhostTheme.class);
+      if (theme == null) throw new Exception("Invalid theme format");
+      maybeEnableBackground(theme);
+      GhostTheme base = new ThemeManager(this).getTheme();
+      if (base == null) {
+        base = theme;
+      }
+      M3Theme.setPreviewTheme(theme);
+      ThemeBus.getInstance().notifyThemeChanged(base, theme, true);
+      input.getEditText().setText(file.getAbsolutePath());
+    } catch (Exception e) {
+      GhostToast.makeText(
+              this,
+              String.format(getString(R.string.theme_load_error), e.getMessage()),
+              GhostToast.LENGTH_SHORT)
+          .show();
+    }
+  }
+
+  private void applyThemeFromInput(TextInputLayout input, AlertDialog dialog) {
+    String path = input.getEditText().getText().toString().trim();
+    if (path.isEmpty()) {
+      GhostToast.makeText(this, getString(R.string.theme_load_empty_path), GhostToast.LENGTH_SHORT)
+          .show();
+      return;
+    }
+    if (!path.endsWith(".gth")) {
+      GhostToast.makeText(
+              this, getString(R.string.theme_load_invalid_extension), GhostToast.LENGTH_SHORT)
+          .show();
+      return;
+    }
+    File file = new File(path);
+    if (!file.exists()) {
+      GhostToast.makeText(
+              this,
+              String.format(getString(R.string.theme_load_file_not_found), path),
+              GhostToast.LENGTH_SHORT)
+          .show();
+      return;
+    }
+    try {
+      String json = new String(FileUtil.readBytesCompat(file), StandardCharsets.UTF_8);
+      GhostTheme theme = new Gson().fromJson(json, GhostTheme.class);
+      if (theme == null) throw new Exception("Invalid theme format");
+      maybeEnableBackground(theme);
+      new ThemeManager(this).saveTheme(theme);
+      prefs.setAppThemeFile(path);
+      dialog.dismiss();
+      GhostToast.makeText(this, getString(R.string.theme_load_success), GhostToast.LENGTH_LONG)
+          .show();
+    } catch (Exception e) {
+      GhostToast.makeText(
+              this,
+              String.format(getString(R.string.theme_load_error), e.getMessage()),
+              GhostToast.LENGTH_SHORT)
+          .show();
+    }
+  }
+
+  private void maybeEnableBackground(GhostTheme theme) {
+    if (theme == null || theme.getWidget() == null) {
+      return;
+    }
+    String imagePath = theme.getWidget().getImagepath();
+    boolean hasImage = imagePath != null && !imagePath.isEmpty();
+    if (!hasImage || prefs.isShowBackground()) {
+      M3Theme.reloadMode();
+      return;
+    }
+    prefs.setShowBackground(true);
+    M3Theme.reloadMode();
+    SettingItem item = appAdapter.getItemAtPosition(7);
+    if (item != null) {
+      item.setChecked(true);
+      appAdapter.notifyItemChanged(7);
+    }
+  }
+
+  private void onThemeDialogDismissed() {
+    GhostTheme real = new ThemeManager(this).getTheme();
+    M3Theme.setPreviewTheme(null);
+    ThemeBus.getInstance().notifyThemeChanged(real, real, false);
   }
 
   private void showGitHubAccountDialog() {

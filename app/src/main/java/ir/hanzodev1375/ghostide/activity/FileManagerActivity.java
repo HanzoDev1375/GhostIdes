@@ -1550,7 +1550,7 @@ public class FileManagerActivity extends BaseCompat
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onThemeInstalled(ThemeInstalledEvent event) {
     if (EventBus.getDefault().isRegistered(this)) {
-      recreate();
+      reapplyThemeLive();
     }
   }
 
