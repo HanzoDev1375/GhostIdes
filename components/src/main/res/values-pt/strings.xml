@@ -97,6 +97,7 @@
   <string name="pluginstore_installed_button">Instalado</string>
   <string name="pluginstore_install_and_source">Instalar + Fonte</string>
   <string name="pluginstore_install_only">Instalar apenas</string>
+  <string name="pluginstore_run_setup">Execute no terminal</string>
   <string name="pluginstore_no_description">Nenhuma descrição disponível</string>
   <string name="pluginstore_installed">Plug-in %s instalado</string>
   <string name="pluginstore_install_error">Falha na instalação: %s</string>
@@ -113,4 +114,7 @@
   <string name="themes_background_failed">Falha no download em segundo plano</string>
   <string name="themes_description">Descrição</string>
   <string name="themes_description_failed">Nenhuma descrição disponível</string>
+  <string name="webstore_download_done">Projeto baixado para ghostide/projects</string>
+  <string name="webstore_download_failed">Falha no download</string>
+  <string name="webstore_images">%1$d imagens</string>
 </resources>

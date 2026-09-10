@@ -97,6 +97,7 @@
   <string name="pluginstore_installed_button">已安装</string>
   <string name="pluginstore_install_and_source">安装+源</string>
   <string name="pluginstore_install_only">仅安装</string>
+  <string name="pluginstore_run_setup">在终端中运行</string>
   <string name="pluginstore_no_description">无可用描述</string>
   <string name="pluginstore_installed">已安装插件 %s</string>
   <string name="pluginstore_install_error">安装失败：%s</string>
@@ -113,4 +114,7 @@
   <string name="themes_background_failed">后台下载失败</string>
   <string name="themes_description">描述</string>
   <string name="themes_description_failed">无可用描述</string>
+  <string name="webstore_download_done">项目下载到ghostide/projects</string>
+  <string name="webstore_download_failed">下载失败</string>
+  <string name="webstore_images">%1$d 张图片</string>
 </resources>

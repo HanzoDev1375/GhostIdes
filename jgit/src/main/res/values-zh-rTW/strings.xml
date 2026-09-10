@@ -27,7 +27,7 @@
   <string name="branch_rebase">變基</string>
   <string name="branch_delete">刪除</string>
   <string name="branch_delete_confirm_title">刪除分支</string>
-  <string name="branch_delete_confirm_msg">刪除分支\'%s\'嗎？</string>
+  <string name="branch_delete_confirm_msg">刪除分支\&apos;%s\&apos;嗎？</string>
   <string name="branch_merge_confirm_title">合併分支</string>
   <string name="branch_merge_confirm_msg">將“%1$s”合併到“%2$s”嗎？</string>
   <string name="branch_rebase_confirm_title">變基</string>
@@ -35,7 +35,7 @@
   <string name="remote_add">新增遙控器</string>
   <string name="remote_remove">消除</string>
   <string name="remote_remove_confirm_title">刪除遙控器</string>
-  <string name="remote_remove_confirm_msg">刪除\'%s\'？</string>
+  <string name="remote_remove_confirm_msg">刪除\&apos;%s\&apos;？</string>
   <string name="remote_push">推</string>
   <string name="remote_pull">拉</string>
   <string name="remote_fetch">拿來</string>
@@ -84,7 +84,7 @@
   <string name="tag_create">建立標籤</string>
   <string name="tag_delete">刪除</string>
   <string name="tag_delete_confirm_title">刪除標籤</string>
-  <string name="tag_delete_confirm_msg">刪除標籤\'%s\'嗎？</string>
+  <string name="tag_delete_confirm_msg">刪除標籤\&apos;%s\&apos;嗎？</string>
   <string name="tag_no_tags">還沒有標籤</string>
   <string name="gitignore_title">.gitignore 編輯器</string>
   <string name="gitignore_hint">輸入模式，每行一個…</string>
@@ -95,4 +95,16 @@
   <string name="gitignore_failed">保存 gitignore 失敗</string>
   <string name="gitignore_templates">範本</string>
   <string name="tab_blame">責備</string>
+  <string name="git_empty_changes_title">沒有變化</string>
+  <string name="git_empty_changes_desc">你的工作樹是乾淨的。編輯過的文件或新文件將顯示在此。</string>
+  <string name="git_empty_history_title">還沒有提交</string>
+  <string name="git_empty_history_desc">進行您的第一次提交，其歷史記錄將顯示在此。</string>
+  <string name="git_empty_branches_title">沒有分公司</string>
+  <string name="git_empty_branches_desc">建立一個分支開始工作。</string>
+  <string name="git_empty_remotes_title">沒有遙控器</string>
+  <string name="git_empty_remotes_desc">新增遠端（例如 origin）來推送您的提交。</string>
+  <string name="git_empty_stash_title">沒有藏匿任何東西</string>
+  <string name="git_empty_stash_desc">隱藏您的變更以確保以後安全。</string>
+  <string name="git_empty_tags_title">沒有標籤</string>
+  <string name="git_empty_tags_desc">建立一個標籤來標記歷史上的重要時刻。</string>
 </resources>

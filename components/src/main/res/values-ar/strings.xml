@@ -97,6 +97,7 @@
   <string name="pluginstore_installed_button">تم التثبيت</string>
   <string name="pluginstore_install_and_source">تثبيت + المصدر</string>
   <string name="pluginstore_install_only">تثبيت فقط</string>
+  <string name="pluginstore_run_setup">تشغيل في المحطة</string>
   <string name="pluginstore_no_description">لا يوجد وصف متاح</string>
   <string name="pluginstore_installed">تم تثبيت البرنامج الإضافي %s</string>
   <string name="pluginstore_install_error">فشل التثبيت: %s</string>
@@ -113,4 +114,7 @@
   <string name="themes_background_failed">فشل تنزيل الخلفية</string>
   <string name="themes_description">وصف</string>
   <string name="themes_description_failed">لا يوجد وصف متاح</string>
+  <string name="webstore_download_done">تم تنزيل المشروع إلى Ghostide/المشاريع</string>
+  <string name="webstore_download_failed">فشل التنزيل</string>
+  <string name="webstore_images">%1$d صورة</string>
 </resources>

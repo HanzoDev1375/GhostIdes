@@ -97,6 +97,7 @@
   <string name="pluginstore_installed_button">स्थापित</string>
   <string name="pluginstore_install_and_source">इंस्टॉल + स्रोत</string>
   <string name="pluginstore_install_only">केवल इंस्टॉल करें</string>
+  <string name="pluginstore_run_setup">टर्मिनल में चलाएँ</string>
   <string name="pluginstore_no_description">कोई विवरण उपलब्ध नहीं</string>
   <string name="pluginstore_installed">प्लगइन %s इंस्टॉल किया गया</string>
   <string name="pluginstore_install_error">इंस्टॉल विफल: %s</string>
@@ -113,4 +114,7 @@
   <string name="themes_background_failed">पृष्ठभूमि डाउनलोड विफल रहा</string>
   <string name="themes_description">विवरण</string>
   <string name="themes_description_failed">कोई विवरण उपलब्ध नहीं</string>
+  <string name="webstore_download_done">प्रोजेक्ट को घोस्टाइड/प्रोजेक्ट्स में डाउनलोड किया गया</string>
+  <string name="webstore_download_failed">डाउनलोड विफल रहा</string>
+  <string name="webstore_images">%1$d छवियाँ</string>
 </resources>

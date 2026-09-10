@@ -80,12 +80,17 @@
   <string name="pref_app_theme_desc">Alterar o esquema de cores geral do programa</string>
   <string name="theme_load_title">Carregar tema de arquivo</string>
   <string name="theme_load_message">Digite o caminho completo do arquivo .gth</string>
+  <string name="theme_files_title">Temas em /sdcard/ghostide/themes/</string>
   <string name="theme_load_hint">Caminho para o arquivo .gth</string>
   <string name="theme_load_empty_path">O caminho não pode estar vazio</string>
   <string name="theme_load_invalid_extension">O arquivo deve terminar com .gth</string>
   <string name="theme_load_file_not_found">Arquivo não encontrado: %s</string>
   <string name="theme_load_success">Tema carregado com sucesso. O aplicativo será reiniciado.</string>
   <string name="theme_load_error">Falha ao carregar o tema: %s</string>
+  <string name="theme_delete_title">Excluir arquivo de tema</string>
+  <string name="theme_delete_message">Tem certeza de que deseja excluir &quot;%s&quot;?</string>
+  <string name="theme_delete_success">Arquivo de tema excluído</string>
+  <string name="theme_delete_failed">Não foi possível excluir o arquivo do tema</string>
   <string name="pref_load_theme_file">Carregar tema de arquivo</string>
   <string name="pref_load_theme_file_desc">Importar arquivo de tema .gth do armazenamento</string>
   <string name="saveitemthis">Salvar este</string>
@@ -430,6 +435,18 @@
   <string name="plugin_manager_installed_toast">%1$s instalado</string>
   <string name="plugin_manager_not_gpl_file">Escolha um arquivo de plug-in .gpl</string>
   <string name="plugin_manager_run_setup">Execute no terminal</string>
+  <string name="pluginstore_empty">Nenhum plug-in disponível ainda</string>
+  <string name="pluginstore_install">Instalar</string>
+  <string name="pluginstore_busy">Trabalhando…</string>
+  <string name="pluginstore_installed_button">Instalado</string>
+  <string name="pluginstore_installed">Plug-in %1$s instalado</string>
+  <string name="pluginstore_install_error">Falha na instalação: %1$s</string>
+  <string name="pluginstore_source_saved">Fonte salva em %1$s</string>
+  <string name="pluginstore_source_error">Falha no download da fonte: %1$s</string>
+  <string name="pluginstore_no_description">Nenhuma descrição fornecida</string>
+  <string name="pluginstore_install_only">Instalar</string>
+  <string name="pluginstore_install_and_source">Instalar + Fonte</string>
+  <string name="pluginstore_icon">Ícone do plug-in</string>
   <string name="terminal_error_cannot_create_etc_dir">Não é possível criar o diretório etc: %1$s</string>
   <string name="terminal_error_resolve_rootfs_failed">Falha ao encontrar os rootfs mais recentes para a arquitetura %1$s: %2$s</string>
   <string name="terminal_error_http_status">HTTP %1$d de %2$s</string>
@@ -487,4 +504,9 @@
   <string name="backgroundzoomsubtitle">Quando você ativa esta opção, o modo de zoom animado é ativado para você no editor de código com o teclado exibido....</string>
   <string name="tabcolortitle">Colorir linguagens</string>
   <string name="tabcolorsubtitle">Colorize uma aba com cada extensão com este recurso</string>
+  <string name="themes_dev_version">%1$s ·v%2$d</string>
+  <string name="themes_download_failed">Falha no download</string>
+  <string name="themes_applied">Tema baixado e aplicado</string>
+  <string name="themes_description_failed">Nenhuma descrição disponível</string>
+  <string name="themes_empty">Nenhum tema disponível</string>
 </resources>

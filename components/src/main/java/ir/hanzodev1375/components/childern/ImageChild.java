@@ -8,6 +8,8 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
+import ir.theme.M3Theme;
+
 import java.io.File;
 
 public class ImageChild implements IChild {
@@ -26,6 +28,7 @@ public class ImageChild implements IChild {
         new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     this.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+    this.imageView.setTag(M3Theme.TAG_SKIP_TINT);
     Object source = loadSource(path);
     if (blurSize == 0f) {
       Glide.with(context).load(source).into(imageView);

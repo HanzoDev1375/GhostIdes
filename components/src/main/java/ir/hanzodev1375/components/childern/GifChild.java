@@ -7,6 +7,8 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
+import ir.theme.M3Theme;
+
 public class GifChild implements IChild {
 
   private final ImageView imageView;
@@ -19,6 +21,7 @@ public class GifChild implements IChild {
         new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     this.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+    this.imageView.setTag(M3Theme.TAG_SKIP_TINT);
     if (blurSize == 0f) {
       Glide.with(context).asGif().load(path).into(imageView);
     } else

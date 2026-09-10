@@ -91,11 +91,13 @@ public class ThemeFilesAdapter extends RecyclerView.Adapter<ThemeFilesAdapter.Vi
           .apply(options)
           .into(holder.icon);
     } else {
-      GradientDrawable circle = new GradientDrawable();
-      circle.setShape(GradientDrawable.OVAL);
-      circle.setColor(data.primaryColor);
-      circle.setStroke(2, 0x33FFFFFF);
-      holder.icon.setBackground(circle);
+      GradientDrawable gradient =
+          new GradientDrawable(
+              GradientDrawable.Orientation.TL_BR,
+              new int[] {data.primaryColor, data.secondaryColor, data.tertiaryColor});
+      gradient.setCornerRadius(28);
+      gradient.setStroke(2, 0x33FFFFFF);
+      holder.icon.setBackground(gradient);
       holder.icon.setColorFilter(null);
       Glide.with(holder.icon.getContext()).clear(holder.icon);
       holder.icon.setImageDrawable(null);
@@ -131,7 +133,9 @@ public class ThemeFilesAdapter extends RecyclerView.Adapter<ThemeFilesAdapter.Vi
     ThemeData cached = dataCache.get(file.getAbsolutePath());
     if (cached != null) return cached;
 
-    int color = 0xFF4C4C4C;
+    int primary = 0xFF4C4C4C;
+    int secondary = 0xFF4C4C4C;
+    int tertiary = 0xFF4C4C4C;
     boolean hasImage = false;
     String imagePath = null;
 
@@ -139,16 +143,21 @@ public class ThemeFilesAdapter extends RecyclerView.Adapter<ThemeFilesAdapter.Vi
       String json = new String(FileUtil.readBytesCompat(file), StandardCharsets.UTF_8);
       GhostTheme theme = new Gson().fromJson(json, GhostTheme.class);
       if (theme != null) {
-        Integer primary = null;
+        String accent =
+            theme.getWidget() != null ? theme.getWidget().getAccent() : null;
+
+        Integer m3Primary = null;
+        Integer m3Secondary = null;
+        Integer m3Tertiary = null;
         if (theme.getMaterial3() != null) {
-          primary = M3Theme.color(theme.getMaterial3().getPrimary());
+          m3Primary = M3Theme.color(theme.getMaterial3().getPrimary());
+          m3Secondary = M3Theme.color(theme.getMaterial3().getSecondary());
+          m3Tertiary = M3Theme.color(theme.getMaterial3().getTertiary());
         }
-        if (primary == null && theme.getWidget() != null) {
-          primary = M3Theme.color(theme.getWidget().getAccent());
-        }
-        if (primary != null) {
-          color = primary;
-        }
+
+        primary = firstColor(m3Primary, M3Theme.color(accent), primary);
+        secondary = firstColor(m3Secondary, m3Primary, M3Theme.color(accent), secondary);
+        tertiary = firstColor(m3Tertiary, m3Secondary, m3Primary, tertiary);
 
         WidgetTheme w = theme.getWidget();
         if (w != null && w.getImagepath() != null && !w.getImagepath().isEmpty()) {
@@ -159,18 +168,29 @@ public class ThemeFilesAdapter extends RecyclerView.Adapter<ThemeFilesAdapter.Vi
     } catch (Exception ignored) {
     }
 
-    ThemeData data = new ThemeData(color, hasImage, imagePath);
+    ThemeData data = new ThemeData(primary, secondary, tertiary, hasImage, imagePath);
     dataCache.put(file.getAbsolutePath(), data);
     return data;
   }
 
+  private static int firstColor(Integer... colors) {
+    for (Integer c : colors) {
+      if (c != null) return c;
+    }
+    return colors.length > 0 ? colors[colors.length - 1] : 0xFF4C4C4C;
+  }
+
   static class ThemeData {
     final int primaryColor;
+    final int secondaryColor;
+    final int tertiaryColor;
     final boolean hasImage;
     final String imagePath;
 
-    ThemeData(int primaryColor, boolean hasImage, String imagePath) {
+    ThemeData(int primaryColor, int secondaryColor, int tertiaryColor, boolean hasImage, String imagePath) {
       this.primaryColor = primaryColor;
+      this.secondaryColor = secondaryColor;
+      this.tertiaryColor = tertiaryColor;
       this.hasImage = hasImage;
       this.imagePath = imagePath;
     }

@@ -61,4 +61,13 @@
   <string name="lsp_result_dialog_title">Результат</string>
   <string name="lsp_cancel">Отмена</string>
   <string name="lsp_translate_error_prefix">Ошибка:</string>
+  <string name="dependency_checking">Проверяем наличие новой версии…</string>
+  <string name="dependency_check_failed">Не удалось найти более новую версию</string>
+  <string name="dependency_current_version">\uD83D\uDD17 Текущая версия: %s</string>
+  <string name="dependency_new_version">\u2B06 Новая версия: %s</string>
+  <string name="dependency_update">Обновлять</string>
+  <string name="dependency_up_to_date">Актуально \u2714</string>
+  <string name="dependency_update_catalog_hint">Версия определена в libs.versions.toml — туда будет записано обновление</string>
+  <string name="dependency_update_catalog_done">libs.versions.toml обновлен</string>
+  <string name="dependency_update_catalog_failed">Не удалось обновить libs.versions.toml.</string>
 </resources>

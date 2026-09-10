@@ -280,6 +280,8 @@ public class LiquidGlassDialogBuilderJava extends MaterialAlertDialogBuilder {
     content.removeViewAt(0);
     glassView.addView(panel, innerLp);
     content.addView(glassView);
+    // Keep the dialog in sync with the live theme (titles, buttons, images, ...).
+    M3Theme.refreshOnThemeChange(window.getDecorView());
     // Adaptive tint waits for the brightness sample to finish before it fires, so seed it with
     // the current best guess to avoid the first frame flashing the theme color
     applyTextColors(panel, glassView.isOverLightBackground());

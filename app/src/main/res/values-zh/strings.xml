@@ -80,12 +80,17 @@
   <string name="pref_app_theme_desc">更改程序的整体配色方案</string>
   <string name="theme_load_title">从文件加载主题</string>
   <string name="theme_load_message">输入 .gth 文件的完整路径</string>
+  <string name="theme_files_title">/sdcard/ghostide/themes/ 中的主题</string>
   <string name="theme_load_hint">.gth 文件路径</string>
   <string name="theme_load_empty_path">路径不能为空</string>
   <string name="theme_load_invalid_extension">文件必须以 .gth 结尾</string>
   <string name="theme_load_file_not_found">文件未找到：%s</string>
   <string name="theme_load_success">主题加载成功。应用将重新启动。</string>
   <string name="theme_load_error">加载主题失败：%s</string>
+  <string name="theme_delete_title">删除主题文件</string>
+  <string name="theme_delete_message">您确定要删除“%s”吗？</string>
+  <string name="theme_delete_success">主题文件已删除</string>
+  <string name="theme_delete_failed">无法删除主题文件</string>
   <string name="pref_load_theme_file">从文件加载主题</string>
   <string name="pref_load_theme_file_desc">从存储导入 .gth 主题文件</string>
   <string name="saveitemthis">保存此项</string>
@@ -430,6 +435,18 @@
   <string name="plugin_manager_installed_toast">已安装 %1$s</string>
   <string name="plugin_manager_not_gpl_file">请选择 .gpl 插件文件</string>
   <string name="plugin_manager_run_setup">在终端中运行</string>
+  <string name="pluginstore_empty">还没有可用的插件</string>
+  <string name="pluginstore_install">安装</string>
+  <string name="pluginstore_busy">在职的…</string>
+  <string name="pluginstore_installed_button">已安装</string>
+  <string name="pluginstore_installed">已安装插件 %1$s</string>
+  <string name="pluginstore_install_error">安装失败：%1$s</string>
+  <string name="pluginstore_source_saved">源已保存到%1$s</string>
+  <string name="pluginstore_source_error">源下载失败：%1$s</string>
+  <string name="pluginstore_no_description">没有提供描述</string>
+  <string name="pluginstore_install_only">安装</string>
+  <string name="pluginstore_install_and_source">安装+源</string>
+  <string name="pluginstore_icon">插件图标</string>
   <string name="terminal_error_cannot_create_etc_dir">无法创建 etc 目录：%1$s</string>
   <string name="terminal_error_resolve_rootfs_failed">无法找到 %1$s 架构的最新 rootfs：%2$s</string>
   <string name="terminal_error_http_status">来自 %2$s 的 HTTP %1$d</string>
@@ -487,4 +504,9 @@
   <string name="backgroundzoomsubtitle">启用此选项后，代码编辑器中会为您启用动画缩放模式，并显示键盘....</string>
   <string name="tabcolortitle">语言着色</string>
   <string name="tabcolorsubtitle">使用此功能可为每个扩展名给标签着色</string>
+  <string name="themes_dev_version">%1$s·v%2$d</string>
+  <string name="themes_download_failed">下载失败</string>
+  <string name="themes_applied">主题下载并应用</string>
+  <string name="themes_description_failed">无可用描述</string>
+  <string name="themes_empty">没有可用的主题</string>
 </resources>

@@ -59,6 +59,7 @@ public class ThemePreviewSheet extends BaseBlurBottomSheet {
 
   private ThemeImageAdapter imageAdapter;
   private int currentPage;
+  private String themeName;
 
   public static ThemePreviewSheet newInstance(ThemeItem theme) {
     ThemePreviewSheet sheet = new ThemePreviewSheet();
@@ -112,6 +113,7 @@ public class ThemePreviewSheet extends BaseBlurBottomSheet {
     }
 
     String name = args.getString(ARG_NAME, "");
+    themeName = name;
     String dev = args.getString(ARG_DEV, "");
     int version = args.getInt(ARG_VERSION, 0);
     title.setText(name);
@@ -229,7 +231,14 @@ public class ThemePreviewSheet extends BaseBlurBottomSheet {
                 if (!fileName.endsWith(".gth")) {
                   fileName = fileName + ".gth";
                 }
-                File dir = new File(Environment.getExternalStorageDirectory(), "ghostide/themes");
+                File themesDir = new File(Environment.getExternalStorageDirectory(), "ghostide/themes");
+                themesDir.mkdirs();
+                String dirName =
+                    themeName != null
+                        ? themeName.replaceAll("[\\\\/:*?\"<>|]", "_").trim()
+                        : "";
+                if (dirName.isEmpty()) dirName = "theme";
+                File dir = new File(themesDir, dirName);
                 dir.mkdirs();
                 out = new File(dir, fileName);
                 Request request = new Request.Builder().url(url).get().build();

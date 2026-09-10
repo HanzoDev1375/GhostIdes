@@ -80,12 +80,17 @@
   <string name="pref_app_theme_desc">प्रोग्राम के समग्र रंग योजना बदलें</string>
   <string name="theme_load_title">फ़ाइल से थीम लोड करें</string>
   <string name="theme_load_message">.gth फ़ाइल का पूरा पथ दर्ज करें</string>
+  <string name="theme_files_title">/sdcard/ghostide/themes/ में थीम्स</string>
   <string name="theme_load_hint">.gth फ़ाइल का पथ</string>
   <string name="theme_load_empty_path">पथ खाली नहीं हो सकता</string>
   <string name="theme_load_invalid_extension">फ़ाइल .gth के साथ समाप्त होनी चाहिए</string>
   <string name="theme_load_file_not_found">फ़ाइल नहीं मिली: %s</string>
   <string name="theme_load_success">थीम सफलतापूर्वक लोड हो गई। ऐप पुनः प्रारंभ होगा।</string>
   <string name="theme_load_error">थीम लोड करने में विफल: %s</string>
+  <string name="theme_delete_title">थीम फ़ाइल हटाएँ</string>
+  <string name="theme_delete_message">क्या आप वाकई &quot;%s&quot; को हटाना चाहते हैं?</string>
+  <string name="theme_delete_success">थीम फ़ाइल हटाई गई</string>
+  <string name="theme_delete_failed">थीम फ़ाइल को हटाया नहीं जा सका</string>
   <string name="pref_load_theme_file">फ़ाइल से थीम लोड करें</string>
   <string name="pref_load_theme_file_desc">स्टोरेज से .gth थीम फ़ाइल आयात करें</string>
   <string name="saveitemthis">इसे सहेजें</string>
@@ -430,6 +435,18 @@
   <string name="plugin_manager_installed_toast">%1$s इंस्टॉल किया गया</string>
   <string name="plugin_manager_not_gpl_file">कृपया एक .gpl प्लगइन फ़ाइल चुनें</string>
   <string name="plugin_manager_run_setup">टर्मिनल में चलाएँ</string>
+  <string name="pluginstore_empty">अभी तक कोई प्लगइन उपलब्ध नहीं है</string>
+  <string name="pluginstore_install">स्थापित करना</string>
+  <string name="pluginstore_busy">कार्यरत…</string>
+  <string name="pluginstore_installed_button">स्थापित</string>
+  <string name="pluginstore_installed">प्लगइन %1$s स्थापित</string>
+  <string name="pluginstore_install_error">इंस्टॉल विफल: %1$s</string>
+  <string name="pluginstore_source_saved">स्रोत %1$s पर सहेजा गया</string>
+  <string name="pluginstore_source_error">स्रोत डाउनलोड विफल: %1$s</string>
+  <string name="pluginstore_no_description">कोई विवरण नहीं दिया गया</string>
+  <string name="pluginstore_install_only">स्थापित करना</string>
+  <string name="pluginstore_install_and_source">इंस्टॉल + स्रोत</string>
+  <string name="pluginstore_icon">प्लगइन आइकन</string>
   <string name="terminal_error_cannot_create_etc_dir">आदि निर्देशिका नहीं बना सकते: %1$s</string>
   <string name="terminal_error_resolve_rootfs_failed">%1$s आर्किटेक्चर के लिए नवीनतम रूटफ़्स ढूंढने में विफल: %2$s</string>
   <string name="terminal_error_http_status">HTTP %1$d %2$s से</string>
@@ -487,4 +504,9 @@
   <string name="backgroundzoomsubtitle">जब आप इस विकल्प को सक्षम करते हैं, तो कीबोर्ड प्रदर्शित होने के साथ कोड एडिटर में आपके लिए एनिमेटेड ज़ूम मोड सक्षम हो जाता है....</string>
   <string name="tabcolortitle">भाषाओं को रंग दें</string>
   <string name="tabcolorsubtitle">इस सुविधा से प्रत्येक एक्सटेंशन के साथ एक टैब रंग दें</string>
+  <string name="themes_dev_version">%1$s · v%2$d</string>
+  <string name="themes_download_failed">डाउनलोड विफल रहा</string>
+  <string name="themes_applied">थीम डाउनलोड की गई और लागू की गई</string>
+  <string name="themes_description_failed">कोई विवरण उपलब्ध नहीं</string>
+  <string name="themes_empty">कोई थीम उपलब्ध नहीं है</string>
 </resources>

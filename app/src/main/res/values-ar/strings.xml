@@ -80,12 +80,17 @@
   <string name="pref_app_theme_desc">تغيير نظام الألوان العام للبرنامج</string>
   <string name="theme_load_title">تحميل السمة من ملف</string>
   <string name="theme_load_message">أدخل المسار الكامل لملف .gth</string>
+  <string name="theme_files_title">السمات في /sdcard/ghostide/themes/</string>
   <string name="theme_load_hint">مسار ملف .gth</string>
   <string name="theme_load_empty_path">لا يمكن أن يكون المسار فارغًا</string>
   <string name="theme_load_invalid_extension">يجب أن ينتهي الملف بـ .gth</string>
   <string name="theme_load_file_not_found">الملف غير موجود: %s</string>
   <string name="theme_load_success">تم تحميل السمة بنجاح. سيتم إعادة تشغيل التطبيق.</string>
   <string name="theme_load_error">فشل تحميل السمة: %s</string>
+  <string name="theme_delete_title">حذف ملف الموضوع</string>
+  <string name="theme_delete_message">هل أنت متأكد أنك تريد حذف &quot;%s&quot;؟</string>
+  <string name="theme_delete_success">تم حذف ملف الموضوع</string>
+  <string name="theme_delete_failed">لا يمكن حذف ملف الموضوع</string>
   <string name="pref_load_theme_file">تحميل السمة من ملف</string>
   <string name="pref_load_theme_file_desc">استيراد ملف سمة .gth من التخزين</string>
   <string name="saveitemthis">حفظ هذا</string>
@@ -430,6 +435,18 @@
   <string name="plugin_manager_installed_toast">تم تثبيت %1$s</string>
   <string name="plugin_manager_not_gpl_file">الرجاء اختيار ملف البرنامج المساعد .gpl</string>
   <string name="plugin_manager_run_setup">تشغيل في المحطة</string>
+  <string name="pluginstore_empty">لا توجد مكونات إضافية متاحة حتى الآن</string>
+  <string name="pluginstore_install">ثَبَّتَ</string>
+  <string name="pluginstore_busy">عمل…</string>
+  <string name="pluginstore_installed_button">تم التثبيت</string>
+  <string name="pluginstore_installed">تم تثبيت المكون الإضافي %1$s</string>
+  <string name="pluginstore_install_error">فشل التثبيت: %1$s</string>
+  <string name="pluginstore_source_saved">تم حفظ المصدر في %1$s</string>
+  <string name="pluginstore_source_error">فشل تنزيل المصدر: %1$s</string>
+  <string name="pluginstore_no_description">لم يتم تقديم أي وصف</string>
+  <string name="pluginstore_install_only">ثَبَّتَ</string>
+  <string name="pluginstore_install_and_source">تثبيت + المصدر</string>
+  <string name="pluginstore_icon">رمز البرنامج المساعد</string>
   <string name="terminal_error_cannot_create_etc_dir">لا يمكن إنشاء دليل آخر: %1$s</string>
   <string name="terminal_error_resolve_rootfs_failed">فشل العثور على أحدث الجذور لبنية %1$s: %2$s</string>
   <string name="terminal_error_http_status">HTTP %1$d من %2$s</string>
@@ -487,4 +504,9 @@
   <string name="backgroundzoomsubtitle">عند تفعيل هذا الخيار، يتم تفعيل وضع التكبير المتحرك لك في محرر الأكواد مع عرض لوحة المفاتيح....</string>
   <string name="tabcolortitle">تلوين اللغات</string>
   <string name="tabcolorsubtitle">قم بتلوين تبويب بكل امتداد باستخدام هذه الميزة</string>
+  <string name="themes_dev_version">%1$s · v%2$d</string>
+  <string name="themes_download_failed">فشل التنزيل</string>
+  <string name="themes_applied">تم تنزيل الموضوع وتطبيقه</string>
+  <string name="themes_description_failed">لا يوجد وصف متاح</string>
+  <string name="themes_empty">لا توجد مواضيع متاحة</string>
 </resources>

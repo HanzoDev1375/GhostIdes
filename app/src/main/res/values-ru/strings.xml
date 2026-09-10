@@ -80,12 +80,17 @@
   <string name="pref_app_theme_desc">Изменить общую цветовую схему программы</string>
   <string name="theme_load_title">Загрузить тему из файла</string>
   <string name="theme_load_message">Введите полный путь к файлу .gth</string>
+  <string name="theme_files_title">Темы в /sdcard/ghostide/themes/</string>
   <string name="theme_load_hint">Путь к файлу .gth</string>
   <string name="theme_load_empty_path">Путь не может быть пустым</string>
   <string name="theme_load_invalid_extension">Файл должен заканчиваться на .gth</string>
   <string name="theme_load_file_not_found">Файл не найден: %s</string>
   <string name="theme_load_success">Тема успешно загружена. Приложение будет перезапущено.</string>
   <string name="theme_load_error">Не удалось загрузить тему: %s</string>
+  <string name="theme_delete_title">Удалить файл темы</string>
+  <string name="theme_delete_message">Вы уверены, что хотите удалить &quot;%s&quot;?</string>
+  <string name="theme_delete_success">Файл темы удален.</string>
+  <string name="theme_delete_failed">Не удалось удалить файл темы.</string>
   <string name="pref_load_theme_file">Загрузить тему из файла</string>
   <string name="pref_load_theme_file_desc">Импортировать файл темы .gth из хранилища</string>
   <string name="saveitemthis">Сохранить это</string>
@@ -430,6 +435,18 @@
   <string name="plugin_manager_installed_toast">Установлен %1$s</string>
   <string name="plugin_manager_not_gpl_file">Пожалуйста, выберите файл плагина .gpl</string>
   <string name="plugin_manager_run_setup">Запустить в терминале</string>
+  <string name="pluginstore_empty">Плагинов пока нет</string>
+  <string name="pluginstore_install">Установить</string>
+  <string name="pluginstore_busy">Работающий…</string>
+  <string name="pluginstore_installed_button">Установлено</string>
+  <string name="pluginstore_installed">Плагин %1$s установлен</string>
+  <string name="pluginstore_install_error">Не удалось установить: %1$s</string>
+  <string name="pluginstore_source_saved">Источник сохранен в %1$s.</string>
+  <string name="pluginstore_source_error">Не удалось загрузить исходный код: %1$s.</string>
+  <string name="pluginstore_no_description">Описание не предоставлено</string>
+  <string name="pluginstore_install_only">Установить</string>
+  <string name="pluginstore_install_and_source">Установить + Исходный код</string>
+  <string name="pluginstore_icon">Значок плагина</string>
   <string name="terminal_error_cannot_create_etc_dir">Невозможно создать каталог и т. д.: %1$s</string>
   <string name="terminal_error_resolve_rootfs_failed">Не удалось найти последнюю rootfs для архитектуры %1$s: %2$s.</string>
   <string name="terminal_error_http_status">HTTP %1$d от %2$s</string>
@@ -487,4 +504,9 @@
   <string name="backgroundzoomsubtitle">Когда вы включите эту опцию, в редакторе кода с отображаемой клавиатурой для вас будет включён режим анимированного масштабирования....</string>
   <string name="tabcolortitle">Цвет языков</string>
   <string name="tabcolorsubtitle">Окрашивайте вкладку с каждым расширением с помощью этой функции</string>
+  <string name="themes_dev_version">%1$s · v%2$d</string>
+  <string name="themes_download_failed">Загрузка не удалась</string>
+  <string name="themes_applied">Тема скачана и применена.</string>
+  <string name="themes_description_failed">Нет описания</string>
+  <string name="themes_empty">Нет доступных тем</string>
 </resources>

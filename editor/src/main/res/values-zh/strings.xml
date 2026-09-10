@@ -61,4 +61,13 @@
   <string name="lsp_result_dialog_title">结果</string>
   <string name="lsp_cancel">取消</string>
   <string name="lsp_translate_error_prefix">错误：</string>
+  <string name="dependency_checking">正在检查更新版本...</string>
+  <string name="dependency_check_failed">找不到更新的版本</string>
+  <string name="dependency_current_version">\uD83D\uDD17 当前版本：%s</string>
+  <string name="dependency_new_version">\u2B06 新版本：%s</string>
+  <string name="dependency_update">更新</string>
+  <string name="dependency_up_to_date">最新的\u2714</string>
+  <string name="dependency_update_catalog_hint">版本在 libs.versions.toml 中定义 - 更新将写在那里</string>
+  <string name="dependency_update_catalog_done">libs.versions.toml 已更新</string>
+  <string name="dependency_update_catalog_failed">无法更新 libs.versions.toml</string>
 </resources>

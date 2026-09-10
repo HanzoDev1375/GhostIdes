@@ -97,6 +97,7 @@
   <string name="pluginstore_installed_button">מוּתקָן</string>
   <string name="pluginstore_install_and_source">התקנה + מקור</string>
   <string name="pluginstore_install_only">התקן בלבד</string>
+  <string name="pluginstore_run_setup">הפעל בטרמינל</string>
   <string name="pluginstore_no_description">אין תיאור זמין</string>
   <string name="pluginstore_installed">התוסף %s מותקן</string>
   <string name="pluginstore_install_error">ההתקנה נכשלה: %s</string>
@@ -113,4 +114,7 @@
   <string name="themes_background_failed">ההורדה ברקע נכשלה</string>
   <string name="themes_description">תֵאוּר</string>
   <string name="themes_description_failed">אין תיאור זמין</string>
+  <string name="webstore_download_done">הפרויקט הורד ל-ghostide/פרויקטים</string>
+  <string name="webstore_download_failed">ההורדה נכשלה</string>
+  <string name="webstore_images">%1$d תמונות</string>
 </resources>

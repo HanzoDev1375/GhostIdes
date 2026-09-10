@@ -27,15 +27,15 @@
   <string name="branch_rebase">إعادة الأساس</string>
   <string name="branch_delete">يمسح</string>
   <string name="branch_delete_confirm_title">حذف الفرع</string>
-  <string name="branch_delete_confirm_msg">هل تريد حذف الفرع \'%s\'؟</string>
+  <string name="branch_delete_confirm_msg">هل تريد حذف الفرع \&apos;%s\&apos;؟</string>
   <string name="branch_merge_confirm_title">فرع الدمج</string>
-  <string name="branch_merge_confirm_msg">هل تريد دمج \'%1$s\' في \'%2$s\'؟</string>
+  <string name="branch_merge_confirm_msg">هل تريد دمج \&apos;%1$s\&apos; في \&apos;%2$s\&apos;؟</string>
   <string name="branch_rebase_confirm_title">إعادة الأساس</string>
-  <string name="branch_rebase_confirm_msg">هل تريد إعادة إسناد \'%1$s\' إلى \'%2$s\'؟\n\nيؤدي هذا إلى إعادة كتابة سجل الالتزام.</string>
+  <string name="branch_rebase_confirm_msg">هل تريد إعادة إسناد \&apos;%1$s\&apos; إلى \&apos;%2$s\&apos;؟\n\nيؤدي هذا إلى إعادة كتابة سجل الالتزام.</string>
   <string name="remote_add">إضافة البعيد</string>
   <string name="remote_remove">يزيل</string>
   <string name="remote_remove_confirm_title">إزالة البعيد</string>
-  <string name="remote_remove_confirm_msg">هل تريد إزالة \'%s\'؟</string>
+  <string name="remote_remove_confirm_msg">هل تريد إزالة \&apos;%s\&apos;؟</string>
   <string name="remote_push">يدفع</string>
   <string name="remote_pull">يحذب</string>
   <string name="remote_fetch">أحضر</string>
@@ -84,7 +84,7 @@
   <string name="tag_create">إنشاء علامة</string>
   <string name="tag_delete">يمسح</string>
   <string name="tag_delete_confirm_title">حذف العلامة</string>
-  <string name="tag_delete_confirm_msg">هل تريد حذف العلامة \'%s\'؟</string>
+  <string name="tag_delete_confirm_msg">هل تريد حذف العلامة \&apos;%s\&apos;؟</string>
   <string name="tag_no_tags">لا توجد علامات حتى الآن</string>
   <string name="gitignore_title">محرر .gitignore</string>
   <string name="gitignore_hint">أدخل الأنماط، واحد في كل سطر...</string>
@@ -95,4 +95,16 @@
   <string name="gitignore_failed">فشل في حفظ gitignore</string>
   <string name="gitignore_templates">قوالب</string>
   <string name="tab_blame">لوم</string>
+  <string name="git_empty_changes_title">لا تغييرات</string>
+  <string name="git_empty_changes_desc">شجرة العمل الخاصة بك نظيفة. ستظهر هنا الملفات المعدلة أو الجديدة.</string>
+  <string name="git_empty_history_title">لا يلتزم بعد</string>
+  <string name="git_empty_history_desc">قم بتنفيذ التزامك الأول وسيظهر تاريخه هنا.</string>
+  <string name="git_empty_branches_title">لا فروع</string>
+  <string name="git_empty_branches_desc">قم بإنشاء فرع لبدء العمل.</string>
+  <string name="git_empty_remotes_title">لا أجهزة التحكم عن بعد</string>
+  <string name="git_empty_remotes_desc">أضف جهاز تحكم عن بعد (مثل الأصل) لدفع التزاماتك.</string>
+  <string name="git_empty_stash_title">لا شيء مخبأ</string>
+  <string name="git_empty_stash_desc">قم بتخزين تغييراتك لإبقائها آمنة لوقت لاحق.</string>
+  <string name="git_empty_tags_title">لا توجد علامات</string>
+  <string name="git_empty_tags_desc">قم بإنشاء علامة لتحديد النقاط المهمة في التاريخ.</string>
 </resources>

@@ -80,6 +80,7 @@
   <string name="pref_app_theme_desc">تغییر طرح رنگ کلی برنامه</string>
   <string name="theme_load_title">بارگیری تم از فایل</string>
   <string name="theme_load_message">مسیر کامل فایل .gth را وارد کنید</string>
+  <string name="theme_files_title">تم ها در /sdcard/ghostide/themes/</string>
   <string name="theme_load_hint">مسیر فایل .gth</string>
   <string name="theme_load_empty_path">مسیر نمی‌تواند خالی باشد</string>
   <string name="theme_load_invalid_extension">فایل باید با .gth پایان یابد</string>
@@ -503,4 +504,9 @@
   <string name="backgroundzoomsubtitle">وقتی این گزینه را فعال کنید، حالت بزرگ‌نمایی متحرک در ویرایشگر کد با نمایش صفحه‌کلید برای شما فعال می‌شود....</string>
   <string name="tabcolortitle">رنگ‌آمیزی زبان‌ها</string>
   <string name="tabcolorsubtitle">با این ویژگی هر تب را بر اساس پسوند آن رنگ‌آمیزی کنید</string>
+  <string name="themes_dev_version">%1$s · v%2$d</string>
+  <string name="themes_download_failed">دانلود انجام نشد</string>
+  <string name="themes_applied">تم دانلود و اعمال شد</string>
+  <string name="themes_description_failed">هیچ توضیحی در دسترس نیست</string>
+  <string name="themes_empty">هیچ تم موجود نیست</string>
 </resources>

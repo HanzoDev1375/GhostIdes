@@ -97,6 +97,7 @@
   <string name="pluginstore_installed_button">Установлено</string>
   <string name="pluginstore_install_and_source">Установить + Исходный код</string>
   <string name="pluginstore_install_only">Только установить</string>
+  <string name="pluginstore_run_setup">Запустить в терминале</string>
   <string name="pluginstore_no_description">Нет описания</string>
   <string name="pluginstore_installed">Плагин %s установлен</string>
   <string name="pluginstore_install_error">Не удалось установить: %s</string>
@@ -113,4 +114,7 @@
   <string name="themes_background_failed">Фоновая загрузка не удалась</string>
   <string name="themes_description">Описание</string>
   <string name="themes_description_failed">Нет описания</string>
+  <string name="webstore_download_done">Проект загружен в Ghostide/Projects.</string>
+  <string name="webstore_download_failed">Загрузка не удалась</string>
+  <string name="webstore_images">%1$d изображений</string>
 </resources>

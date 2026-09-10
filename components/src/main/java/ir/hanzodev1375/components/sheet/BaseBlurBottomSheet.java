@@ -15,6 +15,7 @@ import ir.hanzodev1375.components.R;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import ir.hanzodev1375.components.databinding.BaseBlurBottomSheetBinding;
 import ir.hanzodev1375.components.utils.ComponentsPrefs;
+import ir.theme.M3Theme;
 
 /** root has LinearLayout pls adding call contentContainer.addView(#View,ViewGroup.LayoutParam) */
 public abstract class BaseBlurBottomSheet extends BottomSheetDialogFragment {
@@ -41,6 +42,7 @@ public abstract class BaseBlurBottomSheet extends BottomSheetDialogFragment {
     float cornerRadius = getResources().getDimension(R.dimen.bottom_sheet_corner_radius);
     requireDialog().getWindow().setStatusBarColor(Color.TRANSPARENT);
     requireDialog().getWindow().setNavigationBarColor(Color.TRANSPARENT);
+    M3Theme.refreshOnThemeChange(root);
     expandSheet();
     onContentReady(binding.contentContainer);
   }

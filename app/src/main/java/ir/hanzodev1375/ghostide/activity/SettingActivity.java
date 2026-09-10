@@ -46,6 +46,7 @@ import ir.theme.ThemeBus;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import androidx.appcompat.app.AlertDialog;
@@ -940,17 +941,21 @@ public class SettingActivity extends BaseCompat {
   private List<File> scanThemeFiles() {
     List<File> themes = new ArrayList<>();
     File themeDir = new File(Environment.getExternalStorageDirectory(), THEMES_DIRECTORY);
-    if (themeDir.isDirectory()) {
-      File[] files = themeDir.listFiles();
-      if (files != null) {
-        for (File f : files) {
-          if (f.isFile() && f.getName().toLowerCase(Locale.ROOT).endsWith(".gth")) {
-            themes.add(f);
-          }
-        }
+    scanThemeFilesRecursive(themeDir, themes);
+    Collections.sort(themes, (a, b) -> a.getAbsolutePath().compareTo(b.getAbsolutePath()));
+    return themes;
+  }
+
+  private void scanThemeFilesRecursive(File dir, List<File> out) {
+    File[] files = dir.listFiles();
+    if (files == null) return;
+    for (File f : files) {
+      if (f.isDirectory()) {
+        scanThemeFilesRecursive(f, out);
+      } else if (f.isFile() && f.getName().toLowerCase(Locale.ROOT).endsWith(".gth")) {
+        out.add(f);
       }
     }
-    return themes;
   }
 
   private void confirmDeleteThemeFile(File file, ThemeFilesAdapter adapter) {

@@ -1,7 +1,5 @@
 package ir.hanzodev1375.ghostide.store;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -11,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import com.blankj.utilcode.util.FileIOUtils;
 import com.blankj.utilcode.util.FileUtils;
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
@@ -35,30 +34,17 @@ import ir.theme.WidgetTheme;
 import ir.theme.ActivityTheme;
 import ir.theme.internal.ThemeRefResolver;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.concurrent.TimeUnit;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 import ir.hanzodev1375.components.childern.ViewChilder;
 import ir.hanzodev1375.components.store.api.ThemesApi;
 import ir.hanzodev1375.components.store.event.ThemeInstalledEvent;
 import ir.hanzodev1375.components.store.model.ThemeItem;
 import ninja.coder.appuploader.main.appupdate.MarkwonHelper;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.greenrobot.eventbus.EventBus;
 
 public class ThemeStorePreviewSheet extends BaseBlurBottomSheet {
 
   private static final String ARG_THEME_JSON = "theme_json";
-
-  private static final OkHttpClient client =
-      new OkHttpClient.Builder()
-          .connectTimeout(15, TimeUnit.SECONDS)
-          .readTimeout(60, TimeUnit.SECONDS)
-          .build();
 
   private SheetThemeStorePreviewBinding binding;
   private ThemeItem theme;
@@ -67,6 +53,7 @@ public class ThemeStorePreviewSheet extends BaseBlurBottomSheet {
   private GhostTheme appliedTheme;
   private File appliedThemeFile;
   private boolean themeReady = false;
+  private ThemeStorePreviewViewModel viewModel;
 
   public static ThemeStorePreviewSheet newInstance(ThemeItem theme) {
     ThemeStorePreviewSheet sheet = new ThemeStorePreviewSheet();
@@ -118,9 +105,12 @@ public class ThemeStorePreviewSheet extends BaseBlurBottomSheet {
     binding.fabInstall.setAlpha(0.55f);
     binding.fabInstall.setOnClickListener(v -> installTheme(view));
 
+    hidePreviewContent();
+    setupViewModel();
+
     M3Theme.applyTopLevel(view);
     loadDescription();
-    startDownload();
+    viewModel.download(theme.linkdownload());
   }
 
   private void loadDescription() {
@@ -180,153 +170,71 @@ public class ThemeStorePreviewSheet extends BaseBlurBottomSheet {
     parent.addView(widgetRoot);
   }
 
-  private File out = null;
-
-  private void startDownload() {
-    String url = theme.linkdownload();
-    if (url == null || url.isEmpty()) {
-      Toast.makeText(requireContext(), R.string.themes_download_failed, Toast.LENGTH_SHORT).show();
-      dismiss();
-      return;
-    }
-    binding.previewProgressContainer.setVisibility(View.VISIBLE);
-    binding.previewProgressContainer.setAlpha(0f);
-    binding.previewProgressContainer.animate().alpha(1f).setDuration(250).start();
-    binding.previewProgress.setProgress(0);
-    binding.previewProgressText.setText("0%");
-
-    new Thread(
-            () -> {
-              boolean ok = false;
-
-              try {
-                File dir = new File(requireContext().getCacheDir(), "theme_preview");
-                clearCache(dir);
-                dir.mkdirs();
-
-                int dot = url.lastIndexOf('/');
-                String fileName = dot >= 0 ? url.substring(dot + 1) : "preview.gth";
-                if (!fileName.endsWith(".gth")) {
-                  fileName = fileName + ".gth";
-                }
-                out = new File(dir, "preview.gth");
-                download(url, out);
-
-                String themeDirUrl =
-                    dot >= 0 ? url.substring(0, url.lastIndexOf('/') + 1) : ThemesApi.REPO_BASE;
-                downloadBackground(out, themeDirUrl);
-                ok = out.exists();
-              } catch (Exception e) {
-                ok = false;
+  private void setupViewModel() {
+    viewModel = new ViewModelProvider(this).get(ThemeStorePreviewViewModel.class);
+    viewModel
+        .getState()
+        .observe(
+            getViewLifecycleOwner(),
+            state -> {
+              if (binding == null) return;
+              switch (state) {
+                case ThemeStorePreviewViewModel.STATE_DOWNLOADING:
+                  showProgress(true);
+                  break;
+                case ThemeStorePreviewViewModel.STATE_READY:
+                  showProgress(false);
+                  File file = viewModel.getAppliedThemeFile();
+                  if (file != null) {
+                    applyPreview(file);
+                  } else {
+                    onDownloadFailed();
+                  }
+                  break;
+                case ThemeStorePreviewViewModel.STATE_ERROR:
+                  showProgress(false);
+                  onDownloadFailed();
+                  break;
+                default:
+                  break;
               }
-              boolean success = ok;
-              requireActivity()
-                  .runOnUiThread(
-                      () -> {
-                        binding
-                            .previewProgressContainer
-                            .animate()
-                            .alpha(0f)
-                            .setDuration(300)
-                            .setListener(
-                                new AnimatorListenerAdapter() {
-                                  @Override
-                                  public void onAnimationEnd(Animator animation) {
-                                    binding.previewProgressContainer.setVisibility(View.GONE);
-                                  }
-                                })
-                            .start();
-                        if (success && out != null) {
-                          applyPreview(out);
-                        } else {
-                          Toast.makeText(
-                                  requireContext(),
-                                  R.string.themes_download_failed,
-                                  Toast.LENGTH_SHORT)
-                              .show();
-                        }
-                      });
-            })
-        .start();
+            });
+    viewModel
+        .getProgress()
+        .observe(
+            getViewLifecycleOwner(),
+            p -> {
+              if (binding == null || p == null) return;
+              binding.previewProgress.setProgress(p);
+              binding.previewProgressText.setText(p + "%");
+            });
   }
 
-  private void clearCache(File dir) {
-    if (dir == null || !dir.exists()) return;
-    File[] files = dir.listFiles();
-    if (files == null) return;
-    for (File f : files) {
-      f.delete();
+  private void showProgress(boolean show) {
+    if (binding == null) return;
+    binding.previewProgressContainer.setVisibility(show ? View.VISIBLE : View.GONE);
+    binding.previewProgressContainer.setAlpha(show ? 1f : 0f);
+    if (show) {
+      binding.previewProgressContainer.animate().alpha(1f).setDuration(250).start();
     }
   }
 
-  private void download(String url, File out) throws Exception {
-    Request request = new Request.Builder().url(url).get().build();
-    try (Response response = client.newCall(request).execute()) {
-      if (!response.isSuccessful() || response.body() == null) {
-        throw new IllegalStateException("bad response");
-      }
-      long total = response.body().contentLength();
-      try (FileOutputStream fos = new FileOutputStream(out);
-          InputStream is = response.body().byteStream()) {
-        byte[] buffer = new byte[8192];
-        int read;
-        long done = 0;
-        while ((read = is.read(buffer)) != -1) {
-          fos.write(buffer, 0, read);
-          done += read;
-          if (total > 0) {
-            int percent = (int) ((done * 100) / total);
-            int p = percent;
-            binding.previewProgressContainer.post(
-                () -> {
-                  binding.previewProgress.setProgress(p);
-                  binding.previewProgressText.setText(p + "%");
-                });
-          }
-        }
-      }
-    }
+  private void hidePreviewContent() {
+    if (binding == null) return;
+    binding.tabLayout.setVisibility(View.GONE);
+    binding.contentContainer.setVisibility(View.GONE);
+    binding.installBar.setVisibility(View.GONE);
   }
 
-  private void downloadBackground(File themeFile, String themeDirUrl) {
-    try {
-      String json = FileIOUtils.readFile2String(themeFile);
-      JsonObject root = JsonParser.parseString(json).getAsJsonObject();
-      if (!root.has("widget")) return;
-      JsonObject widget = root.getAsJsonObject("widget");
-      if (!widget.has("imagepath")) return;
-      String imagepath = widget.get("imagepath").getAsString();
-      if (imagepath == null || imagepath.isEmpty()) return;
-      if (imagepath.startsWith("http")
-          || imagepath.startsWith("/")
-          || imagepath.startsWith("content:")
-          || imagepath.startsWith("file:")) {
-        return;
-      }
-      while (imagepath.startsWith("../")) {
-        imagepath = imagepath.substring(3);
-      }
-      if (imagepath.startsWith("./")) {
-        imagepath = imagepath.substring(2);
-      }
-      String bgUrl = themeDirUrl + imagepath;
-      String bgName = new File(bgUrl).getName();
-      File bg = new File(themeFile.getParentFile(), bgName);
-      Request request = new Request.Builder().url(bgUrl).get().build();
-      try (Response response = client.newCall(request).execute()) {
-        if (response.isSuccessful() && response.body() != null) {
-          try (OutputStream fos = new FileOutputStream(bg);
-              InputStream is = response.body().byteStream()) {
-            byte[] buffer = new byte[8192];
-            int read;
-            while ((read = is.read(buffer)) != -1) {
-              fos.write(buffer, 0, read);
-            }
-          }
-        }
-      }
-    } catch (Exception ignored) {
-    }
+  private void showPreviewContent() {
+    if (binding == null) return;
+    binding.tabLayout.setVisibility(View.VISIBLE);
+    binding.contentContainer.setVisibility(View.VISIBLE);
+    binding.installBar.setVisibility(View.VISIBLE);
+  }
+
+  private void onDownloadFailed() {
+    Toast.makeText(requireContext(), R.string.themes_download_failed, Toast.LENGTH_SHORT).show();
   }
 
   private void applyPreview(File themeFile) {
@@ -353,6 +261,7 @@ public class ThemeStorePreviewSheet extends BaseBlurBottomSheet {
       applyWidgetTheme(t);
       applyBackground(t, themeFile);
 
+      showPreviewContent();
       binding.fabInstall.setEnabled(true);
       binding.fabInstall.setAlpha(1f);
     } catch (Exception e) {
@@ -617,16 +526,53 @@ public class ThemeStorePreviewSheet extends BaseBlurBottomSheet {
     }
     try {
       String name = theme.name() + ".gth";
-      File dir = new File(Environment.getExternalStorageDirectory(), "ghostide/themes");
+      File themesDir = new File(Environment.getExternalStorageDirectory(), "ghostide/themes");
+      themesDir.mkdirs();
+      String dirName = theme.name().replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+      if (dirName.isEmpty()) dirName = "theme";
+      File dir = new File(themesDir, dirName);
       dir.mkdirs();
       File target = new File(dir, name);
       FileUtils.copy(appliedThemeFile.getAbsolutePath(), target.getAbsolutePath());
+      copyBackground(appliedThemeFile, target);
       new ThemeManager(requireContext()).setThemeFromFile(target.getAbsolutePath());
       Toast.makeText(requireContext(), R.string.themes_applied, Toast.LENGTH_SHORT).show();
       EventBus.getDefault().post(new ThemeInstalledEvent());
       dismiss();
     } catch (Exception e) {
       Toast.makeText(requireContext(), R.string.themes_download_failed, Toast.LENGTH_SHORT).show();
+    }
+  }
+
+  private void copyBackground(File srcThemeFile, File targetThemeFile) {
+    try {
+      String json = FileIOUtils.readFile2String(srcThemeFile);
+      JsonObject root = JsonParser.parseString(json).getAsJsonObject();
+      if (!root.has("widget")) return;
+      JsonObject widget = root.getAsJsonObject("widget");
+      if (!widget.has("imagepath")) return;
+      String imagepath = widget.get("imagepath").getAsString();
+      if (imagepath == null || imagepath.isEmpty()) return;
+      if (imagepath.startsWith("http")
+          || imagepath.startsWith("content:")
+          || imagepath.startsWith("file:")) {
+        return;
+      }
+      String bgName;
+      if (imagepath.startsWith("/")) {
+        bgName = new File(imagepath).getName();
+      } else {
+        String clean = imagepath;
+        while (clean.startsWith("../")) clean = clean.substring(3);
+        if (clean.startsWith("./")) clean = clean.substring(2);
+        bgName = new File(clean).getName();
+      }
+      File srcBg = new File(srcThemeFile.getParentFile(), bgName);
+      if (srcBg.exists()) {
+        File targetBg = new File(targetThemeFile.getParentFile(), bgName);
+        FileUtils.copy(srcBg.getAbsolutePath(), targetBg.getAbsolutePath());
+      }
+    } catch (Exception ignored) {
     }
   }
 

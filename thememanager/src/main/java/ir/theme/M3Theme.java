@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +39,8 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
+import java.util.ArrayList;
+import java.util.WeakHashMap;
 
 public final class M3Theme {
 
@@ -47,6 +51,14 @@ public final class M3Theme {
 
   /** Live-override theme used while a theme transition animation is running. */
   private static volatile GhostTheme previewTheme;
+
+  /** View tag marking an image that must never be tinted (e.g. real background media). */
+  public static final String TAG_SKIP_TINT = "m3_skip_tint";
+
+  /** Roots (dialogs, sheets, ...) that re-apply this theme automatically on every theme change. */
+  private static final WeakHashMap<View, Boolean> autoRefreshRoots = new WeakHashMap<>();
+
+  private static ThemeBus.ThemeChangeListener autoRefreshListener;
 
   private M3Theme() {}
 
@@ -75,6 +87,34 @@ public final class M3Theme {
   @Nullable
   public static GhostTheme peekPreviewTheme() {
     return previewTheme;
+  }
+
+  /**
+   * Re-applies the current theme to the given root (and its whole tree) automatically every time
+   * the theme changes, while the view is still attached. Once the view is detached and garbage
+   * collected the entry is dropped, so dialogs/sheets never need manual cleanup. Safe to call on
+   * the UI thread only (auto-posts otherwise).
+   */
+  public static void refreshOnThemeChange(View root) {
+    if (root == null) {
+      return;
+    }
+    if (Looper.myLooper() != Looper.getMainLooper()) {
+      root.post(() -> refreshOnThemeChange(root));
+      return;
+    }
+    if (autoRefreshListener == null) {
+      autoRefreshListener =
+          (oldTheme, newTheme, animated) -> {
+            for (View v : new ArrayList<>(autoRefreshRoots.keySet())) {
+              if (v != null && v.isAttachedToWindow()) {
+                apply(v);
+              }
+            }
+          };
+      ThemeBus.getInstance().register(autoRefreshListener);
+    }
+    autoRefreshRoots.put(root, Boolean.TRUE);
   }
 
   public static Integer surfaceContainer() {
@@ -385,7 +425,7 @@ public final class M3Theme {
       } else if (v instanceof CheckBox) {
         checkboxView((CheckBox) v);
       } else if (v instanceof ImageView) {
-        // imageView((ImageView) v);
+        //imageView((ImageView) v);
       } else if (v instanceof SeekBar) {
         seekBar((SeekBar) v);
       } else if (v instanceof ProgressBar) {
@@ -764,7 +804,7 @@ public final class M3Theme {
         int enabledBg = surface;
         int checkedBg =
             primaryContainer != null
-                ? (showBackground ? surfaceAlpha(primaryContainer) : primaryContainer)
+                ? (isBackgroundImageMode() ? surfaceAlpha(primaryContainer) : primaryContainer)
                 : enabledBg;
         int pressedBg = checkedBg;
         chip.setChipBackgroundColor(
@@ -1039,10 +1079,15 @@ public final class M3Theme {
   }
 
   public static void imageView(ImageView iv) {
+    if (iv == null
+        || iv.getTag() == TAG_SKIP_TINT
+        || iv.getDrawable() instanceof BitmapDrawable) {
+      return;
+    }
     Integer tint =
         fallback(
-            color(m3().getOnSurfaceVariant()),
-            color(m3().getOnSurface()),
+            color(m3() != null ? m3().getOnSurfaceVariant() : null),
+            color(m3() != null ? m3().getOnSurface() : null),
             color(widgetNullableImageTint()));
     if (tint != null) {
       iv.setColorFilter(tint);
@@ -1088,7 +1133,10 @@ public final class M3Theme {
     if (c == null) {
       return 0;
     }
-    return alpha ? surfaceAlpha(c) : c;
+    if (alpha && isBackgroundImageMode()) {
+      return ColorUtils.setAlphaComponent(c, 128);
+    }
+    return c;
   }
 
   /** True when the background-image mode is on and the current theme provides an image. */

@@ -27,15 +27,15 @@
   <string name="branch_rebase">Rebase</string>
   <string name="branch_delete">Excluir</string>
   <string name="branch_delete_confirm_title">Excluir filial</string>
-  <string name="branch_delete_confirm_msg">Excluir filial \'%s\'?</string>
+  <string name="branch_delete_confirm_msg">Excluir filial \&apos;%s\&apos;?</string>
   <string name="branch_merge_confirm_title">Mesclar Filial</string>
-  <string name="branch_merge_confirm_msg">Mesclar \'%1$s\' em \'%2$s\'?</string>
+  <string name="branch_merge_confirm_msg">Mesclar \&apos;%1$s\&apos; em \&apos;%2$s\&apos;?</string>
   <string name="branch_rebase_confirm_title">Rebase</string>
-  <string name="branch_rebase_confirm_msg">Rebase \'%1$s\' em \'%2$s\'?\n\nIsso reescreve o histórico de commits.</string>
+  <string name="branch_rebase_confirm_msg">Rebase \&apos;%1$s\&apos; em \&apos;%2$s\&apos;?\n\nIsso reescreve o histórico de commits.</string>
   <string name="remote_add">Adicionar remoto</string>
   <string name="remote_remove">Remover</string>
   <string name="remote_remove_confirm_title">Remover remoto</string>
-  <string name="remote_remove_confirm_msg">Remover \'%s\'?</string>
+  <string name="remote_remove_confirm_msg">Remover \&apos;%s\&apos;?</string>
   <string name="remote_push">Empurrar</string>
   <string name="remote_pull">Puxar</string>
   <string name="remote_fetch">Buscar</string>
@@ -84,7 +84,7 @@
   <string name="tag_create">Criar etiqueta</string>
   <string name="tag_delete">Excluir</string>
   <string name="tag_delete_confirm_title">Excluir etiqueta</string>
-  <string name="tag_delete_confirm_msg">Excluir etiqueta \'%s\'?</string>
+  <string name="tag_delete_confirm_msg">Excluir etiqueta \&apos;%s\&apos;?</string>
   <string name="tag_no_tags">Ainda não há tags</string>
   <string name="gitignore_title">Editor .gitignore</string>
   <string name="gitignore_hint">Insira padrões, um por linha…</string>
@@ -95,4 +95,16 @@
   <string name="gitignore_failed">Falha ao salvar o gitignore</string>
   <string name="gitignore_templates">Modelos</string>
   <string name="tab_blame">Culpa</string>
+  <string name="git_empty_changes_title">Sem alterações</string>
+  <string name="git_empty_changes_desc">Sua árvore de trabalho está limpa. Arquivos editados ou novos aparecerão aqui.</string>
+  <string name="git_empty_history_title">Ainda não há commits</string>
+  <string name="git_empty_history_desc">Faça seu primeiro commit e seu histórico aparecerá aqui.</string>
+  <string name="git_empty_branches_title">Sem filiais</string>
+  <string name="git_empty_branches_desc">Crie um branch para começar a trabalhar.</string>
+  <string name="git_empty_remotes_title">Sem controles remotos</string>
+  <string name="git_empty_remotes_desc">Adicione um controle remoto (por exemplo, origem) para enviar seus commits.</string>
+  <string name="git_empty_stash_title">Nada escondido</string>
+  <string name="git_empty_stash_desc">Armazene suas alterações para mantê-las seguras para uso posterior.</string>
+  <string name="git_empty_tags_title">Sem tags</string>
+  <string name="git_empty_tags_desc">Crie uma tag para marcar pontos importantes da história.</string>
 </resources>

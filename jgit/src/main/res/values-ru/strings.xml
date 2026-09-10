@@ -27,15 +27,15 @@
   <string name="branch_rebase">Перебазировать</string>
   <string name="branch_delete">Удалить</string>
   <string name="branch_delete_confirm_title">Удалить ветку</string>
-  <string name="branch_delete_confirm_msg">Удалить ветку \'%s\'?</string>
+  <string name="branch_delete_confirm_msg">Удалить ветку \&apos;%s\&apos;?</string>
   <string name="branch_merge_confirm_title">Объединить ветку</string>
-  <string name="branch_merge_confirm_msg">Объединить \'%1$s\' с \'%2$s\'?</string>
+  <string name="branch_merge_confirm_msg">Объединить \&apos;%1$s\&apos; с \&apos;%2$s\&apos;?</string>
   <string name="branch_rebase_confirm_title">Перебазировать</string>
-  <string name="branch_rebase_confirm_msg">Перебазировать \'%1$s\' на \'%2$s\'?\n\nПри этом история коммитов перезаписывается.</string>
+  <string name="branch_rebase_confirm_msg">Перебазировать \&apos;%1$s\&apos; на \&apos;%2$s\&apos;?\n\nПри этом история коммитов перезаписывается.</string>
   <string name="remote_add">Добавить удаленный</string>
   <string name="remote_remove">Удалять</string>
   <string name="remote_remove_confirm_title">Удалить удаленный</string>
-  <string name="remote_remove_confirm_msg">Удалить \'%s\'?</string>
+  <string name="remote_remove_confirm_msg">Удалить \&apos;%s\&apos;?</string>
   <string name="remote_push">Толкать</string>
   <string name="remote_pull">Тянуть</string>
   <string name="remote_fetch">Принести</string>
@@ -84,7 +84,7 @@
   <string name="tag_create">Создать тег</string>
   <string name="tag_delete">Удалить</string>
   <string name="tag_delete_confirm_title">Удалить тег</string>
-  <string name="tag_delete_confirm_msg">Удалить тег \'%s\'?</string>
+  <string name="tag_delete_confirm_msg">Удалить тег \&apos;%s\&apos;?</string>
   <string name="tag_no_tags">Тегов пока нет</string>
   <string name="gitignore_title">Редактор .gitignore</string>
   <string name="gitignore_hint">Введите шаблоны, по одному в строке…</string>
@@ -95,4 +95,16 @@
   <string name="gitignore_failed">Не удалось сохранить gitignore</string>
   <string name="gitignore_templates">Шаблоны</string>
   <string name="tab_blame">Обвинять</string>
+  <string name="git_empty_changes_title">Никаких изменений</string>
+  <string name="git_empty_changes_desc">Ваше рабочее дерево чистое. Здесь будут отображаться отредактированные или новые файлы.</string>
+  <string name="git_empty_history_title">Коммитов пока нет</string>
+  <string name="git_empty_history_desc">Сделайте свой первый коммит, и здесь появится его история.</string>
+  <string name="git_empty_branches_title">Нет филиалов</string>
+  <string name="git_empty_branches_desc">Создайте ветку, чтобы начать работу.</string>
+  <string name="git_empty_remotes_title">Нет пультов</string>
+  <string name="git_empty_remotes_desc">Добавьте удаленный сервер (например, источник), чтобы отправлять ваши коммиты.</string>
+  <string name="git_empty_stash_title">Ничего не спрятано</string>
+  <string name="git_empty_stash_desc">Сохраните изменения, чтобы сохранить их на будущее.</string>
+  <string name="git_empty_tags_title">Нет тегов</string>
+  <string name="git_empty_tags_desc">Создайте тег, чтобы отметить важные моменты в истории.</string>
 </resources>
