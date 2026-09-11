@@ -26,6 +26,8 @@ import ir.hanzodev1375.components.effect.ripple.WaterRipple;
 import ir.hanzodev1375.components.effect.ThanosEffect;
 import ir.hanzodev1375.components.effect.ThanosItemAnimator;
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -92,7 +94,6 @@ import ir.hanzodev1375.ghostide.plugin.gpl.GplManifestReader;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplPluginLoader;
 import ir.hanzodev1375.ghostide.adapters.PluginPopupAdapter;
 import ir.hanzodev1375.ghostide.shizuku.ShizukuManager;
-import androidx.core.content.FileProvider;
 import ir.hanzodev1375.ghostide.terminal.activity.TerminalActivity;
 import ir.hanzodev1375.ghostide.utils.MarginItemDecoration;
 import ir.hanzodev1375.ghostide.utils.NetworkChangeReceiver;
@@ -118,6 +119,7 @@ import java.util.HashSet;
 import java.util.List;
 import ir.hanzodev1375.ghostide.R;
 import java.util.Set;
+import ninja.coder.appuploader.main.ApkInstallerCompat;
 import ninja.coder.appuploader.main.appupdate.UpadteAppView;
 import net.lingala.zip4j.ZipFile;
 import ir.hanzodev1375.ghostide.translator.ui.StringsTranslatorSheet;
@@ -150,6 +152,8 @@ public class FileManagerActivity extends BaseCompat
   private SelectionPanelBinding selectionPanelBinding;
   private FileManagerModel fileModels;
   private UpadteAppView app;
+  private ActivityResultLauncher<Intent> installPermissionLauncher;
+  private File apkPendingInstall;
   private PreferencesUtils appsetting;
   private ProfileView profileview;
   private NetworkChangeReceiver networkChangeReceiver;
@@ -323,6 +327,22 @@ public class FileManagerActivity extends BaseCompat
     bind.rvfiles.addItemDecoration(new MarginItemDecoration(this));
     setupThanosEffect();
     app = new UpadteAppView(this, bind.downloader, () -> {});
+    installPermissionLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+              File pending = apkPendingInstall;
+              apkPendingInstall = null;
+              if (pending != null
+                  && getPackageManager().canRequestPackageInstalls()) {
+                new ApkInstallerCompat(this, pending, installPermissionLauncher, null).install();
+              }
+            });
+    bind.downloader.setOnInstallApkListener(
+        (apkFile, fileName) -> {
+          apkPendingInstall = apkFile;
+          new ApkInstallerCompat(this, apkFile, installPermissionLauncher, null).install();
+        });
     stepSearch();
     adapter.setupSelectionTracker(bind.rvfiles);
 
@@ -337,8 +357,10 @@ public class FileManagerActivity extends BaseCompat
               boolean wasArmed = snapArmed;
               snapArmed = false;
               adapter.submitList(new ArrayList<>(files), animate);
-              // این بارگذاری مجدد ناشی از حذف واقعیه؛ باید پرچم تانوس روشن بمونه تا انیمیشن حذف که به‌صورت
-              // ناهمگام روی فریم بعدی توسط RecyclerView اجرا می‌شه، بتونه اون رو ببینن. برای ناوبری/بارگذاری
+              // این بارگذاری مجدد ناشی از حذف واقعیه؛ باید پرچم تانوس روشن بمونه تا انیمیشن حذف که
+              // به‌صورت
+              // ناهمگام روی فریم بعدی توسط RecyclerView اجرا می‌شه، بتونه اون رو ببینن. برای
+              // ناوبری/بارگذاری
               // عادی (wasArmed=false) پرچم رو خاموش می‌کنیم تا افکت روی کلیک/ناوبری اجرا نشه.
               if (!wasArmed) {
                 thanosItemAnimator.setSnapDeletionPending(false);
@@ -1551,6 +1573,13 @@ public class FileManagerActivity extends BaseCompat
   public void onThemeInstalled(ThemeInstalledEvent event) {
     if (EventBus.getDefault().isRegistered(this)) {
       reapplyThemeLive();
+      M3Theme.imageB(
+          bind.btnGoToDir,
+          bind.btnGoToDir,
+          bind.buttonAi,
+          bind.buttonPlugins,
+          bind.btnSettings,
+          bind.gitActionButton);
     }
   }
 
@@ -2161,8 +2190,7 @@ public class FileManagerActivity extends BaseCompat
 
               var ownerScreens = PluginPopupAdapter.screensOf(ownerId);
               if (!ownerScreens.isEmpty()) {
-                startActivity(
-                    PluginScreenActivity.createIntent(this, ownerScreens.get(0).getId()));
+                startActivity(PluginScreenActivity.createIntent(this, ownerScreens.get(0).getId()));
                 return;
               }
 
@@ -2242,8 +2270,7 @@ public class FileManagerActivity extends BaseCompat
     if (path != null) changePulse.point(new File(path));
     try {
       boolean ok =
-          bindService(
-              new Intent(this, PulseService.class), changePulse, Context.BIND_AUTO_CREATE);
+          bindService(new Intent(this, PulseService.class), changePulse, Context.BIND_AUTO_CREATE);
       if (!ok) {
         changePulse = null;
       }
@@ -2379,12 +2406,8 @@ public class FileManagerActivity extends BaseCompat
   }
 
   private void installApkNormal(String path) {
-    var apkFile = new File(path);
-    var uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", apkFile);
-    Intent intent = new Intent(Intent.ACTION_VIEW);
-    intent.setDataAndType(uri, "application/vnd.android.package-archive");
-    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-    startActivity(intent);
+    apkPendingInstall = new File(path);
+    new ApkInstallerCompat(this, apkPendingInstall, installPermissionLauncher, null).install();
   }
 
   private static int fallback(Integer value, int def) {

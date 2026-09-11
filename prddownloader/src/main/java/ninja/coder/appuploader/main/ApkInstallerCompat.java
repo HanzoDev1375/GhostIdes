@@ -1,188 +1,123 @@
 package ninja.coder.appuploader.main;
 
-import android.app.ActivityManager;
-import android.content.Context;
-import android.content.DialogInterface;
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
-import android.util.TypedValue;
-import androidx.appcompat.app.AlertDialog;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.core.content.FileProvider;
-import com.google.android.material.progressindicator.CircularProgressIndicator;
 import java.io.File;
-import java.util.List;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 
-@SuppressWarnings("deprecation")
+/**
+ * Installs an APK through the system package installer.
+ *
+ * <p>All functions must be called from the main/UI thread. A single {@link
+ * ActivityResultLauncher} for {@link Settings#ACTION_MANAGE_UNKNOWN_APP_SOURCES}, registered once
+ * by the hosting activity, is reused to ask for the "allow installs from this app" permission and
+ * to resume the install automatically when the user comes back.
+ */
 public class ApkInstallerCompat {
 
-  public static String TAG = "Error";
-  private final Context mContext;
+  public static final String TAG = "ApkInstallerCompat";
+
+  private final Activity mActivity;
   private final File mApkFile;
-  private AlertDialog mAlertDialog;
-  private boolean mIsInstallBlocked = false;
+  private final ActivityResultLauncher<Intent> mInstallPermissionLauncher;
+  private final Runnable mOnPermissionDenied;
 
-  public ApkInstallerCompat(Context context, File apkFile) {
-    mContext = context;
+  public ApkInstallerCompat(Activity activity, File apkFile) {
+    this(activity, apkFile, null, null);
+  }
+
+  public ApkInstallerCompat(
+      Activity activity,
+      File apkFile,
+      ActivityResultLauncher<Intent> installPermissionLauncher,
+      Runnable onPermissionDenied) {
+    mActivity = activity;
     mApkFile = apkFile;
-
-    CircularProgressIndicator progressBar = new CircularProgressIndicator(context);
-    int padding =
-        (int)
-            TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 16, context.getResources().getDisplayMetrics());
-    progressBar.setPadding(padding, padding, padding, padding);
-    progressBar.setIndeterminate(true);
-
-    var builder =
-        new DialogCompat(context)
-            .setTitle("Installing")
-            .setMessage("Please wait...")
-            .setCancelable(false)
-            .setPositiveButton(
-                "Cancel",
-                new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                  }
-                })
-            .setView(progressBar);
-
-    mAlertDialog = builder.create();
+    mInstallPermissionLauncher = installPermissionLauncher;
+    mOnPermissionDenied = onPermissionDenied;
   }
 
-  /**
-   * Must be called from the main/UI thread. All the work below is fast and non-blocking (no
-   * network/disk I/O), so it no longer needs a background thread - that's what was causing the
-   * Looper.prepare() crash: startActivity() could internally trigger a Handler-based callback (e.g.
-   * a system dialog/toast) on a thread that never had a Looper.
-   */
-  public void execute() {
-    String result = installInternal();
-
-    if (mAlertDialog.isShowing()) {
-      mAlertDialog.dismiss();
+  /** Must be called from the main/UI thread. */
+  public void install() {
+    if (mActivity == null || mApkFile == null) {
+      return;
     }
-
-    if (result != null) {
-      if (mIsInstallBlocked) {
-        showPermissionDialog();
-      } else {
-        showCustomDialog(result);
-      }
-    } else if (!isActivityRunning(mContext, mContext.getPackageName())) {
-      Intent launchIntent =
-          mContext.getPackageManager().getLaunchIntentForPackage(mContext.getPackageName());
-      if (launchIntent != null) {
-        launchIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        mContext.startActivity(launchIntent);
-      }
+    if (!mApkFile.getName().toLowerCase().endsWith(".apk") || !mApkFile.exists()) {
+      showError("Error", "APK file not found:\n" + mApkFile.getAbsolutePath());
+      return;
     }
+    if (!isInstallingFromUnknownSourcesAllowed()) {
+      requestUnknownSourcesPermission();
+      return;
+    }
+    launchSystemInstaller();
   }
 
-  private String installInternal() {
-    if (!mApkFile.getName().endsWith(".apk")) {
-      return "Error: not an APK file";
-    }
-
-    if (!isInstallingAppsFromUnknownSourcesAllowed()) {
-      mIsInstallBlocked = true;
-      return "Installation from unknown sources is blocked";
-    }
-
-    Intent intent = new Intent(Intent.ACTION_VIEW);
-    Uri apkUri;
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-      apkUri =
-          FileProvider.getUriForFile(mContext, "ir.hanzodev1375.ghostide.fileprovider", mApkFile);
-    } else {
-      apkUri = Uri.fromFile(mApkFile);
-    }
-
-    intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
+  private void launchSystemInstaller() {
     try {
-      mContext.startActivity(intent);
+      Uri apkUri =
+          FileProvider.getUriForFile(
+              mActivity, mActivity.getPackageName() + ".fileprovider", mApkFile);
+      Intent intent = new Intent(Intent.ACTION_VIEW);
+      intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+      intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+      mActivity.startActivity(intent);
     } catch (Exception e) {
-      Log.e(TAG, "Error installing APK:", e);
-      return "Error: " + e.getMessage();
+      Log.e(TAG, "Error installing APK: ", e);
+      showError("Installation Error", e.getMessage() == null ? "Unknown error" : e.getMessage());
     }
-    return null;
   }
 
-  private boolean isActivityRunning(Context context, String packageName) {
-    ActivityManager activityManager =
-        (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-    List<ActivityManager.RunningTaskInfo> tasks =
-        activityManager.getRunningTasks(Integer.MAX_VALUE);
+  private void requestUnknownSourcesPermission() {
+    Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+    intent.setData(Uri.parse("package:" + mActivity.getPackageName()));
 
-    for (ActivityManager.RunningTaskInfo task : tasks) {
-      if (packageName.equalsIgnoreCase(task.baseActivity.getPackageName())) {
-        return true;
-      }
+    if (mInstallPermissionLauncher != null) {
+      new DialogCompat(mActivity)
+          .setTitle("Permission Required")
+          .setMessage("Please allow installing apps from this source to continue")
+          .setCancelable(false)
+          .setPositiveButton(
+              "Ok",
+              (dialog, which) -> {
+                dialog.dismiss();
+                mInstallPermissionLauncher.launch(intent);
+              })
+          .setNegativeButton(
+              "Cancel",
+              (dialog, which) -> {
+                dialog.dismiss();
+                if (mOnPermissionDenied != null) {
+                  mOnPermissionDenied.run();
+                }
+              })
+          .show();
+    } else {
+      mActivity.startActivity(intent);
     }
-
-    return false;
   }
 
-  private void showCustomDialog(String message) {
-    new DialogCompat(mContext)
-        .setTitle("Installation Error")
+  private boolean isInstallingFromUnknownSourcesAllowed() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      return mActivity.getPackageManager().canRequestPackageInstalls();
+    }
+    return Settings.Secure.getInt(
+            mActivity.getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS, 0)
+        == 1;
+  }
+
+  private void showError(String title, String message) {
+    new DialogCompat(mActivity)
+        .setTitle(title)
         .setMessage(message)
         .setCancelable(false)
         .setPositiveButton("OK", null)
         .show();
-  }
-
-  private void showPermissionDialog() {
-    var builder =
-        new DialogCompat(mContext)
-            .setTitle("Permission Required")
-            .setMessage(
-                "Please grant permission to install packages from Unknown Sources to proceed")
-            .setCancelable(false)
-            .setPositiveButton(
-                "Ok",
-                new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                    openSettings();
-                  }
-                })
-            .setNegativeButton(
-                "Cancel",
-                new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                  }
-                });
-    builder.create().show();
-    
-  }
-
-  private void openSettings() {
-    Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
-    intent.setData(Uri.parse("package:" + mContext.getPackageName()));
-    mContext.startActivity(intent);
-  }
-
-  private boolean isInstallingAppsFromUnknownSourcesAllowed() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      return mContext.getPackageManager().canRequestPackageInstalls();
-    } else {
-      int result =
-          Settings.Secure.getInt(
-              mContext.getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS, 0);
-      return result == 1;
-    }
   }
 }

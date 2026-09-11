@@ -10,7 +10,7 @@ import ir.hanzodev1375.ghostide.databinding.ItemTerminalTabBinding;
 import ir.hanzodev1375.ghostide.terminal.TerminalTab;
 import java.util.List;
 
-/** آدابتور نوار تب‌های سشن ترمینال (مثل تب‌های مرورگر، کنار هم و اسکرول‌شونده افقی). */
+
 public class TerminalTabAdapter extends RecyclerView.Adapter<TerminalTabAdapter.ViewHolder> {
 
   public interface Listener {

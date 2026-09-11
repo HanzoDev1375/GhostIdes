@@ -4,18 +4,18 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
-import android.content.Context;
 import android.graphics.Rect;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.PathInterpolator;
 import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.ImageView;
+import com.google.android.material.textfield.TextInputLayout;
 import com.termux.terminal.TerminalSession;
-import ir.hanzodev1375.ghostide.databinding.ActivityTerminalBinding;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -28,8 +28,9 @@ import java.nio.charset.StandardCharsets;
  *   <li>وقتی کیبورد بسته بشه، پنل بعد از یه مکث کوتاه خودش جمع میشه.</li>
  * </ul>
  *
- * هم {@code TerminalActivity} و هم {@code TerminalBottomSheetFragment} از همون لِی‌اوت
- * ({@code activity_terminal.xml}) استفاده می‌کنن؛ پس این کنترلر مشترک بین هر دوئه.
+ * برای اینکه هم {@code TerminalActivity} و هم {@code TerminalBottomSheetFragment} (که هرکدوم لِی‌اوت
+ * مخصوص خودشون رو دارن) بتونن باهاش کار کنن، این کلاس یاد همون ویوها به‌صورت صریح می‌کنه و به هیچ
+ * بایندینگ خاصی وابسته نیست.
  */
 public class TerminalInputDock {
 
@@ -39,13 +40,19 @@ public class TerminalInputDock {
 
   private static final int ANIM_DURATION = 300;
   private static final int FLING_VELOCITY_THRESHOLD = 600;
-  private static final int TERMINAL_SWIPE_MAX_MS = 350;
   private static final int KEYBOARD_COLLAPSE_DELAY = 350;
 
   /** منحنی استاندارد متریال (fast-out / slow-in) برای حس نرم‌تر. */
   private static final TimeInterpolator EASING = new PathInterpolator(0.2f, 0f, 0f, 1f);
 
-  private final ActivityTerminalBinding binding;
+  private final View inputDock;
+  private final View dockPages;
+  private final View extraKeysScroll;
+  private final View commandInputRow;
+  private final EditText commandInput;
+  private final TextInputLayout commandInputLayout;
+  private final View dragHandle;
+  private final View handleChevron;
   private final SessionProvider sessionProvider;
 
   private final ValueAnimator heightAnimator = new ValueAnimator();
@@ -61,32 +68,41 @@ public class TerminalInputDock {
   private boolean dragging;
   private boolean dragged;
   private boolean flingHandled;
-  private int touchSlop;
 
-  private float terminalDownX;
-  private float terminalDownY;
-  private long terminalDownTime;
-
-  public TerminalInputDock(ActivityTerminalBinding binding, SessionProvider sessionProvider) {
-    this.binding = binding;
+  public TerminalInputDock(
+      View inputDock,
+      View dockPages,
+      View extraKeysScroll,
+      View commandInputRow,
+      EditText commandInput,
+      TextInputLayout commandInputLayout,
+      View dragHandle,
+      View handleChevron,
+      SessionProvider sessionProvider) {
+    this.inputDock = inputDock;
+    this.dockPages = dockPages;
+    this.extraKeysScroll = extraKeysScroll;
+    this.commandInputRow = commandInputRow;
+    this.commandInput = commandInput;
+    this.commandInputLayout = commandInputLayout;
+    this.dragHandle = dragHandle;
+    this.handleChevron = handleChevron;
     this.sessionProvider = sessionProvider;
-    Context context = binding.getRoot().getContext();
-    this.touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     this.handleDetector = createHandleDetector();
     configureInputField();
     setPagesToRestingState();
 
-    ViewGroup.LayoutParams params = binding.dockPages.getLayoutParams();
+    ViewGroup.LayoutParams params = dockPages.getLayoutParams();
     params.height = 0;
-    binding.dockPages.setLayoutParams(params);
-    binding.dockPages.setAlpha(0f);
-    binding.dragHandle.setAlpha(0.6f);
-    binding.dockPages.post(() -> contentHeight = measureContentHeight());
+    dockPages.setLayoutParams(params);
+    dockPages.setAlpha(0f);
+    dragHandle.setAlpha(0.6f);
+    dockPages.post(() -> contentHeight = measureContentHeight());
   }
 
-  /** ژست‌های دستگیره و سویپ افقی روی خودِ ترمینال رو وصل می‌کنه. */
+  /** ژست‌های دستگیره رو وصل می‌کنه. سویپ روی خودِ ترمینال هم خودش هندل می‌شه (دسته‌ی سوییپ روی‌توش). */
   public void attach() {
-    binding.dragHandle.setOnTouchListener(
+    dragHandle.setOnTouchListener(
         (v, event) -> {
           handleDetector.onTouchEvent(event);
           int action = event.getActionMasked();
@@ -95,12 +111,6 @@ public class TerminalInputDock {
             settleDrag();
           }
           return true;
-        });
-
-    binding.terminalView.setOnTouchListener(
-        (v, event) -> {
-          detectTerminalSwipe(event);
-          return false;
         });
   }
 
@@ -145,7 +155,7 @@ public class TerminalInputDock {
     heightAnimator.cancel();
     pageAnimator.cancel();
     expanded = false;
-    binding.commandInput.clearFocus();
+    commandInput.clearFocus();
     setPagesToRestingState();
     animateHeight(progress, 0f);
   }
@@ -164,7 +174,7 @@ public class TerminalInputDock {
   }
 
   private void configureInputField() {
-    binding.commandInput.setOnEditorActionListener(
+    commandInput.setOnEditorActionListener(
         (v, actionId, event) -> {
           boolean enterPressed =
               event != null
@@ -176,20 +186,19 @@ public class TerminalInputDock {
           }
           return false;
         });
-    binding.commandInputLayout.setEndIconOnClickListener(v -> sendCommand());
+    commandInputLayout.setEndIconOnClickListener(v -> sendCommand());
   }
 
   private void sendCommand() {
     TerminalSession session = sessionProvider.currentSession();
     if (session == null) return;
 
-    String text =
-        binding.commandInput.getText() == null ? "" : binding.commandInput.getText().toString();
+    String text = commandInput.getText() == null ? "" : commandInput.getText().toString();
     // اینتر برای تایپ کاربر یعنی "دستور رو اجرا کن"؛ پس Enter خام هم برای اجرای خالی لازمه.
     String command = text.isEmpty() ? "\r" : text + "\r";
     byte[] bytes = command.getBytes(StandardCharsets.UTF_8);
     session.write(bytes, 0, bytes.length);
-    binding.commandInput.setText("");
+    commandInput.setText("");
   }
 
   private void onKeyboardVisibilityChanged(boolean visible) {
@@ -198,13 +207,13 @@ public class TerminalInputDock {
       if (!expanded && !dragging) expand();
     } else if (expanded && !dragging) {
       // یه مکث کوتاه تا موقع جابه‌جایی فوکوس بین ترمینال و EditText پنل پرش نکند.
-      binding.dockPages.removeCallbacks(collapseRunnable);
-      binding.dockPages.postDelayed(collapseRunnable, KEYBOARD_COLLAPSE_DELAY);
+      dockPages.removeCallbacks(collapseRunnable);
+      dockPages.postDelayed(collapseRunnable, KEYBOARD_COLLAPSE_DELAY);
     }
   }
 
   private void cancelPendingCollapse() {
-    binding.dockPages.removeCallbacks(collapseRunnable);
+    dockPages.removeCallbacks(collapseRunnable);
   }
 
   private void expand() {
@@ -213,7 +222,7 @@ public class TerminalInputDock {
     if (contentHeight <= 0) {
       contentHeight = measureContentHeight();
       if (contentHeight <= 0) {
-        binding.dockPages.post(() -> { if (expanded) expand(); });
+        dockPages.post(() -> { if (expanded) expand(); });
         return;
       }
     }
@@ -246,42 +255,42 @@ public class TerminalInputDock {
 
   private void applyHeight(float p) {
     progress = clamp(p);
-    ViewGroup.LayoutParams lp = binding.dockPages.getLayoutParams();
+    ViewGroup.LayoutParams lp = dockPages.getLayoutParams();
     int height = Math.round(contentHeight * progress);
     if (lp.height != height) {
       lp.height = height;
-      binding.dockPages.setLayoutParams(lp);
+      dockPages.setLayoutParams(lp);
     }
-    binding.dockPages.setAlpha(progress);
-    binding.handleChevron.setRotation(180f * progress);
+    dockPages.setAlpha(progress);
+    handleChevron.setRotation(180f * progress);
   }
 
   private int measureContentHeight() {
-    int width = binding.dockPages.getWidth();
-    if (width <= 0) width = binding.inputDock.getWidth();
+    int width = dockPages.getWidth();
+    if (width <= 0) width = inputDock.getWidth();
     if (width <= 0) return 0;
-    binding.dockPages.measure(
+    dockPages.measure(
         View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
         View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-    return binding.dockPages.getMeasuredHeight();
+    return dockPages.getMeasuredHeight();
   }
 
   /** صفحه‌ها رو به حالت سکون برمی‌گردونه؛ اگه صفحه‌ی ورودی انتخاب شده باشه، همون حفظ می‌شه. */
   private void setPagesToRestingState() {
     if (inputPageShowing) {
-      binding.commandInputRow.setVisibility(View.VISIBLE);
-      binding.commandInputRow.setTranslationX(0f);
-      binding.commandInputRow.setAlpha(1f);
-      binding.extraKeysScroll.setVisibility(View.GONE);
-      binding.extraKeysScroll.setTranslationX(0f);
-      binding.extraKeysScroll.setAlpha(1f);
+      commandInputRow.setVisibility(View.VISIBLE);
+      commandInputRow.setTranslationX(0f);
+      commandInputRow.setAlpha(1f);
+      extraKeysScroll.setVisibility(View.GONE);
+      extraKeysScroll.setTranslationX(0f);
+      extraKeysScroll.setAlpha(1f);
     } else {
-      binding.extraKeysScroll.setVisibility(View.VISIBLE);
-      binding.extraKeysScroll.setTranslationX(0f);
-      binding.extraKeysScroll.setAlpha(1f);
-      binding.commandInputRow.setVisibility(View.INVISIBLE);
-      binding.commandInputRow.setTranslationX(0f);
-      binding.commandInputRow.setAlpha(0f);
+      extraKeysScroll.setVisibility(View.VISIBLE);
+      extraKeysScroll.setTranslationX(0f);
+      extraKeysScroll.setAlpha(1f);
+      commandInputRow.setVisibility(View.INVISIBLE);
+      commandInputRow.setTranslationX(0f);
+      commandInputRow.setAlpha(0f);
     }
   }
 
@@ -291,9 +300,9 @@ public class TerminalInputDock {
     pageAnimator.removeAllUpdateListeners();
     pageAnimator.removeAllListeners();
 
-    View buttons = binding.extraKeysScroll;
-    View input = binding.commandInputRow;
-    final int width = Math.max(binding.dockPages.getWidth(), 1);
+    final int width = Math.max(dockPages.getWidth(), 1);
+    final View buttons = extraKeysScroll;
+    final View input = commandInputRow;
 
     buttons.setVisibility(View.VISIBLE);
     input.setVisibility(View.VISIBLE);
@@ -359,7 +368,7 @@ public class TerminalInputDock {
   private GestureDetector createHandleDetector() {
     GestureDetector detector =
         new GestureDetector(
-            binding.getRoot().getContext(),
+            inputDock.getContext(),
             new GestureDetector.SimpleOnGestureListener() {
               @Override
               public boolean onDown(MotionEvent e) {
@@ -414,35 +423,6 @@ public class TerminalInputDock {
       settleDrag();
     }
     return true;
-  }
-
-  /**
-   * روی خودِ ترمینال هم سویپ افقی گوش می‌کنیم (بدون خوردن به توشه‌ی معمول ترمینال چون false
-   * برمی‌گردونیم). فقط اگه سریع و کوتاه باشه ثبت می‌شه تا با انتخاب متن قاطی نشه.
-   */
-  private void detectTerminalSwipe(MotionEvent event) {
-    switch (event.getActionMasked()) {
-      case MotionEvent.ACTION_DOWN:
-        terminalDownX = event.getRawX();
-        terminalDownY = event.getRawY();
-        terminalDownTime = event.getEventTime();
-        break;
-
-      case MotionEvent.ACTION_UP:
-        if (event.getEventTime() - terminalDownTime > TERMINAL_SWIPE_MAX_MS) return;
-        float dx = event.getRawX() - terminalDownX;
-        float dy = event.getRawY() - terminalDownY;
-        if (Math.abs(dx) <= touchSlop * 2 || Math.abs(dx) <= Math.abs(dy) * 1.6f) return;
-        if (dx < 0) {
-          showInputPage();
-        } else {
-          showButtonsPage();
-        }
-        break;
-
-      default:
-        break;
-    }
   }
 
   private static float clamp(float value) {

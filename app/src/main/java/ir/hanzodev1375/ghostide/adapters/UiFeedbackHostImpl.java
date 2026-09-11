@@ -13,12 +13,14 @@ import androidx.annotation.Nullable;
 import ir.hanzodev1375.ghostide.GhostIdeAppLoader;
 import ir.hanzodev1375.ghostide.ide.ui.api.UiFeedbackHost;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+
 /**
  * App-wide {@link UiFeedbackHost}. Tracks the resumed activity through lifecycle callbacks so
  * dialogs always attach to something visible; toasts only need the application context. Dialog
  * callbacks degrade gracefully (null/false) when no activity is resumed.
  */
-public final class UiFeedbackHostImpl implements UiFeedbackHost, Application.ActivityLifecycleCallbacks {
+public final class UiFeedbackHostImpl
+    implements UiFeedbackHost, Application.ActivityLifecycleCallbacks {
 
   private final Handler mainHandler = new Handler(Looper.getMainLooper());
   private Activity resumedActivity;

@@ -4,7 +4,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:backgroundTint="?attr/colorSurfaceContainer"
     android:id="@+id/coordinator">
 
     <ir.hanzodev1375.components.childern.ViewChilder
@@ -21,40 +20,22 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:background="?attr/colorSurfaceContainerHigh"
             android:minHeight="?attr/actionBarSize"
-            android:title="@string/terminal_title"
-            app:elevation="2dp"
-            android:id="@+id/toolbar">
-
-            <ImageButton
-                android:layout_height="42dp"
-                android:layout_width="42dp"
-                android:contentDescription="@string/terminal_more_options"
-                android:src="@drawable/more_vert"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_gravity="center_vertical|end"
-                android:layout_marginEnd="6dp"
-                app:tint="?attr/colorOnSurface"
-                android:id="@+id/btnMoreMenu" />
-
-        </com.google.android.material.appbar.MaterialToolbar>
+            android:id="@+id/toolbar" />
 
         <FrameLayout
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:background="?attr/colorSurfaceContainerHigh">
+            android:id="@+id/sessionTabsRow">
 
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabLayout"
-                android:layout_height="wrap_content"
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_height="44dp"
                 android:layout_width="match_parent"
-                app:tabMode="scrollable"
-                app:tabGravity="start"
-                app:tabIndicatorHeight="3dp"
-                app:tabMaxWidth="160dp"
-                app:tabMinWidth="80dp"
-                app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget" />
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingStart="4dp"
+                android:paddingEnd="52dp"
+                android:id="@+id/sessionTabs" />
 
             <ImageButton
                 android:layout_height="42dp"
@@ -65,7 +46,7 @@
                 android:padding="10dp"
                 app:tint="?attr/colorOnSurface"
                 android:layout_gravity="center_vertical|end"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="6dp"
                 android:id="@+id/btnNewSession" />
 
         </FrameLayout>
@@ -73,14 +54,15 @@
         <View
             android:layout_height="1dp"
             android:layout_width="match_parent"
-            android:background="?attr/colorOutlineVariant"
             android:id="@+id/dividerTop" />
 
-        <androidx.viewpager2.widget.ViewPager2
+        <com.termux.view.TerminalView
             android:layout_height="0dp"
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:id="@+id/viewPager" />
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:id="@+id/terminalView" />
 
         <FrameLayout
             android:layout_height="wrap_content"

@@ -1,5 +1,6 @@
 package ninja.coder.appuploader.main;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -8,6 +9,8 @@ import android.animation.ValueAnimator;
 import android.animation.ArgbEvaluator;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -23,6 +26,7 @@ import com.downloader.PRDownloader;
 import com.downloader.Progress;
 import com.downloader.Status;
 import com.downloader.databinding.LayoutDownloderChildBinding;
+import androidx.core.content.FileProvider;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Locale;
@@ -147,6 +151,14 @@ public class ViewDownloder extends RelativeLayout {
                       child.tvname.setText("endWork");
                       child.view.setVisibility(View.GONE);
                       child.installApk.setVisibility(View.VISIBLE);
+                      new Handler(Looper.getMainLooper())
+                          .postDelayed(
+                              () -> {
+                                if (child.installApk.isShown() || child.installApk.isEnabled()) {
+                                  installApk();
+                                }
+                              },
+                              600);
                     }
 
                     @Override
@@ -164,6 +176,16 @@ public class ViewDownloder extends RelativeLayout {
     void onClick(View v);
   }
 
+  public interface OnInstallApkListener {
+    void onInstallApk(File apkFile, String fileName);
+  }
+
+  private OnInstallApkListener installApkListener;
+
+  public void setOnInstallApkListener(OnInstallApkListener listener) {
+    this.installApkListener = listener;
+  }
+
   public String getProgressDisplayLine(long currentBytes, long totalBytes) {
     return getBytesToMBString(currentBytes) + "/" + getBytesToMBString(totalBytes);
   }
@@ -174,16 +196,27 @@ public class ViewDownloder extends RelativeLayout {
 
   @SuppressWarnings("deprecation")
   void installApk() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+    File apkFile = new File("/storage/emulated/0/ghostide/apk/" + fileName);
+    if (installApkListener != null) {
+      installApkListener.onInstallApk(apkFile, fileName);
+    } else if (getContext() instanceof Activity) {
+      new ApkInstallerCompat((Activity) getContext(), apkFile).install();
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
         && !getContext().getPackageManager().canRequestPackageInstalls()) {
       var intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
       intent.setData(Uri.parse("package:" + getContext().getPackageName()));
       getContext().startActivity(intent);
     } else {
-      ApkInstallerCompat compat =
-          new ApkInstallerCompat(
-              getContext(), new File("/storage/emulated/0/ghostide/apk/" + fileName));
-      compat.execute();
+      try {
+        Uri apkUri =
+            FileProvider.getUriForFile(
+                getContext(), getContext().getPackageName() + ".fileprovider", apkFile);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+        getContext().startActivity(intent);
+      } catch (Exception ignored) {
+      }
     }
   }
 }

@@ -83,6 +83,7 @@
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".activity.ImageViewerActivity" />
         <activity android:name=".activity.AboutActivity" />
+        <activity android:name=".onboarding.OnboardingActivity" android:exported="false" />
         <activity
             android:name=".postman.HistoryActivity"
             android:exported="false"

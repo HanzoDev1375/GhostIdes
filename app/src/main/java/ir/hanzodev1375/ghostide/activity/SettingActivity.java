@@ -914,11 +914,14 @@ public class SettingActivity extends BaseCompat {
               previewTheme(input, file);
               box[0].setSelectedPath(file.getAbsolutePath());
               box[0].notifyDataSetChanged();
+              M3Theme.reloadMode();
+              setupBackgroundBlur();
+              GhostTheme themeNow = new ThemeManager(SettingActivity.this).getTheme();
+              ThemeBus.getInstance().notifyThemeChanged(themeNow, themeNow, false);
             });
     box[0] = adapter;
     adapter.setSelectedPath(prefs.getAppThemeFile());
-    adapter.setOnFileLongClickListener(
-        (file, holder) -> confirmDeleteThemeFile(file, adapter));
+    adapter.setOnFileLongClickListener((file, holder) -> confirmDeleteThemeFile(file, adapter));
     list.setAdapter(adapter);
 
     DialogCompat dialogBuilder =
@@ -1054,16 +1057,28 @@ public class SettingActivity extends BaseCompat {
     }
     String imagePath = theme.getWidget().getImagepath();
     boolean hasImage = imagePath != null && !imagePath.isEmpty();
-    if (!hasImage || prefs.isShowBackground()) {
-      M3Theme.reloadMode();
+    if (!hasImage) {
+      if (prefs.isShowBackground()) {
+        prefs.setShowBackground(false);
+        M3Theme.reloadMode();
+        SettingItem item = appAdapter.getItemAtPosition(7);
+        if (item != null) {
+          item.setChecked(false);
+          appAdapter.notifyItemChanged(7);
+        }
+      }
       return;
     }
-    prefs.setShowBackground(true);
-    M3Theme.reloadMode();
-    SettingItem item = appAdapter.getItemAtPosition(7);
-    if (item != null) {
-      item.setChecked(true);
-      appAdapter.notifyItemChanged(7);
+    if (!prefs.isShowBackground()) {
+      prefs.setShowBackground(true);
+      M3Theme.reloadMode();
+      SettingItem item = appAdapter.getItemAtPosition(7);
+      if (item != null) {
+        item.setChecked(true);
+        appAdapter.notifyItemChanged(7);
+      }
+    } else {
+      M3Theme.reloadMode();
     }
   }
 
@@ -1083,7 +1098,8 @@ public class SettingActivity extends BaseCompat {
               getString(R.string.github_logout),
               (d, w) -> {
                 new GitHubClient(this).logout();
-                GhostToast.makeText(this, getString(R.string.github_logout_success), GhostToast.LENGTH_SHORT)
+                GhostToast.makeText(
+                        this, getString(R.string.github_logout_success), GhostToast.LENGTH_SHORT)
                     .show();
                 appAdapter.updateItem(
                     3,
@@ -1385,7 +1401,8 @@ public class SettingActivity extends BaseCompat {
     slider.setValue(current);
     slidersheet.setLable(String.format(Locale.US, "Tint: %.2f", current));
     slider.addOnChangeListener(
-        (s, value, fromUser) -> slidersheet.setLable(String.format(Locale.US, "Tint: %.2f", value)));
+        (s, value, fromUser) ->
+            slidersheet.setLable(String.format(Locale.US, "Tint: %.2f", value)));
     slidersheet.setButtonOk(
         v -> {
           componentsPrefs.setGlassTint(slider.getValue());

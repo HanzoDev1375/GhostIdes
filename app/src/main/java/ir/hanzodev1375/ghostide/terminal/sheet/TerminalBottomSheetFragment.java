@@ -27,7 +27,7 @@ import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.terminal.TerminalColorsUtil;
 import ir.theme.ThemeUtils;
 import ir.theme.ThemeManager;
-import ir.hanzodev1375.ghostide.databinding.ActivityTerminalBinding;
+import ir.hanzodev1375.ghostide.databinding.SheetTerminalBinding;
 import ir.hanzodev1375.ghostide.terminal.DebianBootstrap;
 import ir.hanzodev1375.ghostide.terminal.DebianInstaller;
 import ir.hanzodev1375.ghostide.terminal.GhostTerminalSessionClient;
@@ -48,7 +48,7 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
   public static final String EXTRA_WORKING_DIR = "working_dir";
   public static final String EXTRA_COMMAND = "command";
 
-  private ActivityTerminalBinding terminalBinding;
+  private SheetTerminalBinding terminalBinding;
   private final List<TerminalTab> sessions = new ArrayList<>();
   private int currentTabIndex = -1;
   private int nextSessionId = 1;
@@ -69,7 +69,7 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
       new GhostTerminalSessionClient.Callback() {
         @Override
         public void onTextChanged(TerminalSession session) {
-          if (session == currentSession()) terminalBinding.terminalView.invalidate();
+          if (session == currentSession()) terminalBinding.terminalView.onScreenUpdated();
         }
 
         @Override
@@ -96,7 +96,7 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
 
   @Override
   protected void onContentReady(ViewGroup contentContainer) {
-    terminalBinding = ActivityTerminalBinding.inflate(getLayoutInflater(), contentContainer, false);
+    terminalBinding = SheetTerminalBinding.inflate(getLayoutInflater(), contentContainer, false);
     contentContainer.addView(terminalBinding.getRoot());
     terminalBinding.getRoot().setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
     setupTerminalView();
@@ -109,7 +109,17 @@ public class TerminalBottomSheetFragment extends BaseBlurBottomSheet
   }
 
   private void setupInputDock() {
-    inputDock = new TerminalInputDock(terminalBinding, this::currentSession);
+    inputDock =
+        new TerminalInputDock(
+            terminalBinding.inputDock,
+            terminalBinding.dockPages,
+            terminalBinding.extraKeysScroll,
+            terminalBinding.commandInputRow,
+            terminalBinding.commandInput,
+            terminalBinding.commandInputLayout,
+            terminalBinding.dragHandle,
+            terminalBinding.handleChevron,
+            this::currentSession);
     inputDock.attach();
     inputDock.attachKeyboardWatcher(requireDialog().getWindow().getDecorView());
   }

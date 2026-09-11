@@ -1,29 +1,24 @@
 package ir.hanzodev1375.ghostide.terminal.activity;
 
 import android.Manifest;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.SystemClock;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.blankj.utilcode.util.FileUtils;
-import ir.hanzodev1375.components.views.GhostToast;
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
@@ -32,85 +27,51 @@ import androidx.core.graphics.Insets;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import com.blankj.utilcode.util.FileIOUtils;
-import com.blankj.utilcode.util.ResourceUtils;
-import ir.theme.GhostTheme;
-import ir.theme.M3Theme;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.termux.terminal.TerminalSession;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.hanzodev1375.components.views.GhostToast;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.activity.BaseCompat;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.databinding.ActivityTerminalBinding;
 import ir.hanzodev1375.ghostide.terminal.DebianBootstrap;
 import ir.hanzodev1375.ghostide.terminal.DebianInstaller;
-import ir.hanzodev1375.ghostide.terminal.GhostTerminalViewClient;
-import ir.hanzodev1375.ghostide.terminal.TerminalColorsUtil;
 import ir.hanzodev1375.ghostide.terminal.TerminalInputDock;
-import ir.hanzodev1375.ghostide.terminal.TerminalSessionService;
+import ir.hanzodev1375.ghostide.terminal.TerminalSessionFragment;
 import ir.hanzodev1375.ghostide.terminal.TerminalTab;
-import ir.hanzodev1375.ghostide.terminal.adapters.TerminalTabAdapter;
+import ir.hanzodev1375.ghostide.terminal.TerminalViewModel;
 import ir.hanzodev1375.ghostide.utils.ObjectUtil;
+import ir.theme.GhostTheme;
+import ir.theme.M3Theme;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import java.nio.charset.StandardCharsets;
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
 
 public class TerminalActivity extends BaseCompat
-    implements GhostTerminalViewClient.KeyModifierState, TerminalSessionService.SessionListener {
+    implements TerminalViewModel.SessionListener {
 
   public static final String EXTRA_WORKING_DIR = "working_dir";
   public static final String EXTRA_COMMAND = "command";
-  private static final String ASSET_INIT_SH = "shell/init.sh";
-  private static final String INIT_RUN_MARKER = "ghostide-init-run";
-  private static final String[] HELPER_COMMANDS = {
-    "weblsp",
-    "pylsp",
-    "phplsp",
-    "cpplsp",
-    "golsp",
-    "sasslsp",
-    "rubylsp",
-    "csharplsp",
-    "vuelsp",
-    "javalsp"
-  };
   private static final String LOG_TAG = "TerminalActivity";
-  private ActivityTerminalBinding b;
-  private TerminalSessionService service;
-  private boolean isBound = false;
-  private TerminalTabAdapter tabAdapter;
-  private int currentTabIndex = -1;
 
-  private boolean ctrlToggled = false;
-  private boolean altToggled = false;
+  private ActivityTerminalBinding b;
+  private TerminalViewModel viewModel;
+  private TerminalInputDock inputDock;
+  private SessionPagerAdapter pagerAdapter;
   private int defaultKeyBackgroundColor;
   private int defaultKeyTextColor;
-  private PreferencesUtils appsetting;
-  private ThemeUtils themeutil;
-  private TerminalInputDock inputDock;
 
-  private final ServiceConnection connection =
-      new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder binderObj) {
-          service = ((TerminalSessionService.LocalBinder) binderObj).getService();
-          isBound = true;
-          service.setUiListener(TerminalActivity.this);
-          onServiceReady();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-          isBound = false;
-          service = null;
-        }
-      };
-
+  private View initOverlay;
+  private TextView initOverlayStatus;
   private AlertDialog installDialog;
   private TextView installStatusText;
   private ProgressBar installProgressBar;
@@ -123,52 +84,43 @@ public class TerminalActivity extends BaseCompat
     setContentView(b.getRoot());
     M3Theme.apply(b.getRoot());
 
+    viewModel = new ViewModelProvider(this).get(TerminalViewModel.class);
+    viewModel.setActivityListener(this);
+
     setupToolbar();
     setupEdgeToEdgeInsets();
-    setupTerminalView();
+    setupViewPager();
     setupExtraKeys();
     applyJsonTheme();
     setupInputDock();
     setupBackHandler();
     setupBackgroundBlur();
+    setupInitOverlay();
     maybeRequestNotificationPermission();
   }
 
   @Override
   protected void onStart() {
     super.onStart();
-    initializeTerminal();
+    viewModel.bindService();
+    viewModel.setServiceListener();
+    maybeStartInstall();
   }
 
   @Override
   protected void onStop() {
-    if (isBound) {
-      service.setUiListener(null);
-      unbindService(connection);
-      isBound = false;
-    }
+    viewModel.unbindService();
     DebianInstaller.detach(installListener);
     super.onStop();
   }
 
-  private void initializeTerminal() {
-    if (DebianBootstrap.isInstalled(this)) {
-      bindServiceAndStart();
-      return;
-    }
-    if (DebianInstaller.isInstalling()) {
-      b.terminalView.setVisibility(View.INVISIBLE);
+  private void maybeStartInstall() {
+    if (DebianBootstrap.isInstalled(this)) return;
+    if (!DebianInstaller.isInstalling()) {
+      startDebianInstall();
+    } else {
       attachToRunningInstall();
-      return;
     }
-    b.terminalView.setVisibility(View.INVISIBLE);
-    startDebianInstall();
-  }
-
-  private void bindServiceAndStart() {
-    Intent serviceIntent = new Intent(this, TerminalSessionService.class);
-    ContextCompat.startForegroundService(this, serviceIntent);
-    bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
   }
 
   private void maybeRequestNotificationPermission() {
@@ -181,33 +133,177 @@ public class TerminalActivity extends BaseCompat
     }
   }
 
-  private void onServiceReady() {
-    if (tabAdapter == null) setupSessionTabs();
+  // ─── ViewPager + TabLayout ───────────────────────────────────────────
 
-    String command = getIntent().getStringExtra(EXTRA_COMMAND);
-    if (command != null && !command.isEmpty()) {
-      addNewDebianSession();
-      getIntent().removeExtra(EXTRA_COMMAND);
-      return;
-    }
+  private void setupViewPager() {
+    pagerAdapter = new SessionPagerAdapter(this);
+    b.viewPager.setAdapter(pagerAdapter);
+    b.viewPager.setOffscreenPageLimit(4);
+    // TerminalSessionFragment.detectTerminalSwipe() خودش سوایپ چپ/راست روی ترمینال رو برای
+    // باز/بسته‌کردن input dock می‌گیره؛ اگه سوایپ خودِ ViewPager2 هم روشن بمونه، این دو تا سر
+    // همون touch stream با هم تداخل دارن و حتی یه تپ ساده هم به‌صورت اسکرول/پرش ناخواسته دیده
+    // میشه. تعویض تب همچنان با کلیک روی TabLayout یا setCurrentItem برنامه‌ای کار می‌کنه.
+    b.viewPager.setUserInputEnabled(false);
 
-    List<TerminalTab> sessions = service.getSessions();
-    if (sessions.isEmpty()) {
-      addNewDebianSession();
-    } else {
-      int index =
-          (currentTabIndex >= 0 && currentTabIndex < sessions.size())
-              ? currentTabIndex
-              : sessions.size() - 1;
-      switchToTab(index);
+    TabLayoutMediator mediator = new TabLayoutMediator(b.tabLayout, b.viewPager, true, this::bindTab);
+    mediator.attach();
+
+    b.viewPager.registerOnPageChangeCallback(
+        new ViewPager2.OnPageChangeCallback() {
+          @Override
+          public void onPageSelected(int position) {
+            viewModel.switchToTab(position);
+          }
+        });
+
+    b.btnNewSession.setOnClickListener(this::showNewSessionMenu);
+  }
+
+  private void bindTab(TabLayout.Tab tab, int position) {
+    List<TerminalTab> tabs = viewModel.getSessionList();
+    tab.setText(tabs.get(position).getDisplayTitle());
+    tab.view.setOnLongClickListener(
+        v -> {
+          confirmCloseTab(position);
+          return true;
+        });
+  }
+
+  private void refreshTabs() {
+    pagerAdapter.notifyDataSetChanged();
+    for (int i = 0; i < viewModel.getSessionList().size(); i++) {
+      TabLayout.Tab tab = b.tabLayout.getTabAt(i);
+      if (tab != null) tab.setText(viewModel.getSessionList().get(i).getDisplayTitle());
     }
   }
 
+  private void confirmCloseTab(int position) {
+    List<TerminalTab> tabs = viewModel.getSessionList();
+    if (position < 0 || position >= tabs.size()) return;
+    new DialogCompat(this)
+        .setTitle(getString(R.string.terminal_close_tab))
+        .setMessage(getString(R.string.terminal_close_tab_confirm))
+        .setPositiveButton(
+            getString(R.string.terminal_action_close), (dialog, which) -> viewModel.removeSession(position))
+        .setNegativeButton(getString(R.string.terminal_action_cancel), null)
+        .show();
+  }
+
+  // ─── SessionListener ─────────────────────────────────────────────────
+
+  @Override
+  public void onServiceConnected() {
+    animateTerminalReveal();
+    if (viewModel.getSessionList().isEmpty()) {
+      addNewDebianSession();
+    } else {
+      int idx = viewModel.getCurrentTabIndex().getValue() != null
+          ? viewModel.getCurrentTabIndex().getValue()
+          : 0;
+      viewModel.switchToTab(idx);
+      refreshTabs();
+      b.viewPager.setCurrentItem(idx, true);
+    }
+  }
+
+  /** وقتی اکتیویتی دوباره به سرویس وصل می‌شه، ترمینال و تب‌ها با فیِد + اسلاید ظاهر می‌شن. */
+  private void animateTerminalReveal() {
+    boolean animate =
+        getAnimationManager() != null && getAnimationManager().areAnimationsEnabled();
+    animateIn(b.viewPager, animate);
+    animateIn(b.tabLayout, animate);
+  }
+
+  private void animateIn(View v, boolean animate) {
+    if (v == null) return;
+    if (!animate) {
+      v.setAlpha(1f);
+      v.setTranslationY(0f);
+      return;
+    }
+    v.setAlpha(0f);
+    v.setTranslationY(18f);
+    v.animate()
+        .alpha(1f)
+        .translationY(0f)
+        .setDuration(300)
+        .setInterpolator(new DecelerateInterpolator())
+        .start();
+  }
+
+  @Override
+  public void onSessionAdded(int index) {
+    refreshTabs();
+    b.viewPager.setCurrentItem(index, true);
+    consumeCommandExtra();
+  }
+
+  @Override
+  public void onSessionRemoved(boolean empty) {
+    if (empty) {
+      finish();
+      return;
+    }
+    refreshTabs();
+  }
+
+  @Override
+  public void onTitleChanged(int index) {
+    TabLayout.Tab tab = b.tabLayout.getTabAt(index);
+    if (tab != null) tab.setText(viewModel.getSessionList().get(index).getDisplayTitle());
+  }
+
+  @Override
+  public void onServiceLost() {
+    GhostToast.makeText(this, getString(R.string.terminal_service_lost), GhostToast.LENGTH_SHORT)
+        .show();
+    finish();
+  }
+
+  private void consumeCommandExtra() {
+    String command = getIntent().getStringExtra(EXTRA_COMMAND);
+    if (command == null || command.isEmpty()) return;
+    getIntent().removeExtra(EXTRA_COMMAND);
+    TerminalSession session = viewModel.getCurrentSession();
+    if (session != null) viewModel.writeCommandWhenReady(session, command);
+  }
+
+  // ─── InputDock ───────────────────────────────────────────────────────
+
   private void setupInputDock() {
-    inputDock = new TerminalInputDock(b, this::currentSession);
+    inputDock =
+        new TerminalInputDock(
+            b.inputDock,
+            b.dockPages,
+            b.extraKeysScroll,
+            b.commandInputRow,
+            b.commandInput,
+            b.commandInputLayout,
+            b.dragHandle,
+            b.handleChevron,
+            this::currentSession);
     inputDock.attach();
     inputDock.attachKeyboardWatcher(getWindow().getDecorView());
   }
+
+  public TerminalInputDock getInputDock() {
+    return inputDock;
+  }
+
+  @Nullable
+  private TerminalSession currentSession() {
+    return viewModel.getCurrentSession();
+  }
+
+  @Nullable
+  private TerminalSessionFragment getCurrentFragment() {
+    int position = b.viewPager.getCurrentItem();
+    String tag = "f" + R.id.viewPager + ":" + position;
+    Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
+    return fragment instanceof TerminalSessionFragment ? (TerminalSessionFragment) fragment : null;
+  }
+
+  // ─── Edge to edge ────────────────────────────────────────────────────
 
   private void setupEdgeToEdgeInsets() {
     ViewCompat.setOnApplyWindowInsetsListener(
@@ -229,90 +325,7 @@ public class TerminalActivity extends BaseCompat
         });
   }
 
-  private void setupBackgroundBlur() {
-    b.inputDock.setElevation(0f);
-    setupBackgroundBlur(
-        b.backgroundIconTerminal, b.toolbar, b.sessionTabsRow, b.inputDock, b.terminalView);
-  }
-
-  /**
-   * تم JSON را به‌صورت صریح روی تک‌تک المان‌های layout اعمال می‌کند. خیلی از ویوها (نوار تب‌ها،
-   * دیوایدرها، پنل ورودی و...) background را از ?attr/... می‌گیرند که همیشه به رنگ‌های تم JSON ست
-   * نمی‌شود؛ اینجا همه را مستقیماً از {@link M3Theme} رنگ می‌زنیم تا تم کامل باشد.
-   */
-  private void applyJsonTheme() {
-    boolean hasBackgroundImage = isBackgroundImageEnabled();
-
-    if (hasBackgroundImage) {
-      // با وجود عکس پس‌زمینه، رنگ‌های تُپُر اعمال نمی‌شوند تا عکس نمایان باشد.
-      b.coordinator.setBackgroundColor(Color.TRANSPARENT);
-    } else {
-      Integer surfaceContainer = M3Theme.surfaceContainer();
-      Integer surface = M3Theme.surface();
-      Integer surfaceHigh = M3Theme.surfaceContainerHigh();
-
-      if (surfaceContainer == null) surfaceContainer = surface;
-      if (surfaceContainer != null) b.coordinator.setBackgroundColor(surfaceContainer);
-
-      if (surfaceHigh != null) {
-        applyViewColor(b.toolbar, surfaceHigh);
-        applyViewColor(b.sessionTabsRow, surfaceHigh);
-        applyViewColor(b.inputDock, surfaceHigh);
-      }
-    }
-
-    Integer onSurface = M3Theme.onSurface();
-    Integer onSurfaceVariant = M3Theme.onSurfaceVariant();
-    Integer outlineVariant = M3Theme.outlineVariant();
-    Integer primary = M3Theme.primary();
-
-    if (onSurface != null) {
-      b.handleChevron.setColorFilter(onSurface);
-    }
-
-    if (primary != null) {
-      b.commandInputLayout.setEndIconTintList(ColorStateList.valueOf(primary));
-    }
-
-    if (onSurfaceVariant != null) {
-      b.commandInput.setHintTextColor(onSurfaceVariant);
-    }
-
-    if (outlineVariant != null) {
-      applyViewColor(b.dividerTabs, outlineVariant);
-      applyViewColor(b.dividerTop, outlineVariant);
-      applyViewColor(b.divExtra1, outlineVariant);
-      applyViewColor(b.divExtra2, outlineVariant);
-      applyViewColor(b.divExtra3, outlineVariant);
-      applyViewColor(b.dragHandlePill, outlineVariant);
-    }
-  }
-
-  /** آیا کاربر عکس پس‌زمینه فعال کرده تا رنگ‌های تُپُر حذف شوند؟ */
-  private boolean isBackgroundImageEnabled() {
-    boolean showBg = new PreferencesUtils(this).isShowBackground();
-    try {
-      GhostTheme theme = new ThemeUtils(new ThemeManager(this)).getTheme();
-      return showBg
-          && theme != null
-          && theme.getWidget() != null
-          && theme.getWidget().getImagepath() != null
-          && !theme.getWidget().getImagepath().isEmpty();
-    } catch (Throwable ignored) {
-      return false;
-    }
-  }
-
-  /** رنگ را روی background موجود View اعمال می‌کند (فرم/گوشه‌های گرد حفظ می‌شود). */
-  private void applyViewColor(View view, int color) {
-    if (view == null) return;
-    Drawable background = view.getBackground();
-    if (background != null) {
-      background.mutate().setTint(color);
-    } else {
-      view.setBackgroundColor(color);
-    }
-  }
+  // ─── Toolbar ─────────────────────────────────────────────────────────
 
   private void setupToolbar() {
     setSupportActionBar(b.toolbar);
@@ -357,49 +370,6 @@ public class TerminalActivity extends BaseCompat
         });
   }
 
-  private void setupTerminalView() {
-    b.terminalView.setTerminalViewClient(new GhostTerminalViewClient(b.terminalView, this));
-    TerminalColorsUtil.apply(this, this);
-    applyTerminalBackground();
-  }
-
-  /**
-   * وقتی کاربر پس‌زمینه‌ی تصویری فعال نکرده، TerminalView باید رنگش را دستی از M3Theme بگیرد تا با
-   * تم JSON هم‌رنگ شود؛ رنگ deliberately متمایز از اکشن‌بار (surfaceContainerHigh) و coordinator
-   * (surfaceContainer) است تا کل صفحه یکدست نشود. فقط با پس‌زمینه‌ی تصویری شفاف می‌ماند.
-   */
-  private void applyTerminalBackground() {
-    if (b.terminalView == null) return;
-    if (isBackgroundImageEnabled()) {
-      b.terminalView.setBackgroundColor(Color.TRANSPARENT);
-      return;
-    }
-    Integer bg = M3Theme.surfaceContainerLow();
-    if (bg == null) bg = M3Theme.surface();
-    b.terminalView.setBackgroundColor(bg != null ? bg : 0xFF121212);
-  }
-
-  private void setupSessionTabs() {
-    tabAdapter =
-        new TerminalTabAdapter(
-            service.getSessions(),
-            new TerminalTabAdapter.Listener() {
-              @Override
-              public void onTabSelected(int position) {
-                switchToTab(position);
-              }
-
-              @Override
-              public void onTabClosed(int position) {
-                closeTab(position);
-              }
-            });
-    b.sessionTabs.setLayoutManager(
-        new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-    b.sessionTabs.setAdapter(tabAdapter);
-    b.btnNewSession.setOnClickListener(this::showNewSessionMenu);
-  }
-
   private void showNewSessionMenu(View anchor) {
     if (!DebianBootstrap.isInstalled(this)) {
       GhostToast.makeText(
@@ -409,7 +379,7 @@ public class TerminalActivity extends BaseCompat
                   DebianBootstrap.getRootfsDir(this).getAbsolutePath()),
               GhostToast.LENGTH_LONG)
           .show();
-      addNewSession();
+      viewModel.addSession(null);
       return;
     }
     List<String> items = Arrays.asList("Shell", "Debian");
@@ -421,10 +391,13 @@ public class TerminalActivity extends BaseCompat
           if (index == 1) {
             addNewDebianSession();
           } else {
-            addNewSession();
+            String workingDir = getIntent().getStringExtra(EXTRA_WORKING_DIR);
+            viewModel.addSession(workingDir);
           }
         });
   }
+
+  // ─── Extra keys ──────────────────────────────────────────────────────
 
   private void setupExtraKeys() {
     int tonalBg = fallback(M3Theme.secondaryContainer(), fallback(M3Theme.secondary(), 0));
@@ -433,17 +406,9 @@ public class TerminalActivity extends BaseCompat
     defaultKeyTextColor = tonalFg;
 
     Button[] keys = {
-      b.keyEsc,
-      b.keyTab,
-      b.keyCtrl,
-      b.keyAlt,
-      b.keyUp,
-      b.keyDown,
-      b.keyLeft,
-      b.keyRight,
-      b.keySlash,
-      b.keyDash,
-      b.keyPipe
+      b.keyEsc, b.keyTab, b.keyCtrl, b.keyAlt,
+      b.keyUp, b.keyDown, b.keyLeft, b.keyRight,
+      b.keySlash, b.keyDash, b.keyPipe
     };
     for (Button key : keys) {
       key.setBackgroundTintList(ColorStateList.valueOf(tonalBg));
@@ -461,13 +426,13 @@ public class TerminalActivity extends BaseCompat
     b.keyPipe.setOnClickListener(v -> typeText("|"));
     b.keyCtrl.setOnClickListener(
         v -> {
-          ctrlToggled = !ctrlToggled;
-          updateModifierButtonStyle(b.keyCtrl, ctrlToggled);
+          viewModel.toggleCtrl();
+          updateModifierButtonStyle(b.keyCtrl, viewModel.isCtrlToggled());
         });
     b.keyAlt.setOnClickListener(
         v -> {
-          altToggled = !altToggled;
-          updateModifierButtonStyle(b.keyAlt, altToggled);
+          viewModel.toggleAlt();
+          updateModifierButtonStyle(b.keyAlt, viewModel.isAltToggled());
         });
   }
 
@@ -483,23 +448,12 @@ public class TerminalActivity extends BaseCompat
     }
   }
 
-  private void setupBackHandler() {
-    getOnBackPressedDispatcher()
-        .addCallback(
-            this,
-            new OnBackPressedCallback(true) {
-              @Override
-              public void handleOnBackPressed() {
-                setEnabled(false);
-                getOnBackPressedDispatcher().onBackPressed();
-              }
-            });
-  }
-
   private void sendKeyEvent(int keyCode) {
-    long now = SystemClock.uptimeMillis();
-    b.terminalView.dispatchKeyEvent(new KeyEvent(now, now, KeyEvent.ACTION_DOWN, keyCode, 0));
-    b.terminalView.dispatchKeyEvent(new KeyEvent(now, now, KeyEvent.ACTION_UP, keyCode, 0));
+    TerminalSessionFragment fragment = getCurrentFragment();
+    if (fragment != null) {
+      long now = SystemClock.uptimeMillis();
+      fragment.sendKeyEvent(keyCode);
+    }
   }
 
   private void typeText(String text) {
@@ -507,224 +461,157 @@ public class TerminalActivity extends BaseCompat
     if (session == null) return;
     byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
     session.write(bytes, 0, bytes.length);
-    // Combinações especiais do dock (/, -, |) ignoram onKeyDown/IME: atualiza o completador
-    b.terminalView.refreshCompletion();
   }
 
-  private void addNewSession() {
-    if (service == null) return;
-    String workingDir = getIntent().getStringExtra(EXTRA_WORKING_DIR);
-    service.createSession(workingDir);
-    tabAdapter.notifyDataSetChanged();
-    switchToTab(service.getSessions().size() - 1);
-  }
+  // ─── Sessions ────────────────────────────────────────────────────────
 
   private void addNewDebianSession() {
-    if (service == null) return;
-    service.createDebianSession();
-    tabAdapter.notifyDataSetChanged();
-    switchToTab(service.getSessions().size() - 1);
+    viewModel.addDebianSession();
+  }
 
-    String command = getIntent().getStringExtra(EXTRA_COMMAND);
-    if (command != null && !command.isEmpty()) {
-      TerminalSession session = currentSession();
-      writeCommandWhenReady(session, command);
+  // ─── Theme ───────────────────────────────────────────────────────────
+
+  private void setupBackgroundBlur() {
+    b.inputDock.setElevation(0f);
+    setupBackgroundBlur(b.backgroundIconTerminal, b.toolbar, b.inputDock);
+  }
+
+  private void applyJsonTheme() {
+    boolean hasBackgroundImage = isBackgroundImageEnabled();
+
+    if (hasBackgroundImage) {
+      b.coordinator.setBackgroundColor(Color.TRANSPARENT);
+    } else {
+      Integer surfaceContainer = M3Theme.surfaceContainer();
+      Integer surface = M3Theme.surface();
+      Integer surfaceHigh = M3Theme.surfaceContainerHigh();
+      if (surfaceContainer == null) surfaceContainer = surface;
+      if (surfaceContainer != null) b.coordinator.setBackgroundColor(surfaceContainer);
+      if (surfaceHigh != null) {
+        applyViewColor(b.toolbar, surfaceHigh);
+        applyViewColor(b.inputDock, surfaceHigh);
+        applyViewColor(b.tabLayout, surfaceHigh);
+      }
     }
 
-    syncShellScriptsToFilesDir();
-    runInitScriptIfNeeded();
-  }
+    Integer onSurface = M3Theme.onSurface();
+    Integer onSurfaceVariant = M3Theme.onSurfaceVariant();
+    Integer outlineVariant = M3Theme.outlineVariant();
+    Integer primary = M3Theme.primary();
 
-  /**
-   * بعد از نصبِ تازه‌ی Debian، فایل init.sh را فقط یک‌بار (بعد از ۲ ثانیه) در اولین سشنِ Debian
-   * اجرا می‌کند تا دیتاهای نصب (مثل nodejs) تنظیم شوند. بعد از اجرا یک marker روی rootfs ساخته
-   * می‌شود؛ پس وقتی کاربر Debian را حذف و دوباره نصب کند، marker حذف شده و init.sh دوباره اجرا
-   * می‌شود.
-   */
-  private void runInitScriptIfNeeded() {
-    File rootfs = DebianBootstrap.getRootfsDir(this);
-    File marker = new File(rootfs, INIT_RUN_MARKER);
-    if (marker.exists()) return;
+    M3Theme.tabs(b.tabLayout);
+    M3Theme.toolbar(b.toolbar);
 
-    b.terminalView.postDelayed(
-        new Runnable() {
-          @Override
-          public void run() {
-            TerminalSession session = currentSession();
-            if (session == null) return;
-            if (session.getEmulator() == null) {
-              b.terminalView.postDelayed(this, 100);
-              return;
-            }
-            installHelperCommands(rootfs);
-            String script = ResourceUtils.readAssets2String(ASSET_INIT_SH);
-            if (script != null && !script.isEmpty()) {
-              session.write(
-                  script
-                      + "\n"
-                      + "echo 'GhostIDE: type one of: "
-                      + String.join(", ", HELPER_COMMANDS)
-                      + "'\n");
-              FileUtils.createFileByDeleteOldFile(marker);
-              FileIOUtils.writeFileFromString(marker, "done");
-            }
-          }
-        },
-        2000);
-  }
-
-  /** اسکریپت‌های کمکی را از assets به files/shell اپ کپی می‌کند تا همیشه به‌روز باشند. */
-  private void syncShellScriptsToFilesDir() {
-    File shellDir = new File(getFilesDir(), "shell");
-    if (!shellDir.exists() && !shellDir.mkdirs()) return;
-    for (String name : HELPER_COMMANDS) {
-      copyAssetToFile("shell/" + name + ".sh", new File(shellDir, name + ".sh"));
+    if (onSurface != null) b.handleChevron.setColorFilter(onSurface);
+    if (primary != null) b.commandInputLayout.setEndIconTintList(ColorStateList.valueOf(primary));
+    if (onSurfaceVariant != null) b.commandInput.setHintTextColor(onSurfaceVariant);
+    if (outlineVariant != null) {
+      applyViewColor(b.dividerTop, outlineVariant);
+      applyViewColor(b.divExtra1, outlineVariant);
+      applyViewColor(b.divExtra2, outlineVariant);
+      applyViewColor(b.divExtra3, outlineVariant);
+      applyViewColor(b.dragHandlePill, outlineVariant);
     }
   }
 
-  private void copyAssetToFile(String assetPath, File target) {
+  private boolean isBackgroundImageEnabled() {
+    boolean showBg = new PreferencesUtils(this).isShowBackground();
     try {
-      String content = ResourceUtils.readAssets2String(assetPath);
-      if (content == null || content.isEmpty()) return;
-      FileUtils.createFileByDeleteOldFile(target);
-      FileIOUtils.writeFileFromString(target, content);
-    } catch (Exception e) {
-      Log.w(LOG_TAG, "copy asset failed: " + assetPath, e);
+      GhostTheme theme = new ThemeUtils(new ThemeManager(this)).getTheme();
+      return showBg
+          && theme != null
+          && theme.getWidget() != null
+          && theme.getWidget().getImagepath() != null
+          && !theme.getWidget().getImagepath().isEmpty();
+    } catch (Throwable ignored) {
+      return false;
     }
   }
 
-  /**
-   * برای دستورهای weblsp و pylsp داخل rootfs یک wrapper می‌سازد که نسخه‌ی اسکریپت را از فایل‌های اپ
-   * (مسیر /ghostide/files/shell/ داخل proot) اجرا می‌کند؛ یعنی با هر آپدیت اپ، کاربر همیشه آخرین
-   * نسخه‌ی اسکریپت‌ها را می‌گیرد.
-   */
-  private void installHelperCommands(File rootfs) {
-    for (String name : HELPER_COMMANDS) {
-      installHelperCommand(rootfs, name);
+  private void applyViewColor(View view, int color) {
+    if (view == null) return;
+    Drawable background = view.getBackground();
+    if (background != null) {
+      background.mutate().setTint(color);
+    } else {
+      view.setBackgroundColor(color);
     }
   }
 
-  private void installHelperCommand(File rootfs, String name) {
+  // ─── Init overlay ────────────────────────────────────────────────────
+
+  private void setupInitOverlay() {
+    initOverlay = b.getRoot().findViewById(R.id.initOverlay);
+    initOverlayStatus = b.getRoot().findViewById(R.id.initOverlayStatus);
+    TextView versionText = b.getRoot().findViewById(R.id.initOverlayVersion);
     try {
-      File binDir = new File(rootfs, "usr/local/bin");
-      if (!binDir.exists() && !binDir.mkdirs()) return;
-      File command = new File(binDir, name);
-      String wrapper = "#!/bin/bash\nexec bash /ghostide/files/shell/" + name + ".sh \"$@\"\n";
-      
-      FileUtils.createFileByDeleteOldFile(command);
-      FileIOUtils.writeFileFromString(command, wrapper);
-      command.setExecutable(true, false);
+      String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+      versionText.setText("v" + version);
     } catch (Exception e) {
-      Log.w(LOG_TAG, "install helper command failed: " + name, e);
+      versionText.setText("v1.0");
+    }
+    viewModel.setInitOverlayShower(this::showInitOverlay);
+    viewModel.setInitOverlayHider(this::hideInitOverlay);
+  }
+
+  private void showInitOverlay() {
+    if (initOverlay == null) return;
+    initOverlay.setVisibility(View.VISIBLE);
+    initOverlay.setAlpha(0f);
+    initOverlay
+        .animate()
+        .alpha(1f)
+        .setDuration(400)
+        .setInterpolator(new DecelerateInterpolator())
+        .start();
+    cycleInitStatus(0);
+  }
+
+  private void hideInitOverlay() {
+    if (initOverlay == null) return;
+    initOverlay
+        .animate()
+        .alpha(0f)
+        .setDuration(500)
+        .setInterpolator(new DecelerateInterpolator())
+        .withEndAction(() -> initOverlay.setVisibility(View.GONE))
+        .start();
+  }
+
+  private void cycleInitStatus(int step) {
+    if (initOverlay == null || initOverlay.getVisibility() != View.VISIBLE) return;
+    String[] messages = {
+      "Setting up DNS...",
+      "Installing Node.js...",
+      "Installing Web LSP...",
+      "Almost ready..."
+    };
+    if (step < messages.length) {
+      initOverlayStatus.setText(messages[step]);
+      b.getRoot().postDelayed(() -> cycleInitStatus(step + 1), 4000);
     }
   }
 
-  private void writeCommandWhenReady(TerminalSession session, String command) {
-    if (session == null || command == null || command.isEmpty()) return;
-    b.terminalView.post(
-        new Runnable() {
-          @Override
-          public void run() {
-            if (session.getEmulator() != null) {
-              session.write(command + "\n");
-            } else {
-              b.terminalView.postDelayed(this, 100);
-            }
-          }
-        });
+  // ─── Back ────────────────────────────────────────────────────────────
+
+  private void setupBackHandler() {
+    getOnBackPressedDispatcher()
+        .addCallback(
+            this,
+            new OnBackPressedCallback(true) {
+              @Override
+              public void handleOnBackPressed() {
+                if (inputDock != null && inputDock.isExpanded()) {
+                  inputDock.collapse();
+                  return;
+                }
+                setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
+              }
+            });
   }
 
-  private void switchToTab(int position) {
-    if (service == null) return;
-    List<TerminalTab> sessions = service.getSessions();
-    if (position < 0 || position >= sessions.size()) return;
-    currentTabIndex = position;
-    TerminalSession session = sessions.get(position).session;
-    TerminalColorsUtil.refreshSession(session);
-    b.terminalView.attachSession(session);
-    b.terminalView.invalidate();
-    tabAdapter.setSelectedPosition(position);
-    b.sessionTabs.scrollToPosition(position);
-  }
-
-  private void closeTab(int position) {
-    if (service == null) return;
-    List<TerminalTab> sessions = service.getSessions();
-    if (position < 0 || position >= sessions.size()) return;
-    TerminalTab tab = sessions.get(position);
-    service.removeSession(tab.session);
-    tabAdapter.notifyDataSetChanged();
-
-    sessions = service.getSessions();
-    if (sessions.isEmpty()) {
-      finish();
-      return;
-    }
-    int newIndex = Math.min(position, sessions.size() - 1);
-    switchToTab(newIndex);
-  }
-
-  @Nullable
-  private TerminalSession currentSession() {
-    if (service == null) return null;
-    List<TerminalTab> sessions = service.getSessions();
-    if (currentTabIndex < 0 || currentTabIndex >= sessions.size()) return null;
-    return sessions.get(currentTabIndex).session;
-  }
-
-  private int indexOfSession(TerminalSession session) {
-    if (service == null) return -1;
-    List<TerminalTab> sessions = service.getSessions();
-    for (int i = 0; i < sessions.size(); i++) {
-      if (sessions.get(i).session == session) return i;
-    }
-    return -1;
-  }
-
-  @Override
-  public void onTextChanged(TerminalSession session) {
-    if (session == currentSession()) b.terminalView.invalidate();
-  }
-
-  @Override
-  public void onTitleChanged(TerminalSession session) {
-    int index = indexOfSession(session);
-    if (index >= 0) tabAdapter.notifyItemChanged(index);
-  }
-
-  @Override
-  public void onSessionFinished(TerminalSession session) {
-    tabAdapter.notifyDataSetChanged();
-    List<TerminalTab> sessions = service.getSessions();
-    if (sessions.isEmpty()) {
-      finish();
-      return;
-    }
-    int newIndex = Math.min(Math.max(currentTabIndex, 0), sessions.size() - 1);
-    switchToTab(newIndex);
-  }
-
-  @Override
-  public boolean isCtrlToggled() {
-    return ctrlToggled;
-  }
-
-  @Override
-  public boolean isAltToggled() {
-    return altToggled;
-  }
-
-  @Override
-  public void consumeCtrlToggle() {
-    ctrlToggled = false;
-    updateModifierButtonStyle(b.keyCtrl, false);
-  }
-
-  @Override
-  public void consumeAltToggle() {
-    altToggled = false;
-    updateModifierButtonStyle(b.keyAlt, false);
-  }
+  // ─── Debian install ──────────────────────────────────────────────────
 
   private void confirmAndRemoveDebian() {
     new DialogCompat(this)
@@ -789,8 +676,7 @@ public class TerminalActivity extends BaseCompat
           public void onDownloadProgress(int percent) {
             runOnUiThread(
                 () -> {
-                  installStatusText.setText(
-                      getString(R.string.terminal_status_downloading, percent));
+                  installStatusText.setText(getString(R.string.terminal_status_downloading, percent));
                   installProgressBar.setIndeterminate(false);
                   installProgressBar.setProgress(percent);
                 });
@@ -800,8 +686,7 @@ public class TerminalActivity extends BaseCompat
           public void onExtractProgress(int extractedEntries) {
             runOnUiThread(
                 () -> {
-                  installStatusText.setText(
-                      getString(R.string.terminal_status_extracting, extractedEntries));
+                  installStatusText.setText(getString(R.string.terminal_status_extracting, extractedEntries));
                   installProgressBar.setIndeterminate(true);
                 });
           }
@@ -816,8 +701,8 @@ public class TerminalActivity extends BaseCompat
                           getString(R.string.terminal_debian_installed_success),
                           GhostToast.LENGTH_LONG)
                       .show();
-                  b.terminalView.setVisibility(View.VISIBLE);
-                  bindServiceAndStart();
+                  viewModel.bindService();
+                  viewModel.setServiceListener();
                 });
           }
 
@@ -826,8 +711,7 @@ public class TerminalActivity extends BaseCompat
             runOnUiThread(
                 () -> {
                   if (installDialog != null) installDialog.dismiss();
-                  GhostToast.makeText(TerminalActivity.this, message, GhostToast.LENGTH_LONG)
-                      .show();
+                  GhostToast.makeText(TerminalActivity.this, message, GhostToast.LENGTH_LONG).show();
                 });
           }
         };
@@ -843,6 +727,40 @@ public class TerminalActivity extends BaseCompat
     buildInstallDialogViews();
     DebianInstaller.attach(getOrCreateInstallListener());
   }
+
+  // ─── Pager adapter ───────────────────────────────────────────────────
+
+  private class SessionPagerAdapter extends FragmentStateAdapter {
+
+    SessionPagerAdapter(TerminalActivity activity) {
+      super(activity);
+    }
+
+    @NonNull
+    @Override
+    public Fragment createFragment(int position) {
+      TerminalTab tab = viewModel.getSessionList().get(position);
+      return TerminalSessionFragment.newInstance(tab.id);
+    }
+
+    @Override
+    public int getItemCount() {
+      return viewModel.getSessionList().size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+      TerminalTab tab = viewModel.getSessionList().get(position);
+      return tab.id;
+    }
+
+    @Override
+    public boolean containsItem(long itemId) {
+      return viewModel.containsSessionId((int) itemId);
+    }
+  }
+
+  // ─── Utils ───────────────────────────────────────────────────────────
 
   private static int fallback(Integer value, int def) {
     return value != null ? value : def;

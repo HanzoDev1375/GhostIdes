@@ -6,23 +6,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
-
-import ir.hanzodev1375.components.views.GhostToast;
+import ir.hanzodev1375.components.utils.RoundedCornersTransformation;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.utils.FileUtil;
 import ir.theme.GhostTheme;
 import ir.theme.M3Theme;
 import ir.theme.ThemeMediaPath;
 import ir.theme.WidgetTheme;
-
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -62,8 +56,7 @@ public class ThemeFilesAdapter extends RecyclerView.Adapter<ThemeFilesAdapter.Vi
   @Override
   public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     View view =
-        LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.item_theme_grid, parent, false);
+        LayoutInflater.from(parent.getContext()).inflate(R.layout.item_theme_grid, parent, false);
     return new ViewHolder(view);
   }
 
@@ -83,13 +76,12 @@ public class ThemeFilesAdapter extends RecyclerView.Adapter<ThemeFilesAdapter.Vi
 
     if (data.hasImage && data.imagePath != null && !data.imagePath.isEmpty()) {
       holder.icon.setBackground(null);
-      RequestOptions options =
-          new RequestOptions().transform(new RoundedCorners(28)).override(112, 112);
       holder.icon.setColorFilter(null);
       Glide.with(holder.icon.getContext())
-          .load(data.imagePath)
-          .apply(options)
-          .into(holder.icon);
+      .load(data.imagePath)
+      .transform(new RoundedCornersTransformation(26))
+      .override(112,122)
+      .into(holder.icon);
     } else {
       GradientDrawable gradient =
           new GradientDrawable(
@@ -143,8 +135,7 @@ public class ThemeFilesAdapter extends RecyclerView.Adapter<ThemeFilesAdapter.Vi
       String json = new String(FileUtil.readBytesCompat(file), StandardCharsets.UTF_8);
       GhostTheme theme = new Gson().fromJson(json, GhostTheme.class);
       if (theme != null) {
-        String accent =
-            theme.getWidget() != null ? theme.getWidget().getAccent() : null;
+        String accent = theme.getWidget() != null ? theme.getWidget().getAccent() : null;
 
         Integer m3Primary = null;
         Integer m3Secondary = null;
@@ -187,7 +178,12 @@ public class ThemeFilesAdapter extends RecyclerView.Adapter<ThemeFilesAdapter.Vi
     final boolean hasImage;
     final String imagePath;
 
-    ThemeData(int primaryColor, int secondaryColor, int tertiaryColor, boolean hasImage, String imagePath) {
+    ThemeData(
+        int primaryColor,
+        int secondaryColor,
+        int tertiaryColor,
+        boolean hasImage,
+        String imagePath) {
       this.primaryColor = primaryColor;
       this.secondaryColor = secondaryColor;
       this.tertiaryColor = tertiaryColor;
