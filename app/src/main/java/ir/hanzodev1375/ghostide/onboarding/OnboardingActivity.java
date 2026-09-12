@@ -126,8 +126,9 @@ public class OnboardingActivity extends BaseCompat {
       shape.setColor(i == page ? active : inactive);
       dot.setBackground(shape);
       LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) dot.getLayoutParams();
-      lp.width = i == page ? dp(24) : dp(8);
-      lp.height = dp(8);
+      int size = i == page ? dp(12) : dp(8);
+      lp.width = size;
+      lp.height = size;
       lp.setMarginEnd(dp(6));
       dot.setLayoutParams(lp);
     }

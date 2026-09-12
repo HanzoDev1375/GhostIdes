@@ -310,6 +310,13 @@
   <string name="split_layout_exit">از اسپلیت خارج شوید</string>
   <string name="editor_status_lines">%1$d خط · %2$s</string>
   <string name="terminal_title">ترمینال</string>
+  <string name="diagnostics_title">مشکلات</string>
+  <string name="diagnostics_empty">مشکلی پیدا نشد</string>
+  <string name="diagnostics_line">خط %1$d</string>
+  <string name="diagnostics_error">خطا</string>
+  <string name="diagnostics_warning">اخطار</string>
+  <string name="diagnostics_info">اطلاعات</string>
+  <string name="diagnostics_hint">راهنما</string>
   <string name="terminal_new_session">جلسه جدید</string>
   <string name="terminal_more_options">گزینه های بیشتر</string>
   <string name="plugin_type_badge">نوع پلاگین</string>

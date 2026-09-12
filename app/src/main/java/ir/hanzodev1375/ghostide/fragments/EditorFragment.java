@@ -27,6 +27,8 @@ import ir.hanzodev1375.ghostide.activity.EditorActivity;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.AndroidClasspathResolver;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.LspRouter;
 import ir.hanzodev1375.ghostide.editorlangs.LanguageManager;
+import ir.hanzodev1375.ghostide.editorlangs.LspDiagnosticsEventListener;
+import ir.hanzodev1375.ghostide.editorlangs.DiagnosticsBottomSheet;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
@@ -86,6 +88,7 @@ public class EditorFragment extends Fragment {
   private PagedEditSession pagedSession;
   private int pageIndex = -1;
   private LspViewModel lspViewModel;
+  private LspDiagnosticsEventListener diagnosticsListener;
   private boolean readOnly;
   private int pendingLine = -1;
   private int pendingColumn = -1;
@@ -197,6 +200,7 @@ public class EditorFragment extends Fragment {
                       connected.setDiagnostics(Collections.emptyList());
                     }
                     updateDiagnosticsIcon(connected);
+                    registerDiagnosticsListener(connected);
                     scheduleBreadcrumbRefresh();
                   }
                 } else if (state.hasError()) {
@@ -217,6 +221,7 @@ public class EditorFragment extends Fragment {
         });
     binding.tvCursorPosition.setVisibility(
         setting.getShowLineColPanel() ? View.VISIBLE : View.GONE);
+    binding.dlch.setOnClickListener(v -> showDiagnosticsSheet());
     editor.subscribeEvent(
         LongPressEvent.class,
         (event, unevent) -> {
@@ -479,6 +484,7 @@ public class EditorFragment extends Fragment {
     breadcrumbHandler.removeCallbacksAndMessages(null);
     FileChangeReceiver.stopWatching();
     notifyTabError(false);
+    unregisterDiagnosticsListener();
     if (lspViewModel != null) {
       lspViewModel.disconnect();
     }
@@ -592,6 +598,59 @@ public class EditorFragment extends Fragment {
     if (getActivity() instanceof EditorActivity) {
       ((EditorActivity) getActivity()).setTabError(filePath, hasError);
     }
+  }
+
+  private void showDiagnosticsSheet() {
+    LspEditor connected = lspViewModel == null ? null : lspViewModel.getLspEditor();
+    if (connected == null || !connected.isConnected()) {
+      return;
+    }
+    DiagnosticsBottomSheet sheet = DiagnosticsBottomSheet.newInstance();
+    sheet.setLspEditor(connected);
+    sheet.setOnDiagnosticClickListener(
+        (startLine, startColumn, endLine, endColumn) -> {
+          if (editor == null) return;
+          int maxLine = editor.getLineCount() - 1;
+          int l1 = Math.max(0, Math.min(startLine, maxLine));
+          int l2 = Math.max(l1, Math.min(endLine, maxLine));
+          try {
+            editor.setSelectionRegion(l1, Math.max(0, startColumn), l2, Math.max(startColumn, endColumn));
+          } catch (Exception ignored) {
+            editor.setSelection(l1, Math.max(0, startColumn));
+          }
+        });
+    sheet.show(getChildFragmentManager(), DiagnosticsBottomSheet.TAG);
+  }
+
+  private void registerDiagnosticsListener(@NonNull LspEditor connected) {
+    unregisterDiagnosticsListener();
+    if (!setting.isDiagnostics()) {
+      return;
+    }
+    diagnosticsListener =
+        new LspDiagnosticsEventListener(
+            connected,
+            (lspEditor, diagnostics) -> {
+              if (binding == null || !isAdded()) {
+                return;
+              }
+              binding.getRoot().post(() -> updateDiagnosticsIcon(lspEditor));
+            });
+    connected.getEventManager().addEventListener(diagnosticsListener);
+  }
+
+  private void unregisterDiagnosticsListener() {
+    if (diagnosticsListener == null) {
+      return;
+    }
+    try {
+      diagnosticsListener
+          .getEditor()
+          .getEventManager()
+          .removeEventListener(diagnosticsListener.getClass());
+    } catch (Exception ignored) {
+    }
+    diagnosticsListener = null;
   }
 
   void applyImeInsets(@NonNull final View target) {

@@ -312,6 +312,13 @@
     <string name="split_layout_exit">Exit Split</string>
     <string name="editor_status_lines">%1$d lines · %2$s</string>
     <string name="terminal_title">Terminal</string>
+    <string name="diagnostics_title">Problems</string>
+    <string name="diagnostics_empty">No problems found</string>
+    <string name="diagnostics_line">Line %1$d</string>
+    <string name="diagnostics_error">Error</string>
+    <string name="diagnostics_warning">Warning</string>
+    <string name="diagnostics_info">Info</string>
+    <string name="diagnostics_hint">Hint</string>
     <string name="terminal_new_session">New session</string>
     <string name="terminal_more_options">More options</string>
     <string name="plugin_type_badge">Plugin type</string>

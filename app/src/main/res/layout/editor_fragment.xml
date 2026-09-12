@@ -42,6 +42,9 @@
          android:scaleType="centerInside"
          android:paddingVertical="7dp"
          android:paddingHorizontal="12dp"
+         android:clickable="true"
+         android:focusable="true"
+         android:contentDescription="@string/diagnostics_title"
          android:id="@+id/dlch" />
 
     <LinearLayout

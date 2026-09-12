@@ -298,7 +298,10 @@ public class TerminalActivity extends BaseCompat
   @Nullable
   private TerminalSessionFragment getCurrentFragment() {
     int position = b.viewPager.getCurrentItem();
-    String tag = "f" + R.id.viewPager + ":" + position;
+    List<TerminalTab> tabs = viewModel.getSessionList();
+    if (position < 0 || position >= tabs.size()) return null;
+    long itemId = tabs.get(position).id;
+    String tag = "f" + R.id.viewPager + ":" + itemId;
     Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
     return fragment instanceof TerminalSessionFragment ? (TerminalSessionFragment) fragment : null;
   }
@@ -499,8 +502,9 @@ public class TerminalActivity extends BaseCompat
     Integer outlineVariant = M3Theme.outlineVariant();
     Integer primary = M3Theme.primary();
 
-    M3Theme.tabs(b.tabLayout);
     M3Theme.toolbar(b.toolbar);
+    M3Theme.tabs(b.tabLayout);
+    new ThemeUtils(new ThemeManager(this)).applyTabLayout(b.tabLayout, null);
 
     if (onSurface != null) b.handleChevron.setColorFilter(onSurface);
     if (primary != null) b.commandInputLayout.setEndIconTintList(ColorStateList.valueOf(primary));
@@ -511,6 +515,35 @@ public class TerminalActivity extends BaseCompat
       applyViewColor(b.divExtra2, outlineVariant);
       applyViewColor(b.divExtra3, outlineVariant);
       applyViewColor(b.dragHandlePill, outlineVariant);
+    }
+
+    applyColorBackground();
+  }
+
+  @Override
+  protected void applyOwnTheme(ThemeUtils themeUtils) {
+    super.applyOwnTheme(themeUtils);
+    if (b != null) {
+      if (b.tabLayout != null) {
+        themeUtils.applyTabLayout(b.tabLayout, null);
+      }
+      applyColorBackground();
+      themeUtils.applyImageBackground(b.backgroundIconTerminal);
+    }
+  }
+
+  private void applyColorBackground() {
+    try {
+      ThemeUtils themeUtils = new ThemeUtils(new ThemeManager(this));
+      GhostTheme theme = themeUtils.getTheme();
+      if (b == null || b.mainContent == null || theme == null || theme.getActivity() == null) {
+        return;
+      }
+      String background = theme.getActivity().getBackground();
+      if (background != null && !background.isEmpty()) {
+        b.mainContent.setBackgroundColor(Color.parseColor(background));
+      }
+    } catch (Throwable ignored) {
     }
   }
 

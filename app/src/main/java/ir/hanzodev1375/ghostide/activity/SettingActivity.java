@@ -1013,8 +1013,8 @@ public class SettingActivity extends BaseCompat {
   private void applyThemeFromInput(TextInputLayout input, AlertDialog dialog) {
     String path = input.getEditText().getText().toString().trim();
     if (path.isEmpty()) {
-      GhostToast.makeText(this, getString(R.string.theme_load_empty_path), GhostToast.LENGTH_SHORT)
-          .show();
+      new ThemeManager(this).resetToDefault();
+      dialog.dismiss();
       return;
     }
     if (!path.endsWith(".gth")) {
