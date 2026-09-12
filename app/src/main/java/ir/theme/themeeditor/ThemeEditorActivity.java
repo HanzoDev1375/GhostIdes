@@ -246,10 +246,17 @@ public class ThemeEditorActivity extends BaseCompat {
       appbar.setBackgroundColor(isBack ? colorBack : M3Theme.surfaceContainerLow());
     }
     getWindow().setStatusBarColor(isBack ? colorBack : M3Theme.surfaceContainerLow());
+    Integer navColor = M3Theme.surfaceContainerLow();
+    if (navColor != null) {
+      getWindow().setNavigationBarColor(M3Theme.applyBgAlpha(navColor));
+    }
 
     if (tabs != null) {
       tabs.setBackgroundColor(isBack ? colorBack : M3Theme.surfaceContainerLow());
-      tabs.setSelectedTabIndicatorColor(M3Theme.surfaceContainerLow());
+      Integer ind = M3Theme.primary();
+      if (ind != null) {
+        tabs.setSelectedTabIndicatorColor(ind);
+      }
       Integer tabSelected = M3Theme.onSurface();
       Integer tabUnselected = M3Theme.onSurfaceVariant();
       if (tabSelected != null || tabUnselected != null) {

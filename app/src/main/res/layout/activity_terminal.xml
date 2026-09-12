@@ -22,7 +22,7 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:background="?attr/colorSurfaceContainerHigh"
+            android:background="@android:color/transparent"
             android:minHeight="?attr/actionBarSize"
             android:title="@string/terminal_title"
             app:elevation="2dp"
@@ -42,6 +42,7 @@
         </com.google.android.material.appbar.MaterialToolbar>
 
         <FrameLayout
+            android:id="@+id/tabsBar"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:background="?attr/colorSurfaceContainerHigh">
@@ -52,6 +53,7 @@
                 android:layout_width="match_parent"
                 app:tabMode="scrollable"
                 app:tabGravity="start"
+                android:background="@android:color/transparent"
                 app:tabIndicatorHeight="3dp"
                 app:tabMaxWidth="160dp"
                 app:tabMinWidth="80dp"

@@ -1,7 +1,7 @@
 {
   "title": "Ghost IDE 1.1.5beta1",
   "massges": "## Ghostide\r\n\r\n\r\n- Fixed reported errors,\r\n- improved UI and LSPs\r\n- several other features introduced in the main version.",
-  "version": "1.1.5beta1",
+  "version": "1.1.6beta1",
   "link": "https://github.com/HanzoDev1375/GhostIdes/releases/download/1.1.5beta1/app-release.apk",
   "appname": "Ghost IDE"
 }

@@ -425,7 +425,7 @@ public final class M3Theme {
       } else if (v instanceof CheckBox) {
         checkboxView((CheckBox) v);
       } else if (v instanceof ImageView) {
-        //imageView((ImageView) v);
+        // imageView((ImageView) v);
       } else if (v instanceof SeekBar) {
         seekBar((SeekBar) v);
       } else if (v instanceof ProgressBar) {
@@ -561,7 +561,8 @@ public final class M3Theme {
             m3() != null ? m3().getOnPrimary() : null);
 
     if (b.isChecked()) {
-      Integer container = fallback(color(m3() != null ? m3().getPrimaryContainer() : null), primary);
+      Integer container =
+          fallback(color(m3() != null ? m3().getPrimaryContainer() : null), primary);
       Integer onContainer = fallback(onPrimaryContainer, onPrimary);
       if (container != null) {
         b.setBackgroundTintList(ColorStateList.valueOf(container));
@@ -777,6 +778,8 @@ public final class M3Theme {
     if (ind != null) {
       try {
         tabs.setSelectedTabIndicatorColor(ind);
+        tabs.setBackgroundTintList(
+            ColorStateList.valueOf(isBackgroundImageMode() ? 0 : surfaceContainerLow()));
       } catch (Throwable ignored) {
       }
     }
@@ -1079,9 +1082,7 @@ public final class M3Theme {
   }
 
   public static void imageView(ImageView iv) {
-    if (iv == null
-        || iv.getTag() == TAG_SKIP_TINT
-        || iv.getDrawable() instanceof BitmapDrawable) {
+    if (iv == null || iv.getTag() == TAG_SKIP_TINT || iv.getDrawable() instanceof BitmapDrawable) {
       return;
     }
     Integer tint =
@@ -1139,8 +1140,19 @@ public final class M3Theme {
     return c;
   }
 
+  /**
+   * Applies the app's background-image fade rule to a color (alpha 128 over the image, opaque
+   * otherwise).
+   */
+  public static @ColorInt int applyBgAlpha(int color) {
+    if (isBackgroundImageMode()) {
+      return ColorUtils.setAlphaComponent(color, 128);
+    }
+    return color;
+  }
+
   /** True when the background-image mode is on and the current theme provides an image. */
-  private static boolean isBackgroundImageMode() {
+  public static boolean isBackgroundImageMode() {
     if (!showBackground) {
       return false;
     }

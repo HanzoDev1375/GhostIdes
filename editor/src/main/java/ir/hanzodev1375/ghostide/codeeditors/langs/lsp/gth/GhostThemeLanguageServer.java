@@ -238,17 +238,26 @@ public class GhostThemeLanguageServer
       String block = afterAt.substring(0, dot);
       String partialKey = afterAt.substring(dot + 1);
       if (ThemeSchema.isBlock(block)) {
-        for (String key : ThemeSchema.keysOf(block)) {
-          if (!key.startsWith(partialKey)) continue;
-          String ref = "@" + block + "." + key;
-          String resolved = ThemeSchema.resolveRef(eff, ref);
-          String resolvedHex = (resolved != null && !resolved.startsWith("@")) ? resolved : "";
-          String docs = ThemeSchema.description(block, key);
-          if (!resolvedHex.isEmpty()) {
-            docs = docs + "\n\nResolved value: `" + resolvedHex + "`";
+        addReferenceKeys(doc, items, block, partialKey, replaceRange, eff);
+      } else {
+        List<String> matched = new ArrayList<>();
+        for (String b : ThemeSchema.BLOCKS) {
+          if (b.startsWith(block)) matched.add(b);
+        }
+        if (matched.size() == 1) {
+          addReferenceKeys(doc, items, matched.get(0), partialKey, replaceRange, eff);
+        } else {
+          for (String b : matched) {
+            if (!b.startsWith(partialKey)) continue;
+            items.add(
+                refItem(
+                    b,
+                    Kind.VALUE,
+                    "Section",
+                    replaceRange,
+                    "@" + b + ".",
+                    "Keys of section `" + b + "` will be suggested after the dot."));
           }
-          items.add(
-              refItem(block + "." + key, Kind.VALUE, "Color reference", replaceRange, ref, docs));
         }
       }
     } else {
@@ -265,6 +274,27 @@ public class GhostThemeLanguageServer
       }
     }
     return completedList(items);
+  }
+
+  private void addReferenceKeys(
+      GthDocument doc,
+      List<CompletionItem> items,
+      String block,
+      String partialKey,
+      Range replaceRange,
+      Map<String, Map<String, String>> eff) {
+    for (String key : ThemeSchema.keysOf(block)) {
+      if (!key.startsWith(partialKey)) continue;
+      String ref = "@" + block + "." + key;
+      String resolved = ThemeSchema.resolveRef(eff, ref);
+      String resolvedHex = (resolved != null && !resolved.startsWith("@")) ? resolved : "";
+      String docs = ThemeSchema.description(block, key);
+      if (!resolvedHex.isEmpty()) {
+        docs = docs + "\n\nResolved value: `" + resolvedHex + "`";
+      }
+      items.add(
+          refItem(block + "." + key, Kind.VALUE, "Color reference", replaceRange, ref, docs));
+    }
   }
 
   private static CompletableFuture<Either<List<CompletionItem>, CompletionList>> completedList(

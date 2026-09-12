@@ -216,7 +216,7 @@ public class ColorPickerBottomSheetDialog {
     dialog.show();
   }
 
-  /** Parses {@code #RRGGBB} / {@code #AARRGGBB}. The theme format uses #RRGGBBAA. */
+  /** Parses {@code #RRGGBB} / {@code #AARRGGBB}. */
   public static int hexToArgb(String hexValue) {
     String hex = hexValue == null ? "" : hexValue.trim();
     if (hex.startsWith("#")) hex = hex.substring(1);
@@ -227,10 +227,10 @@ public class ColorPickerBottomSheetDialog {
       return Color.argb(255, rr, gg, bb);
     }
     if (hex.length() == 8) {
-      int rr = Integer.parseInt(hex.substring(0, 2), 16);
-      int gg = Integer.parseInt(hex.substring(2, 4), 16);
-      int bb = Integer.parseInt(hex.substring(4, 6), 16);
-      int aa = Integer.parseInt(hex.substring(6, 8), 16);
+      int aa = Integer.parseInt(hex.substring(0, 2), 16);
+      int rr = Integer.parseInt(hex.substring(2, 4), 16);
+      int gg = Integer.parseInt(hex.substring(4, 6), 16);
+      int bb = Integer.parseInt(hex.substring(6, 8), 16);
       return Color.argb(aa, rr, gg, bb);
     }
     throw new IllegalArgumentException("invalid hex color: " + hexValue);

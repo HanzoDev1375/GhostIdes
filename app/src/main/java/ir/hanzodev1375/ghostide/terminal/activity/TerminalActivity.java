@@ -56,8 +56,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class TerminalActivity extends BaseCompat
-    implements TerminalViewModel.SessionListener {
+public class TerminalActivity extends BaseCompat implements TerminalViewModel.SessionListener {
 
   public static final String EXTRA_WORKING_DIR = "working_dir";
   public static final String EXTRA_COMMAND = "command";
@@ -83,10 +82,8 @@ public class TerminalActivity extends BaseCompat
     b = ActivityTerminalBinding.inflate(getLayoutInflater());
     setContentView(b.getRoot());
     M3Theme.apply(b.getRoot());
-
     viewModel = new ViewModelProvider(this).get(TerminalViewModel.class);
     viewModel.setActivityListener(this);
-
     setupToolbar();
     setupEdgeToEdgeInsets();
     setupViewPager();
@@ -139,13 +136,9 @@ public class TerminalActivity extends BaseCompat
     pagerAdapter = new SessionPagerAdapter(this);
     b.viewPager.setAdapter(pagerAdapter);
     b.viewPager.setOffscreenPageLimit(4);
-    // TerminalSessionFragment.detectTerminalSwipe() خودش سوایپ چپ/راست روی ترمینال رو برای
-    // باز/بسته‌کردن input dock می‌گیره؛ اگه سوایپ خودِ ViewPager2 هم روشن بمونه، این دو تا سر
-    // همون touch stream با هم تداخل دارن و حتی یه تپ ساده هم به‌صورت اسکرول/پرش ناخواسته دیده
-    // میشه. تعویض تب همچنان با کلیک روی TabLayout یا setCurrentItem برنامه‌ای کار می‌کنه.
     b.viewPager.setUserInputEnabled(false);
-
-    TabLayoutMediator mediator = new TabLayoutMediator(b.tabLayout, b.viewPager, true, this::bindTab);
+    TabLayoutMediator mediator =
+        new TabLayoutMediator(b.tabLayout, b.viewPager, true, this::bindTab);
     mediator.attach();
 
     b.viewPager.registerOnPageChangeCallback(
@@ -153,6 +146,20 @@ public class TerminalActivity extends BaseCompat
           @Override
           public void onPageSelected(int position) {
             viewModel.switchToTab(position);
+          }
+        });
+
+    b.tabLayout.addOnTabSelectedListener(
+        new TabLayout.OnTabSelectedListener() {
+          @Override
+          public void onTabSelected(TabLayout.Tab tab) {}
+
+          @Override
+          public void onTabUnselected(TabLayout.Tab tab) {}
+
+          @Override
+          public void onTabReselected(TabLayout.Tab tab) {
+            showTabMenu(tab.view, tab.getPosition());
           }
         });
 
@@ -184,9 +191,45 @@ public class TerminalActivity extends BaseCompat
         .setTitle(getString(R.string.terminal_close_tab))
         .setMessage(getString(R.string.terminal_close_tab_confirm))
         .setPositiveButton(
-            getString(R.string.terminal_action_close), (dialog, which) -> viewModel.removeSession(position))
+            getString(R.string.terminal_action_close),
+            (dialog, which) -> viewModel.removeSession(position))
         .setNegativeButton(getString(R.string.terminal_action_cancel), null)
         .show();
+  }
+
+  private void showTabMenu(View anchor, int position) {
+    List<String> items =
+        Arrays.asList(
+            getString(R.string.close),
+            getString(R.string.closeother),
+            getString(R.string.closeall));
+    ObjectUtil.showGlassMenu(
+        this,
+        anchor,
+        items,
+        (index, title) -> {
+          switch (index) {
+            case 0 -> closeTab(position);
+            case 1 -> closeOtherTabs(position);
+            case 2 -> closeAllTabs();
+          }
+        });
+  }
+
+  private void closeTab(int position) {
+    viewModel.removeSession(position);
+  }
+
+  private void closeOtherTabs(int keep) {
+    for (int i = viewModel.getSessionList().size() - 1; i >= 0; i--) {
+      if (i != keep) viewModel.removeSession(i);
+    }
+  }
+
+  private void closeAllTabs() {
+    for (int i = viewModel.getSessionList().size() - 1; i >= 0; i--) {
+      viewModel.removeSession(i);
+    }
   }
 
   // ─── SessionListener ─────────────────────────────────────────────────
@@ -197,9 +240,10 @@ public class TerminalActivity extends BaseCompat
     if (viewModel.getSessionList().isEmpty()) {
       addNewDebianSession();
     } else {
-      int idx = viewModel.getCurrentTabIndex().getValue() != null
-          ? viewModel.getCurrentTabIndex().getValue()
-          : 0;
+      int idx =
+          viewModel.getCurrentTabIndex().getValue() != null
+              ? viewModel.getCurrentTabIndex().getValue()
+              : 0;
       viewModel.switchToTab(idx);
       refreshTabs();
       b.viewPager.setCurrentItem(idx, true);
@@ -208,8 +252,7 @@ public class TerminalActivity extends BaseCompat
 
   /** وقتی اکتیویتی دوباره به سرویس وصل می‌شه، ترمینال و تب‌ها با فیِد + اسلاید ظاهر می‌شن. */
   private void animateTerminalReveal() {
-    boolean animate =
-        getAnimationManager() != null && getAnimationManager().areAnimationsEnabled();
+    boolean animate = getAnimationManager() != null && getAnimationManager().areAnimationsEnabled();
     animateIn(b.viewPager, animate);
     animateIn(b.tabLayout, animate);
   }
@@ -301,7 +344,7 @@ public class TerminalActivity extends BaseCompat
     List<TerminalTab> tabs = viewModel.getSessionList();
     if (position < 0 || position >= tabs.size()) return null;
     long itemId = tabs.get(position).id;
-    String tag = "f" + R.id.viewPager + ":" + itemId;
+    String tag = "f" + itemId;
     Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
     return fragment instanceof TerminalSessionFragment ? (TerminalSessionFragment) fragment : null;
   }
@@ -476,7 +519,7 @@ public class TerminalActivity extends BaseCompat
 
   private void setupBackgroundBlur() {
     b.inputDock.setElevation(0f);
-    setupBackgroundBlur(b.backgroundIconTerminal, b.toolbar, b.inputDock);
+    setupBackgroundBlur(b.backgroundIconTerminal, b.toolbar, b.tabsBar, b.inputDock);
   }
 
   private void applyJsonTheme() {
@@ -492,8 +535,8 @@ public class TerminalActivity extends BaseCompat
       if (surfaceContainer != null) b.coordinator.setBackgroundColor(surfaceContainer);
       if (surfaceHigh != null) {
         applyViewColor(b.toolbar, surfaceHigh);
+        if (b.tabsBar != null) applyViewColor(b.tabsBar, surfaceHigh);
         applyViewColor(b.inputDock, surfaceHigh);
-        applyViewColor(b.tabLayout, surfaceHigh);
       }
     }
 
@@ -503,8 +546,7 @@ public class TerminalActivity extends BaseCompat
     Integer primary = M3Theme.primary();
 
     M3Theme.toolbar(b.toolbar);
-    M3Theme.tabs(b.tabLayout);
-    new ThemeUtils(new ThemeManager(this)).applyTabLayout(b.tabLayout, null);
+    styleTerminalTabs();
 
     if (onSurface != null) b.handleChevron.setColorFilter(onSurface);
     if (primary != null) b.commandInputLayout.setEndIconTintList(ColorStateList.valueOf(primary));
@@ -525,13 +567,24 @@ public class TerminalActivity extends BaseCompat
     super.applyOwnTheme(themeUtils);
     if (b != null) {
       if (b.tabLayout != null) {
-        themeUtils.applyTabLayout(b.tabLayout, null);
+        styleTerminalTabs();
       }
       applyColorBackground();
       themeUtils.applyImageBackground(b.backgroundIconTerminal);
     }
   }
 
+  /**
+   * Matches the tabs with the rest of the M3 surface container system (like ThemeEditor), fading
+   * alpha over the background image.
+   */
+  private void styleTerminalTabs() {
+    Integer low = fallback(M3Theme.surfaceContainerLow(), M3Theme.surfaceContainer());
+    if (low != null) {
+      b.tabLayout.setBackgroundColor(0);
+    }
+    M3Theme.tabs(b.tabLayout);
+  }
   private void applyColorBackground() {
     try {
       ThemeUtils themeUtils = new ThemeUtils(new ThemeManager(this));
@@ -614,10 +667,7 @@ public class TerminalActivity extends BaseCompat
   private void cycleInitStatus(int step) {
     if (initOverlay == null || initOverlay.getVisibility() != View.VISIBLE) return;
     String[] messages = {
-      "Setting up DNS...",
-      "Installing Node.js...",
-      "Installing Web LSP...",
-      "Almost ready..."
+      "Setting up DNS...", "Installing Node.js...", "Installing Web LSP...", "Almost ready..."
     };
     if (step < messages.length) {
       initOverlayStatus.setText(messages[step]);
@@ -709,7 +759,8 @@ public class TerminalActivity extends BaseCompat
           public void onDownloadProgress(int percent) {
             runOnUiThread(
                 () -> {
-                  installStatusText.setText(getString(R.string.terminal_status_downloading, percent));
+                  installStatusText.setText(
+                      getString(R.string.terminal_status_downloading, percent));
                   installProgressBar.setIndeterminate(false);
                   installProgressBar.setProgress(percent);
                 });
@@ -719,7 +770,8 @@ public class TerminalActivity extends BaseCompat
           public void onExtractProgress(int extractedEntries) {
             runOnUiThread(
                 () -> {
-                  installStatusText.setText(getString(R.string.terminal_status_extracting, extractedEntries));
+                  installStatusText.setText(
+                      getString(R.string.terminal_status_extracting, extractedEntries));
                   installProgressBar.setIndeterminate(true);
                 });
           }
@@ -744,7 +796,8 @@ public class TerminalActivity extends BaseCompat
             runOnUiThread(
                 () -> {
                   if (installDialog != null) installDialog.dismiss();
-                  GhostToast.makeText(TerminalActivity.this, message, GhostToast.LENGTH_LONG).show();
+                  GhostToast.makeText(TerminalActivity.this, message, GhostToast.LENGTH_LONG)
+                      .show();
                 });
           }
         };
@@ -792,8 +845,6 @@ public class TerminalActivity extends BaseCompat
       return viewModel.containsSessionId((int) itemId);
     }
   }
-
-  // ─── Utils ───────────────────────────────────────────────────────────
 
   private static int fallback(Integer value, int def) {
     return value != null ? value : def;

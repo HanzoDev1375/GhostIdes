@@ -10,7 +10,7 @@ public final class OnboardingPrefs {
   private static final String KEY_COMPLETED = "completed";
 
   /** بعد از اتمام تست مقدار این flag را false کن تا فقط در اولین نصب نمایش داده شود. */
-  public static final boolean FORCE_SHOW = true;
+  public static final boolean FORCE_SHOW = false;
 
   private OnboardingPrefs() {}
 
@@ -28,8 +28,6 @@ public final class OnboardingPrefs {
   }
 
   private static SharedPreferences getPrefs(Context context) {
-    return context
-        .getApplicationContext()
-        .getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+    return context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
   }
 }
