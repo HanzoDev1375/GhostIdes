@@ -1,7 +1,7 @@
 {
-  "title": "Ghost IDE 1.1.5beta1",
-  "massges": "## Ghostide\r\n\r\n\r\n- Fixed reported errors,\r\n- improved UI and LSPs\r\n- several other features introduced in the main version.",
-  "version": "1.1.5beta1",
-  "link": "https://github.com/HanzoDev1375/GhostIdes/releases/download/1.1.5beta1/app-release.apk",
+  "title": "Ghost IDE 1.1.5beta2",
+  "massges": "## Ghost ide 1.1.5beta2\r\n\r\n- Improved program graphics by removing XML colors and replacing them with the full Gth theme\r\n- Launched the icon theme store and font plugin\r\n- Fixed reported bugs\r\n- Removed most server languages in plugins; you can now install them automatically\r\n- Fixed startup bugs for users who did not know how to install the program\r\n- Added welcome activities for easier installation",
+  "version": "1.1.5beta2",
+  "link": "https://github.com/HanzoDev1375/GhostIdes/releases/download/1.1.5beta2/app-release.apk",
   "appname": "Ghost IDE"
 }
