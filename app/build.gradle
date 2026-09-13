@@ -20,8 +20,8 @@ android {
         applicationId 'ir.hanzodev1375.ghostide'
         minSdk 30
         targetSdk 36
-        versionCode 5
-        versionName '1.1.5beta1' 
+        versionCode 6
+        versionName '1.1.5beta2' 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 

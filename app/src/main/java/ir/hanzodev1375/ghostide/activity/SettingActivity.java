@@ -32,6 +32,7 @@ import ir.hanzodev1375.ghostide.ai.utils.AiPreferencesUtils;
 import ir.hanzodev1375.ghostide.appicon.AppIconChooserDialogBuilder;
 import ir.hanzodev1375.ghostide.appicon.AppIconManager;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
+import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.ui.power.PowerModeEffectManager;
 import ir.hanzodev1375.ghostide.codeeditors.util.TranslateLanguages;
 import ir.hanzodev1375.ghostide.customui.ExpandableLayout;
@@ -47,8 +48,10 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import androidx.appcompat.app.AlertDialog;
 import android.os.Environment;
 import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
@@ -190,6 +193,7 @@ public class SettingActivity extends BaseCompat {
           else if (position == 21) showFontDialog();
           else if (position == 22) showTranslateLanguageDialog();
           else if (position == 25) showPowerModeEffectDialog();
+          else if (position == 30) showWhitespaceFlagsDialog();
         });
 
     appAdapter.setOnItemClickListener(
@@ -504,6 +508,13 @@ public class SettingActivity extends BaseCompat {
             null));
     items.add(
         new SettingItem(
+            getString(R.string.pref_code_editor_block_line),
+            getString(R.string.pref_code_editor_block_line_desc),
+            prefs.enableBlockLine(),
+            0,
+            prefs::setBlockLine));
+    items.add(
+        new SettingItem(
             getString(R.string.backgroundzoomtitle),
             getString(R.string.backgroundzoomsubtitle),
             prefs.isBackgroundZoomMod(),
@@ -517,7 +528,36 @@ public class SettingActivity extends BaseCompat {
             prefs.isTabLangColor(),
             0,
             prefs::setTabLangColor));
+
+    items.add(
+        new SettingItem(
+            getString(R.string.pref_ghost_text),
+            getString(R.string.pref_ghost_text_desc),
+            prefs.enableGhostTextCompletion(),
+            0,
+            prefs::setGhostTextCompletion));
+    items.add(
+        new SettingItem(
+            getString(R.string.pref_show_whitespace),
+            getString(R.string.pref_show_whitespace_desc),
+            anyWhitespaceFlag(prefs),
+            0,
+            null));
     return items;
+  }
+
+  private static boolean anyWhitespaceFlag(PreferencesUtils p) {
+    return p.flagLeading()
+        || p.flagInner()
+        || p.flagTrailing()
+        || p.flagEmptyLine()
+        || p.flagLineBreaks()
+        || p.flagInSelection()
+        || p.flagTabSameAsSpace();
+  }
+
+  private void showWhitespaceFlagsDialog() {
+    IdeEditor.showNonPrintableFlagsDialog(this, prefs, null);
   }
 
   private List<SettingItem> getAppItems() {
@@ -835,11 +875,11 @@ public class SettingActivity extends BaseCompat {
             (dialog, which) -> {
               prefs.setTranslateTargetLang(codes[which]);
               dialog.dismiss();
-              SettingItem item = editorAdapter.getItemAtPosition(21);
+              SettingItem item = editorAdapter.getItemAtPosition(22);
               if (item != null) {
                 item.setDescription(
                     getString(R.string.pref_translate_target_lang_desc) + "\n" + names[which]);
-                editorAdapter.notifyItemChanged(21);
+                editorAdapter.notifyItemChangedByOriginalPosition(22);
               }
             })
         .setNegativeButton(R.string.cancel, null)
@@ -884,11 +924,12 @@ public class SettingActivity extends BaseCompat {
             R.string.ok,
             icon -> {
               AppIconManager.applyIcon(this, icon);
-              appAdapter
-                  .getItemAtPosition(2)
-                  .setDescription(
-                      getString(R.string.pref_app_icon_desc) + "\n" + getString(icon.labelRes));
-              appAdapter.notifyItemChanged(2);
+              SettingItem item = appAdapter.getItemAtPosition(1);
+              if (item != null) {
+                item.setDescription(
+                    getString(R.string.pref_app_icon_desc) + "\n" + getString(icon.labelRes));
+                appAdapter.notifyItemChangedByOriginalPosition(1);
+              }
             })
         .setNegativeButton(R.string.cancel)
         .create()
@@ -1064,7 +1105,7 @@ public class SettingActivity extends BaseCompat {
         SettingItem item = appAdapter.getItemAtPosition(7);
         if (item != null) {
           item.setChecked(false);
-          appAdapter.notifyItemChanged(7);
+          appAdapter.notifyItemChangedByOriginalPosition(7);
         }
       }
       return;
@@ -1075,7 +1116,7 @@ public class SettingActivity extends BaseCompat {
       SettingItem item = appAdapter.getItemAtPosition(7);
       if (item != null) {
         item.setChecked(true);
-        appAdapter.notifyItemChanged(7);
+        appAdapter.notifyItemChangedByOriginalPosition(7);
       }
     } else {
       M3Theme.reloadMode();
@@ -1185,7 +1226,7 @@ public class SettingActivity extends BaseCompat {
               SettingItem item = adapter.getItemAtPosition(0);
               if (item != null) {
                 item.setDescription(getString(R.string.ai_provider_desc, newProvider));
-                adapter.notifyItemChanged(0);
+                adapter.notifyItemChangedByOriginalPosition(0);
               }
             })
         .setNegativeButton(R.string.cancel, null)
@@ -1252,7 +1293,7 @@ public class SettingActivity extends BaseCompat {
                 SettingItem item = adapter.getItemAtPosition(position);
                 if (item != null) {
                   item.setDescription(getString(R.string.not_set));
-                  adapter.notifyItemChanged(position);
+                  adapter.notifyItemChangedByOriginalPosition(position);
                 }
               } else {
                 switch (provider) {
@@ -1276,7 +1317,7 @@ public class SettingActivity extends BaseCompat {
                 SettingItem item = adapter.getItemAtPosition(position);
                 if (item != null) {
                   item.setDescription("*********");
-                  adapter.notifyItemChanged(position);
+                  adapter.notifyItemChangedByOriginalPosition(position);
                 }
               }
             })
@@ -1325,7 +1366,7 @@ public class SettingActivity extends BaseCompat {
               SettingItem item = editorAdapter.getItemAtPosition(21);
               if (item != null) {
                 item.setDescription(getString(R.string.pref_font_desc) + "\n" + fontNames[which]);
-                editorAdapter.notifyItemChanged(21);
+                editorAdapter.notifyItemChangedByOriginalPosition(21);
               }
             })
         .setNegativeButton(R.string.cancel, null)
@@ -1364,7 +1405,7 @@ public class SettingActivity extends BaseCompat {
         v -> {
           prefs.setAnimationBatteryThreshold((int) slider.getValue());
           appAdapter.updateItem(
-              10,
+              9,
               new SettingItem(
                   getString(R.string.pref_animation_battery_threshold),
                   getString(R.string.pref_animation_battery_threshold_desc)
@@ -1407,7 +1448,7 @@ public class SettingActivity extends BaseCompat {
         v -> {
           componentsPrefs.setGlassTint(slider.getValue());
           appAdapter.updateItem(
-              16,
+              15,
               new SettingItem(
                   getString(R.string.pref_glass_tint),
                   getString(R.string.pref_glass_tint_desc)
@@ -1451,7 +1492,7 @@ public class SettingActivity extends BaseCompat {
               if (item != null) {
                 item.setDescription(
                     getString(R.string.pref_power_mode_effect_desc) + "\n" + names[which]);
-                editorAdapter.notifyItemChanged(25);
+                editorAdapter.notifyItemChangedByOriginalPosition(25);
               }
             })
         .setNegativeButton(R.string.cancel, null)

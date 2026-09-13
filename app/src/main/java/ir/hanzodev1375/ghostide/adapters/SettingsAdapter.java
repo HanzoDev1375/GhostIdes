@@ -45,9 +45,37 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
     return new ViewHolder(view);
   }
 
-  public void updateItem(int position, SettingItem newItem) {
-    items.set(position, newItem);
-    notifyItemChanged(position);
+  /**
+   * آیتم را در موقعیت اصلی (پیش از فیلتر) جایگزین می‌کند. چون `items` هنگام جستجو فیلتر می‌شود ممکن
+   * است اندیس داده‌شده از اندازه‌ی آن خارج باشد؛ پس هم‌چنان `backupList` آپدیت می‌شود و ردیف دیده‌شده
+   * در `items` با مقایسه‌ی هویتی پیدا و تازه‌سازی می‌شود.
+   */
+  public void updateItem(int originalPosition, SettingItem newItem) {
+    if (newItem == null) return;
+    if (originalPosition < 0 || originalPosition >= backupList.size()) return;
+    SettingItem oldItem = backupList.get(originalPosition);
+    backupList.set(originalPosition, newItem);
+    int visibleIndex = items.indexOf(oldItem);
+    if (visibleIndex >= 0) {
+      items.set(visibleIndex, newItem);
+      notifyItemChanged(visibleIndex);
+    }
+  }
+
+  /** آیتم را در موقعیت اصلی (پیش از فیلتر) برمی‌گرداند؛ اگر بعد از جستجو دیده نمی‌شود null است. */
+  public SettingItem getItemAtPosition(int originalPosition) {
+    if (originalPosition < 0 || originalPosition >= backupList.size()) return null;
+    return backupList.get(originalPosition);
+  }
+
+  /** ردیف دیده‌شده‌ی متناظر با موقعیت اصلی را تازه‌سازی می‌کند (برای بعد از فیلتر هم امن است). */
+  public void notifyItemChangedByOriginalPosition(int originalPosition) {
+    if (originalPosition < 0 || originalPosition >= backupList.size()) return;
+    SettingItem item = backupList.get(originalPosition);
+    int visibleIndex = items.indexOf(item);
+    if (visibleIndex >= 0) {
+      notifyItemChanged(visibleIndex);
+    }
   }
 
   @Override
@@ -147,10 +175,6 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
 
   public void resetToFull() {
     filter("");
-  }
-
-  public SettingItem getItemAtPosition(int position) {
-    return items.get(position);
   }
 
   public void filter(String query) {

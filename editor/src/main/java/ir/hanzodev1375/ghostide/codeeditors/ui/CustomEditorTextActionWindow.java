@@ -1,18 +1,21 @@
 package ir.hanzodev1375.ghostide.codeeditors.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.RectF;
-import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.TooltipCompat;
-import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import com.example.liquidglass.GlassMaterial;
 import io.github.rosemoe.sora.event.ColorSchemeUpdateEvent;
 import io.github.rosemoe.sora.event.HandleStateChangeEvent;
 import io.github.rosemoe.sora.event.InterceptTarget;
@@ -25,8 +28,11 @@ import io.github.rosemoe.sora.text.Cursor;
 import io.github.rosemoe.sora.widget.EditorTouchEventHandler;
 import io.github.rosemoe.sora.widget.component.EditorTextActionWindow;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.GlassCompat;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.codeeditors.R;
+import ir.hanzodev1375.ghostide.codeeditors.colorscheme.GhostColorScheme;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.AndroidClasspathResolver;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
 import ir.hanzodev1375.ghostide.codeeditors.ui.model.OpenFileLocationEvent;
@@ -34,6 +40,7 @@ import ir.hanzodev1375.ghostide.codeeditors.util.TranslateTask;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -75,7 +82,9 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
   private final ImageButton lspReferencesBtn;
   private final ImageButton lspRenameBtn;
   private final ImageButton lspCodeActionBtn;
+  private final ImageButton moreBtn;
   private final View rootView;
+  private GlassCompat glass;
   private final EditorTouchEventHandler handler;
   private long lastScroll;
   private int lastPosition;
@@ -106,6 +115,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     lspReferencesBtn = root.findViewById(R.id.panel_btn_lsp_references);
     lspRenameBtn = root.findViewById(R.id.panel_btn_lsp_rename);
     lspCodeActionBtn = root.findViewById(R.id.panel_btn_lsp_code_action);
+    moreBtn = root.findViewById(R.id.panel_btn_more);
 
     pasteBtn.setOnClickListener(this);
     copyBtn.setOnClickListener(this);
@@ -119,12 +129,12 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     lspReferencesBtn.setOnClickListener(this);
     lspRenameBtn.setOnClickListener(this);
     lspCodeActionBtn.setOnClickListener(this);
+    moreBtn.setOnClickListener(this);
+    setContentView(createGlassContainer(root));
     applyColorScheme(root, editor.getColorScheme());
     editor.subscribeEvent(
         ColorSchemeUpdateEvent.class,
         (event, unsubscribe) -> applyColorScheme(root, event.getColorScheme()));
-
-    setContentView(root);
     setSize(0, (int) (this.editor.getDpUnit() * 48));
     rootView = root;
 
@@ -182,14 +192,45 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     getPopup().setAnimationStyle(io.github.rosemoe.sora.R.style.text_action_popup_animation);
   }
 
-  private void applyColorScheme(View root, EditorColorScheme scheme) {
-    GradientDrawable gd = new GradientDrawable();
-    gd.setCornerRadius(windowCornerRadius * editor.getDpUnit());
-    gd.setColor(scheme.getColor(EditorColorScheme.COMPLETION_WND_BACKGROUND));
-    gd.setStroke(1, scheme.getColor(EditorColorScheme.COMPLETION_WND_CORNER));
-    root.setBackground(gd);
+  private ViewGroup createGlassContainer(View content) {
+    glass = new GlassCompat(editor.getContext());
+    float density = glass.getResources().getDisplayMetrics().density;
+    glass.setCornerRadius(windowCornerRadius * density);
+    glass.setRefractionHeight(40f);
+    glass.setBevelWidth(8f);
+    glass.setMaterial(GlassMaterial.REGULAR);
+    glass.setDispersionStrength(0.08f);
+    glass.setEnableDynamicBackground(true);
+    glass.setEnableAdaptiveTint(true);
+    Activity activity = findActivity(editor.getContext());
+    View backdrop =
+        activity != null && activity.getWindow() != null
+            ? activity.findViewById(android.R.id.content)
+            : null;
+    glass.setBackdropSource(backdrop != null ? backdrop : editor);
+    glass.addView(
+        content,
+        new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    return glass;
+  }
 
-    int textColor = scheme.getColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY);
+  private static Activity findActivity(Context context) {
+    if (context instanceof Activity) return (Activity) context;
+    if (context instanceof ContextWrapper) {
+      return findActivity(((ContextWrapper) context).getBaseContext());
+    }
+    return null;
+  }
+
+  private void applyColorScheme(View root, EditorColorScheme scheme) {
+    root.setBackground(null);
+
+    int textColor =
+        scheme.getColor(
+            scheme instanceof GhostColorScheme
+                ? GhostColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR
+                : EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY);
     setColorFilterById(textColor, pasteBtn);
     setColorFilterById(textColor, copyBtn);
     setColorFilterById(textColor, cutBtn);
@@ -202,6 +243,10 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
     setColorFilterById(textColor, lspReferencesBtn);
     setColorFilterById(textColor, lspRenameBtn);
     setColorFilterById(textColor, lspCodeActionBtn);
+    setColorFilterById(textColor, moreBtn);
+    if (glass != null) {
+      glass.setGlassColorByCustomHint(scheme.getColor(GhostColorScheme.COMPLETION_WND_BACKGROUND));
+    }
   }
 
   @Override
@@ -371,8 +416,69 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
       attachTooltip(lspCodeActionBtn, editor.getContext().getString(R.string.code_action));
       handleCodeAction();
       return;
+    } else if (id == R.id.panel_btn_more) {
+      attachTooltip(moreBtn, editor.getContext().getString(R.string.editor_more));
+      showMoreMenu();
+      return;
     }
     dismiss();
+  }
+
+  private void showMoreMenu() {
+    Context context = editor.getContext();
+    List<CharSequence> items =
+        new ArrayList<>(
+            Arrays.asList(
+                context.getString(R.string.editor_indent),
+                context.getString(R.string.editor_unindent),
+                context.getString(R.string.editor_duplicate_line),
+                context.getString(R.string.editor_select_current_word),
+                context.getString(R.string.editor_toggle_comment)));
+    moreBtn.post(
+        () -> {
+          if (editor == null || !editor.isAttachedToWindow() || !isActivityActive()) {
+            return;
+          }
+          View menuAnchor = moreBtn.isAttachedToWindow() ? moreBtn : editor;
+          EditorGlassMenu.show(
+              context,
+              menuAnchor,
+              editor,
+              items,
+              editor.getColorScheme(),
+              position -> {
+                switch (position) {
+                  case 0:
+                    editor.indentOrCommitTab();
+                    break;
+                  case 1:
+                    editor.unindentSelection();
+                    break;
+                  case 2:
+                    editor.setDuplicateLine();
+                    break;
+                  case 3:
+                    editor.selectCurrentWord();
+                    break;
+                  case 4:
+                    editor.toggleCommentForCurrentLine();
+                    break;
+                }
+                dismiss();
+              });
+        });
+  }
+
+  private boolean isActivityActive() {
+    Context c = editor.getContext();
+    while (c instanceof ContextWrapper) {
+      if (c instanceof Activity) {
+        Activity a = (Activity) c;
+        return !a.isFinishing() && !a.isDestroyed() && a.getWindow() != null;
+      }
+      c = ((ContextWrapper) c).getBaseContext();
+    }
+    return true;
   }
 
   public String getSelectedText() {
@@ -948,7 +1054,7 @@ public class CustomEditorTextActionWindow extends EditorTextActionWindow {
 
   private String getFileUri(String filePath) {
     if (filePath == null) return null;
-    
+
     return "file://" + new File(filePath).getAbsolutePath();
   }
 

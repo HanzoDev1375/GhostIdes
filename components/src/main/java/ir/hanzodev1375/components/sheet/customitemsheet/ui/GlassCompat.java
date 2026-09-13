@@ -27,7 +27,11 @@ public class GlassCompat extends LiquidGlassView {
   void init() {
     setting = new ComponentsPrefs(getContext());
     if (setting.isGlassMaterialColor()) {
-      setGlassTint(M3Theme.surface(), setting.getGlassTint());
+      setGlassColorByCustomHint(M3Theme.surface());
     }
+  }
+
+  public void setGlassColorByCustomHint(int color) {
+    setGlassTint(color, setting.getGlassTint());
   }
 }

@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.sidesheet.SideSheetDialog;
 import com.google.android.material.tabs.TabLayout;
-import com.skydoves.powermenu.PowerMenu;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 import ir.hanzodev1375.components.WebViewBottomSheetFragment;
 import ir.hanzodev1375.components.childern.ViewChilder;
@@ -185,28 +184,6 @@ public class ThemeUtils {
     if (colors.getNavigationBar() != null) {
       window.setNavigationBarColor(parseColor(colors.getNavigationBar()));
     }
-  }
-
-  public PowerMenu apply(Context c) {
-    var menu = new PowerMenu.Builder(c).build();
-    GhostTheme theme = getTheme();
-    if (theme == null) {
-      Log.e("PowerMenu", "theme has null");
-    }
-    if (theme.getWidget() == null) {
-      Log.e("PowerMenu", "theme has null");
-    }
-    WidgetTheme widget = theme.getWidget();
-    menu.setTextColor(Color.parseColor(widget.getMenutextcolor()));
-    menu.setMenuColor(Color.parseColor(widget.getMenubackground()));
-    menu.setIconColor(Color.parseColor(widget.getMenutextcolor()));
-    menu.setSelectedMenuColor(Color.parseColor(widget.getSelectedmenucolor()));
-    menu.setShowBackground(false);
-    menu.setMenuRadius(10f);
-    menu.setMenuShadow(3f);
-    menu.setAutoDismiss(true);
-
-    return menu;
   }
 
   public void applyEditor(IdeEditor editor) {

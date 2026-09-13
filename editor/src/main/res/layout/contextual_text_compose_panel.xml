@@ -163,6 +163,18 @@
              android:id="@+id/panel_btn_translate"
              android:foreground="?attr/selectableItemBackgroundBorderless" />
 
+        <ImageButton
+             android:layout_height="48dp"
+             android:layout_width="48dp"
+             android:contentDescription="@string/editor_more"
+             android:scaleType="centerInside"
+             android:src="@drawable/ic_more_vert_black_20dp"
+             android:background="@android:color/transparent"
+             android:clickable="true"
+             android:focusable="true"
+             android:id="@+id/panel_btn_more"
+             android:foreground="?attr/selectableItemBackgroundBorderless" />
+
     </LinearLayout>
 
 </HorizontalScrollView>

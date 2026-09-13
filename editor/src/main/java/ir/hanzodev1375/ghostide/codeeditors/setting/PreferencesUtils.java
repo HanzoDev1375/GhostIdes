@@ -120,6 +120,13 @@ public class PreferencesUtils {
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_GHOST_TEXT, true);
   }
 
+  public void setGhostTextCompletion(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_GHOST_TEXT, enabled)
+        .apply();
+  }
+
   public boolean enableAutoCompleteWindowAnimation() {
     return getDefaultPreferences()
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_ANIMATE_AUTO_COMP_WINDOW, false);
@@ -237,6 +244,22 @@ public class PreferencesUtils {
             .getStringSet(
                 Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_NP_PAINT_FLAGS, new HashSet<>());
     return values.contains("3");
+  }
+
+  public boolean flagInSelection() {
+    Set<String> values =
+        getDefaultPreferences()
+            .getStringSet(
+                Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_NP_PAINT_FLAGS, new HashSet<>());
+    return values.contains("6");
+  }
+
+  public boolean flagTabSameAsSpace() {
+    Set<String> values =
+        getDefaultPreferences()
+            .getStringSet(
+                Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_NP_PAINT_FLAGS, new HashSet<>());
+    return values.contains("7");
   }
 
   public int getCodeEditorTabSize() {
@@ -716,10 +739,22 @@ public class PreferencesUtils {
         .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_POWER_MODE, false);
   }
 
+  public boolean enableBlockLine() {
+    return getDefaultPreferences()
+        .getBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_BLOCK_LINE, true);
+  }
+
   public void setPowerMode(boolean enabled) {
     getDefaultPreferences()
         .edit()
         .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_POWER_MODE, enabled)
+        .apply();
+  }
+
+  public void setBlockLine(boolean enabled) {
+    getDefaultPreferences()
+        .edit()
+        .putBoolean(Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_BLOCK_LINE, enabled)
         .apply();
   }
 

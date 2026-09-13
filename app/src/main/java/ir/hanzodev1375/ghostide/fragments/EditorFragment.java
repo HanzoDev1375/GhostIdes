@@ -26,9 +26,9 @@ import io.github.rosemoe.sora.lang.Language;
 import ir.hanzodev1375.ghostide.activity.EditorActivity;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.AndroidClasspathResolver;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.LspRouter;
+import ir.hanzodev1375.ghostide.dialogs.DiagnosticsBottomSheet;
 import ir.hanzodev1375.ghostide.editorlangs.LanguageManager;
-import ir.hanzodev1375.ghostide.editorlangs.LspDiagnosticsEventListener;
-import ir.hanzodev1375.ghostide.editorlangs.DiagnosticsBottomSheet;
+import ir.hanzodev1375.ghostide.listeners.LspDiagnosticsEventListener;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import ir.hanzodev1375.ghostide.codeeditors.setting.PreferencesUtils;
@@ -176,6 +176,20 @@ public class EditorFragment extends Fragment {
     if (lang != null) editor.setEditorLanguage(lang);
 
     applyReadOnly();
+
+    editor.setOnSaveRequest(this::saveCurrentFile);
+    editor.setOnSearchRequest(
+        () -> {
+          if (getActivity() instanceof EditorActivity) {
+            ((EditorActivity) getActivity()).showEditorSearch();
+          }
+        });
+    editor.setOnGotoLineRequest(
+        () -> {
+          if (getActivity() instanceof EditorActivity) {
+            ((EditorActivity) getActivity()).showGotoLineDialog();
+          }
+        });
 
     if (LspRouter.isSupportedFile(filePath)) {
       File targetFile = new File(filePath);

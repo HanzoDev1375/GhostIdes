@@ -48,6 +48,10 @@
   <string name="tab_size_4">۴ فاصله</string>
   <string name="tab_size_6">۶ فاصله</string>
   <string name="tab_size_8">۸ فاصله</string>
+  <string name="pref_ghost_text">تکمیل خودکار پیش‌نمایشی</string>
+  <string name="pref_ghost_text_desc">نمایش پیش‌نمایش متن هنگام تایپ</string>
+  <string name="pref_show_whitespace">نمایش کاراکترهای فاصله</string>
+  <string name="pref_show_whitespace_desc">نمایش فاصله‌ها و نشانگر خط جدید</string>
   <string name="pref_line_height">ارتفاع خط</string>
   <string name="pref_line_height_desc">فاصله بین خطوط</string>
   <string name="line_height_1">۱ (فشرده)</string>
@@ -300,6 +304,10 @@
   <string name="icon_name_default">نماد عادی</string>
   <string name="icon_name_glassblue">آیکون شیشه ای آبی</string>
   <string name="pref_power_mode_effect_desc">انیمیشن نشان داده شده در حین تایپ را انتخاب کنید</string>
+  <string name="pref_code_editor_block_line">بلاک‌لاین</string>
+  <string name="pref_code_editor_block_line_desc">هایلایت خط فعلی و نمایش نوار کنار خط</string>
+  <string name="editor_goto_line">رفتن به خط</string>
+  <string name="editor_goto_line_hint">شماره خط</string>
   <string name="pref_app_icon">نماد برنامه</string>
   <string name="pref_app_icon_desc">یک نماد برنامه را از چندین طرح آماده انتخاب کنید</string>
   <string name="icon_name_hellish">نماد جهنمی</string>

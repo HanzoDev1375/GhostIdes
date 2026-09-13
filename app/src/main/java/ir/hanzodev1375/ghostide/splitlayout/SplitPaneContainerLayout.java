@@ -245,6 +245,12 @@ public class SplitPaneContainerLayout extends LinearLayout {
     }
   }
 
+  public void notifyTabError(String filePath, boolean hasError) {
+    for (EditorPaneFragment pane : extraPanes) {
+      pane.updateError(filePath, hasError);
+    }
+  }
+
   public void notifyGitStatus(Predicate<String> isChanged) {
     for (EditorPaneFragment pane : extraPanes) {
       pane.updateGitStatus(isChanged);

@@ -1,4 +1,4 @@
-package ir.hanzodev1375.ghostide.editorlangs;
+package ir.hanzodev1375.ghostide.listeners;
 
 import androidx.annotation.NonNull;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;

@@ -40,7 +40,7 @@ dependencies {
         exclude group: 'org.bouncycastle'
     }
     implementation 'org.bouncycastle:bcprov-jdk18on:1.78' 
-    implementation(libs.glass)
+    api(libs.glass)
     implementation(libs.eventbus)
     implementation project(':thememanager')
     implementation(libs.markwon.core)

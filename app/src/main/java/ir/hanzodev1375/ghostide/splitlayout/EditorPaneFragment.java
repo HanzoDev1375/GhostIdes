@@ -9,13 +9,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.skydoves.powermenu.PowerMenuItem;
 import ir.hanzodev1375.ghostide.R;
 import ir.hanzodev1375.ghostide.codeeditors.IdeEditor;
 import ir.hanzodev1375.ghostide.customui.TabCustomView;
 import ir.hanzodev1375.ghostide.databinding.FragmentEditorPaneBinding;
 import ir.hanzodev1375.ghostide.fragments.EditorFragment;
 import ir.hanzodev1375.ghostide.models.TabModel;
+import ir.hanzodev1375.ghostide.utils.EditorGlassMenu;
 import ir.theme.ThemeManager;
 import ir.theme.ThemeUtils;
 import java.util.ArrayList;
@@ -117,14 +117,15 @@ public class EditorPaneFragment extends Fragment {
     if (actionListener == null || position < 0 || position >= tabs.size()) return;
     String filePath = tabs.get(position).getFilePath();
 
-    ThemeManager themeManager = new ThemeManager(requireContext());
-    ThemeUtils themeUtils = new ThemeUtils(themeManager);
-    var menu = themeUtils.apply(requireContext());
-    menu.addItem(new PowerMenuItem(getString(R.string.close)));
-    menu.addItem(new PowerMenuItem(getString(R.string.closeother)));
-    menu.addItem(new PowerMenuItem(getString(R.string.closeall)));
-    menu.addItem(new PowerMenuItem(getString(R.string.pin)));
-    menu.setOnMenuItemClickListener(
+    List<EditorGlassMenu.GlassMenuItem> items = new ArrayList<>();
+    items.add(new EditorGlassMenu.GlassMenuItem(getString(R.string.close)));
+    items.add(new EditorGlassMenu.GlassMenuItem(getString(R.string.closeother)));
+    items.add(new EditorGlassMenu.GlassMenuItem(getString(R.string.closeall)));
+    items.add(new EditorGlassMenu.GlassMenuItem(getString(R.string.pin)));
+    EditorGlassMenu.showGlassMenu(
+        requireActivity(),
+        anchor,
+        items,
         (pos, item) -> {
           switch (pos) {
             case 0 -> actionListener.onCloseTab(filePath);
@@ -133,7 +134,6 @@ public class EditorPaneFragment extends Fragment {
             case 3 -> actionListener.onTogglePin(filePath);
           }
         });
-    menu.showAsDropDown(anchor);
   }
 
 
@@ -154,6 +154,15 @@ public class EditorPaneFragment extends Fragment {
     TabLayout.Tab layoutTab = binding.paneTab.getTabAt(index);
     if (layoutTab != null && layoutTab.getCustomView() instanceof TabCustomView) {
       ((TabCustomView) layoutTab.getCustomView()).setHasStar(dirty);
+    }
+  }
+
+  public void updateError(String filePath, boolean hasError) {
+    int index = indexOf(filePath);
+    if (index < 0 || binding == null) return;
+    TabLayout.Tab layoutTab = binding.paneTab.getTabAt(index);
+    if (layoutTab != null && layoutTab.getCustomView() instanceof TabCustomView) {
+      ((TabCustomView) layoutTab.getCustomView()).setHasErrors(hasError);
     }
   }
 

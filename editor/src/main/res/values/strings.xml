@@ -137,4 +137,21 @@
   <string name="dependency_update_catalog_hint">Version is defined in libs.versions.toml — the update will be written there</string>
   <string name="dependency_update_catalog_done">libs.versions.toml updated</string>
   <string name="dependency_update_catalog_failed">Couldn\'t update libs.versions.toml</string>
+  <string name="editor_more">More</string>
+  <string name="editor_indent">Indent</string>
+  <string name="editor_unindent">Unindent</string>
+  <string name="editor_duplicate_line">Duplicate line</string>
+  <string name="editor_select_current_word">Select current word</string>
+  <string name="editor_toggle_comment">Toggle comment</string>
+  <string name="whitespace_dialog_title">Whitespace characters</string>
+  <string name="whitespace_dialog_ok">OK</string>
+  <string-array name="whitespace_flag_labels">
+    <item>Leading whitespace</item>
+    <item>Inner whitespace</item>
+    <item>Trailing whitespace</item>
+    <item>Empty line</item>
+    <item>Line separator</item>
+    <item>Whitespace in selection</item>
+    <item>Tab as space</item>
+  </string-array>
 </resources>

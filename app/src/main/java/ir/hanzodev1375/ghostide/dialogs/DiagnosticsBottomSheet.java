@@ -1,4 +1,4 @@
-package ir.hanzodev1375.ghostide.editorlangs;
+package ir.hanzodev1375.ghostide.dialogs;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,7 +9,9 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import ir.hanzodev1375.components.sheet.BaseBlurBottomSheet;
+import ir.hanzodev1375.ghostide.adapters.DiagnosticsAdapter;
 import ir.hanzodev1375.ghostide.databinding.DiagSheetBinding;
+import ir.hanzodev1375.ghostide.listeners.LspDiagnosticsEventListener;
 import ir.theme.M3Theme;
 import java.util.List;
 import org.eclipse.lsp4j.Diagnostic;

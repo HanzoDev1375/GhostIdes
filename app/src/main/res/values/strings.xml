@@ -48,6 +48,10 @@
     <string name="tab_size_4">4 spaces</string>
     <string name="tab_size_6">6 spaces</string>
     <string name="tab_size_8">8 spaces</string>
+    <string name="pref_ghost_text">Ghost text completion</string>
+    <string name="pref_ghost_text_desc">Preview auto-completion text while typing</string>
+    <string name="pref_show_whitespace">Show whitespace characters</string>
+    <string name="pref_show_whitespace_desc">Show spaces and line-break markers</string>
 
     <string name="pref_line_height">Line height</string>
     <string name="pref_line_height_desc">Line spacing</string>
@@ -302,6 +306,10 @@
     <string name="icon_name_default">Normal icon</string>
     <string name="icon_name_glassblue">Glass Icon blue</string>
     <string name="pref_power_mode_effect_desc">Choose the animation shown while typing</string>
+    <string name="pref_code_editor_block_line">Block line</string>
+    <string name="pref_code_editor_block_line_desc">Highlight the current line and show a side block line</string>
+    <string name="editor_goto_line">Go to line</string>
+    <string name="editor_goto_line_hint">Line number</string>
     <string name="pref_app_icon">App icon</string>
     <string name="pref_app_icon_desc">Choose an app icon from several ready-made designs</string>
     <string name="icon_name_hellish">Icon Hellish</string>

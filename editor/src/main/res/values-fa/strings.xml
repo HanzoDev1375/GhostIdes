@@ -70,4 +70,21 @@
   <string name="dependency_update_catalog_hint">نسخه توی libs.versions.toml تعریف شده — آپدیت همونجا نوشته میشه</string>
   <string name="dependency_update_catalog_done">libs.versions.toml آپدیت شد</string>
   <string name="dependency_update_catalog_failed">libs.versions.toml قابل آپدیت نبود</string>
+  <string name="editor_more">بیشتر</string>
+  <string name="editor_indent">تورفتگی</string>
+  <string name="editor_unindent">پس‌گرد</string>
+  <string name="editor_duplicate_line">تکراری کردن خط</string>
+  <string name="editor_select_current_word">انتخاب کلمه فعلی</string>
+  <string name="editor_toggle_comment">کامنت/آن\u200Cکامنت</string>
+  <string name="whitespace_dialog_title">کاراکترهای فاصله</string>
+  <string name="whitespace_dialog_ok">تأیید</string>
+  <string-array name="whitespace_flag_labels">
+    <item>فاصله در ابتدای خط</item>
+    <item>فاصله در وسط خط</item>
+    <item>فاصله در انتهای خط</item>
+    <item>خط خالی</item>
+    <item>جداکننده خط</item>
+    <item>فاصله در محدوده انتخاب</item>
+    <item>تب به\u200Cصورت فاصله</item>
+  </string-array>
 </resources>

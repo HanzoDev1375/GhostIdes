@@ -2,6 +2,7 @@ package ir.hanzodev1375.ghostide.customui;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.Layout;
 import android.text.SpannableString;
 import androidx.core.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -24,9 +25,11 @@ public class TabCustomView extends LinearLayout
   private TabModel currentModel;
   private boolean showTabIcon = false;
   private boolean gitChanged = false;
-  private final int normalTitleColor;
   private final int gitModifiedTitleColor;
   private boolean hasStar;
+  private String lastShownTitle;
+  private boolean lastShownHasError;
+  private WavyUnderlineSpan errorSpan;
 
   public TabCustomView(Context context) {
     super(context);
@@ -35,8 +38,8 @@ public class TabCustomView extends LinearLayout
     if (binding != null) {
       addView(binding.getRoot());
     }
-    normalTitleColor = binding.tabTitle.getCurrentTextColor();
     gitModifiedTitleColor = ContextCompat.getColor(context, R.color.tab_git_modified);
+    binding.tabTitle.setBreakStrategy(Layout.BREAK_STRATEGY_HIGH_QUALITY);
     setting = new PreferencesUtils(getContext());
     showTabIcon = setting.getShowIconTab();
     setting.getDefaultPreferences().registerOnSharedPreferenceChangeListener(this);
@@ -50,6 +53,7 @@ public class TabCustomView extends LinearLayout
   public void bind(TabModel tabModel) {
     this.currentModel = tabModel;
     this.hasStar = tabModel.getHasStar();
+    binding.tabTitle.setText(tabModel.getFileName());
     updateTitleText();
     binding.tabPinIcon.setVisibility(tabModel.isPinned() ? View.VISIBLE : View.GONE);
 
@@ -79,7 +83,7 @@ public class TabCustomView extends LinearLayout
 
   private void updateGitTextColor() {
     if (binding == null || binding.tabTitle == null) return;
-    binding.tabTitle.setTextColor(gitChanged ? gitModifiedTitleColor : normalTitleColor);
+    binding.tabTitle.setTextColor(gitChanged ? gitModifiedTitleColor : binding.tabTitle.getCurrentTextColor());
   }
 
   @Override
@@ -111,9 +115,6 @@ public class TabCustomView extends LinearLayout
   }
 
   private void updateTitleText() {
-    if (binding == null || binding.tabTitle == null || currentModel == null) return;
-    String displayName = hasStar ? "*" + currentModel.getFileName() : currentModel.getFileName();
-    binding.tabTitle.setText(displayName);
     applyErrorSpan();
   }
 
@@ -127,13 +128,20 @@ public class TabCustomView extends LinearLayout
   private void applyErrorSpan() {
     if (binding == null || binding.tabTitle == null || currentModel == null) return;
     boolean hasError = currentModel.getHasError();
-    String text = binding.tabTitle.getText().toString();
-    SpannableString spannable = new SpannableString(text);
-    if (hasError) {
-      WavyUnderlineSpan waveSpan = new WavyUnderlineSpan(WavyUnderlineSpan.StatosMod.ERROR);
-      waveSpan.setEnabled(true);
-      spannable.setSpan(waveSpan, 0, text.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+    String text = currentModel.getFileName();
+    if (hasError == lastShownHasError && text.equals(lastShownTitle)) return;
+    lastShownHasError = hasError;
+    lastShownTitle = text;
+    if (!hasError) {
+      binding.tabTitle.setText(text);
+      return;
     }
+    if (errorSpan == null) {
+      errorSpan = new WavyUnderlineSpan(WavyUnderlineSpan.StatosMod.ERROR);
+      errorSpan.setEnabled(true);
+    }
+    SpannableString spannable = new SpannableString(text);
+    spannable.setSpan(errorSpan, 0, text.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
     binding.tabTitle.setText(spannable);
   }
 }

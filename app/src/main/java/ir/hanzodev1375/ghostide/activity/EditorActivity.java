@@ -4,8 +4,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Rect;
+import android.app.AlertDialog;
+import android.text.InputType;
+import android.widget.FrameLayout;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.LiquidGlassDialogBuilderJava;
 import ir.hanzodev1375.ghostide.plugin.gpl.GplManifest;
 import ir.hanzodev1375.ghostide.utils.ObjectUtil;
+import ir.hanzodev1375.ghostide.utils.EditorGlassMenu;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import ir.theme.M3Theme;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,7 +37,6 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.skydoves.powermenu.PowerMenuItem;
 import com.blankj.utilcode.util.FileIOUtils;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.lsp.editor.LspEditorStatus;
@@ -484,6 +491,55 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
     }
   }
 
+  /** نمایش/مخفی کردن نوار جستجو (میان‌بر Ctrl+F). */
+  public void showEditorSearch() {
+    binding.editorSearch.showAndHide();
+  }
+
+  /** دیالوگ برو به خط (میان‌بر Ctrl+G) با ایجپوت شماره خط. */
+  public void showGotoLineDialog() {
+    if (adapter == null) return;
+    int currentPos = binding.viewPager.getCurrentItem();
+    Fragment current = adapter.getFragmentAtPosition(currentPos, this);
+    if (!(current instanceof EditorFragment)) return;
+
+    float density = getResources().getDisplayMetrics().density;
+    TextInputLayout inputLayout = new TextInputLayout(this);
+    inputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+    inputLayout.setHint(getString(R.string.editor_goto_line_hint));
+    TextInputEditText input = new TextInputEditText(this);
+    input.setInputType(InputType.TYPE_CLASS_NUMBER);
+    M3Theme.textInputLayout(inputLayout);
+    M3Theme.text(input);
+    inputLayout.addView(input);
+
+    FrameLayout wrap = new FrameLayout(this);
+    int pad = (int) (16 * density);
+    wrap.setPadding(pad, pad, pad, pad);
+    wrap.addView(
+        inputLayout,
+        new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+
+    new LiquidGlassDialogBuilderJava(this)
+        .setTitle(R.string.editor_goto_line)
+        .setView(wrap)
+        .setNegativeButton(android.R.string.cancel, null)
+        .setPositiveButton(
+            android.R.string.ok,
+            (dialog, which) -> {
+              String value = input.getText().toString().trim();
+              if (!value.isEmpty()) {
+                try {
+                  int line = Integer.parseInt(value);
+                  ((EditorFragment) current).jumpToLocation(line - 1, 0);
+                } catch (NumberFormatException ignored) {
+                }
+              }
+            })
+        .show();
+  }
+
   private void handleIncomingIntent(Intent intent) {
     if (intent == null) return;
     String directPath = intent.getStringExtra("open_file_direct");
@@ -768,8 +824,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
                     if (!ownerPanels.isEmpty()) {
                       var panel = ownerPanels.get(0);
                       Log.d(
-                          "EditorActivity",
-                          "    -> matched EditorPanel(owner): " + panel.getId());
+                          "EditorActivity", "    -> matched EditorPanel(owner): " + panel.getId());
                       return Optional.of(
                           new PluginPopupAdapter.PluginItem(
                               panel.getId(), panel.getTitle(), f, manifest));
@@ -858,8 +913,7 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
 
               var ownerScreens = PluginPopupAdapter.screensOf(ownerId);
               if (!ownerScreens.isEmpty()) {
-                startActivity(
-                    PluginScreenActivity.createIntent(this, ownerScreens.get(0).getId()));
+                startActivity(PluginScreenActivity.createIntent(this, ownerScreens.get(0).getId()));
                 return;
               }
 
@@ -1060,19 +1114,26 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
         if (layoutTab != null && layoutTab.getCustomView() instanceof TabCustomView) {
           ((TabCustomView) layoutTab.getCustomView()).setHasErrors(hasError);
         }
+        if (binding.splitPaneRoot != null) {
+          binding.splitPaneRoot.notifyTabError(filePath, hasError);
+        }
         return;
       }
     }
   }
 
   void setupMenuCalltoAction(View v) {
-    var menu = theme.apply(this);
-    menu.addItem(new PowerMenuItem(getString(R.string.saveitemthis), false, R.drawable.save));
-    menu.addItem(new PowerMenuItem(getString(R.string.saveitemall), false, R.drawable.save));
-    menu.addItem(
-        new PowerMenuItem(getString(R.string.webcolor), false, R.drawable.outline_color_lens));
-    menu.setOnMenuItemClickListener(
-        (pos, c) -> {
+    List<EditorGlassMenu.GlassMenuItem> items = new ArrayList<>();
+    items.add(new EditorGlassMenu.GlassMenuItem(getString(R.string.saveitemthis), R.drawable.save));
+    items.add(new EditorGlassMenu.GlassMenuItem(getString(R.string.saveitemall), R.drawable.save));
+    items.add(
+        new EditorGlassMenu.GlassMenuItem(
+            getString(R.string.webcolor), R.drawable.outline_color_lens));
+    EditorGlassMenu.showGlassMenu(
+        this,
+        v,
+        items,
+        (pos, title) -> {
           switch (pos) {
             case 0 -> saveCurrentTab();
             case 1 -> saveAllTabs();
@@ -1082,8 +1143,6 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
             }
           }
         });
-    menu.setIconSize(25);
-    menu.showAsDropDown(v);
   }
 
   private void toggleOrShowSplitPopup(View anchor) {
@@ -1499,21 +1558,23 @@ public class EditorActivity extends BaseCompat implements FileRenameNotifier.Lis
   }
 
   private void showPopupMenu(View anchor, int position) {
-    var menu = theme.apply(this);
-    menu.addItem(new PowerMenuItem(getString(R.string.close)));
-    menu.addItem(new PowerMenuItem(getString(R.string.closeother)));
-    menu.addItem(new PowerMenuItem(getString(R.string.closeall)));
-    menu.addItem(new PowerMenuItem(getString(R.string.pin)));
-    menu.setOnMenuItemClickListener(
-        (c, pos) -> {
-          switch (c) {
+    List<EditorGlassMenu.GlassMenuItem> items = new ArrayList<>();
+    items.add(new EditorGlassMenu.GlassMenuItem(getString(R.string.close)));
+    items.add(new EditorGlassMenu.GlassMenuItem(getString(R.string.closeother)));
+    items.add(new EditorGlassMenu.GlassMenuItem(getString(R.string.closeall)));
+    items.add(new EditorGlassMenu.GlassMenuItem(getString(R.string.pin)));
+    EditorGlassMenu.showGlassMenu(
+        this,
+        anchor,
+        items,
+        (pos, title) -> {
+          switch (pos) {
             case 0 -> closeTab(position);
             case 1 -> closeOtherTabs(position);
             case 2 -> closeAllTabs();
             case 3 -> togglePin(position);
           }
         });
-    menu.showAsDropDown(anchor);
   }
 
   @Override

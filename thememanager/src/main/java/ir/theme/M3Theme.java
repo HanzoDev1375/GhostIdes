@@ -52,6 +52,8 @@ public final class M3Theme {
   /** Live-override theme used while a theme transition animation is running. */
   private static volatile GhostTheme previewTheme;
 
+  private static volatile EditorTheme preViewEditor;
+
   /** View tag marking an image that must never be tinted (e.g. real background media). */
   public static final String TAG_SKIP_TINT = "m3_skip_tint";
 
@@ -1198,7 +1200,7 @@ public final class M3Theme {
     return g.getMaterial3();
   }
 
-  private static WidgetTheme widget() {
+  public static WidgetTheme widget() {
     GhostTheme g = theme();
     if (g == null) {
       return null;
@@ -1206,7 +1208,8 @@ public final class M3Theme {
     return g.getWidget();
   }
 
-  private static GhostTheme theme() {
+
+  public static GhostTheme theme() {
     GhostTheme preview = previewTheme;
     if (preview != null) {
       return preview;

@@ -7,7 +7,6 @@ import android.view.View;
 
 import android.view.ViewGroup;
 import com.google.android.material.transition.platform.MaterialSharedAxis;
-import com.skydoves.powermenu.MenuAnimation;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.base.EditorPopupWindow;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;

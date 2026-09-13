@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
+import ir.hanzodev1375.components.sheet.customitemsheet.ui.DialogCompat;
+import ir.hanzodev1375.ghostide.codeeditors.R;
 import io.github.rosemoe.sora.widget.component.EditorDiagnosticTooltipWindow;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.listener.GhostLspStatusListener;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.LspInitParamsHook;
@@ -18,9 +20,11 @@ import io.github.rosemoe.sora.lang.styling.inlayHint.InlayHintsContainer;
 import io.github.rosemoe.sora.lsp.editor.LspEditor;
 import io.github.rosemoe.sora.lsp.editor.LspEditorStatus;
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion;
+import io.github.rosemoe.sora.widget.component.EditorContextMenuCreator;
 import io.github.rosemoe.sora.widget.component.EditorTextActionWindow;
 import io.github.rosemoe.sora.widget.component.Magnifier;
 import io.github.rosemoe.sora.widget.CodeEditor;
+import ir.hanzodev1375.ghostide.codeeditors.ui.EditorContextMenu;
 import ir.hanzodev1375.ghostide.codeeditors.colorrender.WebColorIde;
 import ir.hanzodev1375.ghostide.codeeditors.langs.lsp.LspRouter;
 import ir.hanzodev1375.ghostide.codeeditors.preview.ImagePreviewIde;
@@ -41,7 +45,18 @@ import ir.hanzodev1375.ghostide.codeeditors.ui.power.custom.CustomEffect;
 import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
+import android.graphics.Paint;
+import android.view.KeyEvent;
+import io.github.rosemoe.sora.event.DoubleClickEvent;
+import io.github.rosemoe.sora.event.EditorKeyEvent;
+import io.github.rosemoe.sora.event.InterceptTarget;
+import io.github.rosemoe.sora.widget.style.LineNumberTipTextProvider;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class IdeEditor extends CodeEditor
     implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -60,6 +75,67 @@ public class IdeEditor extends CodeEditor
   private volatile LspEditor lspEditor;
   @Nullable private GhostLspStatusListener lspStatusListener;
   private GhostTextCompletionManager ghostCompletionManager;
+  private Runnable onSaveRequest;
+  private Runnable onSearchRequest;
+  private Runnable onGotoLineRequest;
+
+  /** پیشوند کامنت تک خطی برای زبان ای شناخته شده، کلیدش پسوند فایل است (بدون نقطه). */
+  private static final Map<String, String> COMMENT_PREFIX_BY_EXTENSION = new HashMap<>();
+
+  static {
+    COMMENT_PREFIX_BY_EXTENSION.put("java", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("kt", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("kts", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("groovy", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("gradle", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("c", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("h", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("cpp", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("hpp", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("cc", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("swift", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("go", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("rs", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("js", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("ts", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("dart", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("scala", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("cs", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("php", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("sh", "#");
+    COMMENT_PREFIX_BY_EXTENSION.put("bash", "#");
+    COMMENT_PREFIX_BY_EXTENSION.put("py", "#");
+    COMMENT_PREFIX_BY_EXTENSION.put("rb", "#");
+    COMMENT_PREFIX_BY_EXTENSION.put("pl", "#");
+    COMMENT_PREFIX_BY_EXTENSION.put("yaml", "#");
+    COMMENT_PREFIX_BY_EXTENSION.put("yml", "#");
+    COMMENT_PREFIX_BY_EXTENSION.put("ini", ";");
+    COMMENT_PREFIX_BY_EXTENSION.put("cfg", ";");
+    COMMENT_PREFIX_BY_EXTENSION.put("toml", "#");
+    COMMENT_PREFIX_BY_EXTENSION.put("sql", "--");
+    COMMENT_PREFIX_BY_EXTENSION.put("lua", "--");
+    COMMENT_PREFIX_BY_EXTENSION.put("xml", "<!--");
+    COMMENT_PREFIX_BY_EXTENSION.put("html", "<!--");
+    COMMENT_PREFIX_BY_EXTENSION.put("htm", "<!--");
+    COMMENT_PREFIX_BY_EXTENSION.put("css", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("less", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("scss", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("json", "//");
+    COMMENT_PREFIX_BY_EXTENSION.put("md", "#");
+    COMMENT_PREFIX_BY_EXTENSION.put("properties", "#");
+  }
+
+  public void setOnSaveRequest(Runnable r) {
+    onSaveRequest = r;
+  }
+
+  public void setOnSearchRequest(Runnable r) {
+    onSearchRequest = r;
+  }
+
+  public void setOnGotoLineRequest(Runnable r) {
+    onGotoLineRequest = r;
+  }
 
   public IdeEditor(Context context) {
     super(context);
@@ -95,6 +171,7 @@ public class IdeEditor extends CodeEditor
     editorAutoCompletion.setAdapter(new CustomEditorCompletionAdapter());
     replaceComponent(EditorAutoCompletion.class, editorAutoCompletion);
     replaceComponent(EditorTextActionWindow.class, new CustomEditorTextActionWindow(this));
+    replaceComponent(EditorContextMenuCreator.class, new EditorContextMenu(this));
     getComponent(EditorAutoCompletion.class)
         .setEnabledAnimation(setting.enableAutoCompleteWindowAnimation());
     getComponent(EditorDiagnosticTooltipWindow.class).setLayout(new GhostDiagnosticTooltipLayout());
@@ -111,13 +188,25 @@ public class IdeEditor extends CodeEditor
     updateEditorHighlightBracketPair();
     updateEditorLineSpacing();
     updateEditorCursorBlinkPeriod();
-    updateEditorNonPrintablePaintingFlags();
+    applyNonPrintablePaintingFlags();
     updateEditorFontLigatures();
     updateEditorPinLineNumber();
     updateEditorMiniMap();
     updateEditorTypeFace();
     editorBinder();
     updateEditorPowerMode();
+    updateEditorBlockLine();
+    setCursorAnimationEnabled(true);
+    setStickyTextSelection(true);
+    setFirstLineNumberAlwaysVisible(true);
+    setLineNumberAlign(Paint.Align.RIGHT);
+    setLineNumberTipTextProvider(
+        new LineNumberTipTextProvider() {
+          @Override
+          public String getCurrentText(CodeEditor editor) {
+            return String.valueOf(editor.getCursor().getLeftLine() + 1);
+          }
+        });
     subscribeEvent(
         ContentChangeEvent.class,
         (ev, un) -> {
@@ -131,6 +220,38 @@ public class IdeEditor extends CodeEditor
           if (mPowerModeEffectManager != null) {
             mPowerModeEffectManager.onEditorScrolled(
                 ev.getStartX(), ev.getStartY(), ev.getEndX(), ev.getEndY());
+          }
+        });
+    subscribeEvent(DoubleClickEvent.class, (ev, un) -> selectWord(ev.getLine(), ev.getColumn()));
+    subscribeEvent(
+        EditorKeyEvent.class,
+        (ev, un) -> {
+          if (ev.getEventType() != EditorKeyEvent.Type.DOWN || !ev.isCtrlPressed()) {
+            return;
+          }
+          switch (ev.getKeyCode()) {
+            case KeyEvent.KEYCODE_S:
+              if (onSaveRequest != null) {
+                onSaveRequest.run();
+                ev.intercept(InterceptTarget.TARGET_EDITOR);
+              }
+              break;
+            case KeyEvent.KEYCODE_F:
+              if (onSearchRequest != null) {
+                onSearchRequest.run();
+                ev.intercept(InterceptTarget.TARGET_EDITOR);
+              }
+              break;
+            case KeyEvent.KEYCODE_G:
+              if (onGotoLineRequest != null) {
+                onGotoLineRequest.run();
+                ev.intercept(InterceptTarget.TARGET_EDITOR);
+              }
+              break;
+            case KeyEvent.KEYCODE_SLASH:
+              toggleCommentForCurrentLine();
+              ev.intercept(InterceptTarget.TARGET_EDITOR);
+              break;
           }
         });
   }
@@ -160,9 +281,99 @@ public class IdeEditor extends CodeEditor
 
   public void setCutLine() {
     this.cutLine();
-    // duplicateLine()
-    // selectCurrentWord()
+  }
 
+  public void setDuplicateLine() {
+    if (getCursor().isSelected()) {
+      duplicateSelection();
+    } else {
+      duplicateLine();
+    }
+  }
+
+  public void setSelectCurrentWord() {
+    selectCurrentWord();
+  }
+
+  /** بر اساس تنظیم، هایلایت بلوک/خط فعلی و بلاکلاین کنار خط را روشن/خاموش میکند. */
+  public void updateEditorBlockLine() {
+    boolean enabled = setting.enableBlockLine();
+    setHighlightCurrentBlock(enabled);
+    setBlockLineEnabled(enabled);
+    //setBlockLineWidth(3.0f);
+  }
+
+  /** رفتن به خط مشخص (شماره خط از ۱ شروع میشود ولی داخل سورا صفر-مبناست). */
+  public void gotoLine(int lineNumber) {
+    int target = Math.max(1, lineNumber);
+    int lineCount = getText().getLineCount();
+    if (target > lineCount) {
+      target = lineCount;
+    }
+    jumpToLine(target - 1);
+    requestFocus();
+    ensureSelectionVisible();
+  }
+
+  /** پیشوند کامنت تک خطی بر اساس پسوند فایل فعلی؛ پیشفرض // */
+  private String getCommentPrefix() {
+    if (currentFilePath != null) {
+      int dot = currentFilePath.lastIndexOf('.');
+      if (dot >= 0 && dot + 1 < currentFilePath.length()) {
+        String ext = currentFilePath.substring(dot + 1).toLowerCase(Locale.ROOT);
+        String prefix = COMMENT_PREFIX_BY_EXTENSION.get(ext);
+        if (prefix != null) {
+          return prefix;
+        }
+      }
+    }
+    return "//";
+  }
+
+  /** کامنت/آنکامنت کردن خط فعلی یا همه خطوط انتخابشده. */
+  public void toggleCommentForCurrentLine() {
+    String prefix = getCommentPrefix();
+    var cursor = getCursor();
+    int startLine = cursor.getLeftLine();
+    int endLine = cursor.getRightLine();
+    var text = getText();
+    boolean allCommented = true;
+    for (int l = startLine; l <= endLine; l++) {
+      String line = text.getLine(l).toString();
+      if (!line.trim().isEmpty() && !line.trim().startsWith(prefix)) {
+        allCommented = false;
+        break;
+      }
+    }
+    StringBuilder sb = new StringBuilder();
+    for (int l = startLine; l <= endLine; l++) {
+      String line = text.getLine(l).toString();
+      if (allCommented) {
+        int idx = line.indexOf(prefix);
+        if (idx >= 0) {
+          sb.append(line, 0, idx).append(line.substring(idx + prefix.length()));
+        } else {
+          sb.append(line);
+        }
+      } else if (!line.trim().isEmpty()) {
+        int lead = 0;
+        while (lead < line.length() && Character.isWhitespace(line.charAt(lead))) {
+          lead++;
+        }
+        sb.append(line, 0, lead).append(prefix).append(line.substring(lead));
+      } else {
+        sb.append(line);
+      }
+      if (l != endLine) {
+        sb.append('\n');
+      }
+    }
+    text.beginBatchEdit();
+    try {
+      text.replace(startLine, 0, endLine, text.getLine(endLine).length(), sb);
+    } finally {
+      text.endBatchEdit();
+    }
   }
 
   public void setCurrentFilePath(String htmlFilePath) {
@@ -410,7 +621,7 @@ public class IdeEditor extends CodeEditor
     getProps().useICULibToSelectWords = enabled;
   }
 
-  private void updateEditorNonPrintablePaintingFlags() {
+  private void applyNonPrintablePaintingFlags() {
     var flags =
         applyNonPrintableFlags(
             setting.flagLeading(),
@@ -418,9 +629,46 @@ public class IdeEditor extends CodeEditor
             setting.flagTrailing(),
             setting.flagEmptyLine(),
             setting.flagLineBreaks(),
-            true,
-            false);
+            setting.flagInSelection(),
+            setting.flagTabSameAsSpace());
     setNonPrintablePaintingFlags(flags);
+  }
+
+  public void updateEditorNonPrintablePaintingFlags() {
+    showNonPrintableFlagsDialog(getContext(), setting, this::applyNonPrintablePaintingFlags);
+  }
+
+  public static void showNonPrintableFlagsDialog(
+      Context context, PreferencesUtils prefs, Runnable onApplied) {
+    boolean[] checked = {
+      prefs.flagLeading(),
+      prefs.flagInner(),
+      prefs.flagTrailing(),
+      prefs.flagEmptyLine(),
+      prefs.flagLineBreaks(),
+      prefs.flagInSelection(),
+      prefs.flagTabSameAsSpace()
+    };
+    boolean[] selection = checked.clone();
+    String[] codes = {"2", "1", "3", "4", "5", "6", "7"};
+    new DialogCompat(context)
+        .setTitle(R.string.whitespace_dialog_title)
+        .setMultiChoiceItems(
+            context.getResources().getStringArray(R.array.whitespace_flag_labels),
+            selection,
+            (dialog, which, isChecked) -> selection[which] = isChecked)
+        .setPositiveButton(
+            R.string.whitespace_dialog_ok,
+            (dialog, which) -> {
+              Set<String> flags = new HashSet<>();
+              for (int i = 0; i < selection.length; i++) {
+                if (selection[i]) flags.add(codes[i]);
+              }
+              prefs.setNonPrintableFlags(flags);
+              if (onApplied != null) onApplied.run();
+            })
+        .setNegativeButton(R.string.lsp_cancel, null)
+        .show();
   }
 
   public int applyNonPrintableFlags(
@@ -484,7 +732,7 @@ public class IdeEditor extends CodeEditor
         updateEditorCursorBlinkPeriod();
         break;
       case Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_NP_PAINT_FLAGS:
-        updateEditorNonPrintablePaintingFlags();
+        applyNonPrintablePaintingFlags();
         break;
       case Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_FONT_LIAGTURES:
         updateEditorFontLigatures();
@@ -504,6 +752,9 @@ public class IdeEditor extends CodeEditor
       case Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_POWER_MODE_EFFECT:
         updateEditorPowerModeEffectType();
         break;
+      case Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_BLOCK_LINE:
+        updateEditorBlockLine();
+        break;
       case Constants.SharedPreferenceKeys.KEY_CODE_EDITOR_GHOST_TEXT:
         if (ghostCompletionManager != null) {
           ghostCompletionManager.setEnabled(setting.enableGhostTextCompletion());
@@ -522,7 +773,18 @@ public class IdeEditor extends CodeEditor
   }
 
   @Override
+  protected void onAttachedToWindow() {
+    super.onAttachedToWindow();
+    if (setting != null) {
+      setting.getDefaultPreferences().registerOnSharedPreferenceChangeListener(this);
+    }
+  }
+
+  @Override
   protected void onDetachedFromWindow() {
+    if (setting != null) {
+      setting.getDefaultPreferences().unregisterOnSharedPreferenceChangeListener(this);
+    }
     super.onDetachedFromWindow();
     if (mPowerModeEffectManager != null) {
       mPowerModeEffectManager.clearEffects();

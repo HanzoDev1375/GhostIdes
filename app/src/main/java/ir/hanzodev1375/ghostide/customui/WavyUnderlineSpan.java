@@ -4,15 +4,26 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.text.style.ReplacementSpan;
+import android.text.style.LineBackgroundSpan;
 
-public class WavyUnderlineSpan extends ReplacementSpan {
+public class WavyUnderlineSpan implements LineBackgroundSpan {
+
+  private static final int MAX_SEGMENTS = 48;
 
   private boolean enabled;
   private int colorText = Color.RED;
   private float amplitude = 3f;
   private float halfWaveLength = 5f;
   private StatosMod mod = StatosMod.DEFAULT;
+
+  private final Paint wavePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+  private final Path wavePath = new Path();
+  private int lastRenderedColor = Integer.MIN_VALUE;
+  private int cachedLeft = Integer.MIN_VALUE;
+  private int cachedRight = Integer.MIN_VALUE;
+  private float cachedWaveY = Float.MIN_VALUE;
+  private float cachedHalfWaveLength = Float.MIN_VALUE;
+  private float cachedAmplitude = Float.MIN_VALUE;
 
   public enum StatosMod {
     ERROR(0),
@@ -55,6 +66,9 @@ public class WavyUnderlineSpan extends ReplacementSpan {
         colorText = Color.WHITE;
         break;
     }
+    wavePaint.setStyle(Paint.Style.STROKE);
+    wavePaint.setStrokeWidth(2f);
+    wavePaint.setAntiAlias(true);
   }
 
   public void setEnabled(boolean enabled) {
@@ -75,43 +89,58 @@ public class WavyUnderlineSpan extends ReplacementSpan {
   }
 
   @Override
-  public int getSize(Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
-    return Math.round(paint.measureText(text, start, end));
-  }
-
-  @Override
-  public void draw(
+  public void drawBackground(
       Canvas canvas,
+      Paint paint,
+      int left,
+      int right,
+      int top,
+      int baseline,
+      int bottom,
       CharSequence text,
       int start,
       int end,
-      float x,
-      int top,
-      int y,
-      int bottom,
-      Paint paint) {
+      int lnum) {
 
-    canvas.drawText(text, start, end, x, y, paint);
-    if (!enabled) return;
+    if (!enabled || end <= start) return;
+    int width = right - left;
+    if (width <= 0 || amplitude <= 0 || halfWaveLength <= 1f) return;
 
-    float textWidth = paint.measureText(text, start, end);
-    float waveY = y + 4;
-
-    Paint wavePaint = new Paint(paint);
-    wavePaint.setColor(colorText);
-    wavePaint.setStyle(Paint.Style.STROKE);
-    wavePaint.setStrokeWidth(2f);
-    wavePaint.setAntiAlias(true);
-
-    Path path = new Path();
-    path.moveTo(x, waveY);
-
-    for (float dx = x; dx <= x + textWidth; dx += 2 * halfWaveLength) {
-      path.rQuadTo(halfWaveLength, -amplitude, 2 * halfWaveLength, 0);
-      path.rQuadTo(halfWaveLength, amplitude, 2 * halfWaveLength, 0);
+    if (lastRenderedColor != colorText) {
+      lastRenderedColor = colorText;
+      wavePaint.setColor(colorText);
     }
 
-    canvas.drawPath(path, wavePaint);
+    float waveY = bottom - 2f;
+
+    if (cachedLeft != left
+        || cachedRight != right
+        || cachedWaveY != waveY
+        || cachedHalfWaveLength != halfWaveLength
+        || cachedAmplitude != amplitude) {
+      buildWavePath(left, width, waveY);
+      cachedLeft = left;
+      cachedRight = right;
+      cachedWaveY = waveY;
+      cachedHalfWaveLength = halfWaveLength;
+      cachedAmplitude = amplitude;
+    }
+
+    canvas.drawPath(wavePath, wavePaint);
+  }
+
+  private void buildWavePath(int left, int width, float waveY) {
+    int cycles = (int) Math.ceil(width / (4f * halfWaveLength));
+    if (cycles > MAX_SEGMENTS) {
+      cycles = MAX_SEGMENTS;
+    }
+
+    wavePath.rewind();
+    wavePath.moveTo(left, waveY);
+    for (int i = 0; i < cycles; i++) {
+      wavePath.rQuadTo(halfWaveLength, -amplitude, 2 * halfWaveLength, 0);
+      wavePath.rQuadTo(halfWaveLength, amplitude, 2 * halfWaveLength, 0);
+    }
   }
 
   public float getAmplitude() {

@@ -36,6 +36,9 @@ public class GhostColorScheme extends EditorColorScheme {
     setColor(BRACKET6, Color.parseColor("#64FFD0"));
     setColor(DEPENDENCY_UPDATE_AVAILABLE, Color.parseColor("#FFC107"));
     setColor(DEPENDENCY_UPDATE_AVAILABLE_BG, Color.parseColor("#33FFC107"));
+    setColor(BLOCK_LINE, Color.parseColor("#26FFFFFF"));
+    setColor(BLOCK_LINE_CURRENT, Color.parseColor("#33FFFFFF"));
+    setColor(SIDE_BLOCK_LINE, Color.parseColor("#66E0E0E0"));
   }
 
   @Override

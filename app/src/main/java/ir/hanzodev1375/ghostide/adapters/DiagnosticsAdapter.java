@@ -1,4 +1,4 @@
-package ir.hanzodev1375.ghostide.editorlangs;
+package ir.hanzodev1375.ghostide.adapters;
 
 import android.graphics.Color;
 import android.graphics.PorterDuff;
